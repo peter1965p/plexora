@@ -3,6 +3,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@pinia/nuxt"],
   css: ["~/assets/css/main.css"],
+  nitro: {
+    preset: "cloudflare-pages",
+  },
   app: {
     head: {
       link: [
@@ -19,13 +22,13 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
-    awsAccessKeyId: process.env.NUXT_AWS_ACCESS_KEY_ID,
-    awsSecretAccessKey: process.env.NUXT_AWS_SECRET_ACCESS_KEY,
-    awsRegion: process.env.NUXT_AWS_REGION,
+    awsAccessKeyId: "",
+    awsSecretAccessKey: "",
+    awsRegion: "",
     public: {
-      awsRegion: process.env.NUXT_PUBLIC_AWS_REGION,
-      awsUserPoolId: process.env.NUXT_PUBLIC_AWS_USER_POOL_ID,
-      awsClientId: process.env.NUXT_PUBLIC_AWS_CLIENT_ID,
+      awsRegion: "",
+      awsUserPoolId: "",
+      awsClientId: "",
     },
   },
   vite: {
