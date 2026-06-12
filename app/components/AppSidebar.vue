@@ -2,7 +2,7 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon"><i class="ti ti-bolt"></i></div>
-      <div class="logo-text">Plexo<span>ra</span></div>
+      <div class="logo-text">{{ brandFirst }}<span>{{ brandLast }}</span></div>
     </div>
 
     <nav class="sidebar-nav">
@@ -25,6 +25,10 @@
 </template>
 
 <script setup lang="ts">
+const { branding, loadBranding } = useBranding()
+const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
+const brandLast  = computed(() => branding.value.brandName.slice(-1))
+onMounted(() => loadBranding())
 const route = useRoute()
 
 const { data } = await useFetch('/api/support')

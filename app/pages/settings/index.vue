@@ -1,6 +1,49 @@
 <template>
   <div class="page">
 
+    <!-- BRANDING -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>Branding</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="brandSaving" @click="saveBranding">
+          <span v-if="brandSaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
+      </div>
+      <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="auth-field">
+            <label>Produktname</label>
+            <input v-model="brand.brandName" placeholder="Plexora" @input="updatePreview" />
+          </div>
+          <div class="auth-field">
+            <label>Tagline (Landing Page)</label>
+            <input v-model="brand.brandTagline" placeholder="Business Platform" />
+          </div>
+          <div class="auth-field">
+            <label>Kundenportal Titel</label>
+            <input v-model="brand.portalTitle" placeholder="Kundenportal" />
+          </div>
+        </div>
+        <!-- LIVE PREVIEW -->
+        <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">Vorschau</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em">
+              {{ brandFirst }}<span style="color:var(--accent)">{{ brandLast }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">
+                {{ brandFirst }}<span style="color:var(--accent)">{{ brandLast }}</span>
+              </span>
+              <span style="font-size:10px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.05em">{{ brand.portalTitle }}</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted)">{{ brand.brandTagline }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- APPEARANCE -->
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">
@@ -105,14 +148,14 @@
             <i class="ti ti-database" style="color:var(--accent)"></i>
             <div>
               <div style="font-size:12px;font-weight:600;color:var(--text-primary)">DynamoDB</div>
-              <div style="font-size:11px;color:var(--text-muted)">6 Tabellen aktiv</div>
+              <div style="font-size:11px;color:var(--text-muted)">7 Tabellen aktiv</div>
             </div>
           </div>
           <div class="infra-pill">
             <i class="ti ti-world" style="color:#F0B428"></i>
             <div>
               <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Cloudflare</div>
-              <div style="font-size:11px;color:var(--text-muted)">Deploy pending</div>
+              <div style="font-size:11px;color:var(--text-muted)">plexora.paeffgen-it.de</div>
             </div>
           </div>
         </div>
@@ -128,9 +171,23 @@ import { useAppStore } from '~/stores/app'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-const store     = useAppStore()
-const userName  = ref('–')
-const userEmail = ref('–')
+const store       = useAppStore()
+const userName    = ref('–')
+const userEmail   = ref('–')
+const brandSaving = ref(false)
+
+const brand = reactive({
+  brandName:    'Plexora',
+  brandTagline: 'Business Platform',
+  portalTitle:  'Kundenportal',
+})
+
+const brandFirst = computed(() => brand.brandName.slice(0, -1))
+const brandLast  = computed(() => brand.brandName.slice(-1))
+
+function updatePreview() {
+  // Live-Preview reagiert automatisch durch computed
+}
 
 onMounted(async () => {
   try {
@@ -138,5 +195,29 @@ onMounted(async () => {
     userEmail.value = user.signInDetails?.loginId || '–'
     userName.value  = user.username || '–'
   } catch {}
+
+  // Branding laden
+  try {
+    const data = await $fetch('/api/settings/branding') as any
+    if (data?.branding) {
+      Object.assign(brand, data.branding)
+    }
+  } catch {}
 })
+
+async function saveBranding() {
+  brandSaving.value = true
+  try {
+    await $fetch('/api/settings/branding', {
+      method: 'POST',
+      body: { ...brand }
+    })
+    // Global State aktualisieren
+    const { useBranding } = await import('~/composables/useBranding')
+    const { branding } = useBranding()
+    Object.assign(branding.value, brand)
+  } finally {
+    brandSaving.value = false
+  }
+}
 </script>

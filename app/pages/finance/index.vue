@@ -40,26 +40,47 @@
           <tr>
             <th>Nummer</th>
             <th>Kunde</th>
+            <th>E-Mail</th>
             <th>Betrag</th>
             <th>Fälligkeit</th>
             <th>Status</th>
+            <th style="width:100px"></th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="!invoices.length">
-            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Keine Rechnungen</td>
+            <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Keine Rechnungen</td>
           </tr>
           <tr v-for="i in invoices" :key="i.invoiceId">
             <td class="td-name">{{ i.number }}</td>
             <td>{{ i.client }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ i.clientEmail || '–' }}</td>
             <td>{{ formatEur(i.amount) }}</td>
             <td style="font-size:12px">{{ i.dueDate }}</td>
-            <td><span class="badge" :class="statusBadge(i.status)">{{ statusLabel(i.status) }}</span></td>
+            <td>
+              <span class="badge" :class="statusBadge(i.status)">{{ statusLabel(i.status) }}</span>
+              <i v-if="i.mailSent" class="ti ti-mail-check" style="color:#00D4B4;margin-left:6px;font-size:12px" title="Mail gesendet"></i>
+            </td>
+            <td>
+              <div style="display:flex;gap:4px">
+                <button class="icon-btn" title="PDF herunterladen" @click="downloadPdf(i)">
+                  <i class="ti ti-file-type-pdf"></i>
+                </button>
+                <button class="icon-btn" title="Per Mail senden" :disabled="!i.clientEmail || sending===i.invoiceId" @click="sendMail(i)" style="color:var(--accent)">
+                  <i v-if="sending===i.invoiceId" class="ti ti-loader-2 spin"></i>
+                  <i v-else class="ti ti-send"></i>
+                </button>
+                <button class="icon-btn" title="Löschen" @click="deleteInvoice(i)" style="color:var(--danger)">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- ADD MODAL -->
     <div v-if="showAdd" class="modal-overlay" @click.self="showAdd=false">
       <div class="modal-card">
         <div class="modal-header">
@@ -67,23 +88,40 @@
           <button class="icon-btn" @click="showAdd=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Kunde</label><input v-model="newInv.client" placeholder="Firma GmbH" /></div>
-          <div class="auth-field"><label>Betrag (€)</label><input v-model.number="newInv.amount" type="number" placeholder="10000" /></div>
-          <div class="auth-field"><label>Fälligkeitsdatum</label><input v-model="newInv.dueDate" type="date" /></div>
+          <div class="auth-row">
+            <div class="auth-field"><label>Kunde</label><input v-model="newInv.client" placeholder="Firma GmbH" /></div>
+            <div class="auth-field"><label>Kunden-E-Mail</label><input v-model="newInv.clientEmail" placeholder="kunde@firma.de" /></div>
+          </div>
+          <div class="auth-field"><label>Beschreibung</label><input v-model="newInv.description" placeholder="Webentwicklung Mai 2026" /></div>
+          <div class="auth-row">
+            <div class="auth-field"><label>Betrag (€ netto)</label><input v-model.number="newInv.amount" type="number" placeholder="10000" /></div>
+            <div class="auth-field"><label>Fälligkeitsdatum</label><input v-model="newInv.dueDate" type="date" /></div>
+          </div>
           <div class="auth-field">
             <label>Status</label>
-            <select v-model="newInv.status" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none">
+            <select v-model="newInv.status" class="form-select">
               <option value="pending">Ausstehend</option>
               <option value="paid">Bezahlt</option>
               <option value="overdue">Überfällig</option>
             </select>
           </div>
-          <button class="auth-btn" :disabled="saving" @click="addInvoice">
-            <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>Rechnung speichern</span>
-          </button>
+          <div style="display:flex;gap:10px">
+            <button class="auth-btn" :disabled="saving" @click="addInvoice(false)" style="flex:1">
+              <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+              <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+            </button>
+            <button class="auth-btn" :disabled="saving || !newInv.clientEmail" @click="addInvoice(true)" style="flex:1;background:var(--accent)">
+              <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+              <span v-else><i class="ti ti-send"></i> Speichern + Mail</span>
+            </button>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- SUCCESS TOAST -->
+    <div v-if="toast" class="toast-success">
+      <i class="ti ti-circle-check"></i> {{ toast }}
     </div>
 
   </div>
@@ -94,26 +132,86 @@ import { calcRevenue, calcPending, calcOverdue, formatEur, statusLabel, statusBa
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
+const userId = ref('demo-user')
+onMounted(async () => {
+  const { useAuthUser } = await import('~/composables/useAuth')
+  const u = await useAuthUser()
+  userId.value = u.userId
+})
+
 const { data, refresh } = await useFetch('/api/finance')
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
-const revenue  = computed(() => calcRevenue(invoices.value))
-const pending  = computed(() => calcPending(invoices.value))
-const overdue  = computed(() => calcOverdue(invoices.value))
+const revenue      = computed(() => calcRevenue(invoices.value))
+const pending      = computed(() => calcPending(invoices.value))
+const overdue      = computed(() => calcOverdue(invoices.value))
 const paidCount    = computed(() => invoices.value.filter((i: any) => i.status === 'paid').length)
 const pendingCount = computed(() => invoices.value.filter((i: any) => i.status === 'pending').length)
 const overdueCount = computed(() => invoices.value.filter((i: any) => i.status === 'overdue').length)
 
 const showAdd = ref(false)
 const saving  = ref(false)
-const newInv  = reactive({ client: '', amount: 0, dueDate: '', status: 'pending' })
+const sending = ref<string | null>(null)
+const toast   = ref('')
 
-async function addInvoice() {
+const newInv = reactive({
+  client: '', clientEmail: '', description: '', amount: 0, dueDate: '', status: 'pending'
+})
+
+function showToast(msg: string) {
+  toast.value = msg
+  setTimeout(() => toast.value = '', 3500)
+}
+
+async function addInvoice(sendMail: boolean) {
   saving.value = true
-  await $fetch('/api/finance', { method: 'POST', body: { ...newInv, userId: 'demo-user' } })
+  try {
+    const inv = await $fetch('/api/finance', {
+      method: 'POST',
+      body: { ...newInv, userId: userId.value }
+    }) as any
+    await refresh()
+    if (sendMail && inv.invoice?.invoiceId && newInv.clientEmail) {
+      await $fetch(`/api/finance/${inv.invoice.invoiceId}/send`, {
+        method: 'POST',
+        body: { userId: userId.value, toEmail: newInv.clientEmail }
+      })
+      showToast(`Rechnung gespeichert und an ${newInv.clientEmail} gesendet!`)
+    } else {
+      showToast('Rechnung gespeichert!')
+    }
+    showAdd.value = false
+    Object.assign(newInv, { client: '', clientEmail: '', description: '', amount: 0, dueDate: '', status: 'pending' })
+  } finally {
+    saving.value = false
+  }
+}
+
+async function sendMail(invoice: any) {
+  if (!invoice.clientEmail) return
+  sending.value = invoice.invoiceId
+  try {
+    await $fetch(`/api/finance/${invoice.invoiceId}/send`, {
+      method: 'POST',
+      body: { userId: invoice.userId || userId.value, toEmail: invoice.clientEmail }
+    })
+    await refresh()
+    showToast(`Rechnung an ${invoice.clientEmail} gesendet!`)
+  } finally {
+    sending.value = null
+  }
+}
+
+function downloadPdf(invoice: any) {
+  window.location.href = `/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId.value}`
+}
+
+async function deleteInvoice(invoice: any) {
+  if (!confirm(`Rechnung ${invoice.number} wirklich löschen?`)) return
+  await $fetch(`/api/finance/${invoice.invoiceId}`, {
+    method: 'DELETE',
+    body: { userId: invoice.userId || userId.value }
+  })
   await refresh()
-  showAdd.value = false
-  Object.assign(newInv, { client: '', amount: 0, dueDate: '', status: 'pending' })
-  saving.value = false
 }
 </script>

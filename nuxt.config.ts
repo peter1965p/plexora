@@ -24,6 +24,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     awsAccessKeyId: "",
     awsSecretAccessKey: "",
+    sesFromEmail: "",
+    sesSesRegion: "",
     awsRegion: "",
     public: {
       awsRegion: "",
