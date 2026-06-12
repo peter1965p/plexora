@@ -851,3 +851,16 @@ ul {
 .topbar-menu-item.danger { color:#E05C5C; }
 .topbar-menu-item.danger:hover { background:rgba(224,92,92,0.1); }
 .topbar-menu-divider { height:0.5px;background:var(--border);margin:4px 0; }
+
+/* ===== FORM SELECT ===== */
+.form-select {
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  width: 100%;
+  outline: none;
+}
+.form-select:focus { border-color: var(--accent); }
