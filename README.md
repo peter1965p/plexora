@@ -1,75 +1,36 @@
-# Nuxt Minimal Starter
+# Plexora — Business Platform
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+> Eine Lizenz. Alles drin.
+
+Warum 10 Tools bezahlen, wenn eines reicht? Plexora ist eine modulare 
+All-in-One Business-Plattform für KMU — CRM, Projekte, HR, Finanzen 
+und Support in einer Oberfläche.
+
+## Stack
+
+- **Frontend:** Vue 3, Nuxt 4, TypeScript, Tailwind CSS
+- **Backend:** Nuxt Server Routes, Node.js
+- **Database:** AWS DynamoDB, Supabase
+- **Auth:** JWT, Role-based Access Control
+- **Deployment:** Vercel, GitHub CI/CD
+
+## Module
+
+| Modul | Features |
+|-------|----------|
+| CRM | Kontakte, Pipelines, Deals |
+| Projekte | Kanban, Meilensteine, Team |
+| Finanzen | Rechnungen, Ausgaben, Berichte |
+| HR | Mitarbeiter, Urlaub, Dokumente |
+| Support | Tickets, Prioritäten, SLA |
 
 ## Setup
 
-Make sure to install dependencies:
-
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+## Status
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+🟢 In aktiver Entwicklung
