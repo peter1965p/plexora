@@ -214,13 +214,58 @@
     <!-- INFRASTRUKTUR -->
     <div v-if="tab === 'infra'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-cloud" style="margin-right:8px;color:var(--accent)"></i>Infrastruktur</span>
+        <span class="card-title"><i class="ti ti-cloud" style="margin-right:8px;color:var(--accent)"></i>AWS Controlcenter</span>
+        <button class="accent-btn" style="height:32px;font-size:12px" @click="loadAws" :disabled="awsLoading">
+          <i class="ti" :class="awsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> {{ awsLoading ? 'Lädt...' : 'Aktualisieren' }}
+        </button>
       </div>
       <div class="card-body">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <!-- Status Pills -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
           <div class="infra-pill"><i class="ti ti-shield-check" style="color:#00D4B4"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">AWS Cognito</div><div style="font-size:11px;color:var(--text-muted)">Auth — Frankfurt</div></div></div>
-          <div class="infra-pill"><i class="ti ti-database" style="color:var(--accent)"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">DynamoDB</div><div style="font-size:11px;color:var(--text-muted)">10 Tabellen aktiv</div></div></div>
+          <div class="infra-pill"><i class="ti ti-database" style="color:var(--accent)"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">DynamoDB</div><div style="font-size:11px;color:var(--text-muted)">{{ awsData.tables.length }} Tabellen aktiv</div></div></div>
           <div class="infra-pill"><i class="ti ti-world" style="color:#F0B428"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">Cloudflare</div><div style="font-size:11px;color:var(--text-muted)">plexora.paeffgen-it.de</div></div></div>
+        </div>
+        <!-- DynamoDB -->
+        <div style="margin-bottom:24px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-database" style="color:var(--accent);margin-right:6px"></i>DynamoDB Tabellen</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <div v-for="t in awsData.tables" :key="t.name" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
+              <div style="font-size:12px;font-weight:600;margin-bottom:4px">{{ t.name.replace('plexora-','') }}</div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--text-muted)">{{ t.itemCount }} Items</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--bg-surface);color:#00D4B4">{{ t.status }}</span>
+              </div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:4px">{{ (t.sizeBytes/1024).toFixed(1) }} KB</div>
+            </div>
+          </div>
+        </div>
+        <!-- Lambda -->
+        <div style="margin-bottom:24px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-bolt" style="color:var(--accent);margin-right:6px"></i>Lambda Functions</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+            <div v-for="f in awsData.functions" :key="f.name" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
+              <div style="font-size:12px;font-weight:600;margin-bottom:6px">{{ f.name }}</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.runtime }}</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.memory }} MB</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.timeout }}s</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ (f.codeSize/1024/1024).toFixed(1) }} MB</span>
+              </div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:6px">{{ new Date(f.lastModified).toLocaleString('de-DE') }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- Logs -->
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-terminal" style="color:var(--accent);margin-right:6px"></i>Letzte Lambda Logs</div>
+          <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:16px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto">
+            <div v-if="!awsData.logs.length" style="color:var(--text-muted)">Keine Logs — klick Aktualisieren</div>
+            <div v-for="(e,i) in awsData.logs" :key="i" style="margin-bottom:4px;line-height:1.5">
+              <span style="color:var(--text-muted)">{{ new Date(e.timestamp).toLocaleTimeString('de-DE') }}</span>
+              <span :style="`margin-left:8px;color:${e.message?.includes('ERROR') ? '#E05C5C' : e.message?.includes('REPORT') ? '#F0B428' : 'var(--text-primary)'}`">{{ e.message?.trim() }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -321,4 +366,26 @@ async function saveDunningSettings() {
     dunningSaving.value = false
   }
 }
+
+const awsLoading = ref(false)
+const awsData = reactive({ tables: [], functions: [], logs: [] })
+
+async function loadAws() {
+  awsLoading.value = true
+  try {
+    const [dynamo, lambda, logs] = await Promise.all([
+      $fetch(useApiUrl('/api/aws/dynamo')),
+      $fetch(useApiUrl('/api/aws/lambda')),
+      $fetch(useApiUrl('/api/aws/logs')),
+    ])
+    awsData.tables    = (dynamo as any).tables    || []
+    awsData.functions = (lambda as any).functions || []
+    awsData.logs      = (logs as any).events      || []
+  } catch(e) { console.error(e) }
+  awsLoading.value = false
+}
+
+onMounted(() => { if (tab.value === 'infra') loadAws() })
+watch(tab, v => { if (v === 'infra') loadAws() })
+
 </script>
