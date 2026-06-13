@@ -180,8 +180,8 @@ onMounted(async () => {
   userId.value = u.userId
 })
 
-const { data: dealsData,    refresh: refreshDeals    } = await useFetch(useApiUrl('/api/deals')
-const { data: contactsData, refresh: refreshContacts } = await useFetch(useApiUrl('/api/contacts')
+const { data: dealsData,    refresh: refreshDeals    } = await useFetch(useApiUrl('/api/deals'))
+const { data: contactsData, refresh: refreshContacts } = await useFetch(useApiUrl('/api/contacts'))
 
 const deals    = computed(() => (dealsData.value as any)?.deals    || [])
 const contacts = computed(() => (contactsData.value as any)?.contacts || [])

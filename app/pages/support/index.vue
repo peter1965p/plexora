@@ -94,7 +94,7 @@ import { priorityLabel, priorityBadge, statusLabel } from '~/modules/support'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-const { data, refresh } = await useFetch(useApiUrl('/api/support')
+const { data, refresh } = await useFetch(useApiUrl('/api/support'))
 const tickets = computed(() => (data.value as any)?.tickets || [])
 
 const openCount       = computed(() => tickets.value.filter((t: any) => t.status === 'open').length)

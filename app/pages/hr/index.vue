@@ -208,7 +208,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const tab = ref('employees')
 
 // ── Mitarbeiter ───────────────────────────────────────
-const { data, refresh } = await useFetch(useApiUrl('/api/hr')
+const { data, refresh } = await useFetch(useApiUrl('/api/hr'))
 const employees = computed(() => (data.value as any)?.employees || [])
 
 const activeCount      = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
@@ -236,7 +236,7 @@ async function addEmployee() {
 }
 
 // ── Recruiting ────────────────────────────────────────
-const { data: campData, refresh: refreshCamps } = await useFetch(useApiUrl('/api/hr/campaigns')
+const { data: campData, refresh: refreshCamps } = await useFetch(useApiUrl('/api/hr/campaigns'))
 const campaigns = computed(() => (campData.value as any)?.campaigns || [])
 
 const activeCampaigns   = computed(() => campaigns.value.filter((c: any) => c.status === 'active').length)

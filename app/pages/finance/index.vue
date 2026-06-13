@@ -143,7 +143,7 @@ onMounted(async () => {
   userId.value = u.userId
 })
 
-const { data, refresh } = await useFetch(useApiUrl('/api/finance')
+const { data, refresh } = await useFetch(useApiUrl('/api/finance'))
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
 const revenue      = computed(() => calcRevenue(invoices.value))
