@@ -277,17 +277,17 @@ onMounted(async () => {
   } catch {}
 
   try {
-    const d = await $fetch(useApiUrl('/api/settings/branding') as any
+    const d = await $fetch(useApiUrl('/api/settings/branding') as any)
     if (d?.branding) Object.assign(brand, d.branding)
   } catch {}
 
   try {
-    const d = await $fetch(useApiUrl('/api/settings/invoice') as any
+    const d = await $fetch(useApiUrl('/api/settings/invoice') as any)
     if (d?.settings) Object.assign(invoiceSettings, d.settings)
   } catch {}
 
   try {
-    const d = await $fetch(useApiUrl('/api/settings/dunning') as any
+    const d = await $fetch(useApiUrl('/api/settings/dunning') as any)
     if (d?.settings) Object.assign(dunning, d.settings)
   } catch {}
 })
