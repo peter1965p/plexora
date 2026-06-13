@@ -24,10 +24,12 @@ export default defineNuxtConfig({
   runtimeConfig: {
     awsAccessKeyId: "",
     awsSecretAccessKey: "",
+    stripeSecretKey: "",
     sesFromEmail: "",
     sesSesRegion: "",
     awsRegion: "",
     public: {
+      stripePublishableKey: "",
       awsRegion: "",
       awsUserPoolId: "",
       awsClientId: "",
