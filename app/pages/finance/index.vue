@@ -63,6 +63,10 @@
             </td>
             <td>
               <div style="display:flex;gap:4px">
+                <button v-if="canDunning(i)" class="icon-btn" :title="dunningTitle(i)" @click="sendDunning(i)" style="color:#E05C5C">
+                  <i v-if="dunning===i.invoiceId" class="ti ti-loader-2 spin"></i>
+                  <i v-else class="ti ti-alert-triangle"></i>
+                </button>
                 <button class="icon-btn" title="PDF herunterladen" @click="downloadPdf(i)">
                   <i class="ti ti-file-type-pdf"></i>
                 </button>
@@ -204,6 +208,53 @@ async function sendMail(invoice: any) {
 
 function downloadPdf(invoice: any) {
   window.location.href = `/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId.value}`
+}
+
+
+const dunning = ref<string | null>(null)
+
+function canDunning(invoice: any): boolean {
+  if (!invoice.clientEmail) return false
+  if (invoice.status === 'paid') return false
+  if (['dunning_3'].includes(invoice.status)) return false
+  return true
+}
+
+function dunningTitle(invoice: any): string {
+  const map: Record<string, string> = {
+    pending:   '1. Mahnung senden',
+    overdue:   '1. Mahnung senden',
+    dunning_1: '2. Mahnung senden',
+    dunning_2: '3. Mahnung senden',
+  }
+  return map[invoice.status] || 'Mahnung senden'
+}
+
+function dunningLevel(invoice: any): number {
+  const map: Record<string, number> = {
+    pending:   1,
+    overdue:   1,
+    dunning_1: 2,
+    dunning_2: 3,
+  }
+  return map[invoice.status] || 1
+}
+
+async function sendDunning(invoice: any) {
+  if (!confirm(`${dunningTitle(invoice)} an ${invoice.clientEmail}?`)) return
+  dunning.value = invoice.invoiceId
+  try {
+    const res = await $fetch(`/api/finance/${invoice.invoiceId}/dunning`, {
+      method: 'POST',
+      body: { level: dunningLevel(invoice), userId: invoice.userId || userId.value }
+    }) as any
+    await refresh()
+    showToast(res.message || 'Mahnung gesendet!')
+  } catch (e: any) {
+    showToast('Fehler: ' + e.message)
+  } finally {
+    dunning.value = null
+  }
 }
 
 async function deleteInvoice(invoice: any) {
