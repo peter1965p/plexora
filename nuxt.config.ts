@@ -4,7 +4,11 @@ export default defineNuxtConfig({
   modules: ["@pinia/nuxt"],
   css: ["~/assets/css/main.css"],
   nitro: {
-    preset: "aws-lambda",
+    preset: "static",
+    prerender: {
+      crawlLinks: false,
+      routes: ['/'],
+    }
   },
   app: {
     head: {
