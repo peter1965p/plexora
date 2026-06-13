@@ -42,3 +42,4 @@ export default defineNuxtConfig({
     },
   },
 });
+// bereits vorhanden - nur Build Output Directory wichtig
