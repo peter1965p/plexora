@@ -4,7 +4,6 @@
       <div class="logo-icon"><i class="ti ti-bolt"></i></div>
       <div class="logo-text">{{ brandFirst }}<span>{{ brandLast }}</span></div>
     </div>
-
     <nav class="sidebar-nav">
       <template v-for="section in navSections" :key="section.label">
         <div class="nav-section-label">{{ section.label }}</div>
@@ -29,9 +28,9 @@ const { branding, loadBranding } = useBranding()
 const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
 const brandLast  = computed(() => branding.value.brandName.slice(-1))
 onMounted(() => loadBranding())
-const route = useRoute()
 
-const { data } = await useFetch('/api/support')
+const route = useRoute()
+const { data } = await useFetch(useApiUrl('/api/support'))
 const openTickets = computed(() => {
   const tickets = (data.value as any)?.tickets || []
   return tickets.filter((t: any) => t.status === 'open' || t.status === 'in_progress').length
@@ -53,6 +52,7 @@ const navSections = [
       { to: '/finance',  label: 'Finanzen', icon: 'ti-receipt',       key: 'finance'  },
       { to: '/hr',       label: 'HR',       icon: 'ti-id-badge',      key: 'hr'       },
       { to: '/support',  label: 'Support',  icon: 'ti-headset',       key: 'support'  },
+      { to: '/shop-admin', label: 'Shop',   icon: 'ti-shopping-cart', key: 'shop'     },
     ]
   },
   {
