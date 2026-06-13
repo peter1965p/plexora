@@ -2,9 +2,10 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {
-  // TODO: userId aus JWT holen für Produktion
-  // Vorerst alle Rechnungen — später nach customerId filtern
+  const email  = getQuery(event).email as string
   const client = getDynamoClient()
   const result = await client.send(new ScanCommand({ TableName: 'plexora-finance' }))
-  return { invoices: result.Items || [] }
+  const all    = result.Items || []
+  const filtered = email ? all.filter((i: any) => i.clientEmail === email) : []
+  return { invoices: filtered }
 })

@@ -35,6 +35,6 @@ const orderLabel: Record<string, string> = {
   shipped: 'Versendet',  delivered:  'Geliefert', cancelled: 'Storniert',
 }
 
-const { data }  = await useFetch('/api/portal/orders')
+const { data }  = await usePortalFetch('/api/portal/orders')
 const orders = computed(() => (data.value as any)?.orders || [])
 </script>

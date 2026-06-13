@@ -31,7 +31,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'portal', middleware: 'auth' })
 
-const { data } = await useFetch('/api/portal/documents')
+const { data } = await usePortalFetch('/api/portal/documents')
 const documents = computed(() => (data.value as any)?.documents || [])
 
 function download(doc: any) {

@@ -34,10 +34,17 @@ import { formatEur, statusLabel, statusBadge } from '~/modules/finance'
 
 definePageMeta({ layout: 'portal', middleware: 'auth' })
 
-const { data } = await useFetch('/api/portal/invoices')
+const userEmail = ref('')
+onMounted(async () => {
+  const { useAuthUser } = await import('~/composables/useAuth')
+  const u = await useAuthUser()
+  userEmail.value = u.email
+})
+
+const { data, refresh } = usePortalFetch('/api/portal/invoices', userEmail)
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
 function downloadPdf(invoice: any) {
-  navigateTo(`/api/portal/invoices/${invoice.invoiceId}/pdf`, { external: true, open: { target: '_blank' } })
+  window.location.href = `/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId}`
 }
 </script>

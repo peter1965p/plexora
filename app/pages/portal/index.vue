@@ -82,11 +82,13 @@ import { formatEur, statusLabel, statusBadge } from '~/modules/finance'
 
 definePageMeta({ layout: 'portal', middleware: 'auth' })
 
-const userId = ref('')
+const userId = ref("")
+const userEmail = ref("")
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userId.value = u.userId
+  userEmail.value = u.email
 })
 
 const orderLabel: Record<string, string> = {
@@ -97,9 +99,9 @@ const orderLabel: Record<string, string> = {
   cancelled: 'Storniert',
 }
 
-const { data: invData }   = await useFetch('/api/portal/invoices')
-const { data: orderData } = await useFetch('/api/portal/orders')
-const { data: docData }   = await useFetch('/api/portal/documents')
+const { data: invData }   = usePortalFetch('/api/portal/invoices', userEmail)
+const { data: orderData } = await usePortalFetch('/api/portal/orders')
+const { data: docData }   = await usePortalFetch('/api/portal/documents')
 
 const invoices  = computed(() => (invData.value as any)?.invoices  || [])
 const orders    = computed(() => (orderData.value as any)?.orders   || [])
