@@ -52,7 +52,9 @@ const navSections = [
       { to: '/finance',  label: 'Finanzen', icon: 'ti-receipt',       key: 'finance'  },
       { to: '/hr',       label: 'HR',       icon: 'ti-id-badge',      key: 'hr'       },
       { to: '/support',  label: 'Support',  icon: 'ti-headset',       key: 'support'  },
-      { to: '/shop-admin', label: 'Shop',   icon: 'ti-shopping-cart', key: 'shop'     },
+      { to: '/shop-admin',    label: 'Shop',        icon: 'ti-shopping-cart', key: 'shop'        },
+      { to: '/pagebuilder',  label: 'Pagebuilder', icon: 'ti-layout-2',      key: 'pagebuilder' },
+      { to: '/forms',        label: 'Formulare',   icon: 'ti-forms',         key: 'forms'       },
     ]
   },
   {

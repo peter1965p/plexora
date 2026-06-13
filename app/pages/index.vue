@@ -2,22 +2,14 @@
   <div class="lp">
     <!-- NAV -->
     <nav class="lp-nav">
-      <div
-        class="lp-wrap"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
+      <div class="lp-wrap" style="display:flex;align-items:center;justify-content:space-between">
         <div class="lp-logo">Plexo<span>ra</span></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-          <button class="lp-btn-ghost" @click="navigateTo('/login')">
-            Anmelden
-          </button>
-          <button class="lp-btn" @click="navigateTo('/dashboard')">
-            Demo anfragen ↗
-          </button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <NuxtLink v-for="p in navPages" :key="p.slug" :to="`/p/${p.slug}`" style="text-decoration:none">
+            <button class="lp-btn-ghost" style="font-size:13px">{{ p.navLabel || p.title }}</button>
+          </NuxtLink>
+          <button class="lp-btn-ghost" @click="navigateTo('/login')">Anmelden</button>
+          <button class="lp-btn" @click="navigateTo('/shop')">Shop ↗</button>
         </div>
       </div>
     </nav>
@@ -230,6 +222,14 @@ const formatNum = (n: number) => n.toLocaleString("de-DE");
 function scrollToSavings() {
   document.querySelector("#savings")?.scrollIntoView({ behavior: "smooth" });
 }
+
+const { data: pagesData } = await useFetch(useApiUrl('/api/pages'))
+const navPages = computed(() =>
+  ((pagesData.value as any)?.pages || [])
+    .filter((p: any) => p.inNav && p.status === 'published')
+    .sort((a: any, b: any) => (a.navLabel || '').localeCompare(b.navLabel || ''))
+)
+
 </script>
 
 <style scoped>

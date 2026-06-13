@@ -212,6 +212,46 @@
     </div>
 
     <!-- INFRASTRUKTUR -->
+    <div v-if="tab === 'navbar'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-navigation" style="margin-right:8px;color:var(--accent)"></i>Navigation</span>
+        <span style="font-size:12px;color:var(--text-muted)">Reihenfolge per Drag & Drop ändern</span>
+      </div>
+      <div class="card-body">
+        <div v-if="!navPages.length" style="color:var(--text-muted);font-size:13px;padding:20px 0">
+          Noch keine Seiten in der Navigation — aktiviere "In Navigation anzeigen" im Pagebuilder.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div v-for="(p, idx) in navPages" :key="p.pageId"
+            style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <i class="ti ti-grip-vertical" style="color:var(--text-muted);cursor:grab"></i>
+              <div>
+                <div style="font-weight:600;font-size:14px">{{ p.navLabel || p.title }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">/p/{{ p.slug }}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <button @click="moveNav(idx,-1)" :disabled="idx===0"
+                style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;padding:4px"><i class="ti ti-arrow-up"></i></button>
+              <button @click="moveNav(idx,1)" :disabled="idx===navPages.length-1"
+                style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;padding:4px"><i class="ti ti-arrow-down"></i></button>
+              <span :style="`font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;
+                background:${p.status==='published' ? '#00D4B420' : 'var(--bg-surface)'};
+                color:${p.status==='published' ? '#00D4B4' : 'var(--text-muted)'}`">
+                {{ p.status === 'published' ? 'LIVE' : 'ENTWURF' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button class="accent-btn" @click="saveNavOrder" :disabled="savingNav">
+            <i class="ti ti-device-floppy"></i> {{ savingNav ? 'Speichern...' : 'Reihenfolge speichern' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="tab === 'infra'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-cloud" style="margin-right:8px;color:var(--accent)"></i>AWS Controlcenter</span>
@@ -289,6 +329,7 @@ const tabs = [
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
+  { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
   { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
 ]
 
@@ -365,6 +406,34 @@ async function saveDunningSettings() {
   } finally {
     dunningSaving.value = false
   }
+}
+
+const savingNav = ref(false)
+const { data: navPagesData, refresh: refreshNav } = await useFetch(useApiUrl('/api/pages'))
+const navPages = ref<any[]>([])
+watch(navPagesData, (v) => {
+  navPages.value = ((v as any)?.pages || [])
+    .filter((p: any) => p.inNav)
+    .sort((a: any, b: any) => (a.navOrder || 0) - (b.navOrder || 0))
+}, { immediate: true })
+
+function moveNav(idx: number, dir: number) {
+  const item = navPages.value.splice(idx, 1)[0]
+  navPages.value.splice(idx + dir, 0, item)
+}
+
+async function saveNavOrder() {
+  savingNav.value = true
+  await Promise.all(
+    navPages.value.map((p, idx) =>
+      $fetch(useApiUrl(`/api/pages/${p.slug}`), {
+        method: 'PUT',
+        body: { ...p, navOrder: idx }
+      })
+    )
+  )
+  await refreshNav()
+  savingNav.value = false
 }
 
 const awsLoading = ref(false)
