@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   modules: ["@pinia/nuxt"],
   css: ["~/assets/css/main.css"],
   nitro: {
-    preset: "cloudflare-pages",
+    preset: "aws-lambda",
   },
   app: {
     head: {
@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     sesSesRegion: "",
     awsRegion: "",
     public: {
+      apiBase: "",
       stripePublishableKey: "",
       awsRegion: "",
       awsUserPoolId: "",

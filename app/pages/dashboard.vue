@@ -144,11 +144,11 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const chartRef = ref<HTMLCanvasElement | null>(null)
 
-const { data: dealsData }     = await useFetch('/api/deals')
-const { data: contactsData }  = await useFetch('/api/contacts')
-const { data: employeesData } = await useFetch('/api/hr')
-const { data: ticketsData }   = await useFetch('/api/support')
-const { data: invoicesData }  = await useFetch('/api/finance')
+const { data: dealsData }     = await useFetch(useApiUrl('/api/deals')
+const { data: contactsData }  = await useFetch(useApiUrl('/api/contacts')
+const { data: employeesData } = await useFetch(useApiUrl('/api/hr')
+const { data: ticketsData }   = await useFetch(useApiUrl('/api/support')
+const { data: invoicesData }  = await useFetch(useApiUrl('/api/finance')
 
 const deals     = computed(() => (dealsData.value as any)?.deals     || [])
 const contacts  = computed(() => (contactsData.value as any)?.contacts  || [])

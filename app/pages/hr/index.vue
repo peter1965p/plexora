@@ -208,7 +208,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const tab = ref('employees')
 
 // ── Mitarbeiter ───────────────────────────────────────
-const { data, refresh } = await useFetch('/api/hr')
+const { data, refresh } = await useFetch(useApiUrl('/api/hr')
 const employees = computed(() => (data.value as any)?.employees || [])
 
 const activeCount      = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
@@ -228,7 +228,7 @@ onMounted(async () => {
 
 async function addEmployee() {
   saving.value = true
-  await $fetch('/api/hr', { method: 'POST', body: { ...newEmp, userId: userId.value, status: 'active' } })
+  await $fetch(useApiUrl('/api/hr'), { method: 'POST', body: { ...newEmp, userId: userId.value, status: 'active' } })
   await refresh()
   showAdd.value = false
   Object.assign(newEmp, { firstName: '', lastName: '', email: '', department: '', role: '', startDate: '' })
@@ -236,7 +236,7 @@ async function addEmployee() {
 }
 
 // ── Recruiting ────────────────────────────────────────
-const { data: campData, refresh: refreshCamps } = await useFetch('/api/hr/campaigns')
+const { data: campData, refresh: refreshCamps } = await useFetch(useApiUrl('/api/hr/campaigns')
 const campaigns = computed(() => (campData.value as any)?.campaigns || [])
 
 const activeCampaigns   = computed(() => campaigns.value.filter((c: any) => c.status === 'active').length)
@@ -280,7 +280,7 @@ function showToast(msg: string) {
 async function addCampaign() {
   saving.value = true
   try {
-    await $fetch('/api/hr/campaigns', { method: 'POST', body: { ...newCamp, userId: userId.value } })
+    await $fetch(useApiUrl('/api/hr/campaigns'), { method: 'POST', body: { ...newCamp, userId: userId.value } })
     await refreshCamps()
     showCampaign.value = false
     Object.assign(newCamp, { title: '', department: '', location: '', type: 'fulltime', description: '', requirements: '' })

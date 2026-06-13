@@ -143,7 +143,7 @@ onMounted(async () => {
   userId.value = u.userId
 })
 
-const { data, refresh } = await useFetch('/api/finance')
+const { data, refresh } = await useFetch(useApiUrl('/api/finance')
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
 const revenue      = computed(() => calcRevenue(invoices.value))
@@ -170,7 +170,7 @@ function showToast(msg: string) {
 async function addInvoice(sendMail: boolean) {
   saving.value = true
   try {
-    const inv = await $fetch('/api/finance', {
+    const inv = await $fetch(useApiUrl('/api/finance'), {
       method: 'POST',
       body: { ...newInv, userId: userId.value }
     }) as any

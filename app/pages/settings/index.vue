@@ -277,17 +277,17 @@ onMounted(async () => {
   } catch {}
 
   try {
-    const d = await $fetch('/api/settings/branding') as any
+    const d = await $fetch(useApiUrl('/api/settings/branding') as any
     if (d?.branding) Object.assign(brand, d.branding)
   } catch {}
 
   try {
-    const d = await $fetch('/api/settings/invoice') as any
+    const d = await $fetch(useApiUrl('/api/settings/invoice') as any
     if (d?.settings) Object.assign(invoiceSettings, d.settings)
   } catch {}
 
   try {
-    const d = await $fetch('/api/settings/dunning') as any
+    const d = await $fetch(useApiUrl('/api/settings/dunning') as any
     if (d?.settings) Object.assign(dunning, d.settings)
   } catch {}
 })
@@ -295,7 +295,7 @@ onMounted(async () => {
 async function saveBranding() {
   brandSaving.value = true
   try {
-    await $fetch('/api/settings/branding', { method: 'POST', body: { ...brand } })
+    await $fetch(useApiUrl('/api/settings/branding'), { method: 'POST', body: { ...brand } })
     const { useBranding } = await import('~/composables/useBranding')
     const { branding } = useBranding()
     Object.assign(branding.value, brand)
@@ -307,7 +307,7 @@ async function saveBranding() {
 async function saveInvoiceSettings() {
   invoiceSaving.value = true
   try {
-    await $fetch('/api/settings/invoice', { method: 'POST', body: { ...invoiceSettings } })
+    await $fetch(useApiUrl('/api/settings/invoice'), { method: 'POST', body: { ...invoiceSettings } })
   } finally {
     invoiceSaving.value = false
   }
@@ -316,7 +316,7 @@ async function saveInvoiceSettings() {
 async function saveDunningSettings() {
   dunningSaving.value = true
   try {
-    await $fetch('/api/settings/dunning', { method: 'POST', body: { ...dunning } })
+    await $fetch(useApiUrl('/api/settings/dunning'), { method: 'POST', body: { ...dunning } })
   } finally {
     dunningSaving.value = false
   }

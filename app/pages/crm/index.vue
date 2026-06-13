@@ -180,8 +180,8 @@ onMounted(async () => {
   userId.value = u.userId
 })
 
-const { data: dealsData,    refresh: refreshDeals    } = await useFetch('/api/deals')
-const { data: contactsData, refresh: refreshContacts } = await useFetch('/api/contacts')
+const { data: dealsData,    refresh: refreshDeals    } = await useFetch(useApiUrl('/api/deals')
+const { data: contactsData, refresh: refreshContacts } = await useFetch(useApiUrl('/api/contacts')
 
 const deals    = computed(() => (dealsData.value as any)?.deals    || [])
 const contacts = computed(() => (contactsData.value as any)?.contacts || [])
@@ -219,7 +219,7 @@ async function saveContact() {
         body: { ...contactForm, userId: userId.value }
       })
     } else {
-      await $fetch('/api/contacts', {
+      await $fetch(useApiUrl('/api/contacts'), {
         method: 'POST',
         body: { ...contactForm, userId: userId.value }
       })
@@ -266,7 +266,7 @@ async function saveDeal() {
         body: { ...dealForm, userId: userId.value }
       })
     } else {
-      await $fetch('/api/deals', {
+      await $fetch(useApiUrl('/api/deals'), {
         method: 'POST',
         body: { ...dealForm, userId: userId.value }
       })

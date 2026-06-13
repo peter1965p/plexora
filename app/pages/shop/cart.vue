@@ -114,7 +114,7 @@ async function checkout() {
   if (!email.value) return
   checking.value = true
   try {
-    const res = await $fetch('/api/shop/checkout', {
+    const res = await $fetch(useApiUrl('/api/shop/checkout'), {
       method: 'POST',
       body: { items: cart.value.map(i => ({ productId: i.productId, quantity: i.quantity })), email: email.value }
     }) as any

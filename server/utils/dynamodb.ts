@@ -1,27 +1,20 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-let client: DynamoDBDocumentClient | null = null;
-
 export function getDynamoClient(): DynamoDBDocumentClient {
-  if (client) return client;
+  const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
-  const config = useRuntimeConfig();
+  const dynamo = isLambda
+    ? new DynamoDBClient({ region: "eu-central-1" })
+    : new DynamoDBClient({
+        region: "eu-central-1",
+        credentials: {
+          accessKeyId: (process.env.NUXT_AWS_ACCESS_KEY_ID || '').replace(/^"|"$/g, ''),
+          secretAccessKey: (process.env.NUXT_AWS_SECRET_ACCESS_KEY || '').replace(/^"|"$/g, ''),
+        },
+      });
 
-  const secretKey = (config.awsSecretAccessKey as string).replace(/^"|"$/g, "");
-  const accessKey = (config.awsAccessKeyId as string).replace(/^"|"$/g, "");
-
-  const dynamo = new DynamoDBClient({
-    region: "eu-central-1",
-    credentials: {
-      accessKeyId: accessKey,
-      secretAccessKey: secretKey,
-    },
-  });
-
-  client = DynamoDBDocumentClient.from(dynamo, {
+  return DynamoDBDocumentClient.from(dynamo, {
     marshallOptions: { removeUndefinedValues: true },
   });
-
-  return client;
 }

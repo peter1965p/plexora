@@ -71,7 +71,7 @@ const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
 const brandLast  = computed(() => branding.value.brandName.slice(-1))
 onMounted(() => loadBranding())
 
-const { data } = await useFetch('/api/shop/products')
+const { data } = await useFetch(`${useRuntimeConfig().public.apiBase}/api/shop/products`)
 const products = computed(() => (data.value as any)?.products || [])
 
 // Cart aus localStorage
