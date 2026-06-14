@@ -46,14 +46,14 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Kontakte</span>
-          <span class="card-action">Alle ansehen</span>
+          <NuxtLink to="/crm" class="card-action">Alle ansehen</NuxtLink>
         </div>
         <div class="card-body" style="padding:16px 20px">
           <div class="activity-item" v-for="c in contacts" :key="c.contactId">
             <div class="activity-dot" :class="c.status === 'customer' ? 'cyan' : ''"></div>
             <div>
               <div class="activity-text">
-                <span style="color:var(--accent)">{{ c.firstName }} {{ c.lastName }}</span>
+                <NuxtLink :to="`/crm?edit=${c.contactId}`" style="color:var(--accent)">{{ c.firstName }} {{ c.lastName }}</NuxtLink>
               </div>
               <div class="activity-time">{{ c.company }} · <span :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></div>
             </div>

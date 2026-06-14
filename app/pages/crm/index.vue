@@ -299,10 +299,20 @@ import type { Company } from '~/modules/companies'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userId = ref('demo-user')
+const route = useRoute()
+
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userId.value = u.userId
+})
+
+onMounted(() => {
+  const editId = route.query.edit as string | undefined
+  if (editId) {
+    const c = contacts.value.find((x: Contact) => x.contactId === editId)
+    if (c) openEditContact(c)
+  }
 })
 
 const { data: dealsData,     refresh: refreshDeals     } = await useFetch(useApiUrl('/api/deals'))
