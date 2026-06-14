@@ -166,6 +166,7 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 const saving  = ref(false)
 const editing = ref(false)
