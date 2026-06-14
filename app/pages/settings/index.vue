@@ -110,31 +110,20 @@
     <div v-if="tab === 'agb'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-file-text" style="margin-right:8px;color:var(--accent)"></i>Allgemeine Geschäftsbedingungen</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="agbSaving" @click="saveAgb">
+          <span v-if="agbSaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
       </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
-        <p style="font-size:12px;color:var(--text-muted);margin:0">
-          Lade hier dein AGB-Dokument als PDF hoch. Es wird auf der öffentlichen Seite /agb eingebettet angezeigt.
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">
+          Markdown-Editor — # für Überschriften, **fett** für Hervorhebungen. Der Inhalt wird auf der öffentlichen Seite /agb angezeigt.
         </p>
-
-        <div v-if="agb.url" style="display:flex;align-items:center;gap:12px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px">
-          <i class="ti ti-file-type-pdf" style="font-size:32px;color:#EF4444"></i>
-          <div style="flex:1">
-            <div style="font-weight:600;font-size:14px">{{ agb.fileName }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Hochgeladen am {{ new Date(agb.uploaded).toLocaleDateString('de-DE') }}</div>
-          </div>
-          <a :href="agb.url" target="_blank" style="text-decoration:none">
-            <button style="padding:6px 16px;border-radius:8px;border:0.5px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-size:13px">
-              <i class="ti ti-external-link"></i> Ansehen
-            </button>
-          </a>
-        </div>
-
-        <div>
-          <input ref="agbFileInput" type="file" accept="application/pdf" style="display:none" @change="onAgbFileChange" />
-          <button class="accent-btn" :disabled="agbUploading" @click="agbFileInput?.click()">
-            <span v-if="agbUploading"><i class="ti ti-loader-2 spin"></i> Lädt hoch...</span>
-            <span v-else><i class="ti ti-upload"></i> {{ agb.url ? 'PDF ersetzen' : 'PDF hochladen' }}</span>
-          </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;height:600px">
+          <textarea v-model="agb.content"
+            style="width:100%;height:100%;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px;color:var(--text-primary);font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;line-height:1.6;resize:none;outline:none"
+            spellcheck="false"></textarea>
+          <div class="agb-preview" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px 24px;overflow-y:auto;font-size:14px;line-height:1.8" v-html="agbPreview"></div>
         </div>
       </div>
     </div>
@@ -405,6 +394,7 @@
 </template>
 
 <script setup lang="ts">
+import { marked } from 'marked'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore } from '~/stores/app'
 
@@ -444,9 +434,9 @@ const company = reactive({
 })
 
 // ── AGB ─────────────────────────────────────────────
-const agbUploading = ref(false)
-const agbFileInput = ref<HTMLInputElement | null>(null)
-const agb = reactive({ url: '', fileName: '', uploaded: '' })
+const agbSaving = ref(false)
+const agb = reactive({ content: '', updated: '' })
+const agbPreview = computed(() => marked.parse(agb.content || ''))
 
 // ── Rechnungen ────────────────────────────────────────
 const invoiceSaving = ref(false)
@@ -574,35 +564,12 @@ onMounted(async () => {
   } catch {}
 })
 
-async function onAgbFileChange(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  agbUploading.value = true
+async function saveAgb() {
+  agbSaving.value = true
   try {
-    const reader = new FileReader()
-    const fileBase64 = await new Promise<string>((resolve, reject) => {
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
-    const res = await $fetch(useApiUrl('/api/settings/agb'), {
-      method: 'POST',
-      body: { fileBase64, fileName: file.name }
-    }) as any
-    agb.url = res.url
-    agb.fileName = file.name
-    agb.uploaded = new Date().toISOString()
+    await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', body: { content: agb.content } })
   } finally {
-    agbUploading.value = false
-  }
-}
-
-async function saveCompany() {
-  companySaving.value = true
-  try {
-    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company } })
-  } finally {
-    companySaving.value = false
+    agbSaving.value = false
   }
 }
 </script>

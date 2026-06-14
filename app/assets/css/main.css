@@ -974,3 +974,26 @@ ul {
   from { transform: translateY(20px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
+
+/* Markdown-Rendering für AGB (Editor-Preview + öffentliche Seite) */
+.agb-content h1, .agb-preview h1 {
+  font-size: 28px; font-weight: 800; margin: 32px 0 16px; color: var(--text-primary);
+}
+.agb-content h1:first-child, .agb-preview h1:first-child { margin-top: 0; }
+.agb-content h2, .agb-preview h2 {
+  font-size: 18px; font-weight: 700; margin: 28px 0 12px; color: var(--text-primary);
+}
+.agb-content h3, .agb-preview h3 {
+  font-size: 15px; font-weight: 700; margin: 20px 0 8px; color: var(--text-primary);
+}
+.agb-content p, .agb-preview p { margin: 0 0 14px; }
+.agb-content strong, .agb-preview strong { color: var(--text-primary); font-weight: 700; }
+.agb-content em, .agb-preview em { color: var(--text-muted); font-style: italic; }
+.agb-content ul, .agb-preview ul, .agb-content ol, .agb-preview ol {
+  margin: 0 0 14px; padding-left: 24px;
+}
+.agb-content li, .agb-preview li { margin-bottom: 6px; }
+.agb-content hr, .agb-preview hr {
+  border: none; border-top: 0.5px solid var(--border); margin: 24px 0;
+}
+.agb-content a, .agb-preview a { color: var(--accent); }
