@@ -418,6 +418,7 @@ function openEditContact(c: Contact) {
     status: c.status, leadSource: c.leadSource || 'manual', leadStatus: c.leadStatus || 'new',
   })
   showContactModal.value = true
+  $fetch(useApiUrl(`/api/contacts/${c.contactId}/touch`), { method: 'POST' }).catch(() => {})
 }
 
 async function saveContact() {

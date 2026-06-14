@@ -27,6 +27,8 @@ export default defineEventHandler(async (event) => {
     score:         body.score || 0,
     customerId:    '',
     convertedAt:   '',
+    accessCount:   0,
+    lastAccessedAt: '',
     created:       new Date().toISOString(),
   }
 

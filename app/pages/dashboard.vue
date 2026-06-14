@@ -137,7 +137,7 @@
 
 <script setup lang="ts">
 import { calcWeightedPipeline, formatEur, stageLabel as dealStageLabel } from '~/modules/deals'
-import { statusLabel, statusBadge } from '~/modules/contacts'
+import { statusLabel, statusBadge, sortByMostUsed } from '~/modules/contacts'
 import { priorityLabel, priorityBadge } from '~/modules/support'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
@@ -151,7 +151,7 @@ const { data: ticketsData }   = await useFetch(useApiUrl('/api/support'))
 const { data: invoicesData }  = await useFetch(useApiUrl('/api/finance'))
 
 const deals     = computed(() => (dealsData.value as any)?.deals     || [])
-const contacts  = computed(() => (contactsData.value as any)?.contacts  || [])
+const contacts  = computed(() => sortByMostUsed((contactsData.value as any)?.contacts || []).slice(0, 5))
 const employees = computed(() => (employeesData.value as any)?.employees || [])
 const tickets   = computed(() => (ticketsData.value as any)?.tickets   || [])
 const invoices  = computed(() => (invoicesData.value as any)?.invoices  || [])

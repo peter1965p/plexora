@@ -19,6 +19,8 @@ export interface Contact {
   score?: number
   customerId?: string
   convertedAt?: string
+  accessCount?: number
+  lastAccessedAt?: string
   created: string
 }
 
@@ -73,4 +75,14 @@ export function leadStatusBadge(status?: string): string {
     unqualified: 'badge-danger',
   }
   return badges[status || ''] || 'badge-info'
+}
+
+export function sortByMostUsed(contacts: Contact[]): Contact[] {
+  return [...contacts].sort((a, b) => {
+    const countDiff = (b.accessCount || 0) - (a.accessCount || 0)
+    if (countDiff !== 0) return countDiff
+    const aTime = a.lastAccessedAt || a.created
+    const bTime = b.lastAccessedAt || b.created
+    return new Date(bTime).getTime() - new Date(aTime).getTime()
+  })
 }
