@@ -5,8 +5,20 @@ export interface Contact {
   lastName: string
   email: string
   company: string
+  companyId?: string
   phone?: string
   status: 'lead' | 'customer' | 'churned'
+  leadSource?: string
+  leadStatus?: 'new' | 'contacted' | 'qualified' | 'unqualified'
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  utmContent?: string
+  utmTerm?: string
+  landingPageId?: string
+  score?: number
+  customerId?: string
+  convertedAt?: string
   created: string
 }
 
@@ -30,4 +42,35 @@ export function statusBadge(status: string): string {
     churned:  'badge-danger',
   }
   return badges[status] || 'badge-info'
+}
+
+export function leadSourceLabel(source?: string): string {
+  const labels: Record<string, string> = {
+    manual:       'Manuell',
+    'csv-import': 'CSV/Excel-Import',
+    landingpage:  'Landingpage',
+    referral:     'Empfehlung',
+    other:        'Sonstiges',
+  }
+  return labels[source || ''] || source || '—'
+}
+
+export function leadStatusLabel(status?: string): string {
+  const labels: Record<string, string> = {
+    new:         'Neu',
+    contacted:   'Kontaktiert',
+    qualified:   'Qualifiziert',
+    unqualified: 'Unqualifiziert',
+  }
+  return labels[status || ''] || '—'
+}
+
+export function leadStatusBadge(status?: string): string {
+  const badges: Record<string, string> = {
+    new:         'badge-info',
+    contacted:   'badge-warning',
+    qualified:   'badge-success',
+    unqualified: 'badge-danger',
+  }
+  return badges[status || ''] || 'badge-info'
 }

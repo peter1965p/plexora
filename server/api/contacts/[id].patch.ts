@@ -18,15 +18,19 @@ export default defineEventHandler(async (event) => {
   await client.send(new UpdateCommand({
     TableName: 'plexora-contacts',
     Key: { userId: existing.userId, contactId },
-    UpdateExpression: 'SET firstName = :fn, lastName = :ln, email = :em, company = :co, phone = :ph, #st = :st',
+    UpdateExpression: 'SET firstName = :fn, lastName = :ln, email = :em, company = :co, companyId = :cid, phone = :ph, #st = :st, leadSource = :ls, leadStatus = :lst, score = :sc',
     ExpressionAttributeNames: { '#st': 'status' },
     ExpressionAttributeValues: {
-      ':fn': body.firstName,
-      ':ln': body.lastName,
-      ':em': body.email,
-      ':co': body.company,
-      ':ph': body.phone || '',
-      ':st': body.status,
+      ':fn':  body.firstName,
+      ':ln':  body.lastName,
+      ':em':  body.email,
+      ':co':  body.company || '',
+      ':cid': body.companyId ?? existing.companyId ?? '',
+      ':ph':  body.phone || '',
+      ':st':  body.status,
+      ':ls':  body.leadSource ?? existing.leadSource ?? 'manual',
+      ':lst': body.leadStatus ?? existing.leadStatus ?? 'new',
+      ':sc':  body.score ?? existing.score ?? 0,
     }
   }))
 

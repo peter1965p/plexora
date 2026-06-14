@@ -27,14 +27,17 @@
     "chart.js": "^4.5.1",
     "marked": "^18.0.5",
     "nuxt": "^4.4.8",
+    "papaparse": "^5.5.3",
     "pdfkit": "^0.19.1",
     "pinia": "^3.0.4",
     "puppeteer-core": "^25.1.0",
     "stripe": "^22.2.1",
     "vue": "^3.5.35",
-    "vue-router": "^5.1.0"
+    "vue-router": "^5.1.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3"
+    "@types/node": "^25.9.3",
+    "@types/papaparse": "^5.5.2"
   }
 }
