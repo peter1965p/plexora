@@ -48,6 +48,97 @@
       </div>
     </div>
 
+    <!-- UNTERNEHMEN -->
+    <div v-if="tab === 'company'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-building-bank" style="margin-right:8px;color:var(--accent)"></i>Unternehmensdaten</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="companySaving" @click="saveCompany">
+          <span v-if="companySaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 8px">
+          Diese Angaben werden auf der öffentlichen Impressum-Seite (/impressum) angezeigt.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="auth-field">
+            <label>Firma / Inhaber</label>
+            <input v-model="company.legalName" placeholder="Päffgen IT" />
+          </div>
+          <div class="auth-field">
+            <label>Vertreten durch</label>
+            <input v-model="company.representedBy" placeholder="Peter Päffgen" />
+          </div>
+          <div class="auth-field">
+            <label>Straße & Hausnummer</label>
+            <input v-model="company.street" placeholder="Musterstraße 1" />
+          </div>
+          <div class="auth-field">
+            <label>PLZ & Ort</label>
+            <input v-model="company.zipCity" placeholder="54531 Manderscheid" />
+          </div>
+          <div class="auth-field">
+            <label>Land</label>
+            <input v-model="company.country" placeholder="Deutschland" />
+          </div>
+          <div class="auth-field">
+            <label>USt-IdNr.</label>
+            <input v-model="company.vatId" placeholder="DE123456789" />
+          </div>
+          <div class="auth-field">
+            <label>E-Mail</label>
+            <input v-model="company.email" placeholder="kontakt@paeffgen-it.de" />
+          </div>
+          <div class="auth-field">
+            <label>Telefon</label>
+            <input v-model="company.phone" placeholder="+49 123 456789" />
+          </div>
+          <div class="auth-field">
+            <label>Handelsregister (optional)</label>
+            <input v-model="company.register" placeholder="HRB 12345" />
+          </div>
+          <div class="auth-field">
+            <label>Registergericht (optional)</label>
+            <input v-model="company.registerCourt" placeholder="Amtsgericht Wittlich" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGB -->
+    <div v-if="tab === 'agb'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-file-text" style="margin-right:8px;color:var(--accent)"></i>Allgemeine Geschäftsbedingungen</span>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+        <p style="font-size:12px;color:var(--text-muted);margin:0">
+          Lade hier dein AGB-Dokument als PDF hoch. Es wird auf der öffentlichen Seite /agb eingebettet angezeigt.
+        </p>
+
+        <div v-if="agb.url" style="display:flex;align-items:center;gap:12px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px">
+          <i class="ti ti-file-type-pdf" style="font-size:32px;color:#EF4444"></i>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">{{ agb.fileName }}</div>
+            <div style="font-size:12px;color:var(--text-muted)">Hochgeladen am {{ new Date(agb.uploaded).toLocaleDateString('de-DE') }}</div>
+          </div>
+          <a :href="agb.url" target="_blank" style="text-decoration:none">
+            <button style="padding:6px 16px;border-radius:8px;border:0.5px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-size:13px">
+              <i class="ti ti-external-link"></i> Ansehen
+            </button>
+          </a>
+        </div>
+
+        <div>
+          <input ref="agbFileInput" type="file" accept="application/pdf" style="display:none" @change="onAgbFileChange" />
+          <button class="accent-btn" :disabled="agbUploading" @click="agbFileInput?.click()">
+            <span v-if="agbUploading"><i class="ti ti-loader-2 spin"></i> Lädt hoch...</span>
+            <span v-else><i class="ti ti-upload"></i> {{ agb.url ? 'PDF ersetzen' : 'PDF hochladen' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- DARSTELLUNG -->
     <div v-if="tab === 'appearance'" class="card">
       <div class="card-header">
@@ -324,6 +415,8 @@ const tab   = ref('branding')
 
 const tabs = [
   { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
+  { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
+  { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
   { key: 'appearance',  label: 'Darstellung',      icon: 'ti-palette'         },
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
@@ -342,6 +435,18 @@ const brandSaving = ref(false)
 const brand = reactive({ brandName: 'Plexora', brandTagline: 'Business Platform', portalTitle: 'Kundenportal' })
 const brandFirst = computed(() => brand.brandName.slice(0, -1))
 const brandLast  = computed(() => brand.brandName.slice(-1))
+
+// ── Unternehmen ─────────────────────────────────────
+const companySaving = ref(false)
+const company = reactive({
+  legalName: '', representedBy: '', street: '', zipCity: '', country: 'Deutschland',
+  email: '', phone: '', vatId: '', register: '', registerCourt: ''
+})
+
+// ── AGB ─────────────────────────────────────────────
+const agbUploading = ref(false)
+const agbFileInput = ref<HTMLInputElement | null>(null)
+const agb = reactive({ url: '', fileName: '', uploaded: '' })
 
 // ── Rechnungen ────────────────────────────────────────
 const invoiceSaving = ref(false)
@@ -457,4 +562,47 @@ async function loadAws() {
 onMounted(() => { if (tab.value === 'infra') loadAws() })
 watch(tab, v => { if (v === 'infra') loadAws() })
 
+
+onMounted(async () => {
+  try {
+    const d = await $fetch(useApiUrl('/api/settings/company') as any)
+    if (d?.company) Object.assign(company, d.company)
+  } catch {}
+  try {
+    const d = await $fetch(useApiUrl('/api/settings/agb') as any)
+    if (d?.agb) Object.assign(agb, d.agb)
+  } catch {}
+})
+
+async function onAgbFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  agbUploading.value = true
+  try {
+    const reader = new FileReader()
+    const fileBase64 = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+    const res = await $fetch(useApiUrl('/api/settings/agb'), {
+      method: 'POST',
+      body: { fileBase64, fileName: file.name }
+    }) as any
+    agb.url = res.url
+    agb.fileName = file.name
+    agb.uploaded = new Date().toISOString()
+  } finally {
+    agbUploading.value = false
+  }
+}
+
+async function saveCompany() {
+  companySaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company } })
+  } finally {
+    companySaving.value = false
+  }
+}
 </script>

@@ -8,6 +8,15 @@
           <NuxtLink v-for="p in navPages" :key="p.slug" :to="`/p/${p.slug}`" style="text-decoration:none">
             <button class="lp-btn-ghost" style="font-size:13px">{{ p.navLabel || p.title }}</button>
           </NuxtLink>
+          <NuxtLink to="/impressum" style="text-decoration:none">
+            <button class="lp-btn-ghost" style="font-size:13px">Impressum</button>
+          </NuxtLink>
+          <NuxtLink to="/datenschutz" style="text-decoration:none">
+            <button class="lp-btn-ghost" style="font-size:13px">Datenschutz</button>
+          </NuxtLink>
+          <NuxtLink to="/agb" style="text-decoration:none">
+            <button class="lp-btn-ghost" style="font-size:13px">AGB</button>
+          </NuxtLink>
           <button class="lp-btn-ghost" @click="navigateTo('/login')">Anmelden</button>
           <button class="lp-btn" @click="navigateTo('/shop')">Shop ↗</button>
         </div>
@@ -226,7 +235,7 @@ function scrollToSavings() {
 const { data: pagesData } = await useFetch(useApiUrl('/api/pages'))
 const navPages = computed(() =>
   ((pagesData.value as any)?.pages || [])
-    .filter((p: any) => p.inNav && p.status === 'published')
+    .filter((p) => p.inNav && p.status === 'published' && ['impressum','datenschutz','agb'].indexOf(p.slug) === -1)
     .sort((a: any, b: any) => (a.navLabel || '').localeCompare(b.navLabel || ''))
 )
 
