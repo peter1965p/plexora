@@ -128,34 +128,6 @@
       </div>
     </div>
 
-    <!-- DARSTELLUNG -->
-    <div v-if="tab === 'appearance'" class="card">
-      <div class="card-header">
-        <span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Darstellung</span>
-      </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:28px">
-        <div>
-          <div class="settings-label">Farbmodus</div>
-          <div class="theme-toggle">
-            <button class="theme-opt" :class="{ active: store.theme === 'dark' }" @click="store.setTheme('dark')">
-              <i class="ti ti-moon"></i> Dark
-            </button>
-            <button class="theme-opt" :class="{ active: store.theme === 'light' }" @click="store.setTheme('light')">
-              <i class="ti ti-sun"></i> Light
-            </button>
-          </div>
-        </div>
-        <div>
-          <div class="settings-label">Akzentfarbe — {{ store.accentColors.find(c => c.hex === store.accent)?.name }}</div>
-          <div class="accent-picker">
-            <div v-for="c in store.accentColors" :key="c.hex" class="accent-swatch"
-              :class="{ active: store.accent === c.hex }" :style="{ background: c.hex }"
-              :title="c.name" @click="store.setAccent(c.hex, c.rgb)"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- RECHNUNGEN -->
     <div v-if="tab === 'invoices'" class="card">
       <div class="card-header">
@@ -466,7 +438,6 @@ const tabs = [
   { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
   { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
   { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
-  { key: 'appearance',  label: 'Darstellung',      icon: 'ti-palette'         },
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },

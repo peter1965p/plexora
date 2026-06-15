@@ -6,6 +6,7 @@ export const useAppStore = defineStore("app", {
     accent: "#6C3FE8",
     accentRgb: "108, 63, 232",
     activeRoute: "dashboard",
+    themeLoaded: false,
     accentColors: [
       { name: "Violet", hex: "#6C3FE8", rgb: "108,63,232" },
       { name: "Cyan", hex: "#00A896", rgb: "0,168,150" },
@@ -26,17 +27,40 @@ export const useAppStore = defineStore("app", {
   actions: {
     setTheme(t: "dark" | "light") {
       this.theme = t;
-      document.documentElement.setAttribute("data-theme", t);
+      if (typeof document !== "undefined") {
+        document.documentElement.setAttribute("data-theme", t);
+      }
     },
     setAccent(hex: string, rgb: string) {
       this.accent = hex;
       this.accentRgb = rgb;
-      document.documentElement.style.setProperty("--accent", hex);
-      document.documentElement.style.setProperty("--accent-rgb", rgb);
+      if (typeof document !== "undefined") {
+        document.documentElement.style.setProperty("--accent", hex);
+        document.documentElement.style.setProperty("--accent-rgb", rgb);
+      }
     },
     toggleModule(key: string) {
       const m = this.modules.find((m) => m.key === key);
       if (m) m.on = !m.on;
+    },
+    async loadTheme() {
+      if (this.themeLoaded) return;
+      try {
+        const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"));
+        const t = res?.theme || {};
+        if (t.theme === "dark" || t.theme === "light") this.setTheme(t.theme);
+        if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
+      } catch {
+        // Defaults bleiben aktiv
+      } finally {
+        this.themeLoaded = true;
+      }
+    },
+    async saveTheme() {
+      await $fetch(useApiUrl("/api/settings/theme"), {
+        method: "POST",
+        body: { theme: this.theme, accent: this.accent, accentRgb: this.accentRgb },
+      });
     },
   },
 });
