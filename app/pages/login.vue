@@ -2,95 +2,133 @@
   <div class="auth-wrap">
     <div class="auth-card">
       <div class="auth-logo">Plexo<span>ra</span></div>
-      <div class="auth-title">
-        {{ isRegister ? "Konto erstellen" : "Willkommen zurück" }}
-      </div>
-      <div class="auth-sub">
-        {{ isRegister ? "Starten Sie kostenlos" : "Melden Sie sich an" }}
-      </div>
 
-      <div v-if="error" class="auth-error">
-        <i class="ti ti-alert-circle"></i> {{ error }}
-      </div>
+      <template v-if="isForgot">
+        <div class="auth-title">Passwort vergessen?</div>
+        <div class="auth-sub">
+          {{ forgotSent ? "E-Mail ist unterwegs" : "Wir senden dir einen Link zum Zurücksetzen" }}
+        </div>
 
-      <div class="auth-form">
-        <template v-if="isRegister && !needsConfirm">
-          <div class="auth-row">
+        <div v-if="error" class="auth-error">
+          <i class="ti ti-alert-circle"></i> {{ error }}
+        </div>
+
+        <div class="auth-form">
+          <template v-if="!forgotSent">
             <div class="auth-field">
-              <label>Vorname</label>
-              <input v-model="firstName" type="text" placeholder="Max" />
+              <label>E-Mail</label>
+              <input v-model="email" type="email" placeholder="max@firma.de" />
+            </div>
+            <button class="auth-btn" :disabled="loading" @click="sendResetLink">
+              <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
+              <span v-else>Link senden</span>
+            </button>
+          </template>
+          <template v-else>
+            <div class="auth-info">
+              <i class="ti ti-mail"></i>
+              Falls ein Konto mit <strong>{{ email }}</strong> existiert, wurde ein Link zum
+              Zurücksetzen des Passworts gesendet — bitte auch Spam prüfen!
+            </div>
+          </template>
+          <button class="auth-btn-secondary" @click="backToLogin">← Zurück zum Login</button>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="auth-title">
+          {{ isRegister ? "Konto erstellen" : "Willkommen zurück" }}
+        </div>
+        <div class="auth-sub">
+          {{ isRegister ? "Starten Sie kostenlos" : "Melden Sie sich an" }}
+        </div>
+
+        <div v-if="error" class="auth-error">
+          <i class="ti ti-alert-circle"></i> {{ error }}
+        </div>
+
+        <div class="auth-form">
+          <template v-if="isRegister && !needsConfirm">
+            <div class="auth-row">
+              <div class="auth-field">
+                <label>Vorname</label>
+                <input v-model="firstName" type="text" placeholder="Max" />
+              </div>
+              <div class="auth-field">
+                <label>Nachname</label>
+                <input v-model="lastName" type="text" placeholder="Mustermann" />
+              </div>
+            </div>
+          </template>
+
+          <template v-if="!needsConfirm">
+            <div class="auth-field">
+              <label>E-Mail</label>
+              <input v-model="email" type="email" placeholder="max@firma.de" />
             </div>
             <div class="auth-field">
-              <label>Nachname</label>
-              <input v-model="lastName" type="text" placeholder="Mustermann" />
+              <label>Passwort</label>
+              <div class="auth-pw-wrap">
+                <input
+                  v-model="password"
+                  :type="showPw ? 'text' : 'password'"
+                  placeholder="••••••••"
+                />
+                <button class="auth-pw-toggle" @click="showPw = !showPw">
+                  <i class="ti" :class="showPw ? 'ti-eye-off' : 'ti-eye'"></i>
+                </button>
+              </div>
             </div>
-          </div>
-        </template>
+            <div v-if="!isRegister" class="auth-switch" style="margin:-4px 0 4px;text-align:right">
+              <span @click="isForgot = true; error = ''">Passwort vergessen?</span>
+            </div>
+            <button
+              class="auth-btn"
+              :disabled="loading"
+              @click="isRegister ? register() : login()"
+            >
+              <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
+              <span v-else>{{ isRegister ? "Registrieren" : "Anmelden" }}</span>
+            </button>
+          </template>
 
-        <template v-if="!needsConfirm">
-          <div class="auth-field">
-            <label>E-Mail</label>
-            <input v-model="email" type="email" placeholder="max@firma.de" />
-          </div>
-          <div class="auth-field">
-            <label>Passwort</label>
-            <div class="auth-pw-wrap">
+          <template v-else>
+            <div class="auth-info">
+              <i class="ti ti-mail"></i>
+              Bestätigungscode wurde an <strong>{{ email }}</strong> gesendet —
+              bitte auch Spam prüfen!
+            </div>
+            <div class="auth-field">
+              <label>Bestätigungscode</label>
               <input
-                v-model="password"
-                :type="showPw ? 'text' : 'password'"
-                placeholder="••••••••"
+                v-model="confirmCode"
+                type="text"
+                placeholder="123456"
+                maxlength="6"
               />
-              <button class="auth-pw-toggle" @click="showPw = !showPw">
-                <i class="ti" :class="showPw ? 'ti-eye-off' : 'ti-eye'"></i>
-              </button>
             </div>
-          </div>
-          <button
-            class="auth-btn"
-            :disabled="loading"
-            @click="isRegister ? register() : login()"
+            <button class="auth-btn" :disabled="loading" @click="confirmSignUp">
+              <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
+              <span v-else>Code bestätigen ↗</span>
+            </button>
+            <button class="auth-btn-secondary" @click="needsConfirm = false">
+              ← Zurück
+            </button>
+          </template>
+        </div>
+
+        <div v-if="!needsConfirm" class="auth-switch">
+          {{ isRegister ? "Bereits ein Konto?" : "Noch kein Konto?" }}
+          <span
+            @click="
+              isRegister = !isRegister;
+              error = '';
+            "
           >
-            <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ isRegister ? "Registrieren" : "Anmelden" }}</span>
-          </button>
-        </template>
-
-        <template v-else>
-          <div class="auth-info">
-            <i class="ti ti-mail"></i>
-            Bestätigungscode wurde an <strong>{{ email }}</strong> gesendet —
-            bitte auch Spam prüfen!
-          </div>
-          <div class="auth-field">
-            <label>Bestätigungscode</label>
-            <input
-              v-model="confirmCode"
-              type="text"
-              placeholder="123456"
-              maxlength="6"
-            />
-          </div>
-          <button class="auth-btn" :disabled="loading" @click="confirmSignUp">
-            <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>Code bestätigen ↗</span>
-          </button>
-          <button class="auth-btn-secondary" @click="needsConfirm = false">
-            ← Zurück
-          </button>
-        </template>
-      </div>
-
-      <div v-if="!needsConfirm" class="auth-switch">
-        {{ isRegister ? "Bereits ein Konto?" : "Noch kein Konto?" }}
-        <span
-          @click="
-            isRegister = !isRegister;
-            error = '';
-          "
-        >
-          {{ isRegister ? "Anmelden" : "Kostenlos registrieren" }}
-        </span>
-      </div>
+            {{ isRegister ? "Anmelden" : "Kostenlos registrieren" }}
+          </span>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -100,6 +138,7 @@ import {
   signIn,
   signUp,
   confirmSignUp as amplifyConfirmSignUp,
+  resetPassword,
 } from "aws-amplify/auth";
 
 definePageMeta({ layout: "default" });
@@ -107,6 +146,8 @@ definePageMeta({ layout: "default" });
 const router = useRouter();
 
 const isRegister = ref(false);
+const isForgot = ref(false);
+const forgotSent = ref(false);
 const email = ref("");
 const password = ref("");
 const firstName = ref("");
@@ -172,5 +213,28 @@ async function confirmSignUp() {
   } finally {
     loading.value = false;
   }
+}
+
+async function sendResetLink() {
+  loading.value = true;
+  error.value = "";
+  try {
+    await resetPassword({ username: email.value });
+    forgotSent.value = true;
+  } catch (e: any) {
+    if (e.name === "LimitExceededException") {
+      error.value = "Zu viele Versuche — bitte später erneut versuchen.";
+    } else {
+      forgotSent.value = true;
+    }
+  } finally {
+    loading.value = false;
+  }
+}
+
+function backToLogin() {
+  isForgot.value = false;
+  forgotSent.value = false;
+  error.value = "";
 }
 </script>
