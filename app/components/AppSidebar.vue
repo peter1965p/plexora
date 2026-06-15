@@ -61,7 +61,7 @@ const navSections = [
   {
     label: 'System',
     items: [
-      { to: '/appearance', label: 'Erscheinungsbild', icon: 'ti-palette', key: 'appearance' },
+      { to: '/themes', label: 'Themes', icon: 'ti-palette', key: 'themes' },
       { to: '/settings', label: 'Einstellungen', icon: 'ti-settings', key: 'settings' },
     ]
   }
