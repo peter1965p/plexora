@@ -49,6 +49,7 @@ const navSections = [
     items: [
       { to: '/crm',      label: 'CRM',      icon: 'ti-users',         key: 'crm'      },
       { to: '/projects', label: 'Projekte', icon: 'ti-layout-kanban', key: 'projects' },
+      { to: '/contracts', label: 'Verträge', icon: 'ti-file-text', key: 'contracts' },
       { to: '/finance',  label: 'Finanzen', icon: 'ti-receipt',       key: 'finance'  },
       { to: '/hr',       label: 'HR',       icon: 'ti-id-badge',      key: 'hr'       },
       { to: '/support',  label: 'Support',  icon: 'ti-headset',       key: 'support'  },
