@@ -128,6 +128,47 @@
       </div>
     </div>
 
+    <!-- DARSTELLUNG -->
+    <div v-if="tab === 'appearance'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Darstellung</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="appearanceSaving" @click="saveAppearance">
+          <span v-if="appearanceSaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:28px">
+        <p style="font-size:12px;color:var(--text-muted);margin:0">
+          Diese Einstellungen betreffen nur dein Dashboard (Admin-Oberfläche) — nicht die öffentlichen Seiten. Die gestaltest du unter "Themes".
+        </p>
+        <div>
+          <div class="settings-label">Farbmodus</div>
+          <div class="theme-toggle">
+            <button class="theme-opt" :class="{ active: store.theme === 'dark' }" @click="store.setTheme('dark')">
+              <i class="ti ti-moon"></i> Dark
+            </button>
+            <button class="theme-opt" :class="{ active: store.theme === 'light' }" @click="store.setTheme('light')">
+              <i class="ti ti-sun"></i> Light
+            </button>
+          </div>
+        </div>
+        <div>
+          <div class="settings-label">
+            Akzentfarbe — {{ store.accentColors.find(c => c.hex === store.accent)?.name || 'Eigene Farbe' }}
+          </div>
+          <div class="accent-picker">
+            <div v-for="c in store.accentColors" :key="c.hex" class="accent-swatch"
+              :class="{ active: store.accent === c.hex }" :style="{ background: c.hex }"
+              :title="c.name" @click="store.setAccent(c.hex, c.rgb)"></div>
+            <label class="accent-swatch" style="display:flex;align-items:center;justify-content:center;border:1px dashed var(--border);cursor:pointer;position:relative" title="Eigene Farbe">
+              <i class="ti ti-color-picker" style="color:var(--text-muted)"></i>
+              <input type="color" v-model="customAccent" @change="applyCustomAccent" style="position:absolute;inset:0;opacity:0;cursor:pointer" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- RECHNUNGEN -->
     <div v-if="tab === 'invoices'" class="card">
       <div class="card-header">
@@ -428,16 +469,34 @@
 import { marked } from 'marked'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore } from '~/stores/app'
+import { hexToRgbString } from '~/modules/themes'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const store = useAppStore()
 const tab   = ref('branding')
 
+const customAccent     = ref(store.accent)
+const appearanceSaving = ref(false)
+
+function applyCustomAccent() {
+  store.setAccent(customAccent.value, hexToRgbString(customAccent.value))
+}
+
+async function saveAppearance() {
+  appearanceSaving.value = true
+  try {
+    await store.saveTheme()
+  } finally {
+    appearanceSaving.value = false
+  }
+}
+
 const tabs = [
   { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
   { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
   { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
+  { key: 'appearance',  label: 'Darstellung',      icon: 'ti-palette'         },
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
