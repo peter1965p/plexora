@@ -169,6 +169,32 @@
       </div>
     </div>
 
+    <!-- SICHERHEIT -->
+    <div v-if="tab === 'security'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-shield-lock" style="margin-right:8px;color:var(--accent)"></i>Sicherheit</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="securitySaving" @click="saveSecurity">
+          <span v-if="securitySaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+        <div>
+          <div class="settings-label">Automatische Abmeldung nach Inaktivität</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 8px">
+            Gilt für Dashboard und Kundenportal. 60 Sekunden vor Ablauf erscheint eine Warnung mit der Möglichkeit, angemeldet zu bleiben.
+          </p>
+          <select v-model.number="security.timeoutMinutes" class="form-select" style="max-width:240px">
+            <option :value="5">5 Minuten</option>
+            <option :value="15">15 Minuten</option>
+            <option :value="30">30 Minuten</option>
+            <option :value="60">60 Minuten</option>
+            <option :value="0">Nie</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <!-- RECHNUNGEN -->
     <div v-if="tab === 'invoices'" class="card">
       <div class="card-header">
@@ -492,11 +518,32 @@ async function saveAppearance() {
   }
 }
 
+const security = reactive({ timeoutMinutes: 5 })
+const securitySaving = ref(false)
+
+const { data: sessionData } = await useFetch(useApiUrl('/api/settings/session'), { getCachedData: () => undefined })
+if ((sessionData.value as any)?.session) {
+  security.timeoutMinutes = (sessionData.value as any).session.timeoutMinutes ?? 5
+}
+
+async function saveSecurity() {
+  securitySaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/session'), {
+      method: 'POST',
+      body: { timeoutMinutes: security.timeoutMinutes }
+    })
+  } finally {
+    securitySaving.value = false
+  }
+}
+
 const tabs = [
   { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
   { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
   { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
   { key: 'appearance',  label: 'Darstellung',      icon: 'ti-palette'         },
+  { key: 'security',    label: 'Sicherheit',       icon: 'ti-shield-lock'     },
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },

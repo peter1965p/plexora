@@ -2,6 +2,7 @@
   <header class="topbar">
     <div class="topbar-title">{{ title }}</div>
     <div class="topbar-actions">
+      <AppIdleTimer />
       <button class="icon-btn" title="Suche"><i class="ti ti-search"></i></button>
       <button class="icon-btn" style="position:relative" title="Benachrichtigungen">
         <i class="ti ti-bell"></i>

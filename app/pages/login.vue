@@ -3,6 +3,11 @@
     <div class="auth-card">
       <div class="auth-logo">Plexo<span>ra</span></div>
 
+      <div v-if="idleLogout" class="auth-info" style="margin-bottom:12px">
+        <i class="ti ti-clock-exclamation"></i>
+        Du wurdest aus Sicherheitsgründen automatisch abgemeldet.
+      </div>
+
       <template v-if="isForgot">
         <div class="auth-title">Passwort vergessen?</div>
         <div class="auth-sub">
@@ -144,6 +149,8 @@ import {
 definePageMeta({ layout: "default" });
 
 const router = useRouter();
+const route  = useRoute();
+const idleLogout = computed(() => route.query.reason === 'idle');
 
 const isRegister = ref(false);
 const isForgot = ref(false);
