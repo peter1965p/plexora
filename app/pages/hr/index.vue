@@ -154,7 +154,7 @@
 
     <!-- KAMPAGNE MODAL -->
     <div v-if="showCampaign" class="modal-overlay" @click.self="showCampaign=false">
-      <div class="modal-card" style="max-width:600px">
+      <div class="modal-card" style="max-width:600px;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
           <span class="card-title">Neue Stellenkampagne</span>
           <button class="icon-btn" @click="showCampaign=false"><i class="ti ti-x"></i></button>
