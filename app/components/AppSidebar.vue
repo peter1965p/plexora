@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+const store = useAppStore()
 const { branding, loadBranding } = useBranding()
 const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
 const brandLast  = computed(() => branding.value.brandName.slice(-1))
