@@ -30,7 +30,7 @@
               <div v-for="t in bgTokens" :key="t.key" class="color-field">
                 <label>{{ t.label }}</label>
                 <div style="display:flex;gap:8px;align-items:center">
-                  <input type="color" :value="editorVars.value[t.key]" @input="(e) => setVar(t.key, (e.target as HTMLInputElement).value)"
+                  <input type="color" :value="(editorVars.value || DARK_VARS)[t.key]" @input="(e) => setVar(t.key, (e.target as HTMLInputElement).value)"
                     style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
                 </div>
               </div>
@@ -42,7 +42,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div v-for="t in textTokens" :key="t.key" class="color-field">
                 <label>{{ t.label }}</label>
-                <input type="color" :value="editorVars.value[t.key]" @input="(e) => setVar(t.key, (e.target as HTMLInputElement).value)"
+                <input type="color" :value="(editorVars.value || DARK_VARS)[t.key]" @input="(e) => setVar(t.key, (e.target as HTMLInputElement).value)"
                   style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
               </div>
             </div>
@@ -53,13 +53,13 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div class="color-field">
                 <label>Akzentfarbe</label>
-                <input type="color" :value="editorVars.value['--accent']"
+                <input type="color" :value="(editorVars.value || DARK_VARS)['--accent']"
                   @input="(e) => { const v = (e.target as HTMLInputElement).value; setVar('--accent', v); setVar('--accent-rgb', hexToRgbString(v)) }"
                   style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
               </div>
               <div class="color-field">
                 <label>Akzent (sekundär)</label>
-                <input type="color" :value="editorVars.value['--accent-2']" @input="(e) => setVar('--accent-2', (e.target as HTMLInputElement).value)"
+                <input type="color" :value="(editorVars.value || DARK_VARS)['--accent-2']" @input="(e) => setVar('--accent-2', (e.target as HTMLInputElement).value)"
                   style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
               </div>
             </div>
@@ -100,24 +100,24 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Live-Vorschau</span>
-          <span style="font-size:11px;color:var(--text-muted)">Akzent: {{ editorVars.value['--accent'] }}</span>
+          <span style="font-size:11px;color:var(--text-muted)">Akzent: {{ (editorVars.value || DARK_VARS)['--accent'] }}</span>
         </div>
         <div class="card-body">
           <div :style="previewStyle" style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
-            <div :style="`background:${editorVars['--bg-surface']};padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${editorVars.value['--border']}`">
+            <div :style="`background:${editorVars['--bg-surface']};padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${(editorVars.value || DARK_VARS)['--border']}`">
               <strong :style="`color:${editorVars['--text-primary']}`">Meine Firma</strong>
               <div style="display:flex;gap:14px;font-size:13px">
                 <span :style="`color:${editorVars['--text-muted']}`">Leistungen</span>
-                <span :style="`color:${editorVars.value['--accent']}`">Kontakt</span>
+                <span :style="`color:${(editorVars.value || DARK_VARS)['--accent']}`">Kontakt</span>
               </div>
             </div>
             <div :style="`background:${editorVars['--bg-base']};padding:40px 20px;text-align:center`">
               <h3 :style="`color:${editorVars['--text-primary']};margin:0 0 8px;font-size:22px`">Willkommen</h3>
               <p :style="`color:${editorVars['--text-secondary']};margin:0 0 20px;font-size:13px`">Das ist eine Live-Vorschau Ihres Themes.</p>
-              <button :style="`background:${editorVars.value['--accent']};color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600`">Jetzt starten</button>
-              <div :style="`margin-top:14px;display:inline-flex;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, ${editorVars.value['--accent']}, ${editorVars.value['--accent-2']})`"></div>
+              <button :style="`background:${(editorVars.value || DARK_VARS)['--accent']};color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600`">Jetzt starten</button>
+              <div :style="`margin-top:14px;display:inline-flex;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, ${(editorVars.value || DARK_VARS)['--accent']}, ${(editorVars.value || DARK_VARS)['--accent-2']})`"></div>
             </div>
-            <div :style="`background:${editorVars['--bg-elevated']};padding:16px 20px;border-top:1px solid ${editorVars.value['--border']};display:flex;gap:8px;flex-wrap:wrap`">
+            <div :style="`background:${editorVars['--bg-elevated']};padding:16px 20px;border-top:1px solid ${(editorVars.value || DARK_VARS)['--border']};display:flex;gap:8px;flex-wrap:wrap`">
               <span class="badge badge-info">Info</span>
               <span class="badge badge-success">Erfolg</span>
               <span class="badge badge-warning">Hinweis</span>
@@ -226,6 +226,7 @@ const builtins = [
 
 // Editor-State: Kopie der Vars, wird direkt mutiert
 const editorVars = ref<ThemeVars>(JSON.parse(JSON.stringify(DARK_VARS)))
+const ev = computed(() => editorVars.value || DARK_VARS)
 
 function setVar(key: string, value: string) {
   editorVars.value = { ...editorVars.value, [key]: value }
@@ -255,19 +256,19 @@ const textTokens = [
 ]
 
 // Border-Helfer (rgba ↔ hex+alpha)
-const borderHex = computed(() => rgbaToHexAlpha(editorVars.value['--border']).hex)
-const borderAlpha = computed(() => rgbaToHexAlpha(editorVars.value['--border']).alpha)
-const borderAccentHex = computed(() => rgbaToHexAlpha(editorVars.value['--border-accent']).hex)
-const borderAccentAlpha = computed(() => rgbaToHexAlpha(editorVars.value['--border-accent']).alpha)
+const borderHex = computed(() => rgbaToHexAlpha((editorVars.value || DARK_VARS)['--border']).hex)
+const borderAlpha = computed(() => rgbaToHexAlpha((editorVars.value || DARK_VARS)['--border']).alpha)
+const borderAccentHex = computed(() => rgbaToHexAlpha((editorVars.value || DARK_VARS)['--border-accent']).hex)
+const borderAccentAlpha = computed(() => rgbaToHexAlpha((editorVars.value || DARK_VARS)['--border-accent']).alpha)
 
-function setBorderHex(hex: string)         { editorVars.value['--border'] = hexAlphaToRgba(hex, borderAlpha.value) }
-function setBorderAlpha(a: number)         { editorVars.value['--border'] = hexAlphaToRgba(borderHex.value, a) }
-function setBorderAccentHex(hex: string)   { editorVars.value['--border-accent'] = hexAlphaToRgba(hex, borderAccentAlpha.value) }
-function setBorderAccentAlpha(a: number)   { editorVars.value['--border-accent'] = hexAlphaToRgba(borderAccentHex.value, a) }
+function setBorderHex(hex: string)         { (editorVars.value || DARK_VARS)['--border'] = hexAlphaToRgba(hex, borderAlpha.value) }
+function setBorderAlpha(a: number)         { (editorVars.value || DARK_VARS)['--border'] = hexAlphaToRgba(borderHex.value, a) }
+function setBorderAccentHex(hex: string)   { (editorVars.value || DARK_VARS)['--border-accent'] = hexAlphaToRgba(hex, borderAccentAlpha.value) }
+function setBorderAccentAlpha(a: number)   { (editorVars.value || DARK_VARS)['--border-accent'] = hexAlphaToRgba(borderAccentHex.value, a) }
 
 // Preview: kein CSS-Var-Binding, stattdessen direkter inline-Style-String
 const previewStyle = computed(() =>
-  Object.entries(editorVars.value).map(([k, v]) => `${k}:${v}`).join(';')
+  Object.entries(editorVars.value || DARK_VARS).map(([k, v]) => `${k}:${v}`).join(';')
 )
 
 // Swatch-Farben für die Theme-Liste
