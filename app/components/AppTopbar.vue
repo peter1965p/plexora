@@ -42,7 +42,6 @@ const titles: Record<string, string> = {
   '/projects':   'Projekte',
   '/finance':    'Finanzen',
   '/contracts':  'Verträge',
-  '/projects':   'Projekte',
   '/hr':         'HR',
   '/support':    'Support',
   '/settings':   'Einstellungen',
