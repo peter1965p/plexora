@@ -495,7 +495,6 @@
 import { marked } from 'marked'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore } from '~/stores/app'
-import { hexToRgbString } from '~/modules/themes'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -506,7 +505,11 @@ const customAccent     = ref(store.accent)
 const appearanceSaving = ref(false)
 
 function applyCustomAccent() {
-  store.setAccent(customAccent.value, hexToRgbString(customAccent.value))
+  const hex = customAccent.value.replace('#', '')
+  const r = parseInt(hex.substring(0,2),16)
+  const g = parseInt(hex.substring(2,4),16)
+  const b = parseInt(hex.substring(4,6),16)
+  store.setAccent(customAccent.value, `${r}, ${g}, ${b}`)
 }
 
 async function saveAppearance() {
