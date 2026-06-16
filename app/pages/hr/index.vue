@@ -153,6 +153,11 @@
     </div>
 
     <!-- KAMPAGNE MODAL -->
+    <div v-if="toast" class="toast-success">
+      <i class="ti ti-circle-check"></i> {{ toast }}
+    </div>
+
+
     <div v-if="showCampaign" class="modal-overlay" @click.self="showCampaign=false">
       <div class="modal-card" style="max-width:600px;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
@@ -208,10 +213,6 @@
     </div>
 
     <!-- TOAST -->
-    <div v-if="toast" class="toast-success">
-      <i class="ti ti-circle-check"></i> {{ toast }}
-    </div>
-
   </div>
 </template>
 
