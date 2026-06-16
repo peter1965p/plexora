@@ -17,39 +17,50 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Editor</span>
+          <div style="display:flex;gap:6px">
+            <button class="icon-btn" title="Dark-Defaults laden" @click="loadPreset('dark')"><i class="ti ti-moon"></i></button>
+            <button class="icon-btn" title="Light-Defaults laden" @click="loadPreset('light')"><i class="ti ti-sun"></i></button>
+          </div>
         </div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
 
           <div>
             <div class="settings-label">Hintergründe</div>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div v-for="t in bgTokens" :key="t.key" class="color-field">
                 <label>{{ t.label }}</label>
-                <input type="color" v-model="editorVars[t.key]" />
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="color" :value="editorVars[t.key]" @input="(e) => setVar(t.key, (e.target as HTMLInputElement).value)"
+                    style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
+                </div>
               </div>
             </div>
           </div>
 
           <div>
             <div class="settings-label">Text</div>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div v-for="t in textTokens" :key="t.key" class="color-field">
                 <label>{{ t.label }}</label>
-                <input type="color" v-model="editorVars[t.key]" />
+                <input type="color" :value="editorVars[t.key]" @input="(e) => setVar(t.key, (e.target as HTMLInputElement).value)"
+                  style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
               </div>
             </div>
           </div>
 
           <div>
             <div class="settings-label">Akzent</div>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div class="color-field">
                 <label>Akzentfarbe</label>
-                <input type="color" v-model="accentHex" />
+                <input type="color" :value="editorVars['--accent']"
+                  @input="(e) => { const v = (e.target as HTMLInputElement).value; setVar('--accent', v); setVar('--accent-rgb', hexToRgbString(v)) }"
+                  style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
               </div>
               <div class="color-field">
                 <label>Akzent (sekundär)</label>
-                <input type="color" v-model="editorVars['--accent-2']" />
+                <input type="color" :value="editorVars['--accent-2']" @input="(e) => setVar('--accent-2', (e.target as HTMLInputElement).value)"
+                  style="width:100%;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
               </div>
             </div>
           </div>
@@ -58,17 +69,25 @@
             <div class="settings-label">Rahmen</div>
             <div style="display:flex;flex-direction:column;gap:12px">
               <div style="display:flex;align-items:center;gap:10px">
-                <input type="color" v-model="borderHex" style="width:36px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;flex-shrink:0" />
+                <input type="color" :value="borderHex"
+                  @input="(e) => setBorderHex((e.target as HTMLInputElement).value)"
+                  style="width:36px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;flex-shrink:0;cursor:pointer" />
                 <div style="flex:1">
                   <label style="font-size:12px;color:var(--text-muted)">Rahmenfarbe — Deckkraft {{ Math.round(borderAlpha * 100) }}%</label>
-                  <input type="range" min="0" max="1" step="0.01" v-model.number="borderAlpha" style="width:100%" />
+                  <input type="range" min="0" max="1" step="0.01" :value="borderAlpha"
+                    @input="(e) => setBorderAlpha(parseFloat((e.target as HTMLInputElement).value))"
+                    style="width:100%" />
                 </div>
               </div>
               <div style="display:flex;align-items:center;gap:10px">
-                <input type="color" v-model="borderAccentHex" style="width:36px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;flex-shrink:0" />
+                <input type="color" :value="borderAccentHex"
+                  @input="(e) => setBorderAccentHex((e.target as HTMLInputElement).value)"
+                  style="width:36px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;flex-shrink:0;cursor:pointer" />
                 <div style="flex:1">
                   <label style="font-size:12px;color:var(--text-muted)">Akzent-Rahmen — Deckkraft {{ Math.round(borderAccentAlpha * 100) }}%</label>
-                  <input type="range" min="0" max="1" step="0.01" v-model.number="borderAccentAlpha" style="width:100%" />
+                  <input type="range" min="0" max="1" step="0.01" :value="borderAccentAlpha"
+                    @input="(e) => setBorderAccentAlpha(parseFloat((e.target as HTMLInputElement).value))"
+                    style="width:100%" />
                 </div>
               </div>
             </div>
@@ -83,21 +102,21 @@
           <span class="card-title">Live-Vorschau</span>
         </div>
         <div class="card-body">
-          <div :style="editorVars" style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
-            <div style="background:var(--bg-surface);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
-              <strong style="color:var(--text-primary)">Meine Firma</strong>
+          <div :style="previewStyle" style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
+            <div :style="`background:${editorVars['--bg-surface']};padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${editorVars['--border']}`">
+              <strong :style="`color:${editorVars['--text-primary']}`">Meine Firma</strong>
               <div style="display:flex;gap:14px;font-size:13px">
-                <span style="color:var(--text-muted)">Leistungen</span>
-                <span style="color:var(--accent)">Kontakt</span>
+                <span :style="`color:${editorVars['--text-muted']}`">Leistungen</span>
+                <span :style="`color:${editorVars['--accent']}`">Kontakt</span>
               </div>
             </div>
-            <div style="background:var(--bg-base);padding:40px 20px;text-align:center">
-              <h3 style="color:var(--text-primary);margin:0 0 8px;font-size:22px">Willkommen</h3>
-              <p style="color:var(--text-secondary);margin:0 0 20px;font-size:13px">Das ist eine Live-Vorschau Ihres Themes.</p>
-              <button style="background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600">Jetzt starten</button>
-              <div style="margin-top:14px;display:inline-flex;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, var(--accent), var(--accent-2))"></div>
+            <div :style="`background:${editorVars['--bg-base']};padding:40px 20px;text-align:center`">
+              <h3 :style="`color:${editorVars['--text-primary']};margin:0 0 8px;font-size:22px`">Willkommen</h3>
+              <p :style="`color:${editorVars['--text-secondary']};margin:0 0 20px;font-size:13px`">Das ist eine Live-Vorschau Ihres Themes.</p>
+              <button :style="`background:${editorVars['--accent']};color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600`">Jetzt starten</button>
+              <div :style="`margin-top:14px;display:inline-flex;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, ${editorVars['--accent']}, ${editorVars['--accent-2']})`"></div>
             </div>
-            <div style="background:var(--bg-elevated);padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
+            <div :style="`background:${editorVars['--bg-elevated']};padding:16px 20px;border-top:1px solid ${editorVars['--border']};display:flex;gap:8px;flex-wrap:wrap`">
               <span class="badge badge-info">Info</span>
               <span class="badge badge-success">Erfolg</span>
               <span class="badge badge-warning">Hinweis</span>
@@ -117,28 +136,35 @@
           <input v-model="themeName" placeholder="z.B. Kunde Mustermann" />
         </div>
         <button class="accent-btn" :disabled="!themeName || saving" @click="saveAsNew">
-          <i class="ti ti-plus"></i> Als neues Theme speichern
+          <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-plus"></i> Als neues Theme speichern</span>
         </button>
-        <button v-if="editingThemeId" class="accent-btn" :disabled="!themeName || saving" style="background:var(--bg-hover);color:var(--text-primary)" @click="updateExisting">
-          <i class="ti ti-device-floppy"></i> Aktualisieren
+        <button v-if="editingThemeId" class="accent-btn" :disabled="!themeName || saving"
+          style="background:var(--bg-hover);color:var(--text-primary)" @click="updateExisting">
+          <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Aktualisieren</span>
         </button>
+        <div v-if="saveSuccess" style="color:#5CB85C;font-size:13px;display:flex;align-items:center;gap:4px">
+          <i class="ti ti-circle-check"></i> Gespeichert!
+        </div>
       </div>
     </div>
 
     <!-- SAVED THEMES -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Themes</span>
+        <span class="card-title">Gespeicherte Themes</span>
       </div>
       <table class="data-table">
         <thead>
-          <tr><th style="width:90px"></th><th>Name</th><th style="width:240px"></th></tr>
+          <tr><th style="width:120px">Vorschau</th><th>Name</th><th style="width:220px"></th></tr>
         </thead>
         <tbody>
           <tr v-for="preset in builtins" :key="preset.id">
-            <td><div style="display:flex;gap:4px"><span v-for="c in swatches(preset.vars)" :key="c" :style="{background:c}" style="width:18px;height:18px;border-radius:4px;border:0.5px solid var(--border)"></span></div></td>
-            <td class="td-name">
-              {{ preset.name }}
+            <td><div style="display:flex;gap:4px">
+              <span v-for="c in swatches(preset.vars)" :key="c" :style="{background:c,width:'18px',height:'18px',borderRadius:'4px',border:'0.5px solid rgba(255,255,255,0.1)',display:'inline-block'}"></span>
+            </div></td>
+            <td class="td-name">{{ preset.name }}
               <span v-if="activeThemeId === preset.id" class="badge badge-success" style="margin-left:6px">Aktiv</span>
             </td>
             <td>
@@ -149,9 +175,10 @@
             </td>
           </tr>
           <tr v-for="t in themes" :key="t.themeId">
-            <td><div style="display:flex;gap:4px"><span v-for="c in swatches(t.vars)" :key="c" :style="{background:c}" style="width:18px;height:18px;border-radius:4px;border:0.5px solid var(--border)"></span></div></td>
-            <td class="td-name">
-              {{ t.name }}
+            <td><div style="display:flex;gap:4px">
+              <span v-for="c in swatches(t.vars)" :key="c" :style="{background:c,width:'18px',height:'18px',borderRadius:'4px',border:'0.5px solid rgba(255,255,255,0.1)',display:'inline-block'}"></span>
+            </div></td>
+            <td class="td-name">{{ t.name }}
               <span v-if="activeThemeId === t.themeId" class="badge badge-success" style="margin-left:6px">Aktiv</span>
             </td>
             <td>
@@ -173,9 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  DARK_VARS, LIGHT_VARS, hexToRgbString, rgbaToHexAlpha, hexAlphaToRgba,
-} from '~/modules/themes'
+import { DARK_VARS, LIGHT_VARS, hexToRgbString, rgbaToHexAlpha, hexAlphaToRgba } from '~/modules/themes'
 import type { ThemeVars, Theme } from '~/modules/themes'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
@@ -194,20 +219,34 @@ const themes = computed(() => (themesData.value as any)?.themes || [])
 const activeThemeId = computed(() => (ftData.value as any)?.frontendTheme?.activeThemeId || '')
 
 const builtins = [
-  { id: '',         name: 'Dark (Standard)', vars: DARK_VARS },
-  { id: '__light__', name: 'Light',          vars: LIGHT_VARS },
+  { id: '',          name: 'Dark (Standard)', vars: DARK_VARS },
+  { id: '__light__', name: 'Light',           vars: LIGHT_VARS },
 ]
 
-const editorVars = reactive<ThemeVars>({ ...DARK_VARS })
-const themeName = ref('')
-const editingThemeId = ref<string | null>(null)
-const saving = ref(false)
+// Editor-State: Kopie der Vars, wird direkt mutiert
+const editorVars = reactive<ThemeVars>(JSON.parse(JSON.stringify(DARK_VARS)))
 
+function setVar(key: string, value: string) {
+  editorVars[key] = value
+}
+
+function loadPreset(mode: 'dark' | 'light') {
+  const src = mode === 'dark' ? DARK_VARS : LIGHT_VARS
+  Object.keys(src).forEach(k => { editorVars[k] = src[k] })
+}
+
+function loadIntoEditor(vars: ThemeVars, themeId: string, name: string) {
+  Object.keys(vars).forEach(k => { editorVars[k] = vars[k] })
+  editingThemeId.value = themeId || null
+  themeName.value = name
+}
+
+// Token-Gruppen
 const bgTokens = [
-  { key: '--bg-base',    label: 'Hintergrund' },
-  { key: '--bg-surface', label: 'Flächen' },
+  { key: '--bg-base',     label: 'Hintergrund' },
+  { key: '--bg-surface',  label: 'Flächen' },
   { key: '--bg-elevated', label: 'Erhöhte Flächen' },
-  { key: '--bg-hover',   label: 'Hover' },
+  { key: '--bg-hover',    label: 'Hover' },
 ]
 const textTokens = [
   { key: '--text-primary',   label: 'Haupttext' },
@@ -215,36 +254,65 @@ const textTokens = [
   { key: '--text-muted',     label: 'Gedämpft' },
 ]
 
-const accentHex = computed({
-  get: () => editorVars['--accent'],
-  set: (v: string) => { editorVars['--accent'] = v; editorVars['--accent-rgb'] = hexToRgbString(v) }
-})
+// Border-Helfer (rgba ↔ hex+alpha)
+const borderHex = computed(() => rgbaToHexAlpha(editorVars['--border']).hex)
+const borderAlpha = computed(() => rgbaToHexAlpha(editorVars['--border']).alpha)
+const borderAccentHex = computed(() => rgbaToHexAlpha(editorVars['--border-accent']).hex)
+const borderAccentAlpha = computed(() => rgbaToHexAlpha(editorVars['--border-accent']).alpha)
 
-const borderHex = computed({
-  get: () => rgbaToHexAlpha(editorVars['--border']).hex,
-  set: (v: string) => { editorVars['--border'] = hexAlphaToRgba(v, borderAlpha.value) }
-})
-const borderAlpha = computed({
-  get: () => rgbaToHexAlpha(editorVars['--border']).alpha,
-  set: (v: number) => { editorVars['--border'] = hexAlphaToRgba(borderHex.value, v) }
-})
-const borderAccentHex = computed({
-  get: () => rgbaToHexAlpha(editorVars['--border-accent']).hex,
-  set: (v: string) => { editorVars['--border-accent'] = hexAlphaToRgba(v, borderAccentAlpha.value) }
-})
-const borderAccentAlpha = computed({
-  get: () => rgbaToHexAlpha(editorVars['--border-accent']).alpha,
-  set: (v: number) => { editorVars['--border-accent'] = hexAlphaToRgba(borderAccentHex.value, v) }
-})
+function setBorderHex(hex: string)         { editorVars['--border'] = hexAlphaToRgba(hex, borderAlpha.value) }
+function setBorderAlpha(a: number)         { editorVars['--border'] = hexAlphaToRgba(borderHex.value, a) }
+function setBorderAccentHex(hex: string)   { editorVars['--border-accent'] = hexAlphaToRgba(hex, borderAccentAlpha.value) }
+function setBorderAccentAlpha(a: number)   { editorVars['--border-accent'] = hexAlphaToRgba(borderAccentHex.value, a) }
 
+// Preview: kein CSS-Var-Binding, stattdessen direkter inline-Style-String
+const previewStyle = computed(() =>
+  Object.entries(editorVars).map(([k, v]) => `${k}:${v}`).join(';')
+)
+
+// Swatch-Farben für die Theme-Liste
 function swatches(vars: ThemeVars): string[] {
-  return [vars['--bg-base'], vars['--accent'], vars['--bg-elevated'], vars['--accent-2']]
+  return [vars['--bg-base'], vars['--accent'], vars['--bg-elevated'], vars['--accent-2']].filter(Boolean)
 }
 
-function loadIntoEditor(vars: ThemeVars, themeId: string, name: string) {
-  Object.assign(editorVars, JSON.parse(JSON.stringify(vars)))
-  editingThemeId.value = themeId || null
-  themeName.value = name
+// Speichern / Laden
+const themeName       = ref('')
+const editingThemeId  = ref<string | null>(null)
+const saving          = ref(false)
+const saveSuccess     = ref(false)
+
+async function saveAsNew() {
+  saving.value = true
+  saveSuccess.value = false
+  try {
+    const res = await $fetch<{ theme: Theme }>(useApiUrl('/api/themes'), {
+      method: 'POST',
+      body: { name: themeName.value, vars: { ...editorVars }, userId: userId.value }
+    })
+    await refreshThemes()
+    editingThemeId.value = (res as any).theme?.themeId || null
+    saveSuccess.value = true
+    setTimeout(() => saveSuccess.value = false, 2000)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function updateExisting() {
+  if (!editingThemeId.value) return
+  saving.value = true
+  saveSuccess.value = false
+  try {
+    await $fetch(useApiUrl(`/api/themes/${editingThemeId.value}`), {
+      method: 'PATCH',
+      body: { name: themeName.value, vars: { ...editorVars } }
+    })
+    await refreshThemes()
+    saveSuccess.value = true
+    setTimeout(() => saveSuccess.value = false, 2000)
+  } finally {
+    saving.value = false
+  }
 }
 
 async function apply(id: string) {
@@ -255,34 +323,6 @@ async function apply(id: string) {
   await refreshFt()
 }
 
-async function saveAsNew() {
-  saving.value = true
-  try {
-    const res = await $fetch<{ theme: Theme }>(useApiUrl('/api/themes'), {
-      method: 'POST',
-      body: { name: themeName.value, vars: { ...editorVars }, userId: userId.value }
-    })
-    await refreshThemes()
-    editingThemeId.value = res.theme.themeId
-  } finally {
-    saving.value = false
-  }
-}
-
-async function updateExisting() {
-  if (!editingThemeId.value) return
-  saving.value = true
-  try {
-    await $fetch(useApiUrl(`/api/themes/${editingThemeId.value}`), {
-      method: 'PATCH',
-      body: { name: themeName.value, vars: { ...editorVars } }
-    })
-    await refreshThemes()
-  } finally {
-    saving.value = false
-  }
-}
-
 async function removeTheme(t: Theme) {
   if (!confirm(`Theme "${t.name}" wirklich löschen?`)) return
   await $fetch(useApiUrl(`/api/themes/${t.themeId}`), { method: 'DELETE' })
@@ -290,9 +330,3 @@ async function removeTheme(t: Theme) {
   await refreshThemes()
 }
 </script>
-
-<style scoped>
-.color-field { display:flex; flex-direction:column; gap:6px; }
-.color-field label { font-size:12px; color:var(--text-muted); }
-.color-field input[type="color"] { width:100%; height:36px; border-radius:6px; border:0.5px solid var(--border); background:none; cursor:pointer; padding:2px; }
-</style>
