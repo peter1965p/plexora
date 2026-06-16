@@ -1036,3 +1036,20 @@ ul {
   flex-direction: column;
   gap: 14px;
 }
+
+/* ── Formular-Elemente global ────────────────────────── */
+.auth-field textarea {
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  width: 100%;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+}
+.auth-field textarea:focus {
+  border-color: var(--border-accent);
+}

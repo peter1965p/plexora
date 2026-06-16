@@ -152,7 +152,7 @@
             <input v-model.number="form.progress" type="range" min="0" max="100" step="5" style="width:100%;accent-color:var(--accent)" />
           </div>
 
-          <div class="auth-field"><label>Notizen</label><textarea v-model="form.notes" rows="2" placeholder="Interne Notizen..."></textarea></div>
+          <div class="auth-field"><label>Notizen</label><textarea v-model="form.notes" rows="2" placeholder="Interne Notizen..." style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea></div>
 
           <button class="auth-btn" :disabled="saving || !form.name" @click="save">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
