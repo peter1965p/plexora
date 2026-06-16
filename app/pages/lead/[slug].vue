@@ -85,9 +85,6 @@ const submitted  = ref(false)
 const successMsg = ref('Vielen Dank!')
 
 async function submit() {
-  // Required-Felder prüfen
-  const missing = (form.value?.fields || []).filter((f: any) => f.required && !formData[f.label])
-  if (missing.length) return
 
   sending.value = true
   try {
