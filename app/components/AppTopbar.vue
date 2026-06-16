@@ -40,6 +40,7 @@ const titles: Record<string, string> = {
   '/analytics':  'Analytics',
   '/crm':        'CRM',
   '/projects':   'Projekte',
+  '/lead':        'Lead-Landingpage',
   '/finance':    'Finanzen',
   '/contracts':  'Verträge',
   '/hr':         'HR',
