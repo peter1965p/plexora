@@ -45,7 +45,12 @@ const titles: Record<string, string> = {
   '/contracts':  'Verträge',
   '/hr':         'HR',
   '/support':    'Support',
-  '/settings':   'Einstellungen',
+  '/marketing':   'Marketing',
+  '/shop-admin':  'Shop',
+  '/pagebuilder': 'Pagebuilder',
+  '/forms':       'Formulare',
+  '/analytics':   'Analytics',
+  '/settings':    'Einstellungen',
 }
 const title = computed(() => titles[route.path] || 'Plexora')
 

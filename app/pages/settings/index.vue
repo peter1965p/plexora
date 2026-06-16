@@ -314,22 +314,45 @@
       </div>
     </div>
 
-    <!-- MODULE -->
-    <div v-if="tab === 'modules'" class="card">
-      <div class="card-header">
-        <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>Module</span>
-        <span style="font-size:11px;color:var(--text-muted)">{{ store.modules.filter(m => m.on).length }} / {{ store.modules.length }} aktiv</span>
-      </div>
-      <div class="card-body">
-        <div class="module-grid">
-          <div v-for="m in store.modules" :key="m.key" class="module-pill" :class="{ on: m.on }" @click="store.toggleModule(m.key)">
-            <i class="ti pill-icon" :class="m.icon"></i>
-            <span class="pill-name">{{ m.name }}</span>
-            <div class="pill-toggle" :class="{ on: m.on }"><div class="pill-thumb"></div></div>
+    <!-- MODULE / LIZENZ-CENTER -->
+    <div v-if="tab === 'modules'">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>Lizenz-Center</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="badge badge-success">God License 😄</span>
+            <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on).length }} / {{ store.modules.length }} aktiv</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">
+            <div v-for="m in store.modules" :key="m.key"
+              style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s"
+              :style="m.on ? 'border-color:var(--accent)' : ''">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center"
+                  :style="m.on ? 'background:rgba(var(--accent-rgb),0.15)' : 'background:var(--bg-hover)'">
+                  <i class="ti" :class="m.icon" :style="m.on ? 'color:var(--accent)' : 'color:var(--text-muted)'"></i>
+                </div>
+                <div style="flex:1">
+                  <div style="font-weight:700;font-size:14px">{{ m.name }}</div>
+                  <span class="badge" style="font-size:10px;margin-top:2px"
+                    :class="m.plan === 'basic' ? 'badge-success' : m.plan === 'pro' ? 'badge-info' : 'badge-warning'">
+                    {{ m.plan === 'basic' ? 'Basic' : m.plan === 'pro' ? 'Pro' : 'Enterprise' }}
+                  </span>
+                </div>
+                <div class="pill-toggle" :class="{ on: m.on }" @click="store.toggleModule(m.key)" style="cursor:pointer;flex-shrink:0">
+                  <div class="pill-thumb"></div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);line-height:1.5">{{ m.desc }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- KONTO -->
 
     <!-- KONTO -->
     <div v-if="tab === 'account'" class="card">

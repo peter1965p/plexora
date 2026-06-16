@@ -41,6 +41,20 @@ const openTickets = computed(() => {
   return tickets.filter((t: any) => t.status === 'open' || t.status === 'in_progress').length
 })
 
+const moduleRoutes: Record<string, string> = {
+  crm:         '/crm',
+  projects:    '/projects',
+  contracts:   '/contracts',
+  finance:     '/finance',
+  hr:          '/hr',
+  support:     '/support',
+  analytics:   '/analytics',
+  shop:        '/shop-admin',
+  pagebuilder: '/pagebuilder',
+  forms:       '/forms',
+  marketing:   '/marketing',
+}
+
 const navSections = [
   {
     label: 'Übersicht',
@@ -51,17 +65,9 @@ const navSections = [
   },
   {
     label: 'Module',
-    items: [
-      { to: '/crm',      label: 'CRM',      icon: 'ti-users',         key: 'crm'      },
-      { to: '/projects', label: 'Projekte', icon: 'ti-layout-kanban', key: 'projects' },
-      { to: '/contracts', label: 'Verträge', icon: 'ti-file-text', key: 'contracts' },
-      { to: '/finance',  label: 'Finanzen', icon: 'ti-receipt',       key: 'finance'  },
-      { to: '/hr',       label: 'HR',       icon: 'ti-id-badge',      key: 'hr'       },
-      { to: '/support',  label: 'Support',  icon: 'ti-headset',       key: 'support'  },
-      { to: '/shop-admin',    label: 'Shop',        icon: 'ti-shopping-cart', key: 'shop'        },
-      { to: '/pagebuilder',  label: 'Pagebuilder', icon: 'ti-layout-2',      key: 'pagebuilder' },
-      { to: '/forms',        label: 'Formulare',   icon: 'ti-forms',         key: 'forms'       },
-    ]
+    items: store.modules
+      .filter(m => m.on && moduleRoutes[m.key])
+      .map(m => ({ to: moduleRoutes[m.key], label: m.name, icon: m.icon, key: m.key }))
   },
   {
     label: 'System',
