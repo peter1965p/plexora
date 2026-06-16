@@ -106,8 +106,21 @@
               <div class="auth-field"><label>Headline</label><input v-model="form.headline" placeholder="Kostenlose IT-Beratung" /></div>
               <div class="auth-field"><label>Subtext</label><input v-model="form.subtext" placeholder="Jetzt unverbindlich anfragen" /></div>
               <div class="auth-field">
-                <label>Header-Bild URL</label>
-                <input v-model="form.headerImageUrl" placeholder="https://..." />
+                <label>Header-Bild</label>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                  <img v-if="form.headerImageUrl" :src="form.headerImageUrl"
+                    style="height:48px;max-width:120px;object-fit:cover;border-radius:6px;border:0.5px solid var(--border)" />
+                  <label style="cursor:pointer">
+                    <input type="file" accept="image/*" style="display:none" @change="uploadHeaderImage" :disabled="headerUploading" />
+                    <span class="accent-btn" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
+                      <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                      {{ headerUploading ? 'Lädt...' : form.headerImageUrl ? 'Ändern' : 'Bild hochladen' }}
+                    </span>
+                  </label>
+                  <button v-if="form.headerImageUrl" class="icon-btn" style="color:var(--danger)" @click="form.headerImageUrl=''" title="Entfernen">
+                    <i class="ti ti-trash"></i>
+                  </button>
+                </div>
               </div>
               <div class="auth-field">
                 <label>Akzentfarbe</label>
@@ -338,6 +351,23 @@ async function deleteCampaign(c: any) {
   if (!confirm(`Kampagne "${c.name}" wirklich löschen?`)) return
   await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
   await refresh()
+}
+
+// ── Header-Upload
+const headerUploading = ref(false)
+async function uploadHeaderImage(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  headerUploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('prefix', 'marketing/')
+    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd })
+    if (res?.url) form.headerImageUrl = res.url
+    else if (res?.key) form.headerImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
+  } catch (err) { console.error('Upload fehlgeschlagen:', err) }
+  finally { headerUploading.value = false }
 }
 
 // ── Toast ────────────────────────────────────────────
