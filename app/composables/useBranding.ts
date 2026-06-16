@@ -4,6 +4,7 @@ export const useBranding = () => {
     brandTagline: 'Business Platform',
     primaryColor: '#7C3AED',
     portalTitle:  'Kundenportal',
+    logoUrl:      '',
   }))
 
   async function loadBranding() {

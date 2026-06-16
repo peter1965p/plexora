@@ -20,6 +20,22 @@
       <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
         <div style="display:flex;flex-direction:column;gap:16px">
           <div class="auth-field">
+            <label>Logo (Upload)</label>
+            <div style="display:flex;gap:10px;align-items:center">
+              <img v-if="brand.logoUrl" :src="brand.logoUrl" style="height:40px;max-width:120px;object-fit:contain;border-radius:6px;border:0.5px solid var(--border)" />
+              <label style="cursor:pointer">
+                <input type="file" accept="image/*" style="display:none" @change="uploadLogo" :disabled="logoUploading" />
+                <span class="accent-btn" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
+                  <i class="ti" :class="logoUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                  {{ logoUploading ? 'Lädt...' : brand.logoUrl ? 'Ändern' : 'Logo hochladen' }}
+                </span>
+              </label>
+              <button v-if="brand.logoUrl" class="icon-btn" style="color:var(--danger)" @click="brand.logoUrl=''" title="Logo entfernen">
+                <i class="ti ti-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="auth-field">
             <label>Produktname</label>
             <input v-model="brand.brandName" placeholder="Plexora" />
           </div>
@@ -611,6 +627,26 @@ onMounted(async () => {
     if (d?.settings) Object.assign(dunning, d.settings)
   } catch {}
 })
+
+const logoUploading = ref(false)
+
+async function uploadLogo(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  logoUploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('prefix', 'branding/')
+    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd }) as any
+    if (res?.url) brand.logoUrl = res.url
+    else if (res?.key) brand.logoUrl = `https://plexora-files.s3.eu-central-1.amazonaws.com/${res.key}`
+  } catch (err) {
+    console.error('Logo-Upload fehlgeschlagen:', err)
+  } finally {
+    logoUploading.value = false
+  }
+}
 
 async function saveBranding() {
   brandSaving.value = true

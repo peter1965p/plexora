@@ -1,8 +1,13 @@
 <template>
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-icon"><i class="ti ti-bolt"></i></div>
-      <div class="logo-text">{{ brandFirst }}<span>{{ brandLast }}</span></div>
+      <template v-if="branding.logoUrl">
+        <img :src="branding.logoUrl" style="height:32px;max-width:120px;object-fit:contain" alt="Logo" />
+      </template>
+      <template v-else>
+        <div class="logo-icon"><i class="ti ti-bolt"></i></div>
+        <div class="logo-text">{{ brandFirst }}<span>{{ brandLast }}</span></div>
+      </template>
     </div>
     <nav class="sidebar-nav">
       <template v-for="section in navSections" :key="section.label">

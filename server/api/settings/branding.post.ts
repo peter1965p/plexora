@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
   const client = getDynamoClient()
+
   await client.send(new PutCommand({
     TableName: 'plexora-settings',
     Item: {
@@ -13,8 +14,10 @@ export default defineEventHandler(async (event) => {
       brandTagline: body.brandTagline || 'Business Platform',
       primaryColor: body.primaryColor || '#7C3AED',
       portalTitle:  body.portalTitle  || 'Kundenportal',
+      logoUrl:      body.logoUrl      || '',
       updated:      new Date().toISOString(),
     }
   }))
+
   return { success: true }
 })
