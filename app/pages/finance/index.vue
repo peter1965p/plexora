@@ -31,6 +31,10 @@
     <div class="card">
       <div class="card-header">
         <span class="card-title">Rechnungen</span>
+        <div style="display:flex;gap:8px">
+          <button class="icon-btn" title="Als CSV exportieren" @click="doExportCsv"><i class="ti ti-file-type-csv"></i></button>
+          <button class="icon-btn" title="Als Excel exportieren" @click="doExportXlsx"><i class="ti ti-file-spreadsheet"></i></button>
+        </div>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="showAdd=true">
           <i class="ti ti-plus"></i> Neue Rechnung
         </button>
@@ -133,6 +137,7 @@
 
 <script setup lang="ts">
 import { calcRevenue, calcPending, calcOverdue, formatEur, statusLabel, statusBadge } from '~/modules/finance'
+import { exportToCsv, exportToXlsx } from '~/modules/export'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -265,4 +270,18 @@ async function deleteInvoice(invoice: any) {
   })
   await refresh()
 }
+
+function exportRows() {
+  const invoices = (data.value as any)?.invoices || []
+  return invoices.map((i: any) => ({
+    'Rechnungs-Nr':   i.invoiceNumber || i.invoiceId?.slice(0,8) || '',
+    Kunde:            i.customer || '',
+    Betrag:           i.amount || 0,
+    Status:           statusLabel(i.status),
+    Fälligkeitsdatum: i.dueDate ? new Date(i.dueDate).toLocaleDateString('de-DE') : '',
+    Erstellt:         i.created ? new Date(i.created).toLocaleDateString('de-DE') : '',
+  }))
+}
+function doExportCsv()  { exportToCsv(`rechnungen-${new Date().toISOString().slice(0,10)}.csv`, exportRows()) }
+function doExportXlsx() { exportToXlsx(`rechnungen-${new Date().toISOString().slice(0,10)}.xlsx`, exportRows(), 'Rechnungen') }
 </script>
