@@ -184,6 +184,21 @@
             <textarea v-model="newCamp.requirements" placeholder="Was erwarten wir?" rows="3"
               style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
           </div>
+          <div style="border-top:0.5px solid var(--border);margin:16px 0;padding-top:16px">
+            <div class="settings-label" style="margin-bottom:12px">🎨 Kampagnen-Design</div>
+            <div class="auth-field"><label>Firmenname (auf Bewerbungsseite)</label><input v-model="newCamp.companyName" placeholder="Päffgen IT GmbH" /></div>
+            <div class="auth-row">
+              <div class="auth-field">
+                <label>Akzentfarbe</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="color" v-model="newCamp.accentColor" style="width:48px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
+                  <span style="font-size:12px;color:var(--text-muted)">{{ newCamp.accentColor }}</span>
+                </div>
+              </div>
+              <div class="auth-field"><label>Logo-URL</label><input v-model="newCamp.logoUrl" placeholder="https://..." /></div>
+            </div>
+            <div class="auth-field"><label>Header-Bild URL (optional)</label><input v-model="newCamp.headerImageUrl" placeholder="https://..." /></div>
+          </div>
           <button class="auth-btn" :disabled="saving" @click="addCampaign">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else><i class="ti ti-speakerphone"></i> Kampagne erstellen</span>
@@ -252,7 +267,7 @@ const typeLabel: Record<string, string> = {
   fulltime: 'Vollzeit', parttime: 'Teilzeit', internship: 'Praktikum', freelance: 'Freelance'
 }
 
-const newCamp = reactive({ title: '', department: '', location: '', type: 'fulltime', description: '', requirements: '' })
+const newCamp = reactive({ title: '', department: '', location: '', type: 'fulltime', description: '', requirements: '', companyName: '', accentColor: '#6C3FE8', logoUrl: '', headerImageUrl: '' })
 
 function applicationCount(campaignId: string) {
   return allApplications.value.filter((a: any) => a.campaignId === campaignId).length

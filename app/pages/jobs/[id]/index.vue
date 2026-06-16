@@ -1,13 +1,24 @@
 <template>
-  <div style="min-height:100vh;background:var(--bg-base);display:flex;align-items:center;justify-content:center;padding:24px">
+  <div :style="pageStyle" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
     <div style="max-width:680px;width:100%">
 
-      <!-- Header -->
+      <!-- Header-Bild -->
+      <div v-if="campaign?.headerImageUrl" style="border-radius:16px;overflow:hidden;margin-bottom:24px;height:200px">
+        <img :src="campaign.headerImageUrl" style="width:100%;height:100%;object-fit:cover" alt="Header" />
+      </div>
+
+      <!-- Logo / Firmenname -->
       <div style="text-align:center;margin-bottom:40px">
-        <div class="logo-text" style="font-size:28px;margin-bottom:8px">
-          {{ brandFirst }}<span class="logo-accent">{{ brandLast }}</span>
+        <div v-if="campaign?.logoUrl" style="margin-bottom:12px">
+          <img :src="campaign.logoUrl" style="max-height:60px;max-width:200px;object-fit:contain" alt="Logo" />
         </div>
-        <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em">Karriere</div>
+        <div v-else class="logo-text" style="font-size:28px;margin-bottom:8px">
+          {{ campaign?.companyName || brandFirst }}<span :style="`color:${accentColor}`">{{ campaign?.companyName ? '' : brandLast }}</span>
+        </div>
+        <div v-if="campaign?.companyName && !campaign?.logoUrl" style="font-size:20px;font-weight:700;color:var(--text-primary)">
+          {{ campaign.companyName }}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px">Karriere</div>
       </div>
 
       <div v-if="campaign" class="card" style="margin-bottom:16px">
@@ -47,7 +58,8 @@
             <textarea v-model="form.message" placeholder="Warum möchten Sie bei uns arbeiten?" rows="5"
               style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
           </div>
-          <button class="auth-btn" :disabled="sending" @click="apply">
+          <button class="auth-btn" :disabled="sending" @click="apply"
+            :style="accentColor ? `background:${accentColor}` : ''">
             <span v-if="sending"><i class="ti ti-loader-2 spin"></i> Wird gesendet...</span>
             <span v-else><i class="ti ti-send"></i> Bewerbung absenden</span>
           </button>
@@ -56,7 +68,7 @@
 
       <!-- Erfolg -->
       <div v-if="submitted" class="card" style="text-align:center;padding:48px">
-        <i class="ti ti-circle-check" style="font-size:48px;color:#00D4B4"></i>
+        <i class="ti ti-circle-check" :style="`font-size:48px;color:${accentColor || '#00D4B4'}`"></i>
         <h2 style="margin:16px 0 8px">Bewerbung eingegangen!</h2>
         <p style="color:var(--text-muted)">Wir haben Ihre Bewerbung erhalten und melden uns bald bei Ihnen.</p>
       </div>
@@ -66,17 +78,10 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: false })
+definePageMeta({ layout: 'default' })
 
 const route      = useRoute()
 const campaignId = route.params.id as string
-
-const typeLabel: Record<string, string> = {
-  fulltime:  'Vollzeit',
-  parttime:  'Teilzeit',
-  internship:'Praktikum',
-  freelance: 'Freelance',
-}
 
 const { data } = await useFetch(`/api/jobs/${campaignId}`)
 const campaign = computed(() => (data.value as any)?.campaign)
@@ -85,6 +90,22 @@ const { branding, loadBranding } = useBranding()
 const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
 const brandLast  = computed(() => branding.value.brandName.slice(-1))
 onMounted(() => loadBranding())
+
+const accentColor = computed(() => campaign.value?.accentColor || '')
+
+const pageStyle = computed(() => {
+  if (!accentColor.value) return {}
+  return {
+    '--accent': accentColor.value,
+    '--accent-rgb': accentColor.value.replace('#', '').match(/.{2}/g)
+      ?.map((h: string) => parseInt(h, 16)).join(', ') || '108, 63, 232',
+  }
+})
+
+const typeLabel: Record<string, string> = {
+  fulltime: 'Vollzeit', parttime: 'Teilzeit',
+  internship: 'Praktikum', freelance: 'Freelance',
+}
 
 const form = reactive({ firstName: '', lastName: '', email: '', phone: '', message: '' })
 const sending   = ref(false)
