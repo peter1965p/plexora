@@ -370,9 +370,6 @@ async function uploadHeaderImage(e) {
   finally { headerUploading.value = false }
 }
 
-// ── Header-Upload
-  finally { headerUploading.value = false }
-}
 
 // ── Toast ────────────────────────────────────────────
 const toast = ref('')
