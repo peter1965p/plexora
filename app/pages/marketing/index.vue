@@ -371,34 +371,6 @@ async function uploadHeaderImage(e) {
 }
 
 // ── Header-Upload
-const headerUploading = ref(false)
-async function uploadHeaderImage(e) {
-  const file = e.target.files?.[0]
-  headerUploading.value = true
-  try {
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('prefix', 'marketing/')
-    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd })
-    if (res?.url) form.headerImageUrl = res.url
-    else if (res?.key) form.headerImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
-  } catch (err) { console.error('Upload fehlgeschlagen:', err) }
-  finally { headerUploading.value = false }
-}
-
-// ── Header-Upload
-const headerUploading = ref(false)
-async function uploadHeaderImage(e) {
-  const file = e.target.files?.[0]
-  headerUploading.value = true
-  try {
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('prefix', 'marketing/')
-    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd })
-    if (res?.url) form.headerImageUrl = res.url
-    else if (res?.key) form.headerImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
-  } catch (err) { console.error('Upload fehlgeschlagen:', err) }
   finally { headerUploading.value = false }
 }
 
