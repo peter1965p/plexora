@@ -534,7 +534,7 @@
 
   <!-- Settings Toast -->
   <div v-if="settingsToast"
-    :style="\`position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:\${settingsToastErr ? '#E05C5C' : '#00C853'};color:#fff\`">
+    :style="settingsToastErr ? 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#E05C5C;color:#fff' : 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#00C853;color:#fff'">
     <i class="ti" :class="settingsToastErr ? 'ti-alert-circle' : 'ti-circle-check'"></i>
     {{ settingsToast }}
   </div>
