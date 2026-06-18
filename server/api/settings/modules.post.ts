@@ -1,17 +1,19 @@
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb'
-
-const client = new DynamoDBClient({ region: process.env.AWS_REGION_CUSTOM || 'eu-central-1' })
+import { PutCommand } from '@aws-sdk/lib-dynamodb'
+import { getDynamoClient } from '../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { modules } = body
-  if (!modules) throw createError({ statusCode: 400, statusMessage: 'modules erforderlich' })
+  const body   = await readBody(event)
+  const client = getDynamoClient()
 
-  await client.send(new PutItemCommand({
+  if (!body.modules) throw createError({ statusCode: 400, statusMessage: 'modules erforderlich' })
+
+  await client.send(new PutCommand({
     TableName: 'plexora-settings',
     Item: {
-      settingKey: { S: 'modules' },
-      value:      { S: JSON.stringify(modules) },
+      settingId: 'modules',
+      scope:     'global',
+      modules:   JSON.stringify(body.modules),
+      updated:   new Date().toISOString(),
     }
   }))
 
