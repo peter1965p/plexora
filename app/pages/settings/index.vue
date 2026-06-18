@@ -322,6 +322,11 @@
           <div style="display:flex;gap:8px;align-items:center">
             <span class="badge badge-success">God License 😄</span>
             <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on).length }} / {{ store.modules.length }} aktiv</span>
+            <button v-if="modulesDirty" class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;background:#00C853;border-color:#00C853"
+              :disabled="modulesSaving" @click="saveModules">
+              <span v-if="modulesSaving"><i class="ti ti-loader-2 spin"></i></span>
+              <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+            </button>
           </div>
         </div>
         <div class="card-body">
@@ -341,7 +346,7 @@
                     {{ m.plan === 'basic' ? 'Basic' : m.plan === 'pro' ? 'Pro' : 'Enterprise' }}
                   </span>
                 </div>
-                <div class="pill-toggle" :class="{ on: m.on }" @click="store.toggleModule(m.key)" style="cursor:pointer;flex-shrink:0">
+                <div class="pill-toggle" :class="{ on: m.on }" @click="store.toggleModule(m.key); modulesDirty=true" style="cursor:pointer;flex-shrink:0">
                   <div class="pill-thumb"></div>
                 </div>
               </div>
@@ -527,6 +532,12 @@
       </div>
     </div>
 
+  <!-- Settings Toast -->
+  <div v-if="settingsToast"
+    :style="\`position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:\${settingsToastErr ? '#E05C5C' : '#00C853'};color:#fff\`">
+    <i class="ti" :class="settingsToastErr ? 'ti-alert-circle' : 'ti-circle-check'"></i>
+    {{ settingsToast }}
+  </div>
   </div>
 </template>
 
@@ -699,6 +710,35 @@ async function saveDunningSettings() {
   } finally {
     dunningSaving.value = false
   }
+}
+
+// ── Module speichern ─────────────────────────────────────────────────────────
+const modulesDirty  = ref(false)
+const modulesSaving = ref(false)
+
+async function saveModules() {
+  modulesSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/modules'), {
+      method: 'POST',
+      body: { modules: store.modules }
+    })
+    modulesDirty.value = false
+    showSettingsToast('Einstellungen gespeichert!')
+  } catch (err) {
+    console.error('Module speichern fehlgeschlagen:', err)
+    showSettingsToast('Fehler beim Speichern!', true)
+  } finally {
+    modulesSaving.value = false
+  }
+}
+
+const settingsToast    = ref('')
+const settingsToastErr = ref(false)
+function showSettingsToast(msg: string, isError = false) {
+  settingsToast.value    = msg
+  settingsToastErr.value = isError
+  setTimeout(() => settingsToast.value = '', 2800)
 }
 
 const savingNav = ref(false)
