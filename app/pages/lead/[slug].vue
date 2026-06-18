@@ -5,7 +5,7 @@
     <div v-if="campaign?.headerImageUrl"
       :style="`width:100%;height:320px;background:url('${campaign.headerImageUrl}') center/cover no-repeat;position:relative`">
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.6) 100%)"></div>
-      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
+      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 24px 60px;text-align:center">
         <img v-if="campaign.logoUrl" :src="campaign.logoUrl"
           style="max-height:56px;max-width:180px;object-fit:contain;margin-bottom:20px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4))" />
         <h1 style="font-size:clamp(22px,4vw,42px);font-weight:900;color:#fff;margin:0 0 10px;text-shadow:0 2px 12px rgba(0,0,0,0.5)">
@@ -35,7 +35,7 @@
     </div>
 
     <!-- FORMULAR -->
-    <div style="max-width:560px;width:100%;margin:0 auto;padding:0 24px 56px">
+    <div style="max-width:560px;width:100%;margin:0 auto;padding:48px 24px 56px">
 
 
       <div v-if="form && !submitted" class="card">
