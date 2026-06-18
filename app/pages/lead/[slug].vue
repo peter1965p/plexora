@@ -36,12 +36,7 @@
 
     <!-- FORMULAR -->
     <div style="max-width:560px;width:100%;margin:0 auto;padding:0 24px 56px">
-      <div v-if="campaign?.headerImageUrl && form" style="text-align:center;margin-bottom:28px">
-        <h2 style="font-size:20px;font-weight:700;margin:0 0 6px">{{ campaign?.headline || form.title }}</h2>
-        <p v-if="campaign?.subtext || form.description" style="color:var(--text-secondary);font-size:14px;margin:0">
-          {{ campaign?.subtext || form.description }}
-        </p>
-      </div>
+
 
       <div v-if="form && !submitted" class="card">
         <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
