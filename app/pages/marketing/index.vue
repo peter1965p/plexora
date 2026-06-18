@@ -106,21 +106,55 @@
               <div class="auth-field"><label>Headline</label><input v-model="form.headline" placeholder="Kostenlose IT-Beratung" /></div>
               <div class="auth-field"><label>Subtext</label><input v-model="form.subtext" placeholder="Jetzt unverbindlich anfragen" /></div>
               <div class="auth-field">
-                <label>Header-Bild</label>
-                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                  <img v-if="form.headerImageUrl" :src="form.headerImageUrl"
-                    style="height:48px;max-width:120px;object-fit:cover;border-radius:6px;border:0.5px solid var(--border)" />
-                  <label style="cursor:pointer">
-                    <input type="file" accept="image/*" style="display:none" @change="uploadHeaderImage" :disabled="headerUploading" />
-                    <span class="accent-btn" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
-                      <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                      {{ headerUploading ? 'Lädt...' : form.headerImageUrl ? 'Ändern' : 'Bild hochladen' }}
-                    </span>
-                  </label>
-                  <button v-if="form.headerImageUrl" class="icon-btn" style="color:var(--danger)" @click="form.headerImageUrl=''" title="Entfernen">
-                    <i class="ti ti-trash"></i>
-                  </button>
+                <label>Header-Banner</label>
+
+                <!-- CROP nach Dateiauswahl -->
+                <div v-if="cropSrc" style="margin-bottom:10px">
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
+                  <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
+                    <img ref="cropImgRef" :src="cropSrc"
+                      style="width:100%;max-height:180px;object-fit:contain;display:block" />
+                    <div v-if="cropRect"
+                      :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${cropRect.x}px;top:${cropRect.y}px;width:${cropRect.w}px;height:${cropRect.h}px`">
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(16,9)">16:9</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(3,1)">3:1 Panorama</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">Original</button>
+                    <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto"
+                      :disabled="headerUploading" @click="confirmCropAndUpload">
+                      <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
+                      {{ headerUploading ? 'Lädt...' : 'Übernehmen & hochladen' }}
+                    </button>
+                    <button class="icon-btn" style="color:var(--danger)" @click="cropSrc=null;cropRect=null"><i class="ti ti-x"></i></button>
+                  </div>
                 </div>
+
+                <!-- Vorschau nach Upload -->
+                <div v-if="form.headerImageUrl && !cropSrc"
+                  style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border);position:relative">
+                  <img :src="form.headerImageUrl" style="width:100%;max-height:120px;object-fit:cover;display:block" />
+                  <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
+                    <label style="cursor:pointer">
+                      <input type="file" accept="image/*" style="display:none" @change="selectBannerFile" />
+                      <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none" title="Ändern">
+                        <i class="ti ti-pencil"></i>
+                      </span>
+                    </label>
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.headerImageUrl=''" title="Entfernen">
+                      <i class="ti ti-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Upload-Button (nur wenn noch kein Bild) -->
+                <label v-if="!form.headerImageUrl && !cropSrc" style="cursor:pointer;display:block">
+                  <input type="file" accept="image/*" style="display:none" @change="selectBannerFile" />
+                  <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
+                    <i class="ti ti-photo-up"></i> Bild hochladen
+                  </span>
+                </label>
               </div>
               <div class="auth-field">
                 <label>Akzentfarbe</label>
@@ -145,8 +179,12 @@
           <div>
             <div class="settings-label" style="margin-bottom:10px">👁 Live-Vorschau</div>
             <div :style="`background:#0a0e1a;border-radius:12px;overflow:hidden;border:0.5px solid var(--border);min-height:300px`">
-              <div v-if="form.headerImageUrl" style="height:120px;overflow:hidden">
-                <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover" />
+              <div v-if="form.headerImageUrl" style="height:150px;overflow:hidden;position:relative">
+                <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover;display:block" />
+                <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%)"></div>
+                <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#fff;font-size:13px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.6)">
+                  {{ form.headline || 'Deine Headline' }}
+                </div>
               </div>
               <div style="padding:20px;text-align:center">
                 <div style="font-size:18px;font-weight:800;color:#f0eef9;margin-bottom:6px">
@@ -263,13 +301,21 @@ const qrUrl = computed(() => qrCampaign.value ? getCampaignUrl(qrCampaign.value)
 async function showQr(c: any) {
   qrCampaign.value = c
   await nextTick()
+  await new Promise(r => setTimeout(r, 100))
   const container = document.getElementById('qr-container')
   if (!container) return
   container.innerHTML = ''
-  const QRCode = (await import('qrcode')).default
-  const canvas = document.createElement('canvas')
-  await QRCode.toCanvas(canvas, qrUrl.value, { width: 200, margin: 1 })
-  container.appendChild(canvas)
+  try {
+    const QRCode = (await import('qrcode')).default
+    const canvas = document.createElement('canvas')
+    await QRCode.toCanvas(canvas, qrUrl.value, { width: 220, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
+    container.appendChild(canvas)
+  } catch (err) {
+    const img = document.createElement('img')
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrUrl.value)}`
+    img.style.cssText = 'width:220px;height:220px;border-radius:4px'
+    container.appendChild(img)
+  }
 }
 
 function copyQrUrl() {
@@ -353,21 +399,60 @@ async function deleteCampaign(c: any) {
   await refresh()
 }
 
-// ── Header-Upload
+// ── Header-Upload mit Crop ───────────────────────────────────────────────────
 const headerUploading = ref(false)
-async function uploadHeaderImage(e) {
-  const file = e.target.files?.[0]
+const cropSrc    = ref<string | null>(null)
+const cropRect   = ref<{ x: number; y: number; w: number; h: number } | null>(null)
+const cropImgRef = ref<HTMLImageElement | null>(null)
+let _cropFile: File | null = null
+
+function selectBannerFile(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
+  _cropFile = file
+  const reader = new FileReader()
+  reader.onload = ev => { cropSrc.value = ev.target?.result as string; cropRect.value = null }
+  reader.readAsDataURL(file)
+}
+
+function setCropRatio(rw: number, rh: number) {
+  const img = cropImgRef.value
+  if (!img) return
+  const dw = img.clientWidth, dh = img.clientHeight
+  const ratio = rw / rh
+  let w = dw, h = Math.round(w / ratio)
+  if (h > dh) { h = dh; w = Math.round(h * ratio) }
+  cropRect.value = { x: Math.round((dw - w) / 2), y: Math.round((dh - h) / 2), w, h }
+}
+
+async function confirmCropAndUpload() {
+  if (!_cropFile) return
   headerUploading.value = true
   try {
+    let uploadFile: File = _cropFile
+    if (cropRect.value && cropImgRef.value) {
+      const img = cropImgRef.value
+      const sx = img.naturalWidth / img.clientWidth
+      const sy = img.naturalHeight / img.clientHeight
+      const { x, y, w, h } = cropRect.value
+      const canvas = document.createElement('canvas')
+      canvas.width  = Math.round(w * sx)
+      canvas.height = Math.round(h * sy)
+      canvas.getContext('2d')!.drawImage(img, Math.round(x*sx), Math.round(y*sy), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height)
+      const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), 'image/jpeg', 0.92))
+      uploadFile = new File([blob], _cropFile.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
+    }
     const fd = new FormData()
-    fd.append('file', file)
+    fd.append('file', uploadFile)
     fd.append('prefix', 'marketing/')
-    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd })
-    if (res?.url) form.headerImageUrl = res.url
+    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd })
+    if (res?.url)      form.headerImageUrl = res.url
     else if (res?.key) form.headerImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
-  } catch (err) { console.error('Upload fehlgeschlagen:', err) }
-  finally { headerUploading.value = false }
+    cropSrc.value = null; cropRect.value = null; _cropFile = null
+  } catch (err) {
+    console.error('Upload fehlgeschlagen:', err)
+    alert('Upload fehlgeschlagen — bitte erneut versuchen.')
+  } finally { headerUploading.value = false }
 }
 
 
