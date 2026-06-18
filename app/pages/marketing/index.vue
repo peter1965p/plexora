@@ -442,10 +442,16 @@ async function confirmCropAndUpload() {
       const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), 'image/jpeg', 0.92))
       uploadFile = new File([blob], _cropFile.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
     }
-    const fd = new FormData()
-    fd.append('file', uploadFile)
-    fd.append('prefix', 'marketing/')
-    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd })
+    // S3-Upload erwartet Base64, kein FormData
+    const base64 = await new Promise<string>(r => {
+      const reader = new FileReader()
+      reader.onload = e => r(e.target!.result as string)
+      reader.readAsDataURL(uploadFile)
+    })
+    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
+      method: 'POST',
+      body: { fileBase64: base64, fileName: `banner-${Date.now()}.jpg`, prefix: 'marketing/' }
+    })
     if (res?.url)      form.headerImageUrl = res.url
     else if (res?.key) form.headerImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
     cropSrc.value = null; cropRect.value = null; _cropFile = null
