@@ -57,7 +57,7 @@ const moduleRoutes: Record<string, string> = {
   marketing:   '/marketing',
 }
 
-const navSections = [
+const navSections = computed(() => [
   {
     label: 'Übersicht',
     items: [
@@ -77,5 +77,5 @@ const navSections = [
       { to: '/settings', label: 'Einstellungen', icon: 'ti-settings', key: 'settings' },
     ]
   }
-]
+])
 </script>
