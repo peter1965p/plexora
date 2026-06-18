@@ -67,5 +67,17 @@ export const useAppStore = defineStore("app", {
         body: { theme: this.theme, accent: this.accent, accentRgb: this.accentRgb },
       });
     },
+    async loadModules() {
+      try {
+        const res = await $fetch<any>(useApiUrl("/api/settings/modules"));
+        if (res?.modules) {
+          const saved = JSON.parse(res.modules);
+          this.modules = this.modules.map(m => {
+            const found = saved.find((s: any) => s.key === m.key);
+            return found ? { ...m, on: found.on } : m;
+          });
+        }
+      } catch {}
+    },
   },
 });
