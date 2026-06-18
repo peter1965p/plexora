@@ -17,10 +17,15 @@ export default defineEventHandler(async (event) => {
 
   const key = `${prefix || ''}${fileName}`
 
+  const ext = fileName.split('.').pop()?.toLowerCase() || 'jpg'
+  const mimeMap: Record<string, string> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' }
+  const contentType = mimeMap[ext] || 'application/octet-stream'
+
   await client.send(new PutObjectCommand({
     Bucket: BUCKET,
     Key: key,
     Body: buffer,
+    ContentType: contentType,
   }))
 
   return { success: true, key, url: `https://${BUCKET}.s3.eu-central-1.amazonaws.com/${key}` }
