@@ -181,7 +181,7 @@ async function addInvoice(sendMail: boolean) {
     }) as any
     await refresh()
     if (sendMail && inv.invoice?.invoiceId && newInv.clientEmail) {
-      await $fetch(`/api/finance/${inv.invoice.invoiceId}/send`, {
+      await $fetch(`https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com/api/finance/${inv.invoice.invoiceId}/send`, {
         method: 'POST',
         body: { userId: userId.value, toEmail: newInv.clientEmail }
       })
@@ -200,7 +200,7 @@ async function sendMail(invoice: any) {
   if (!invoice.clientEmail) return
   sending.value = invoice.invoiceId
   try {
-    await $fetch(`/api/finance/${invoice.invoiceId}/send`, {
+    await $fetch(`https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com/api/finance/${invoice.invoiceId}/send`, {
       method: 'POST',
       body: { userId: invoice.userId || userId.value, toEmail: invoice.clientEmail }
     })
@@ -249,7 +249,7 @@ async function sendDunning(invoice: any) {
   if (!confirm(`${dunningTitle(invoice)} an ${invoice.clientEmail}?`)) return
   dunning.value = invoice.invoiceId
   try {
-    const res = await $fetch(`/api/finance/${invoice.invoiceId}/dunning`, {
+    const res = await $fetch(`https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com/api/finance/${invoice.invoiceId}/dunning`, {
       method: 'POST',
       body: { level: dunningLevel(invoice), userId: invoice.userId || userId.value }
     }) as any
