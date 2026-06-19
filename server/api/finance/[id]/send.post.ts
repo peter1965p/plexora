@@ -83,9 +83,24 @@ async function generatePDF(invoice: any, branding: any): Promise<Buffer> {
       .text('GESAMT:', 360, y + 62).text(`€ ${brutto.toLocaleString('de-DE')}`, 470, y + 62)
 
     // Footer
-    doc.moveTo(50, 750).lineTo(545, 750).strokeColor([220,220,220]).lineWidth(0.5).stroke()
+    doc.moveTo(50, 700).lineTo(545, 700).strokeColor([220,220,220]).lineWidth(0.5).stroke()
+
+    const payUrl = `https://plexora.paeffgen-it.de/pay/${invoice.invoiceId}`
+    doc.fontSize(9).fillColor([150,150,150]).font('Helvetica').text('Online bezahlen:', 50, 715)
+    doc.fontSize(9).fillColor([124,58,237]).font('Helvetica').text(payUrl, 50, 728, { link: payUrl, underline: true })
+    try {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(payUrl)}&margin=2`
+      const qrRes = await fetch(qrUrl)
+      const qrBuf = Buffer.from(await qrRes.arrayBuffer())
+      doc.image(qrBuf, 460, 705, { width: 80, height: 80 })
+      doc.fontSize(8).fillColor([150,150,150]).font('Helvetica')
+        .text('QR-Code scannen', 460, 788, { width: 80, align: 'center' })
+        .text('zum Bezahlen', 460, 798, { width: 80, align: 'center' })
+    } catch {}
+
+    doc.moveTo(50, 810).lineTo(545, 810).strokeColor([220,220,220]).lineWidth(0.5).stroke()
     doc.fontSize(9).fillColor([150,150,150]).font('Helvetica')
-      .text(`${brand} — Vielen Dank für Ihr Vertrauen!`, 50, 760, { align: 'center', width: 495 })
+      .text(`${brand} — Vielen Dank für Ihr Vertrauen!`, 50, 820, { align: 'center', width: 495 })
 
     doc.end()
   })
