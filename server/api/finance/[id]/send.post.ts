@@ -4,9 +4,13 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
 
 function createSESClient() {
+  const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME
+  if (isLambda) {
+    return new SESClient({ region: 'eu-central-1' })
+  }
   const config = useRuntimeConfig()
-  const accessKey = (config.awsAccessKeyId as string).replace(/^"|"$/g, '')
-  const secretKey = (config.awsSecretAccessKey as string).replace(/^"|"$/g, '')
+  const accessKey = (config.awsAccessKeyId as string || process.env.AWS_ACCESS_KEY_ID_CUSTOM || '').replace(/^"|"$/g, '')
+  const secretKey = (config.awsSecretAccessKey as string || process.env.AWS_SECRET_ACCESS_KEY_CUSTOM || '').replace(/^"|"$/g, '')
   return new SESClient({
     region: 'eu-central-1',
     credentials: { accessKeyId: accessKey, secretAccessKey: secretKey }
