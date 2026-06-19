@@ -3,7 +3,7 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
 
 async function generatePDF(invoice: any, branding: any): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4' })
     const chunks: Buffer[] = []
     doc.on('data', (chunk: Buffer) => chunks.push(chunk))
