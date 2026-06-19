@@ -357,6 +357,127 @@
       </div>
     </div>
 
+    <!-- PAYMENT -->
+    <div v-if="tab === 'payment'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>Payment-Gateways</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="paymentSaving" @click="savePayment">
+          <span v-if="paymentSaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:24px">
+
+        <!-- Gateway Auswahl -->
+        <div>
+          <div class="settings-label" style="margin-bottom:12px">Aktiver Payment-Anbieter</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div v-for="gw in gateways" :key="gw.key"
+              @click="payment.activeGateway = gw.key"
+              :style="`border:1.5px solid ${payment.activeGateway === gw.key ? 'var(--accent)' : 'var(--border)'};border-radius:10px;padding:14px;cursor:pointer;text-align:center;background:${payment.activeGateway === gw.key ? 'rgba(var(--accent-rgb),0.08)' : 'var(--bg-elevated)'};transition:all .15s`">
+              <i class="ti" :class="gw.icon" :style="`font-size:24px;color:${payment.activeGateway === gw.key ? 'var(--accent)' : 'var(--text-muted)'}`"></i>
+              <div style="font-size:13px;font-weight:700;margin-top:6px">{{ gw.name }}</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px">{{ gw.desc }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stripe -->
+        <div v-if="payment.activeGateway === 'stripe'"
+          style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <i class="ti ti-brand-stripe" style="font-size:20px;color:#635BFF"></i>
+            <span style="font-weight:700">Stripe</span>
+            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="auth-field">
+              <label>Secret Key</label>
+              <input v-model="payment.stripeSecretKey" type="password" placeholder="sk_live_..." />
+            </div>
+            <div class="auth-field">
+              <label>Publishable Key</label>
+              <input v-model="payment.stripePublishableKey" placeholder="pk_live_..." />
+            </div>
+            <div class="auth-field">
+              <label>Webhook Secret</label>
+              <input v-model="payment.stripeWebhookSecret" type="password" placeholder="whsec_..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- PayPal -->
+        <div v-if="payment.activeGateway === 'paypal'"
+          style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <i class="ti ti-brand-paypal" style="font-size:20px;color:#003087"></i>
+            <span style="font-weight:700">PayPal</span>
+            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="auth-field">
+              <label>Client ID</label>
+              <input v-model="payment.paypalClientId" placeholder="AXxx..." />
+            </div>
+            <div class="auth-field">
+              <label>Secret</label>
+              <input v-model="payment.paypalSecret" type="password" placeholder="EXxx..." />
+            </div>
+            <div class="auth-field" style="grid-column:span 2">
+              <label>Modus</label>
+              <div style="display:flex;gap:10px;margin-top:6px">
+                <button class="theme-opt" :class="{ active: payment.paypalSandbox }" @click="payment.paypalSandbox=true">
+                  <i class="ti ti-test-pipe"></i> Sandbox
+                </button>
+                <button class="theme-opt" :class="{ active: !payment.paypalSandbox }" @click="payment.paypalSandbox=false">
+                  <i class="ti ti-world"></i> Live
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mollie -->
+        <div v-if="payment.activeGateway === 'mollie'"
+          style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <i class="ti ti-credit-card" style="font-size:20px;color:#FF6600"></i>
+            <span style="font-weight:700">Mollie</span>
+            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+          </div>
+          <div class="auth-field" style="max-width:400px">
+            <label>API Key</label>
+            <input v-model="payment.mollieApiKey" type="password" placeholder="live_xxx oder test_xxx" />
+          </div>
+        </div>
+
+        <!-- Custom -->
+        <div v-if="payment.activeGateway === 'custom'"
+          style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <i class="ti ti-plug" style="font-size:20px;color:var(--accent)"></i>
+            <span style="font-weight:700">Custom Gateway</span>
+            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="auth-field">
+              <label>Anbieter-Name</label>
+              <input v-model="payment.customName" placeholder="z.B. Klarna, Adyen..." />
+            </div>
+            <div class="auth-field">
+              <label>API URL</label>
+              <input v-model="payment.customApiUrl" placeholder="https://api.example.com/v1" />
+            </div>
+            <div class="auth-field">
+              <label>API Key</label>
+              <input v-model="payment.customApiKey" type="password" placeholder="..." />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- KONTO -->
 
     <!-- KONTO -->
@@ -600,6 +721,7 @@ const tabs = [
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
+  { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
   { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
   { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
@@ -741,6 +863,41 @@ function showSettingsToast(msg: string, isError = false) {
   setTimeout(() => settingsToast.value = '', 2800)
 }
 
+// ── Payment ──────────────────────────────────────────────────────────────────
+const paymentSaving = ref(false)
+const payment = reactive({
+  activeGateway:        'stripe',
+  stripeSecretKey:      '',
+  stripePublishableKey: '',
+  stripeWebhookSecret:  '',
+  paypalClientId:       '',
+  paypalSecret:         '',
+  paypalSandbox:        true,
+  mollieApiKey:         '',
+  customName:           '',
+  customApiUrl:         '',
+  customApiKey:         '',
+})
+
+const gateways = [
+  { key: 'stripe',  name: 'Stripe',  icon: 'ti-brand-stripe', desc: 'Kreditkarte, SEPA' },
+  { key: 'paypal',  name: 'PayPal',  icon: 'ti-brand-paypal', desc: 'PayPal, Kreditkarte' },
+  { key: 'mollie',  name: 'Mollie',  icon: 'ti-credit-card',  desc: 'iDEAL, SOFORT, mehr' },
+  { key: 'custom',  name: 'Custom',  icon: 'ti-plug',         desc: 'Eigener Anbieter' },
+]
+
+async function savePayment() {
+  paymentSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', body: { ...payment } })
+    showSettingsToast('Payment-Einstellungen gespeichert!')
+  } catch {
+    showSettingsToast('Fehler beim Speichern!', true)
+  } finally {
+    paymentSaving.value = false
+  }
+}
+
 const savingNav = ref(false)
 const { data: navPagesData, refresh: refreshNav } = await useFetch(useApiUrl('/api/pages'))
 const navPages = ref<any[]>([])
@@ -863,6 +1020,10 @@ onMounted(async () => {
   try {
     const d = await $fetch(useApiUrl('/api/settings/agb') as any)
     if (d?.agb) Object.assign(agb, d.agb)
+  } catch {}
+  try {
+    const d = await $fetch(useApiUrl('/api/settings/payment') as any)
+    if (d?.payment) Object.assign(payment, d.payment)
   } catch {}
 })
 
