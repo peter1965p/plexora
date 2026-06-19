@@ -205,7 +205,7 @@ async function sendMail(invoice: any) {
       body: { userId: invoice.userId || userId.value, toEmail: invoice.clientEmail }
     })
     await refresh()
-    showToast(`Rechnung an ${invoice.clientEmail} gesendet!`)
+    showToast(`✉️ Rechnungskopie wurde erfolgreich an ${invoice.client || invoice.clientEmail} versendet!`)
   } finally {
     sending.value = null
   }
