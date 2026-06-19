@@ -2,7 +2,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
 
-async function generatePDF(invoice: any, branding: any): Promise<Buffer> {
+async function generatePDF(invoice: any, branding: any, company: any = {}): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4' })
     const chunks: Buffer[] = []
@@ -22,8 +22,17 @@ async function generatePDF(invoice: any, branding: any): Promise<Buffer> {
       .text(`Fälligkeit: ${invoice.dueDate || '–'}`, 350, 112, { align: 'right', width: 200 })
 
     doc.moveTo(50, 140).lineTo(545, 140).strokeColor(accent).lineWidth(2).stroke()
-    doc.fontSize(10).fillColor([120,120,120]).font('Helvetica').text('RECHNUNGSEMPFÄNGER', 50, 160)
-    doc.fontSize(13).fillColor([20,20,20]).font('Helvetica-Bold').text(invoice.client || '–', 50, 178)
+
+    // Absender (Briefkopf-Stil klein)
+    const senderLine = [company.legalName || brand, company.street, company.zipCity, company.email].filter(Boolean).join(' · ')
+    doc.fontSize(8).fillColor([150,150,150]).font('Helvetica').text(senderLine, 50, 152, { width: 300 })
+
+    // Empfänger
+    doc.fontSize(10).fillColor([120,120,120]).font('Helvetica').text('RECHNUNGSEMPFÄNGER', 50, 170)
+    doc.fontSize(13).fillColor([20,20,20]).font('Helvetica-Bold').text(invoice.client || '–', 50, 186)
+    let ry = 204
+    if (invoice.clientAddress) { doc.fontSize(10).fillColor([80,80,80]).font('Helvetica').text(invoice.clientAddress, 50, ry); ry += 16 }
+    if (invoice.clientEmail) doc.fontSize(10).fillColor([80,80,80]).font('Helvetica').text(invoice.clientEmail, 50, ry)
 
     doc.rect(50, 240, 495, 28).fill([245,245,250])
     doc.fontSize(10).fillColor([80,80,80]).font('Helvetica-Bold')
@@ -99,7 +108,13 @@ export default defineEventHandler(async (event) => {
     if (bs.Item) branding = bs.Item as any
   } catch {}
 
-  const pdfBuffer = await generatePDF(invoice, branding)
+  let company = { legalName: '', street: '', zipCity: '', email: '' }
+  try {
+    const cs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'company', scope: 'global' } }))
+    if (cs.Item) company = cs.Item as any
+  } catch {}
+
+  const pdfBuffer = await generatePDF(invoice, branding, company)
 
   setHeader(event, 'Content-Type', 'application/pdf')
   setHeader(event, 'Content-Disposition', `attachment; filename="Rechnung-${invoice.number || invoiceId?.slice(0,8)}.pdf"`)
