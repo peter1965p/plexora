@@ -1,0 +1,5 @@
+/api/* https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com/api/:splat 200
+/beratung /lead/b93de75e-53cd-46d8-be47-8e3f3f7b91ef?utm_source=linkedin&utm_medium=social&utm_campaign=beratung-06.2026 302
+/demo /lead/b93de75e-53cd-46d8-be47-8e3f3f7b91ef?utm_source=linkedin&utm_medium=social&utm_campaign=demo-2026 302
+/test-auto /lead/b93de75e-53cd-46d8-be47-8e3f3f7b91ef?utm_source=test&utm_medium=social&utm_campaign=test 302
+/* /index.html 200
