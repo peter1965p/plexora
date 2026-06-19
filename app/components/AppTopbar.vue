@@ -63,7 +63,6 @@ const router = useRouter()
 
 const titles: Record<string, string> = {
   '/dashboard':  'Dashboard',
-  '/analytics':  'Analytics',
   '/crm':        'CRM',
   '/projects':   'Projekte',
   '/lead':        'Lead-Landingpage',
