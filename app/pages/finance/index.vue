@@ -212,7 +212,7 @@ async function sendMail(invoice: any) {
 }
 
 function downloadPdf(invoice: any) {
-  window.location.href = `/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId.value}`
+  window.location.href = `https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId.value}`
 }
 
 
