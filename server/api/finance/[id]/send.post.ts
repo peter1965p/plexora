@@ -19,7 +19,7 @@ function createSESClient() {
 
 async function generatePDF(invoice: any, branding: any, company: any = {}): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: 'A4' })
+    const doc = new PDFDocument({ margin: 50, size: 'A4', autoFirstPage: true, bufferPages: true })
     const chunks: Buffer[] = []
     doc.on('data', (chunk: Buffer) => chunks.push(chunk))
     doc.on('end', () => resolve(Buffer.concat(chunks)))
@@ -98,15 +98,15 @@ async function generatePDF(invoice: any, branding: any, company: any = {}): Prom
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(payUrl)}&margin=2`
       const qrRes = await fetch(qrUrl)
       const qrBuf = Buffer.from(await qrRes.arrayBuffer())
-      doc.image(qrBuf, 460, 705, { width: 80, height: 80 })
+      doc.image(qrBuf, 460, 698, { width: 72, height: 72 })
       doc.fontSize(8).fillColor([150,150,150]).font('Helvetica')
-        .text('QR-Code scannen', 460, 788, { width: 80, align: 'center' })
-        .text('zum Bezahlen', 460, 798, { width: 80, align: 'center' })
+        .text('QR-Code scannen', 460, 772, { width: 72, align: 'center' })
+        .text('zum Bezahlen', 460, 782, { width: 72, align: 'center' })
     } catch {}
 
-    doc.moveTo(50, 810).lineTo(545, 810).strokeColor([220,220,220]).lineWidth(0.5).stroke()
+    doc.moveTo(50, 796).lineTo(545, 796).strokeColor([220,220,220]).lineWidth(0.5).stroke()
     doc.fontSize(9).fillColor([150,150,150]).font('Helvetica')
-      .text(`${brand} — Vielen Dank für Ihr Vertrauen!`, 50, 820, { align: 'center', width: 495 })
+      .text(`${brand} — Vielen Dank für Ihr Vertrauen!`, 50, 800, { align: 'center', width: 495 })
 
     doc.end()
   })
