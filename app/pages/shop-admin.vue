@@ -57,9 +57,14 @@
                 <span style="font-weight:800;font-size:16px;color:var(--accent)">€ {{ p.price }}</span>
                 <span style="font-size:11px;color:var(--text-muted);margin-left:8px">Stock: {{ p.stock ?? '∞' }}</span>
               </div>
-              <button @click="deleteProduct(p.productId)" style="background:none;border:none;color:#E05C5C;cursor:pointer;font-size:16px;padding:4px">
-                <i class="ti ti-trash"></i>
-              </button>
+              <div style="display:flex;gap:4px">
+                <button @click="openEditModal(p)" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:16px;padding:4px">
+                  <i class="ti ti-pencil"></i>
+                </button>
+                <button @click="deleteProduct(p.productId)" style="background:none;border:none;color:#E05C5C;cursor:pointer;font-size:16px;padding:4px">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -211,7 +216,7 @@
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
       <div class="modal-card" style="max-width:600px">
         <div class="modal-header">
-          <span class="card-title">Neues Produkt anlegen</span>
+          <span class="card-title">{{ editingProduct ? "Produkt bearbeiten" : "Neues Produkt anlegen" }}</span>
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
@@ -259,7 +264,7 @@
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="createProduct" :disabled="saving || !form.name || !form.price">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-plus"></i> Produkt anlegen</span>
+            <span v-else><i class="ti ti-plus"></i> {{ editingProduct ? 'Speichern' : 'Produkt anlegen' }}</span>
           </button>
         </div>
       </div>
@@ -373,8 +378,22 @@ onMounted(() => {
 })
 watch(suppData, v => { if ((v as any)?.suppliers) suppliers.value = (v as any).suppliers })
 
+const editingProduct = ref<any>(null)
+
 function openModal() {
+  editingProduct.value = null
   Object.assign(form, { name: '', price: '', category: 'SOFTWARE', description: '', stock: '999', minStock: '10', image: '', vatRate: 19, supplierId: '' })
+  showModal.value = true
+}
+
+function openEditModal(p: any) {
+  editingProduct.value = p
+  Object.assign(form, {
+    name: p.name, price: String(p.price), category: p.category || 'SOFTWARE',
+    description: p.description || '', stock: String(p.stock ?? 999),
+    minStock: String(p.minStock ?? 10), image: p.image || '',
+    vatRate: p.vatRate ?? 19, supplierId: p.supplierId || ''
+  })
   showModal.value = true
 }
 
@@ -404,13 +423,21 @@ async function createProduct() {
   if (!form.name || !form.price) return
   saving.value = true
   try {
-    await $fetch(useApiUrl('/api/shop/products'), {
-      method: 'POST',
-      body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }
-    })
+    if (editingProduct.value) {
+      await $fetch(useApiUrl(`/api/shop/products/${editingProduct.value.productId}`), {
+        method: 'PATCH',
+        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }
+      })
+      showToast('Produkt gespeichert!')
+    } else {
+      await $fetch(useApiUrl('/api/shop/products'), {
+        method: 'POST',
+        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }
+      })
+      showToast('Produkt angelegt!')
+    }
     await refresh()
     showModal.value = false
-    showToast('Produkt angelegt!')
   } finally { saving.value = false }
 }
 
