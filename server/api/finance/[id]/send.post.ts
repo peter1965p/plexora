@@ -17,7 +17,7 @@ function createSESClient() {
   })
 }
 
-async function generatePDF(invoice: any, branding: any, company: any = {}): Promise<Buffer> {
+async function generatePDF(invoice: any, branding: any, company: any = {}, invoiceSettings: any = {}): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4', autoFirstPage: true, bufferPages: true })
     const chunks: Buffer[] = []
@@ -144,7 +144,13 @@ export default defineEventHandler(async (event) => {
   } catch {}
 
   // PDF generieren
-  const pdfBuffer = await generatePDF(invoice, branding, company)
+  let invoiceSettings = { vatRate: 19, smallBusiness: false, priceDisplay: 'netto' }
+  try {
+    const is = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'invoice', scope: 'global' } }))
+    if (is.Item) invoiceSettings = { ...invoiceSettings, ...is.Item }
+  } catch {}
+
+  const pdfBuffer = await generatePDF(invoice, branding, company, invoiceSettings)
 
   // Mail via SES senden
   const toEmail   = body.toEmail || invoice.clientEmail

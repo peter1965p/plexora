@@ -2,7 +2,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
 
-async function generatePDF(invoice: any, branding: any, company: any = {}): Promise<Buffer> {
+async function generatePDF(invoice: any, branding: any, company: any = {}, invoiceSettings: any = {}): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: 'A4', autoFirstPage: true, bufferPages: true })
     const chunks: Buffer[] = []
@@ -52,13 +52,14 @@ async function generatePDF(invoice: any, branding: any, company: any = {}): Prom
     })
 
     const netto  = Number(invoice.amount) || 0
-    const mwst   = Math.round(netto * 0.19 * 100) / 100
+    const vatRate = (invoice.vatRate ?? invoiceSettings?.vatRate ?? 19) / 100
+    const mwst   = invoiceSettings?.smallBusiness ? 0 : Math.round(netto * vatRate * 100) / 100
     const brutto = netto + mwst
 
     doc.moveTo(350, y+10).lineTo(545, y+10).strokeColor(accent).lineWidth(1).stroke()
     doc.fontSize(10).fillColor([80,80,80]).font('Helvetica')
       .text('Nettobetrag:', 350, y+20).text(`€ ${netto.toLocaleString('de-DE')}`, 470, y+20)
-      .text('MwSt. 19%:', 350, y+36).text(`€ ${mwst.toLocaleString('de-DE')}`, 470, y+36)
+      .text(invoiceSettings?.smallBusiness ? 'Kein MwSt. §19 UStG' : `MwSt. ${invoiceSettings?.vatRate ?? 19}%:`, 350, y+36).text(invoiceSettings?.smallBusiness ? '—' : `€ ${mwst.toLocaleString('de-DE')}`, 470, y+36)
     doc.rect(350, y+54, 195, 28).fill(accent)
     doc.fontSize(12).fillColor([255,255,255]).font('Helvetica-Bold')
       .text('GESAMT:', 360, y+62).text(`€ ${brutto.toLocaleString('de-DE')}`, 470, y+62)
@@ -114,7 +115,13 @@ export default defineEventHandler(async (event) => {
     if (cs.Item) company = cs.Item as any
   } catch {}
 
-  const pdfBuffer = await generatePDF(invoice, branding, company)
+  let invoiceSettings = { vatRate: 19, smallBusiness: false, priceDisplay: 'netto' }
+  try {
+    const is = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'invoice', scope: 'global' } }))
+    if (is.Item) invoiceSettings = { ...invoiceSettings, ...is.Item }
+  } catch {}
+
+  const pdfBuffer = await generatePDF(invoice, branding, company, invoiceSettings)
 
   setHeader(event, 'Content-Type', 'application/pdf')
   setHeader(event, 'Content-Disposition', `attachment; filename="Rechnung-${invoice.number || invoiceId?.slice(0,8)}.pdf"`)
