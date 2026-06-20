@@ -9,7 +9,7 @@
       </div>
       <div style="display:flex;gap:10px">
         <NuxtLink to="/shop" target="_blank">
-          <button class="icon-btn"><i class="ti ti-external-link"></i> Shop ansehen</button>
+          <button class="icon-btn" style="margin-right:8px"><i class="ti ti-external-link"></i> Shop ansehen</button>
         </NuxtLink>
         <button v-if="tab==='produkte'" class="accent-btn" @click="openModal">
           <i class="ti ti-plus"></i> Neues Produkt
