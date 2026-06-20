@@ -52,8 +52,12 @@
               <span v-if="product.priceModel === 'einmalig'"> · Einmalzahlung</span>
             </div>
             <button class="auth-btn" style="font-size:16px;height:52px" @click="addToCart">
-              <i class="ti ti-shopping-cart"></i> In den Warenkorb
+              <i class="ti" :class="cartAdded ? 'ti-circle-check' : 'ti-shopping-cart'"></i>
+              {{ cartAdded ? 'Hinzugefügt!' : 'In den Warenkorb' }}
             </button>
+            <NuxtLink v-if="cartAdded" to="/shop/cart" style="display:block;text-align:center;margin-top:10px;color:var(--accent);font-size:13px;text-decoration:none">
+              <i class="ti ti-arrow-right"></i> Zum Warenkorb
+            </NuxtLink>
           </div>
 
           <!-- Meta -->
@@ -97,7 +101,27 @@ const features = computed(() => {
   return product.value.features.split('\n').filter((f: string) => f.trim())
 })
 
+const cartAdded = ref(false)
+
 function addToCart() {
-  alert('Warenkorb kommt bald!')
+  if (!product.value) return
+  try {
+    const cart = JSON.parse(localStorage.getItem('plexora-cart') || '[]')
+    const existing = cart.find((i: any) => i.productId === product.value!.productId)
+    if (existing) {
+      existing.quantity++
+    } else {
+      cart.push({
+        productId: product.value.productId,
+        name:      product.value.name,
+        price:     product.value.price,
+        quantity:  1,
+        image:     product.value.image || ''
+      })
+    }
+    localStorage.setItem('plexora-cart', JSON.stringify(cart))
+    cartAdded.value = true
+    setTimeout(() => cartAdded.value = false, 2500)
+  } catch (err) { console.error(err) }
 }
 </script>
