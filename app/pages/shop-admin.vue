@@ -257,8 +257,25 @@
             </div>
           </div>
           <div class="auth-field">
-            <label>Beschreibung</label>
-            <textarea v-model="form.description" placeholder="Kurze Beschreibung..." style="height:80px;resize:none;width:100%" class="form-select"></textarea>
+            <label>Kurzbeschreibung</label>
+            <textarea v-model="form.description" placeholder="Ein Satz der das Produkt beschreibt..." style="height:60px;resize:none;width:100%" class="form-select"></textarea>
+          </div>
+          <div class="auth-field">
+            <label>Preismodell</label>
+            <select v-model="form.priceModel" class="form-select">
+              <option value="einmalig">Einmalig</option>
+              <option value="monatlich">Monatlich</option>
+              <option value="jährlich">Jährlich</option>
+              <option value="auf Anfrage">Auf Anfrage</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Langbeschreibung</label>
+            <textarea v-model="form.longDescription" placeholder="Ausführliche Beschreibung des Produkts..." style="height:80px;resize:none;width:100%" class="form-select"></textarea>
+          </div>
+          <div class="auth-field">
+            <label>Features (eine pro Zeile)</label>
+            <textarea v-model="form.features" placeholder="CRM mit Kontaktverwaltung&#10;Deals & Pipeline&#10;CSV Export" style="height:80px;resize:none;width:100%" class="form-select"></textarea>
           </div>
         </div>
         <div style="padding:0 24px 24px">
@@ -363,7 +380,7 @@ const showSupplierModal = ref(false)
 const fileInput      = ref<HTMLInputElement | null>(null)
 const imageUploading = ref(false)
 
-const form = reactive({ name: '', price: '', category: 'SOFTWARE', description: '', stock: '999', minStock: '10', image: '', vatRate: 19, supplierId: '' })
+const form = reactive({ name: '', price: '', category: 'SOFTWARE', description: '', longDescription: '', features: '', priceModel: 'einmalig', stock: '999', minStock: '10', image: '', vatRate: 19, supplierId: '' })
 const supplierForm = reactive({ name: '', contact: '', email: '', phone: '', website: '', address: '' })
 
 const categories = ref(['SOFTWARE', 'SERVICE'])
@@ -382,7 +399,7 @@ const editingProduct = ref<any>(null)
 
 function openModal() {
   editingProduct.value = null
-  Object.assign(form, { name: '', price: '', category: 'SOFTWARE', description: '', stock: '999', minStock: '10', image: '', vatRate: 19, supplierId: '' })
+  Object.assign(form, { name: '', price: '', category: 'SOFTWARE', description: '', longDescription: '', features: '', priceModel: 'einmalig', stock: '999', minStock: '10', image: '', vatRate: 19, supplierId: '' })
   showModal.value = true
 }
 
@@ -390,9 +407,11 @@ function openEditModal(p: any) {
   editingProduct.value = p
   Object.assign(form, {
     name: p.name, price: String(p.price), category: p.category || 'SOFTWARE',
-    description: p.description || '', stock: String(p.stock ?? 999),
-    minStock: String(p.minStock ?? 10), image: p.image || '',
-    vatRate: p.vatRate ?? 19, supplierId: p.supplierId || ''
+    description: p.description || '', longDescription: p.longDescription || '',
+    features: Array.isArray(p.features) ? p.features.join('\n') : (p.features || ''),
+    priceModel: p.priceModel || 'einmalig',
+    stock: String(p.stock ?? 999), minStock: String(p.minStock ?? 10),
+    image: p.image || '', vatRate: p.vatRate ?? 19, supplierId: p.supplierId || ''
   })
   showModal.value = true
 }
@@ -432,7 +451,7 @@ async function createProduct() {
     } else {
       await $fetch(useApiUrl('/api/shop/products'), {
         method: 'POST',
-        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }
+        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), features: form.features ? form.features.split('\n').filter((f: string) => f.trim()) : [] }
       })
       showToast('Produkt angelegt!')
     }
