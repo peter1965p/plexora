@@ -220,14 +220,51 @@
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
       </div>
-      <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-        <div class="auth-field">
-          <label>Standard-Fälligkeit (Tage nach Rechnungsdatum)</label>
-          <input v-model.number="invoiceSettings.dueDays" type="number" min="1" max="90" placeholder="7" />
+      <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div class="auth-field">
+            <label>Standard-Fälligkeit (Tage nach Rechnungsdatum)</label>
+            <input v-model.number="invoiceSettings.dueDays" type="number" min="1" max="90" placeholder="7" />
+          </div>
+          <div class="auth-field">
+            <label>Zahlungsziel-Text auf Rechnung</label>
+            <input v-model="invoiceSettings.dueText" placeholder="Zahlbar innerhalb von 7 Tagen netto" />
+          </div>
         </div>
-        <div class="auth-field">
-          <label>Zahlungsziel-Text auf Rechnung</label>
-          <input v-model="invoiceSettings.dueText" placeholder="Zahlbar innerhalb von 7 Tagen netto" />
+        <div style="border-top:0.5px solid var(--border);padding-top:20px">
+          <div class="settings-label" style="margin-bottom:14px">🧾 Steuer & Preisanzeige</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+            <div class="auth-field">
+              <label>MwSt.-Satz (%)</label>
+              <select v-model.number="invoiceSettings.vatRate" class="form-select">
+                <option :value="19">19% (Standard)</option>
+                <option :value="7">7% (ermäßigte)</option>
+                <option :value="0">0% (steuerfrei)</option>
+              </select>
+            </div>
+            <div class="auth-field">
+              <label>Preisanzeige im Shop</label>
+              <select v-model="invoiceSettings.priceDisplay" class="form-select">
+                <option value="netto">Netto (zzgl. MwSt.)</option>
+                <option value="brutto">Brutto (inkl. MwSt.)</option>
+              </select>
+            </div>
+            <div class="auth-field">
+              <label>Kleinunternehmer §19 UStG</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                <div class="pill-toggle" :class="{ on: invoiceSettings.smallBusiness }"
+                  @click="invoiceSettings.smallBusiness = !invoiceSettings.smallBusiness"
+                  style="cursor:pointer"><div class="pill-thumb"></div></div>
+                <span style="font-size:12px;color:var(--text-muted)">
+                  {{ invoiceSettings.smallBusiness ? 'Aktiv — kein MwSt.-Ausweis' : 'Inaktiv' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div v-if="invoiceSettings.smallBusiness"
+            style="margin-top:12px;padding:12px;background:rgba(var(--accent-rgb),0.08);border-radius:8px;font-size:12px;color:var(--text-muted)">
+            ℹ️ Gemäß §19 UStG wird keine Umsatzsteuer berechnet und ausgewiesen.
+          </div>
         </div>
       </div>
     </div>
@@ -751,7 +788,7 @@ const agbPreview = computed(() => marked.parse(agb.content || ''))
 
 // ── Rechnungen ────────────────────────────────────────
 const invoiceSaving = ref(false)
-const invoiceSettings = reactive({ dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto' })
+const invoiceSettings = reactive({ dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false })
 
 // ── Mahnwesen ─────────────────────────────────────────
 const dunningSaving = ref(false)
