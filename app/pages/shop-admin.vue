@@ -130,7 +130,7 @@
         <div class="card-header"><span class="card-title">Bestandsübersicht</span></div>
         <table class="data-table">
           <thead>
-            <tr><th>Produkt</th><th>Kategorie</th><th>Bestand</th><th>Mindestbestand</th><th>Lieferant</th><th>Status</th></tr>
+            <tr><th>Produkt</th><th>Kategorie</th><th>Bestand</th><th>Mindestbestand</th><th>Lieferant</th><th>Status</th><th></th></tr>
           </thead>
           <tbody>
             <tr v-if="!products.length">
@@ -150,6 +150,13 @@
                 <span v-if="p.stock <= (p.minStock || 10)" class="badge badge-danger">⚠ Nachbestellen</span>
                 <span v-else class="badge badge-success">OK</span>
               </td>
+              <td>
+                <button v-if="p.stock <= (p.minStock || 10)" class="accent-btn"
+                  style="height:26px;font-size:11px;padding:0 10px"
+                  @click="openReorderModal(p)">
+                  <i class="ti ti-shopping-cart"></i> Bestellen
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -158,9 +165,45 @@
 
     <!-- TAB: Bestellungen -->
     <div v-if="tab === 'bestellungen'">
-      <div style="text-align:center;padding:60px;color:var(--text-muted)">
-        <i class="ti ti-clipboard-list" style="font-size:48px;display:block;margin-bottom:12px"></i>
-        Bestellvorgänge kommen bald!
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Bestellvorgänge</span>
+          <span style="font-size:12px;color:var(--text-muted)">{{ purchaseOrders.filter(o => o.status === 'offen').length }} offen</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Bestell-Nr.</th><th>Produkt</th><th>Lieferant</th><th>Menge</th><th>Datum</th><th>Status</th><th style="width:120px"></th></tr>
+          </thead>
+          <tbody>
+            <tr v-if="!purchaseOrders.length">
+              <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Keine Bestellungen vorhanden</td>
+            </tr>
+            <tr v-for="o in purchaseOrders" :key="o.orderId">
+              <td style="font-size:12px;font-family:monospace">{{ o.orderId?.slice(0,8).toUpperCase() }}</td>
+              <td style="font-weight:600">{{ o.productName }}</td>
+              <td style="font-size:12px">{{ o.supplierName || '—' }}</td>
+              <td><span class="badge badge-info">{{ o.quantity }} Stk.</span></td>
+              <td style="font-size:12px;color:var(--text-muted)">{{ new Date(o.created).toLocaleDateString('de-DE') }}</td>
+              <td>
+                <span class="badge" :class="o.status === 'offen' ? 'badge-warning' : o.status === 'geliefert' ? 'badge-success' : 'badge-info'">
+                  {{ o.status }}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button v-if="o.status === 'offen'" class="icon-btn" title="Als bestätigt markieren"
+                    @click="updateOrderStatus(o.orderId, 'bestätigt')">
+                    <i class="ti ti-check"></i>
+                  </button>
+                  <button v-if="o.status === 'bestätigt'" class="icon-btn" title="Als geliefert markieren"
+                    style="color:#00D4B4" @click="updateOrderStatus(o.orderId, 'geliefert')">
+                    <i class="ti ti-package-import"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -243,6 +286,48 @@
           <button class="auth-btn" @click="createSupplier" :disabled="supplierSaving || !supplierForm.name">
             <span v-if="supplierSaving"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else><i class="ti ti-plus"></i> Lieferant anlegen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Nachbestellung -->
+    <div v-if="showReorderModal" class="modal-overlay" @click.self="showReorderModal=false">
+      <div class="modal-card" style="max-width:460px">
+        <div class="modal-header">
+          <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>Nachbestellung</span>
+          <button class="icon-btn" @click="showReorderModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+          <div style="background:var(--bg-elevated);border-radius:10px;padding:14px">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Produkt</div>
+            <div style="font-weight:700">{{ reorderProduct?.name }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
+              Aktueller Bestand: <span style="color:#E05C5C;font-weight:700">{{ reorderProduct?.stock }}</span>
+              · Mindestbestand: {{ reorderProduct?.minStock || 10 }}
+              · Lieferant: {{ suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.name || '—' }}
+            </div>
+          </div>
+          <div class="auth-field">
+            <label>Bestellmenge</label>
+            <input v-model.number="reorderForm.quantity" type="number" min="1" placeholder="10" />
+          </div>
+          <div class="auth-field">
+            <label>Hinweise an Lieferant (optional)</label>
+            <textarea v-model="reorderForm.notes" rows="3"
+              style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:none;font-family:inherit"
+              placeholder="Lieferdatum, Besonderheiten..."></textarea>
+          </div>
+          <div v-if="suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.email"
+            style="font-size:12px;color:var(--text-muted);padding:10px;background:rgba(var(--accent-rgb),0.08);border-radius:8px">
+            <i class="ti ti-mail" style="color:var(--accent)"></i>
+            Bestellmail wird automatisch an {{ suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.email }} gesendet
+          </div>
+        </div>
+        <div style="padding:0 24px 24px">
+          <button class="auth-btn" @click="createPurchaseOrder" :disabled="reorderSaving">
+            <span v-if="reorderSaving"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else><i class="ti ti-send"></i> Bestellung aufgeben</span>
           </button>
         </div>
       </div>
@@ -366,5 +451,51 @@ function removeCategory(k: string) {
 function showToast(msg: string) {
   toast.value = msg
   setTimeout(() => toast.value = '', 2500)
+}
+
+// ── Purchase Orders ───────────────────────────────────────────────────────────
+const purchaseOrders    = ref<any[]>([])
+const showReorderModal  = ref(false)
+const reorderProduct    = ref<any>(null)
+const reorderForm       = reactive({ quantity: 10, notes: '' })
+const reorderSaving     = ref(false)
+
+const { data: poData, refresh: refreshPO } = await useFetch(useApiUrl('/api/shop/purchase-orders'))
+watch(poData, v => { if ((v as any)?.orders) purchaseOrders.value = (v as any).orders }, { immediate: true })
+
+function openReorderModal(product: any) {
+  reorderProduct.value = product
+  reorderForm.quantity = product.reorderQty || 10
+  reorderForm.notes    = ''
+  showReorderModal.value = true
+}
+
+async function createPurchaseOrder() {
+  if (!reorderProduct.value) return
+  reorderSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/shop/purchase-orders'), {
+      method: 'POST',
+      body: {
+        productId:   reorderProduct.value.productId,
+        productName: reorderProduct.value.name,
+        supplierId:  reorderProduct.value.supplierId || '',
+        quantity:    reorderForm.quantity,
+        notes:       reorderForm.notes,
+      }
+    })
+    await refreshPO()
+    showReorderModal.value = false
+    showToast('Bestellung aufgegeben!')
+  } finally { reorderSaving.value = false }
+}
+
+async function updateOrderStatus(orderId: string, status: string) {
+  await $fetch(useApiUrl(`/api/shop/purchase-orders/${orderId}`), {
+    method: 'PATCH',
+    body: { status }
+  })
+  await refreshPO()
+  showToast(`Status auf "${status}" gesetzt!`)
 }
 </script>
