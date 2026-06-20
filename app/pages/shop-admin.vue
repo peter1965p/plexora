@@ -426,7 +426,7 @@ async function createProduct() {
     if (editingProduct.value) {
       await $fetch(useApiUrl(`/api/shop/products/${editingProduct.value.productId}`), {
         method: 'PATCH',
-        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }
+        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), userId: editingProduct.value.userId || 'demo-user' }
       })
       showToast('Produkt gespeichert!')
     } else {

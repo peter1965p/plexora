@@ -6,9 +6,10 @@ export default defineEventHandler(async (event) => {
   const body      = await readBody(event)
   const dynamo    = getDynamoClient()
 
+  const userId = body.userId || 'demo-user'
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-products',
-    Key: { productId },
+    Key: { userId, productId },
     UpdateExpression: 'SET #n = :n, price = :p, category = :c, description = :d, stock = :s, minStock = :ms, image = :img, vatRate = :vr, supplierId = :sid, updated = :u',
     ExpressionAttributeNames: { '#n': 'name' },
     ExpressionAttributeValues: {
