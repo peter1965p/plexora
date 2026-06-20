@@ -13,7 +13,15 @@ export default defineEventHandler(async (event) => {
   // Raw Body für Stripe Signatur-Validierung
   const rawBody = await readRawBody(event)
   const sig     = getHeader(event, 'stripe-signature') || ''
-  const webhookSecret = process.env.NUXT_STRIPE_WEBHOOK_SECRET || ''
+  // Webhook Secret aus DynamoDB (Settings UI) oder Env
+  let webhookSecret = process.env.NUXT_STRIPE_WEBHOOK_SECRET || ''
+  try {
+    const ps = await dynamo.send(new GetCommand({
+      TableName: 'plexora-settings',
+      Key: { settingId: 'payment', scope: 'global' }
+    }))
+    if (ps.Item?.stripeWebhookSecret) webhookSecret = ps.Item.stripeWebhookSecret
+  } catch {}
 
   let stripeEvent: Stripe.Event
   try {
