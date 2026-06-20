@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
       success_url: `${origin}/pay/${invoiceId}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:  `${origin}/pay/${invoiceId}`,
       customer_email: invoice.clientEmail || undefined,
-      metadata: { invoiceId: invoiceId!, source: 'invoice-pay' },
+      metadata: { invoiceId: invoiceId!, userId: invoice.userId || '', source: 'invoice-pay' },
     })
     return { url: session.url }
   }
