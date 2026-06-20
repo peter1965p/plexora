@@ -52,25 +52,11 @@
               <span v-if="product.priceModel === 'einmalig'"> · Einmalzahlung</span>
             </div>
             <button class="auth-btn" style="font-size:16px;height:52px" @click="addToCart">
-              <i class="ti" :class="cartAdded ? 'ti-circle-check' : 'ti-shopping-cart'"></i>
-              {{ cartAdded ? 'Hinzugefügt!' : 'In den Warenkorb' }}
+              <i class="ti ti-shopping-cart"></i> In den Warenkorb
             </button>
-            <NuxtLink v-if="cartAdded" to="/shop/cart" style="display:block;text-align:center;margin-top:10px;color:var(--accent);font-size:13px;text-decoration:none">
-              <i class="ti ti-arrow-right"></i> Zum Warenkorb
-            </NuxtLink>
           </div>
 
-          <!-- Meta -->
-          <div style="display:flex;gap:16px;flex-wrap:wrap">
-            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px">
-              <i class="ti ti-package" style="color:var(--accent)"></i>
-              Stock: {{ product.stock ?? '∞' }}
-            </div>
-            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px">
-              <i class="ti ti-tag" style="color:var(--accent)"></i>
-              {{ product.category }}
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -101,8 +87,6 @@ const features = computed(() => {
   return product.value.features.split('\n').filter((f: string) => f.trim())
 })
 
-const cartAdded = ref(false)
-
 function addToCart() {
   if (!product.value) return
   try {
@@ -120,8 +104,7 @@ function addToCart() {
       })
     }
     localStorage.setItem('plexora-cart', JSON.stringify(cart))
-    cartAdded.value = true
-    setTimeout(() => cartAdded.value = false, 2500)
+    navigateTo('/shop')
   } catch (err) { console.error(err) }
 }
 </script>
