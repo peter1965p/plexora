@@ -138,7 +138,7 @@ async function uploadProductImage(e: Event) {
   try {
     const reader = new FileReader()
     const base64 = await new Promise<string>(r => { reader.onload = e => r(e.target!.result as string); reader.readAsDataURL(file) })
-    const res: any = await \$fetch(useApiUrl('/api/aws/s3-upload'), {
+    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
       body: { fileBase64: base64, fileName: `product-${Date.now()}.jpg`, prefix: 'products/' }
     })
