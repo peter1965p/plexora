@@ -37,13 +37,31 @@
             </select>
           </div>
           <div class="auth-field"><label>Stock</label><input v-model="form.stock" type="number" placeholder="999" /></div>
-          <div class="auth-field" style="grid-column:span 3">
+          <div class="auth-field" style="grid-column:span 2">
             <label>Beschreibung</label>
             <textarea v-model="form.description" placeholder="Kurze Beschreibung..." style="height:72px;resize:none;width:100%" class="form-select"></textarea>
           </div>
           <div class="auth-field">
-            <label>Bild URL</label>
-            <input v-model="form.image" placeholder="https://..." />
+            <label>MwSt.-Satz</label>
+            <select v-model.number="form.vatRate" class="form-select">
+              <option :value="19">19% (Standard)</option>
+              <option :value="7">7% (ermäßigt)</option>
+              <option :value="0">0% (steuerfrei)</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Produktbild</label>
+            <div v-if="form.image" style="margin-bottom:6px;position:relative;display:inline-block">
+              <img :src="form.image" style="height:48px;width:48px;object-fit:cover;border-radius:6px;border:0.5px solid var(--border)" />
+              <button @click="form.image=''" style="position:absolute;top:-4px;right:-4px;background:#E05C5C;border:none;border-radius:50%;width:16px;height:16px;cursor:pointer;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center">×</button>
+            </div>
+            <label style="cursor:pointer;display:block">
+              <input type="file" accept="image/*" style="display:none" @change="uploadProductImage" :disabled="imageUploading" />
+              <span class="accent-btn" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
+                <i class="ti" :class="imageUploading ? 'ti-loader-2 spin' : 'ti-photo-up'"></i>
+                {{ imageUploading ? 'Lädt...' : form.image ? 'Ändern' : 'Bild hochladen' }}
+              </span>
+            </label>
           </div>
         </div>
         <button class="accent-btn" style="margin-top:8px" @click="createProduct" :disabled="saving">
@@ -110,7 +128,25 @@ const tab    = ref('Produkte')
 const saving = ref(false)
 const toast  = ref('')
 const newCat = ref('')
-const form   = reactive({ name: '', price: '', category: 'SOFTWARE', description: '', stock: '999', image: '' })
+const form   = reactive({ name: '', price: '', category: 'SOFTWARE', description: '', stock: '999', image: '', vatRate: 19 })
+const imageUploading = ref(false)
+
+async function uploadProductImage(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  imageUploading.value = true
+  try {
+    const reader = new FileReader()
+    const base64 = await new Promise<string>(r => { reader.onload = e => r(e.target!.result as string); reader.readAsDataURL(file) })
+    const res: any = await \$fetch(useApiUrl('/api/aws/s3-upload'), {
+      method: 'POST',
+      body: { fileBase64: base64, fileName: `product-${Date.now()}.jpg`, prefix: 'products/' }
+    })
+    if (res?.url) form.image = res.url
+    else if (res?.key) form.image = `https://plexora-files.s3.eu-central-1.amazonaws.com/${res.key}`
+  } catch (err) { console.error('Upload fehlgeschlagen:', err) }
+  finally { imageUploading.value = false }
+}
 
 const categories = ref(['SOFTWARE', 'SERVICE'])
 
