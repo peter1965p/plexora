@@ -10,13 +10,16 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-products',
     Key: { userId, productId },
-    UpdateExpression: 'SET #n = :n, price = :p, category = :c, description = :d, stock = :s, minStock = :ms, image = :img, vatRate = :vr, supplierId = :sid, updated = :u',
+    UpdateExpression: 'SET #n = :n, price = :p, category = :c, description = :d, longDescription = :ld, features = :ft, priceModel = :pm, stock = :s, minStock = :ms, image = :img, vatRate = :vr, supplierId = :sid, updated = :u',
     ExpressionAttributeNames: { '#n': 'name' },
     ExpressionAttributeValues: {
       ':n':   body.name,
       ':p':   body.price,
       ':c':   body.category,
       ':d':   body.description || '',
+      ':ld':  body.longDescription || '',
+      ':ft':  body.features || [],
+      ':pm':  body.priceModel || 'einmalig',
       ':s':   body.stock,
       ':ms':  body.minStock || 10,
       ':img': body.image || '',
