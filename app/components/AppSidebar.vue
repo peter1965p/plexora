@@ -68,7 +68,7 @@ const navSections = computed(() => [
   {
     label: 'Module',
     items: store.modules
-      .filter(m => m.on && moduleRoutes[m.key])
+      .filter(m => m.on && !m.locked && moduleRoutes[m.key])
       .map(m => ({ to: moduleRoutes[m.key], label: m.name, icon: m.icon, key: m.key }))
   },
   {

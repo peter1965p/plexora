@@ -357,8 +357,12 @@
         <div class="card-header">
           <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>Lizenz-Center</span>
           <div style="display:flex;gap:8px;align-items:center">
-            <span class="badge badge-success">God License 😄</span>
-            <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on).length }} / {{ store.modules.length }} aktiv</span>
+            <span v-if="store.license" class="badge" :class="store.license.tier==='enterprise' ? 'badge-warning' : store.license.tier==='pro' ? 'badge-info' : 'badge-success'">
+              <i class="ti ti-key" style="margin-right:4px"></i>
+              {{ store.license.tier === 'enterprise' ? 'Enterprise' : store.license.tier === 'pro' ? 'Pro' : 'Starter' }}
+            </span>
+            <span v-else class="badge badge-danger"><i class="ti ti-key-off" style="margin-right:4px"></i>Keine Lizenz</span>
+            <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on && !m.locked).length }} / {{ store.modules.length }} aktiv</span>
             <button v-if="modulesDirty" class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;background:#00C853;border-color:#00C853"
               :disabled="modulesSaving" @click="saveModules">
               <span v-if="modulesSaving"><i class="ti ti-loader-2 spin"></i></span>
@@ -369,12 +373,18 @@
         <div class="card-body">
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">
             <div v-for="m in store.modules" :key="m.key"
-              style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s"
-              :style="m.on ? 'border-color:var(--accent)' : ''">
+              style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s;position:relative;overflow:hidden"
+              :style="m.locked ? 'opacity:0.5' : m.on ? 'border-color:var(--accent)' : ''">
+
+              <!-- Lock-Overlay -->
+              <div v-if="m.locked" style="position:absolute;inset:0;background:rgba(0,0,0,0.18);border-radius:12px;display:flex;align-items:center;justify-content:center;z-index:2;gap:6px;font-size:12px;font-weight:700;color:var(--text-muted)">
+                <i class="ti ti-lock" style="font-size:16px"></i> Nicht in deiner Lizenz
+              </div>
+
               <div style="display:flex;align-items:center;gap:10px">
                 <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center"
-                  :style="m.on ? 'background:rgba(var(--accent-rgb),0.15)' : 'background:var(--bg-hover)'">
-                  <i class="ti" :class="m.icon" :style="m.on ? 'color:var(--accent)' : 'color:var(--text-muted)'"></i>
+                  :style="m.on && !m.locked ? 'background:rgba(var(--accent-rgb),0.15)' : 'background:var(--bg-hover)'">
+                  <i class="ti" :class="m.icon" :style="m.on && !m.locked ? 'color:var(--accent)' : 'color:var(--text-muted)'"></i>
                 </div>
                 <div style="flex:1">
                   <div style="font-weight:700;font-size:14px">{{ m.name }}</div>
@@ -383,7 +393,9 @@
                     {{ m.plan === 'basic' ? 'Basic' : m.plan === 'pro' ? 'Pro' : 'Enterprise' }}
                   </span>
                 </div>
-                <div class="pill-toggle" :class="{ on: m.on }" @click="store.toggleModule(m.key); modulesDirty=true" style="cursor:pointer;flex-shrink:0">
+                <div class="pill-toggle" :class="{ on: m.on && !m.locked }"
+                  @click="!m.locked && (store.toggleModule(m.key), modulesDirty=true)"
+                  :style="m.locked ? 'cursor:not-allowed;opacity:0.4' : 'cursor:pointer'" style="flex-shrink:0">
                   <div class="pill-thumb"></div>
                 </div>
               </div>
