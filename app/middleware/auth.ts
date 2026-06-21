@@ -9,15 +9,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
     const isAdmin    = groups.includes('admins')
     const isCustomer = groups.includes('customers')
 
-    // Kunde versucht Admin-Bereich zu öffnen → Portal
-    if (isCustomer && !isAdmin && !to.path.startsWith('/portal')) {
-      return navigateTo('/portal')
-    }
+    // Nicht eingeloggt → Login
+    if (!isAdmin && !isCustomer) return navigateTo('/login')
 
-    // Admin versucht Portal zu öffnen → Dashboard
+    // Admin im Portal → Dashboard (Portal ist für Kunden)
     if (isAdmin && to.path.startsWith('/portal')) {
       return navigateTo('/dashboard')
     }
+
+    // Customers haben vollen App-Zugriff — Modul-Sperre via License im Store
 
   } catch {
     return navigateTo('/login')
