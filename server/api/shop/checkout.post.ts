@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
   const brutto   = Math.round(netto * (1 + vatRate) * 100) // in Cent
 
   const session = await stripe.checkout.sessions.create({
+    billing_address_collection: 'required',
     payment_method_types: ['card'],
     mode: 'payment',
     customer_email: body.email || undefined,
