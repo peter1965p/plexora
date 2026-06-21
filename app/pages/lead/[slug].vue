@@ -90,12 +90,10 @@ const utmCampaign = route.query.utm_campaign as string || ''
 const utmContent  = route.query.utm_content  as string || ''
 const utmTerm     = route.query.utm_term     as string || ''
 
-const apiBase = 'https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com'
-
-const { data, pending: loading } = await useFetch(`${apiBase}/api/forms/${slug}`)
+const { data, pending: loading } = await useFetch(useApiUrl(`/api/forms/${slug}`))
 const form = computed(() => (data.value as any)?.form || null)
 
-const { data: campData } = await useFetch(`${apiBase}/api/marketing`)
+const { data: campData } = await useFetch(useApiUrl('/api/marketing'))
 const campaign = computed(() => {
   const all = (campData.value as any)?.campaigns || []
   return all.find((c: any) =>
@@ -118,7 +116,7 @@ const successMsg = ref('Vielen Dank!')
 async function submit() {
   sending.value = true
   try {
-    const res = await $fetch(`${apiBase}/api/forms/${slug}/submit`, {
+    const res = await $fetch(useApiUrl(`/api/forms/${slug}/submit`), {
       method: 'POST',
       body: { data: { ...formData }, utmSource, utmMedium, utmCampaign, utmContent, utmTerm }
     }) as any

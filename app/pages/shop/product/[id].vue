@@ -73,9 +73,7 @@ definePageMeta({ layout: 'default' })
 
 const route     = useRoute()
 const productId = route.params.id as string
-const apiBase   = 'https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com'
-
-const { data, pending: loading } = await useFetch(`${apiBase}/api/shop/products`)
+const { data, pending: loading } = await useFetch(useApiUrl('/api/shop/products'))
 const product = computed(() => {
   const all = (data.value as any)?.products || []
   return all.find((p: any) => p.productId === productId) || null

@@ -91,20 +91,18 @@ definePageMeta({ layout: 'default' })
 
 const route     = useRoute()
 const invoiceId = route.params.invoiceId as string
-const apiBase   = 'https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com'
 
 const { branding, loadBranding } = useBranding()
 const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
 const brandLast  = computed(() => branding.value.brandName.slice(-1))
 onMounted(() => loadBranding())
 
-const { data, pending: loading } = await useFetch(`${apiBase}/api/pay/${invoiceId}`)
+const { data, pending: loading } = await useFetch(useApiUrl(`/api/pay/${invoiceId}`))
 const invoice = computed(() => (data.value as any)?.invoice || null)
 const gateway = computed(() => (data.value as any)?.gateway || 'stripe')
 
-const gatewayName = computed(() => ({
-  stripe: 'Stripe', paypal: 'PayPal', mollie: 'Mollie', custom: 'Payment Gateway'
-})[gateway.value] || 'Stripe')
+const gatewayLabels: Record<string, string> = { stripe: 'Stripe', paypal: 'PayPal', mollie: 'Mollie', custom: 'Payment Gateway' }
+const gatewayName = computed(() => gatewayLabels[gateway.value as string] || 'Stripe')
 
 const brutto = computed(() => {
   const netto = Number(invoice.value?.amount) || 0
@@ -116,7 +114,7 @@ const paying = ref(false)
 async function startPayment() {
   paying.value = true
   try {
-    const res = await $fetch(`${apiBase}/api/pay/${invoiceId}/checkout`, {
+    const res = await $fetch(useApiUrl(`/api/pay/${invoiceId}/checkout`), {
       method: 'POST',
     }) as any
     if (res?.url) window.location.href = res.url

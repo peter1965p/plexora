@@ -6,8 +6,17 @@ import { randomUUID } from 'crypto'
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
   const config = useRuntimeConfig()
-  const stripe  = new Stripe(config.stripeSecretKey as string)
   const dynamo  = getDynamoClient()
+
+  let stripeKey = config.stripeSecretKey as string
+  try {
+    const ps = await dynamo.send(new GetCommand({
+      TableName: 'plexora-settings',
+      Key: { settingId: 'payment', scope: 'global' }
+    }))
+    if (ps.Item?.stripeSecretKey) stripeKey = ps.Item.stripeSecretKey
+  } catch {}
+  const stripe = new Stripe(stripeKey)
 
   // Branding laden
   let brandName = 'Plexora'

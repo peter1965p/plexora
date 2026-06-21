@@ -1,5 +1,55 @@
 <template>
   <div class="page">
+
+    <!-- Lizenz-Karte -->
+    <div v-if="license" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(var(--accent-rgb),0.12),rgba(var(--accent-rgb),0.04));border:1px solid var(--accent);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+        <div style="width:44px;height:44px;border-radius:10px;background:rgba(var(--accent-rgb),0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ti-key" style="font-size:20px;color:var(--accent)"></i>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Dein Lizenz-Key</div>
+          <code style="font-size:18px;font-weight:900;letter-spacing:3px;color:var(--accent)">{{ license.licenseKey }}</code>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Tarif</div>
+          <span class="badge" :class="license.tier==='enterprise' ? 'badge-warning' : license.tier==='pro' ? 'badge-info' : 'badge-success'">
+            {{ license.tier === 'enterprise' ? 'Enterprise' : license.tier === 'pro' ? 'Pro' : 'Starter' }}
+          </span>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Status</div>
+          <span class="badge badge-success"><i class="ti ti-circle-check" style="margin-right:4px"></i>Aktiv</span>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Gültig bis</div>
+          <span style="font-size:13px;font-weight:600">{{ license.validUntil ? new Date(license.validUntil).toLocaleDateString('de-DE') : '∞ Unbegrenzt' }}</span>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Module</div>
+          <span style="font-size:13px;font-weight:600">{{ (license.modules || []).length }} aktiv</span>
+        </div>
+        <button @click="copyLicKey" class="accent-btn" style="height:32px;font-size:12px;padding:0 14px">
+          <i class="ti" :class="keyCopied ? 'ti-check' : 'ti-copy'"></i>
+          {{ keyCopied ? 'Kopiert!' : 'Key kopieren' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Kein Lizenz-Banner -->
+    <div v-else-if="licenseLoaded && !license" style="margin-bottom:20px;background:var(--bg-surface);border:1px dashed var(--border);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px">
+      <i class="ti ti-key-off" style="font-size:28px;color:var(--text-muted)"></i>
+      <div style="flex:1">
+        <div style="font-weight:700;margin-bottom:4px">Keine aktive Lizenz gefunden</div>
+        <div style="font-size:12px;color:var(--text-muted)">Kaufe eine Plexora-Lizenz um alle Module freizuschalten.</div>
+      </div>
+      <a href="/#pricing" class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;text-decoration:none">
+        <i class="ti ti-shopping-cart"></i> Lizenz kaufen
+      </a>
+    </div>
+
     <div class="stats-grid">
       <div class="stat-card">
         <i class="ti ti-receipt stat-icon"></i>
@@ -82,14 +132,33 @@ import { formatEur, statusLabel, statusBadge } from '~/modules/finance'
 
 definePageMeta({ layout: 'portal', middleware: 'auth' })
 
-const userId = ref("")
+const userId  = ref("")
 const userEmail = ref("")
+const license = ref<any>(null)
+const licenseLoaded = ref(false)
+const keyCopied = ref(false)
+
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
-  userId.value = u.userId
+  userId.value    = u.userId
   userEmail.value = u.email
+
+  if (u.email) {
+    try {
+      const res = await $fetch(useApiUrl(`/api/licenses/my?email=${encodeURIComponent(u.email)}`)) as any
+      license.value = res.license || null
+    } catch {}
+  }
+  licenseLoaded.value = true
 })
+
+function copyLicKey() {
+  if (!license.value?.licenseKey) return
+  navigator.clipboard.writeText(license.value.licenseKey)
+  keyCopied.value = true
+  setTimeout(() => keyCopied.value = false, 2000)
+}
 
 const orderLabel: Record<string, string> = {
   pending:   'Ausstehend',

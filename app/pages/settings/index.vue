@@ -394,6 +394,150 @@
       </div>
     </div>
 
+    <!-- LIZENZEN -->
+    <div v-if="tab === 'licenses'">
+
+      <!-- Stats-Zeile -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+        <div class="stat-card" style="padding:16px">
+          <div class="stat-label">Gesamt</div>
+          <div class="stat-value">{{ licenses.length }}</div>
+        </div>
+        <div class="stat-card" style="padding:16px">
+          <div class="stat-label" style="color:#00C853">Aktiv</div>
+          <div class="stat-value" style="color:#00C853">{{ licenses.filter(l=>l.status==='active').length }}</div>
+        </div>
+        <div class="stat-card" style="padding:16px">
+          <div class="stat-label">Pro</div>
+          <div class="stat-value">{{ licenses.filter(l=>l.tier==='pro').length }}</div>
+        </div>
+        <div class="stat-card" style="padding:16px">
+          <div class="stat-label">Enterprise</div>
+          <div class="stat-value">{{ licenses.filter(l=>l.tier==='enterprise').length }}</div>
+        </div>
+      </div>
+
+      <!-- Lizenz-Tabelle -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-key" style="margin-right:8px;color:var(--accent)"></i>Ausgestellte Lizenzen</span>
+          <div style="display:flex;gap:8px">
+            <button class="icon-btn" @click="loadLicenses" :disabled="licLoading" title="Aktualisieren">
+              <i class="ti" :class="licLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
+            </button>
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" @click="showCreateLic=true">
+              <i class="ti ti-plus"></i> Neue Lizenz
+            </button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div v-if="licLoading && !licenses.length" style="padding:32px;text-align:center;color:var(--text-muted)">
+            <i class="ti ti-loader-2 spin" style="font-size:24px"></i>
+          </div>
+          <div v-else-if="!licenses.length" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px">
+            <i class="ti ti-key-off" style="font-size:32px;display:block;margin-bottom:8px"></i>
+            Noch keine Lizenzen ausgestellt
+          </div>
+          <table v-else class="data-table">
+            <thead>
+              <tr>
+                <th>Lizenz-Key</th>
+                <th>E-Mail</th>
+                <th>Tier</th>
+                <th>Status</th>
+                <th>Gültig bis</th>
+                <th>Erstellt</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="lic in licenses" :key="lic.licenseKey">
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <code style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent)">{{ lic.licenseKey }}</code>
+                    <button @click="copyKey(lic.licenseKey)" class="icon-btn" style="width:20px;height:20px;font-size:11px" title="Kopieren">
+                      <i class="ti ti-copy"></i>
+                    </button>
+                  </div>
+                </td>
+                <td style="font-size:12px">{{ lic.customerEmail }}</td>
+                <td>
+                  <span class="badge" :class="lic.tier==='enterprise' ? 'badge-warning' : lic.tier==='pro' ? 'badge-info' : 'badge-success'">
+                    {{ lic.tier === 'enterprise' ? 'Enterprise' : lic.tier === 'pro' ? 'Pro' : 'Starter' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" :class="lic.status==='active' ? 'badge-success' : 'badge-danger'">
+                    {{ lic.status === 'active' ? 'Aktiv' : 'Inaktiv' }}
+                  </span>
+                </td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ lic.validUntil ? new Date(lic.validUntil).toLocaleDateString('de-DE') : '∞ Unbegrenzt' }}</td>
+                <td style="font-size:11px;color:var(--text-muted)">{{ new Date(lic.created).toLocaleDateString('de-DE') }}</td>
+                <td>
+                  <div style="display:flex;gap:4px">
+                    <button @click="toggleLicStatus(lic)" class="icon-btn" :title="lic.status==='active' ? 'Deaktivieren' : 'Aktivieren'"
+                      :style="lic.status==='active' ? 'color:#E05C5C' : 'color:#00C853'">
+                      <i class="ti" :class="lic.status==='active' ? 'ti-ban' : 'ti-check'"></i>
+                    </button>
+                    <button @click="deleteLic(lic)" class="icon-btn" style="color:#E05C5C" title="Löschen">
+                      <i class="ti ti-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal: Neue Lizenz erstellen -->
+      <div v-if="showCreateLic" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px">
+        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:480px;padding:28px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h3 style="margin:0;font-size:16px"><i class="ti ti-key" style="color:var(--accent);margin-right:8px"></i>Neue Lizenz erstellen</h3>
+            <button class="icon-btn" @click="showCreateLic=false"><i class="ti ti-x"></i></button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="auth-field">
+              <label>Kunden-E-Mail *</label>
+              <input v-model="newLic.customerEmail" type="email" placeholder="kunde@firma.de" />
+            </div>
+            <div class="auth-field">
+              <label>Lizenz-Tier</label>
+              <select v-model="newLic.tier" class="form-select">
+                <option value="starter">Starter (CRM + Support)</option>
+                <option value="pro">Pro (alle Module)</option>
+                <option value="enterprise">Enterprise (inkl. Marketing)</option>
+              </select>
+            </div>
+            <div class="auth-field">
+              <label>Gültig bis (leer = unbegrenzt)</label>
+              <input v-model="newLic.validUntil" type="date" />
+            </div>
+            <div class="auth-field">
+              <label>Notiz (intern)</label>
+              <input v-model="newLic.note" placeholder="z.B. Testzugang, Partnerlizenz..." />
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:20px">
+            <button class="accent-btn" style="flex:1" :disabled="licCreating || !newLic.customerEmail" @click="createLicense">
+              <span v-if="licCreating"><i class="ti ti-loader-2 spin"></i> Erstelle...</span>
+              <span v-else><i class="ti ti-key"></i> Lizenz erstellen</span>
+            </button>
+            <button class="icon-btn" style="padding:0 16px" @click="showCreateLic=false">Abbrechen</button>
+          </div>
+          <div v-if="createdKey" style="margin-top:16px;background:rgba(var(--accent-rgb),0.08);border:1px solid var(--accent);border-radius:10px;padding:16px;text-align:center">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Lizenz-Key erstellt:</div>
+            <code style="font-size:18px;font-weight:900;letter-spacing:3px;color:var(--accent)">{{ createdKey }}</code>
+            <button @click="copyKey(createdKey)" class="icon-btn" style="margin-top:8px;display:block;width:100%;font-size:12px">
+              <i class="ti ti-copy"></i> Kopieren
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
     <!-- PAYMENT -->
     <div v-if="tab === 'payment'" class="card">
       <div class="card-header">
@@ -712,6 +856,70 @@ const tab   = ref('branding')
 const customAccent     = ref(store.accent)
 const appearanceSaving = ref(false)
 
+// ── Lizenzen ──────────────────────────────────────────────────────────────────
+const licenses    = ref<any[]>([])
+const licLoading  = ref(false)
+const showCreateLic = ref(false)
+const licCreating = ref(false)
+const createdKey  = ref('')
+const newLic      = reactive({ customerEmail: '', tier: 'pro', validUntil: '', note: '' })
+
+async function loadLicenses() {
+  licLoading.value = true
+  try {
+    const res = await $fetch(useApiUrl('/api/licenses')) as any
+    licenses.value = res.licenses || []
+  } catch {} finally { licLoading.value = false }
+}
+
+async function createLicense() {
+  if (!newLic.customerEmail) return
+  licCreating.value = true
+  createdKey.value  = ''
+  try {
+    const res = await $fetch(useApiUrl('/api/licenses'), {
+      method: 'POST',
+      body: {
+        customerEmail: newLic.customerEmail,
+        tier:          newLic.tier,
+        validUntil:    newLic.validUntil || null,
+        note:          newLic.note,
+      }
+    }) as any
+    createdKey.value = res.licenseKey
+    await loadLicenses()
+    Object.assign(newLic, { customerEmail: '', tier: 'pro', validUntil: '', note: '' })
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + e.message, true)
+  } finally { licCreating.value = false }
+}
+
+async function toggleLicStatus(lic: any) {
+  const newStatus = lic.status === 'active' ? 'inactive' : 'active'
+  try {
+    await $fetch(useApiUrl(`/api/licenses/${lic.licenseKey}`), {
+      method: 'PATCH', body: { status: newStatus }
+    })
+    lic.status = newStatus
+  } catch { showSettingsToast('Fehler beim Aktualisieren!', true) }
+}
+
+async function deleteLic(lic: any) {
+  if (!confirm(`Lizenz ${lic.licenseKey} (${lic.customerEmail}) wirklich löschen?`)) return
+  try {
+    await $fetch(useApiUrl(`/api/licenses/${lic.licenseKey}`), { method: 'DELETE' })
+    licenses.value = licenses.value.filter(l => l.licenseKey !== lic.licenseKey)
+    showSettingsToast('Lizenz gelöscht')
+  } catch { showSettingsToast('Fehler beim Löschen!', true) }
+}
+
+function copyKey(key: string) {
+  navigator.clipboard.writeText(key)
+  showSettingsToast('Lizenz-Key kopiert!')
+}
+
+watch(tab, v => { if (v === 'licenses') loadLicenses() })
+
 function applyCustomAccent() {
   const hex = customAccent.value.replace('#', '')
   const r = parseInt(hex.substring(0,2),16)
@@ -758,6 +966,7 @@ const tabs = [
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
+  { key: 'licenses',    label: 'Lizenzen',         icon: 'ti-key'             },
   { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
   { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
@@ -838,6 +1047,18 @@ async function uploadLogo(e: Event) {
     console.error('Logo-Upload fehlgeschlagen:', err)
   } finally {
     logoUploading.value = false
+  }
+}
+
+async function saveCompany() {
+  companySaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company } })
+    showSettingsToast('Unternehmensdaten gespeichert!')
+  } catch {
+    showSettingsToast('Fehler beim Speichern!', true)
+  } finally {
+    companySaving.value = false
   }
 }
 

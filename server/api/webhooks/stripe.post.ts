@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { generateLicenseKey, TIER_MODULES, TIER_LABELS } from '../../utils/license'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -115,6 +116,65 @@ export default defineEventHandler(async (event) => {
       }
 
       console.log(`✅ Shop-Kauf: Tenant ${tenantId} für ${customerEmail}`)
+    }
+
+    // ── FALL 3: Plexora Lizenz-Kauf ────────────────────────────────────────
+    if (metadata.type === 'license_purchase') {
+      const tier          = metadata.tier || 'pro'
+      const customerEmail = session.customer_details?.email || metadata.email || ''
+      const customerName  = session.customer_details?.name  || customerEmail.split('@')[0] || 'Kunde'
+      const licenseKey    = generateLicenseKey()
+      const now           = new Date().toISOString()
+
+      await dynamo.send(new PutCommand({
+        TableName: 'plexora-licenses',
+        Item: {
+          licenseKey,
+          customerEmail,
+          customerName,
+          tier,
+          status:          'active',
+          modules:         TIER_MODULES[tier] || [],
+          validFrom:       now,
+          validUntil:      null,
+          stripeSessionId: session.id,
+          created:         now,
+          updated:         now,
+        }
+      }))
+
+      // Welcome-Mail mit Lizenz-Key
+      if (customerEmail) {
+        const tierLabel  = TIER_LABELS[tier] || tier
+        const subject    = `Dein Plexora ${tierLabel} Lizenz-Key`
+        const rawEmail   = [
+          `From: Plexora <billing@paeffgen-it.de>`,
+          `To: ${customerEmail}`,
+          `Subject: ${subject}`,
+          `MIME-Version: 1.0`,
+          `Content-Type: text/html; charset=UTF-8`,
+          ``,
+          `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;padding:32px">`,
+          `<h1 style="color:#6C3FE8;margin-bottom:8px">Willkommen bei Plexora! 🎉</h1>`,
+          `<p>Hallo ${customerName},</p>`,
+          `<p>vielen Dank für deinen Kauf von <strong>Plexora ${tierLabel}</strong>.</p>`,
+          `<p>Dein persönlicher Lizenz-Key:</p>`,
+          `<div style="background:#f5f3ff;border:2px solid #6C3FE8;border-radius:12px;padding:20px 28px;margin:24px 0;text-align:center">`,
+          `<code style="font-size:24px;font-weight:900;letter-spacing:4px;color:#6C3FE8">${licenseKey}</code>`,
+          `</div>`,
+          `<p>Freigeschaltete Module: <strong>${(TIER_MODULES[tier] || []).length} Module</strong></p>`,
+          `<p>Du findest deinen Key jederzeit in deinem <a href="https://plexora.paeffgen-it.de/portal" style="color:#6C3FE8">Kunden-Portal</a>.</p>`,
+          `<p style="color:#999;font-size:12px;margin-top:40px">Das Plexora Team · billing@paeffgen-it.de</p>`,
+          `</body></html>`,
+        ].join('\r\n')
+
+        try {
+          await ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(rawEmail) } }))
+          console.log(`✅ Lizenz-Key Mail an ${customerEmail}: ${licenseKey}`)
+        } catch (err) { console.error('Lizenz-Mail fehlgeschlagen:', err) }
+      }
+
+      console.log(`✅ Lizenz erstellt: ${licenseKey} (${tier}) für ${customerEmail}`)
     }
   }
 

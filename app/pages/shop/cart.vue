@@ -71,8 +71,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
-const apiBase = 'https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com'
-const cart    = ref<any[]>([])
+const cart     = ref<any[]>([])
 const checking = ref(false)
 
 onMounted(() => {
@@ -97,14 +96,10 @@ async function checkout() {
   if (!cart.value.length) return
   checking.value = true
   try {
-    // Erstes Produkt checkout (multi-item folgt später)
-    const item = cart.value[0]
-    const res: any = await $fetch(`${apiBase}/api/shop/checkout`, {
+    const res: any = await $fetch(useApiUrl('/api/shop/checkout'), {
       method: 'POST',
       body: {
-        productId: item.productId,
-        quantity:  item.quantity,
-        baseUrl:   window.location.origin
+        items: cart.value.map(i => ({ productId: i.productId, quantity: i.quantity })),
       }
     })
     if (res?.url) {
