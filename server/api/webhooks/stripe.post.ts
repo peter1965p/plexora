@@ -1,15 +1,29 @@
 import Stripe from 'stripe'
 import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { generateLicenseKey, TIER_MODULES, TIER_LABELS } from '../../utils/license'
-import { randomUUID } from 'crypto'
+import { randomUUID, randomBytes } from 'crypto'
 
 export default defineEventHandler(async (event) => {
   const config  = useRuntimeConfig()
   const stripe  = new Stripe(config.stripeSecretKey as string)
   const dynamo  = getDynamoClient()
   const ses     = new SESClient({ region: 'eu-central-1' })
+
+  // Cognito-Client — in Lambda via IAM-Role, lokal via Env-Vars
+  const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME
+  const cognito  = isLambda
+    ? new CognitoIdentityProviderClient({ region: 'eu-central-1' })
+    : new CognitoIdentityProviderClient({
+        region: 'eu-central-1',
+        credentials: {
+          accessKeyId:     (process.env.NUXT_AWS_ACCESS_KEY_ID || '').replace(/^"|"$/g, ''),
+          secretAccessKey: (process.env.NUXT_AWS_SECRET_ACCESS_KEY || '').replace(/^"|"$/g, ''),
+        },
+      })
+  const userPoolId = (config.public as any).awsUserPoolId as string || 'eu-central-1_lM7sN6LvC'
 
   // Raw Body für Stripe Signatur-Validierung
   const rawBody = await readRawBody(event)
@@ -34,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
   // checkout.session.completed → Rechnung bezahlt ODER Shop-Kauf
   if (stripeEvent.type === 'checkout.session.completed') {
-    const session = stripeEvent.data.object as Stripe.Checkout.Session
+    const session  = stripeEvent.data.object as Stripe.Checkout.Session
     const metadata = session.metadata || {}
 
     // ── FALL 1: Rechnung bezahlt ────────────────────────────────────────────
@@ -89,7 +103,7 @@ export default defineEventHandler(async (event) => {
 
       // Welcome Mail
       if (customerEmail) {
-        const subject = `Willkommen bei Plexora — ${productName}`
+        const subject  = `Willkommen bei Plexora — ${productName}`
         const rawEmail = [
           `From: Plexora <billing@paeffgen-it.de>`,
           `To: ${customerEmail}`,
@@ -118,14 +132,17 @@ export default defineEventHandler(async (event) => {
       console.log(`✅ Shop-Kauf: Tenant ${tenantId} für ${customerEmail}`)
     }
 
-    // ── FALL 3: Plexora Lizenz-Kauf ────────────────────────────────────────
+    // ── FALL 3: Plexora Lizenz-Kauf → Lizenz + Cognito-User + kombinierte Mail
     if (metadata.type === 'license_purchase') {
       const tier          = metadata.tier || 'pro'
       const customerEmail = session.customer_details?.email || metadata.email || ''
       const customerName  = session.customer_details?.name  || customerEmail.split('@')[0] || 'Kunde'
       const licenseKey    = generateLicenseKey()
       const now           = new Date().toISOString()
+      const tierLabel     = TIER_LABELS[tier] || tier
+      const moduleCount   = (TIER_MODULES[tier] || []).length
 
+      // 1. Lizenz in DynamoDB speichern
       await dynamo.send(new PutCommand({
         TableName: 'plexora-licenses',
         Item: {
@@ -142,12 +159,69 @@ export default defineEventHandler(async (event) => {
           updated:         now,
         }
       }))
+      console.log(`✅ Lizenz erstellt: ${licenseKey} (${tier}) für ${customerEmail}`)
 
-      // Welcome-Mail mit Lizenz-Key
+      // 2. Cognito-User anlegen (Passwort = einmalig, SUPPRESS = kein Cognito-Default-Mail)
+      // Passwort: "Plx" + 8 Hex-Zeichen (Großbuchstaben) + "!1" → 13 Zeichen, alle Regeln erfüllt
+      const tempPassword = `Plx${randomBytes(4).toString('hex').toUpperCase()}!1`
+      let cognitoCreated = false
+
       if (customerEmail) {
-        const tierLabel  = TIER_LABELS[tier] || tier
-        const subject    = `Dein Plexora ${tierLabel} Lizenz-Key`
-        const rawEmail   = [
+        try {
+          await cognito.send(new AdminCreateUserCommand({
+            UserPoolId:      userPoolId,
+            Username:        customerEmail,
+            TemporaryPassword: tempPassword,
+            MessageAction:   'SUPPRESS',
+            UserAttributes:  [
+              { Name: 'email',          Value: customerEmail },
+              { Name: 'email_verified', Value: 'true' },
+              { Name: 'name',           Value: customerName },
+            ],
+          }))
+          cognitoCreated = true
+          console.log(`✅ Cognito-User angelegt: ${customerEmail}`)
+
+          await cognito.send(new AdminAddUserToGroupCommand({
+            UserPoolId: userPoolId,
+            Username:   customerEmail,
+            GroupName:  'customers',
+          }))
+          console.log(`✅ Cognito-User zur Gruppe "customers" hinzugefügt`)
+        } catch (cogErr: any) {
+          if (cogErr.name === 'UsernameExistsException') {
+            console.log(`ℹ️  Cognito-User existiert bereits: ${customerEmail}`)
+          } else {
+            console.error('Cognito-Fehler:', cogErr)
+          }
+        }
+      }
+
+      // 3. Kombinierte Mail — Login-Daten + Lizenz-Key in einer Mail
+      if (customerEmail) {
+        const loginSection = cognitoCreated
+          ? `
+          <div style="background:#f0fdf4;border:1px solid #22c55e;border-radius:12px;padding:20px 24px;margin:24px 0">
+            <div style="font-weight:700;font-size:15px;color:#166534;margin-bottom:12px">Deine Login-Daten</div>
+            <table style="width:100%;border-collapse:collapse">
+              <tr>
+                <td style="padding:6px 0;color:#555;width:120px;font-size:13px">E-Mail</td>
+                <td style="padding:6px 0;font-weight:600;font-size:13px">${customerEmail}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#555;font-size:13px">Temp. Passwort</td>
+                <td style="padding:6px 0;font-weight:700;font-size:13px;letter-spacing:1px;font-family:monospace">${tempPassword}</td>
+              </tr>
+            </table>
+            <p style="font-size:12px;color:#555;margin:12px 0 0">Beim ersten Login wirst du aufgefordert, dein Passwort zu ändern.</p>
+          </div>`
+          : `
+          <div style="background:#eff6ff;border:1px solid #3b82f6;border-radius:12px;padding:16px 24px;margin:24px 0">
+            <p style="margin:0;color:#1e40af;font-size:13px">Du hast bereits einen Account — logge dich einfach mit deiner E-Mail-Adresse ein.</p>
+          </div>`
+
+        const subject  = `Dein Plexora ${tierLabel} — Login & Lizenz-Key`
+        const rawEmail = [
           `From: Plexora <billing@paeffgen-it.de>`,
           `To: ${customerEmail}`,
           `Subject: ${subject}`,
@@ -155,26 +229,31 @@ export default defineEventHandler(async (event) => {
           `Content-Type: text/html; charset=UTF-8`,
           ``,
           `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;padding:32px">`,
-          `<h1 style="color:#6C3FE8;margin-bottom:8px">Willkommen bei Plexora! 🎉</h1>`,
-          `<p>Hallo ${customerName},</p>`,
-          `<p>vielen Dank für deinen Kauf von <strong>Plexora ${tierLabel}</strong>.</p>`,
-          `<p>Dein persönlicher Lizenz-Key:</p>`,
-          `<div style="background:#f5f3ff;border:2px solid #6C3FE8;border-radius:12px;padding:20px 28px;margin:24px 0;text-align:center">`,
-          `<code style="font-size:24px;font-weight:900;letter-spacing:4px;color:#6C3FE8">${licenseKey}</code>`,
+          `<div style="text-align:center;margin-bottom:32px">`,
+          `<div style="display:inline-block;background:#6C3FE8;border-radius:12px;padding:10px 18px">`,
+          `<span style="color:#fff;font-weight:900;font-size:18px;letter-spacing:1px">PLEXORA</span>`,
           `</div>`,
-          `<p>Freigeschaltete Module: <strong>${(TIER_MODULES[tier] || []).length} Module</strong></p>`,
-          `<p>Du findest deinen Key jederzeit in deinem <a href="https://plexora.paeffgen-it.de/portal" style="color:#6C3FE8">Kunden-Portal</a>.</p>`,
-          `<p style="color:#999;font-size:12px;margin-top:40px">Das Plexora Team · billing@paeffgen-it.de</p>`,
+          `</div>`,
+          `<h1 style="color:#6C3FE8;margin:0 0 8px">Willkommen bei Plexora! 🎉</h1>`,
+          `<p style="color:#555;margin:0 0 24px">Hallo ${customerName}, vielen Dank für deinen Kauf von <strong>Plexora ${tierLabel}</strong>.<br>Alles was du brauchst findest du direkt in dieser Mail.</p>`,
+          loginSection,
+          `<div style="background:#f5f3ff;border:2px solid #6C3FE8;border-radius:12px;padding:20px 28px;margin:24px 0;text-align:center">`,
+          `<div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7c6ab5;margin-bottom:8px">Dein persönlicher Lizenz-Key</div>`,
+          `<code style="font-size:26px;font-weight:900;letter-spacing:5px;color:#6C3FE8">${licenseKey}</code>`,
+          `<div style="margin-top:10px;font-size:12px;color:#7c6ab5">${moduleCount} Module freigeschaltet · ${tierLabel} Plan</div>`,
+          `</div>`,
+          `<div style="text-align:center;margin:32px 0">`,
+          `<a href="https://plexora.paeffgen-it.de/portal" style="background:#6C3FE8;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Zum Kunden-Portal</a>`,
+          `</div>`,
+          `<p style="font-size:12px;color:#aaa;border-top:1px solid #eee;padding-top:20px;margin-top:32px">Das Plexora Team · <a href="mailto:billing@paeffgen-it.de" style="color:#6C3FE8">billing@paeffgen-it.de</a></p>`,
           `</body></html>`,
         ].join('\r\n')
 
         try {
           await ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(rawEmail) } }))
-          console.log(`✅ Lizenz-Key Mail an ${customerEmail}: ${licenseKey}`)
+          console.log(`✅ Kombinierte Login+Lizenz-Mail an ${customerEmail}`)
         } catch (err) { console.error('Lizenz-Mail fehlgeschlagen:', err) }
       }
-
-      console.log(`✅ Lizenz erstellt: ${licenseKey} (${tier}) für ${customerEmail}`)
     }
   }
 
