@@ -105,7 +105,7 @@ export default defineEventHandler(async (event) => {
       if (customerEmail) {
         const subject  = `Willkommen bei Plexora — ${productName}`
         const rawEmail = [
-          `From: Plexora <billing@paeffgen-it.de>`,
+          `From: Plexora <billing@plexora.eu>`,
           `To: ${customerEmail}`,
           `Subject: ${subject}`,
           `MIME-Version: 1.0`,
@@ -117,7 +117,7 @@ export default defineEventHandler(async (event) => {
           `<p>vielen Dank für deinen Kauf von <strong>${productName}</strong>!</p>`,
           `<p>Dein Zugang wird in Kürze eingerichtet. Du erhältst eine weitere E-Mail mit deinen Login-Daten.</p>`,
           `<div style="margin:32px 0;text-align:center">`,
-          `<a href="https://plexora.paeffgen-it.de" style="background:#7C3AED;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold">Zu Plexora</a>`,
+          `<a href="https://app.plexora.eu" style="background:#7C3AED;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold">Zu Plexora</a>`,
           `</div>`,
           `<p style="color:#999;font-size:12px">Das Plexora Team</p>`,
           `</body></html>`,
@@ -222,7 +222,7 @@ export default defineEventHandler(async (event) => {
 
         const subject  = `Dein Plexora ${tierLabel} — Login & Lizenz-Key`
         const rawEmail = [
-          `From: Plexora <billing@paeffgen-it.de>`,
+          `From: Plexora <billing@plexora.eu>`,
           `To: ${customerEmail}`,
           `Subject: ${subject}`,
           `MIME-Version: 1.0`,
@@ -243,9 +243,9 @@ export default defineEventHandler(async (event) => {
           `<div style="margin-top:10px;font-size:12px;color:#7c6ab5">${moduleCount} Module freigeschaltet · ${tierLabel} Plan</div>`,
           `</div>`,
           `<div style="text-align:center;margin:32px 0">`,
-          `<a href="https://plexora.paeffgen-it.de/portal" style="background:#6C3FE8;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Zum Kunden-Portal</a>`,
+          `<a href="https://app.plexora.eu/portal" style="background:#6C3FE8;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Zum Kunden-Portal</a>`,
           `</div>`,
-          `<p style="font-size:12px;color:#aaa;border-top:1px solid #eee;padding-top:20px;margin-top:32px">Das Plexora Team · <a href="mailto:billing@paeffgen-it.de" style="color:#6C3FE8">billing@paeffgen-it.de</a></p>`,
+          `<p style="font-size:12px;color:#aaa;border-top:1px solid #eee;padding-top:20px;margin-top:32px">Das Plexora Team · <a href="mailto:billing@plexora.eu" style="color:#6C3FE8">billing@plexora.eu</a></p>`,
           `</body></html>`,
         ].join('\r\n')
 

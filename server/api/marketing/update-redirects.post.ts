@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   if (utmMedium)   params.set('utm_medium', utmMedium)
   if (utmCampaign) params.set('utm_campaign', utmCampaign)
   const query  = params.toString()
-  const target = `https://plexora.paeffgen-it.de/lead/${formId}${query ? '?' + query : ''}`
+  const target = `https://app.plexora.eu/lead/${formId}${query ? '?' + query : ''}`
   const newContent = currentContent.trimEnd() + `\n/${slug} ${target} 302\n`
   const encoded    = Buffer.from(newContent).toString('base64')
 

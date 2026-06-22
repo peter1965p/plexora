@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
   } catch {}
 
   const ses = getSESClient()
-  const fromEmail = 'billing@paeffgen-it.de'
+  const fromEmail = 'billing@plexora.eu'
 
   // Mail an Bewerber
   try {

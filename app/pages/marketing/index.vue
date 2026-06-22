@@ -23,7 +23,7 @@
       <div class="stat-card">
         <i class="ti ti-link stat-icon"></i>
         <div class="stat-label">Basis-URL</div>
-        <div class="stat-value" style="font-size:13px">plexora.paeffgen-it.de</div>
+        <div class="stat-value" style="font-size:13px">app.plexora.eu</div>
         <div class="stat-delta up">/lead/[formId]</div>
       </div>
     </div>
@@ -97,7 +97,7 @@
                 <input v-model="form.slug" placeholder="beratung" style="flex:1" />
               </div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
-                Link: plexora.paeffgen-it.de/{{ form.slug || 'lead/' + (form.formId?.slice(0,8) || '...') }}
+                Link: app.plexora.eu/{{ form.slug || 'lead/' + (form.formId?.slice(0,8) || '...') }}
               </div>
             </div>
 
@@ -273,7 +273,7 @@ const bestCampaign = computed(() => {
   return entries.sort((a, b) => b[1] - a[1])[0][0]
 })
 
-const BASE_URL = 'https://plexora.paeffgen-it.de'
+const BASE_URL = 'https://app.plexora.eu'
 
 function formTitle(formId: string): string {
   return forms.value.find((f: any) => f.formId === formId)?.title || '—'

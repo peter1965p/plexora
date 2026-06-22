@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
 
   // Mail senden
   const toEmail   = invoice.clientEmail
-  const fromEmail = 'billing@paeffgen-it.de'
+  const fromEmail = 'billing@plexora.eu'
   const subject   = `${dunning.label}: Rechnung ${invoice.number} — ${branding.brandName}`
   const boundary  = `----=_Part_${Date.now()}`
   const netto     = Number(invoice.amount) || 0

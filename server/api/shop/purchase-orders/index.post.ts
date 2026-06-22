@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
       const subject = `Bestellung: ${body.productName} — ${branding.brandName}`
       const boundary = `----=_Part_${Date.now()}`
       const rawEmail = [
-        `From: ${branding.brandName} <billing@paeffgen-it.de>`,
+        `From: ${branding.brandName} <billing@plexora.eu>`,
         `To: ${supplier.email}`,
         `Subject: ${subject}`,
         `MIME-Version: 1.0`,

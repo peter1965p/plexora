@@ -95,10 +95,10 @@ export default defineEventHandler(async (event) => {
       try {
         const subject  = `${label}: Rechnung ${invoice.number || invoice.invoiceId?.slice(0,8)} — ${branding.brandName}`
         const boundary = `----=_Part_${Date.now()}`
-        const payUrl   = `https://plexora.paeffgen-it.de/pay/${invoice.invoiceId}`
+        const payUrl   = `https://app.plexora.eu/pay/${invoice.invoiceId}`
 
         const rawEmail = [
-          `From: ${branding.brandName} <billing@paeffgen-it.de>`,
+          `From: ${branding.brandName} <billing@plexora.eu>`,
           `To: ${invoice.clientEmail}`,
           `Subject: ${subject}`,
           `MIME-Version: 1.0`,

@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
   const brandName = bs.Item?.brandName || 'Plexora'
 
   const gateway = paySettings?.activeGateway || 'stripe'
-  const origin  = getHeader(event, 'origin') || 'https://plexora.paeffgen-it.de'
+  const origin  = getHeader(event, 'origin') || 'https://app.plexora.eu'
   const netto   = Number(invoice.amount) || 0
   const brutto  = Math.round(netto * 1.19 * 100) // Cents
 

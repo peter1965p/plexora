@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   } catch {}
 
   const stripe = new Stripe(stripeKey)
-  const origin = getHeader(event, 'origin') || 'https://plexora.paeffgen-it.de'
+  const origin = getHeader(event, 'origin') || 'https://app.plexora.eu'
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types:       ['card'],

@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
             }
           })
           await ses.send(new SendEmailCommand({
-            Source: `billing@paeffgen-it.de`,
+            Source: `billing@plexora.eu`,
             Destination: { ToAddresses: [email] },
             Message: {
               Subject: { Data: `Bestellung bestätigt — ${orderId.slice(0,8).toUpperCase()}` },

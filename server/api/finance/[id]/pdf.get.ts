@@ -66,7 +66,7 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
 
     doc.moveTo(50, y+80).lineTo(545, y+80).strokeColor([220,220,220]).lineWidth(0.5).stroke()
 
-    const payUrl = `https://plexora.paeffgen-it.de/pay/${invoice.invoiceId}`
+    const payUrl = `https://app.plexora.eu/pay/${invoice.invoiceId}`
     doc.fontSize(9).fillColor([150,150,150]).font('Helvetica').text('Online bezahlen:', 50, y+92)
     doc.fontSize(9).fillColor([124,58,237]).font('Helvetica').text(payUrl, 50, y+105, { link: payUrl, underline: true })
 
