@@ -1,0 +1,1 @@
+import{av as i,aH as u,au as g}from"./DKdJnI2q.js";const c=async e=>{const o=e.getConfig().Auth?.Cognito;i(o);const n=await e.Auth.getTokens({forceRefresh:!1});u(n);const{"cognito:username":r,sub:a}=n.idToken?.payload??{},s={username:r,userId:a},t=f(n);return t&&(s.signInDetails=t),s};function f(e){return e?.signInDetails}const k=async()=>c(g);export{k as g};
