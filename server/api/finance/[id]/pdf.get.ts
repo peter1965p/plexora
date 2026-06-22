@@ -24,7 +24,7 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
     doc.moveTo(50, 140).lineTo(545, 140).strokeColor(accent).lineWidth(2).stroke()
 
     // Absender (Briefkopf-Stil klein)
-    const senderLine = [company.legalName || brand, company.street, company.zipCity, company.email].filter(Boolean).join(' · ')
+    const senderLine = [company.legalName || brand, company.street, company.zipCity, company.phone, company.email].filter(Boolean).join(' · ')
     doc.fontSize(8).fillColor([150,150,150]).font('Helvetica').text(senderLine, 50, 152, { width: 300 })
 
     // Empfänger
