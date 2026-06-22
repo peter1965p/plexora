@@ -27,16 +27,17 @@ export default defineEventHandler(async (event) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types:       ['card'],
     billing_address_collection: 'required',
-    mode:                       'payment',
+    mode:                       'subscription',
     customer_email:             email || undefined,
     line_items: [{
       price_data: {
-        currency: 'eur',
+        currency:   'eur',
         product_data: {
           name:        `Plexora ${TIER_LABELS[tier]}`,
-          description: `${TIER_MODULES[tier].length} Module freigeschaltet — Lifetime-Lizenz`,
+          description: `${TIER_MODULES[tier].length} Module freigeschaltet — monatlich kündbar`,
         },
         unit_amount: TIER_PRICES[tier] * 100,
+        recurring:   { interval: 'month' },
       },
       quantity: 1,
     }],

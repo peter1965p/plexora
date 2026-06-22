@@ -13,9 +13,9 @@ export const TIER_LABELS: Record<string, string> = {
 }
 
 export const TIER_PRICES: Record<string, number> = {
-  starter:    29,
-  pro:        79,
-  enterprise: 199,
+  starter:    49,
+  pro:        149,
+  enterprise: 299,
 }
 
 export function generateLicenseKey(): string {

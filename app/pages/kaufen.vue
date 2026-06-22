@@ -13,7 +13,7 @@
       <div style="text-align:center;margin-bottom:56px">
         <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#00d4b4;margin-bottom:12px">Lizenz kaufen</div>
         <h1 style="font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-1.5px;margin-bottom:12px">Wählen Sie Ihr Paket</h1>
-        <p style="font-size:15px;color:#8b8fa8">Einmalige Zahlung. Sofortiger Zugriff. Kein Abo.</p>
+        <p style="font-size:15px;color:#8b8fa8">Monatlich kündbar. Sofortiger Zugriff. Keine Einrichtungsgebühr.</p>
       </div>
 
       <!-- Email -->
@@ -40,8 +40,8 @@
           @click="selected = 'starter'"
         >
           <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8b8fa8;margin-bottom:12px">Starter</div>
-          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:4px">29 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
-          <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">einmalig</div>
+          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:4px">49 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
+          <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>CRM</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Support-Tickets</li>
@@ -59,8 +59,8 @@
         >
           <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6c3fe8;color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap">Beliebteste Wahl</div>
           <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a78bfa;margin-bottom:12px">Pro</div>
-          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#6c3fe8;line-height:1;margin-bottom:4px">79 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
-          <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">einmalig</div>
+          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#6c3fe8;line-height:1;margin-bottom:4px">149 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
+          <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>CRM + Support</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Finanzen & Rechnungen</li>
@@ -77,8 +77,8 @@
           @click="selected = 'enterprise'"
         >
           <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8b8fa8;margin-bottom:12px">Enterprise</div>
-          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:4px">199 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
-          <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">einmalig</div>
+          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:4px">299 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
+          <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Alles aus Pro</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Marketing-Suite</li>
@@ -118,8 +118,8 @@
           <div style="font-size:12px;color:#8b8fa8">Lizenz-Key per Mail</div>
         </div>
         <div style="text-align:center">
-          <div style="font-size:20px;margin-bottom:4px">♾️</div>
-          <div style="font-size:12px;color:#8b8fa8">Einmalig, kein Abo</div>
+          <div style="font-size:20px;margin-bottom:4px">🔄</div>
+          <div style="font-size:12px;color:#8b8fa8">Monatlich kündbar</div>
         </div>
         <div style="text-align:center">
           <div style="font-size:20px;margin-bottom:4px">📧</div>
@@ -146,7 +146,7 @@ const loading  = ref(false)
 const error    = ref('')
 const emailError = ref('')
 
-const prices: Record<string, number> = { starter: 29, pro: 79, enterprise: 199 }
+const prices: Record<string, number> = { starter: 49, pro: 149, enterprise: 299 }
 
 async function checkout() {
   error.value = ''

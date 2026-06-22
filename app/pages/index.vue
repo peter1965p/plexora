@@ -142,13 +142,13 @@
     <section class="lp-wrap lp-pricing-section" id="pricing">
       <div class="lp-section-label">Transparente Preise</div>
       <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">Wählen Sie Ihr Paket</h2>
-      <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px">Monatlich kündbar. Keine versteckten Kosten.</p>
+      <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px">Monatlich kündbar. Keine Einrichtungsgebühr. Keine versteckten Kosten.</p>
       <div class="lp-pricing-grid">
 
         <!-- Starter -->
         <div class="lp-pcard">
           <div class="lp-pcard-tier">Starter</div>
-          <div class="lp-pcard-price">29 <span>€ / Monat</span></div>
+          <div class="lp-pcard-price">49 <span>€ / Monat</span></div>
           <div class="lp-pcard-note">Für Einzelunternehmer & kleine Teams</div>
           <ul class="lp-pcard-items">
             <li><i class="ti ti-check lp-tick"></i>CRM</li>
@@ -164,7 +164,7 @@
         <div class="lp-pcard lp-pcard-featured">
           <div class="lp-pcard-popular">Beliebteste Wahl</div>
           <div class="lp-pcard-tier">Pro</div>
-          <div class="lp-pcard-price">79 <span>€ / Monat</span></div>
+          <div class="lp-pcard-price">149 <span>€ / Monat</span></div>
           <div class="lp-pcard-note">Für wachsende Unternehmen</div>
           <ul class="lp-pcard-items">
             <li><i class="ti ti-check lp-tick"></i>CRM + Support</li>
@@ -179,7 +179,7 @@
         <!-- Enterprise -->
         <div class="lp-pcard">
           <div class="lp-pcard-tier">Enterprise</div>
-          <div class="lp-pcard-price">199 <span>€ / Monat</span></div>
+          <div class="lp-pcard-price">299 <span>€ / Monat</span></div>
           <div class="lp-pcard-note">Für Teams mit vollem Funktionsumfang</div>
           <ul class="lp-pcard-items">
             <li><i class="ti ti-check lp-tick"></i>Alles aus Pro</li>
