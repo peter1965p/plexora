@@ -157,7 +157,7 @@
             <li style="color:#545870"><i class="ti ti-minus" style="color:#545870"></i>Finanzen & Rechnungen</li>
             <li style="color:#545870"><i class="ti ti-minus" style="color:#545870"></i>Projekte & HR</li>
           </ul>
-          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/shop')">Jetzt starten</button>
+          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')">Jetzt starten</button>
         </div>
 
         <!-- Pro -->
@@ -173,7 +173,7 @@
             <li><i class="ti ti-check lp-tick"></i>HR & Analytics</li>
             <li><i class="ti ti-check lp-tick"></i>Shop, Pagebuilder, Formulare</li>
           </ul>
-          <button class="lp-pcard-btn" @click="navigateTo('/shop')">Jetzt starten</button>
+          <button class="lp-pcard-btn" @click="navigateTo('/kaufen')">Jetzt starten</button>
         </div>
 
         <!-- Enterprise -->
@@ -188,7 +188,7 @@
             <li><i class="ti ti-check lp-tick"></i>Lead-Kampagnen</li>
             <li><i class="ti ti-check lp-tick"></i>Prioritäts-Support</li>
           </ul>
-          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/shop')">Jetzt starten</button>
+          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')">Jetzt starten</button>
         </div>
 
       </div>
