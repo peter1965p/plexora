@@ -1,1 +1,0 @@
-function n(e){return{low:"Niedrig",medium:"Mittel",high:"Hoch",critical:"Kritisch"}[e]||e}function i(e){return{low:"badge-info",medium:"badge-warning",high:"badge-danger",critical:"badge-danger"}[e]||"badge-info"}function s(e){return{open:"Offen",in_progress:"In Bearbeitung",resolved:"Gelöst",closed:"Geschlossen"}[e]||e}export{n as a,i as p,s};
