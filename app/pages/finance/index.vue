@@ -140,15 +140,9 @@ import { calcRevenue, calcPending, calcOverdue, formatEur, statusLabel, statusBa
 import { exportToCsv, exportToXlsx } from '~/modules/export'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
-const userId = ref('demo-user')
-onMounted(async () => {
-  const { useAuthUser } = await import('~/composables/useAuth')
-  const u = await useAuthUser()
-  userId.value = u.userId
-})
-
-const { data, refresh } = await useFetch(useApiUrl('/api/finance'))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/finance?userId=${encodeURIComponent(userId)}`))
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
 const revenue      = computed(() => calcRevenue(invoices.value))
@@ -177,13 +171,13 @@ async function addInvoice(sendMail: boolean) {
   try {
     const inv = await $fetch(useApiUrl('/api/finance'), {
       method: 'POST',
-      body: { ...newInv, userId: userId.value }
+      body: { ...newInv, userId: userId }
     }) as any
     await refresh()
     if (sendMail && inv.invoice?.invoiceId && newInv.clientEmail) {
       await $fetch(useApiUrl(`/api/finance/${inv.invoice.invoiceId}/send`), {
         method: 'POST',
-        body: { userId: userId.value, toEmail: newInv.clientEmail }
+        body: { userId: userId, toEmail: newInv.clientEmail }
       })
       showToast(`Rechnung gespeichert und an ${newInv.clientEmail} gesendet!`)
     } else {

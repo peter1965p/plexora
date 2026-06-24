@@ -297,15 +297,8 @@ import type { Deal } from '~/modules/deals'
 import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-
-const userId = ref('demo-user')
+const { userId } = await useAuthUser()
 const route = useRoute()
-
-onMounted(async () => {
-  const { useAuthUser } = await import('~/composables/useAuth')
-  const u = await useAuthUser()
-  userId.value = u.userId
-})
 
 onMounted(() => {
   const editId = route.query.edit as string | undefined
@@ -315,9 +308,9 @@ onMounted(() => {
   }
 })
 
-const { data: dealsData,     refresh: refreshDeals     } = await useFetch(useApiUrl('/api/deals'))
-const { data: contactsData,  refresh: refreshContacts  } = await useFetch(useApiUrl('/api/contacts'))
-const { data: companiesData, refresh: refreshCompanies } = await useFetch(useApiUrl('/api/companies'))
+const { data: dealsData,     refresh: refreshDeals     } = await useFetch(() => useApiUrl(`/api/deals?userId=${encodeURIComponent(userId)}`))
+const { data: contactsData,  refresh: refreshContacts  } = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`))
+const { data: companiesData, refresh: refreshCompanies } = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
 
 const deals     = computed(() => (dealsData.value as any)?.deals    || [])
 const contacts  = computed(() => (contactsData.value as any)?.contacts || [])
@@ -427,12 +420,12 @@ async function saveContact() {
     if (editingContact.value) {
       await $fetch(useApiUrl(`/api/contacts/${editingContact.value.contactId}`), {
         method: 'PATCH',
-        body: { ...contactForm, userId: userId.value }
+        body: { ...contactForm, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/contacts'), {
         method: 'POST',
-        body: { ...contactForm, userId: userId.value }
+        body: { ...contactForm, userId: userId }
       })
     }
     await refreshContacts()
@@ -446,7 +439,7 @@ async function deleteContact(c: Contact) {
   if (!confirm(`${c.firstName} ${c.lastName} wirklich löschen?`)) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}`), {
     method: 'DELETE',
-    body: { userId: userId.value }
+    body: { userId: userId }
   })
   await refreshContacts()
 }
@@ -480,12 +473,12 @@ async function saveDeal() {
     if (editingDeal.value) {
       await $fetch(useApiUrl(`/api/deals/${editingDeal.value.dealId}`), {
         method: 'PATCH',
-        body: { ...dealForm, userId: userId.value }
+        body: { ...dealForm, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/deals'), {
         method: 'POST',
-        body: { ...dealForm, userId: userId.value }
+        body: { ...dealForm, userId: userId }
       })
     }
     await refreshDeals()
@@ -499,7 +492,7 @@ async function deleteDeal(d: Deal) {
   if (!confirm(`Deal "${d.name}" wirklich löschen?`)) return
   await $fetch(useApiUrl(`/api/deals/${d.dealId}`), {
     method: 'DELETE',
-    body: { userId: userId.value }
+    body: { userId: userId }
   })
   await refreshDeals()
 }
@@ -537,12 +530,12 @@ async function saveCompany() {
     if (editingCompany.value) {
       await $fetch(useApiUrl(`/api/companies/${editingCompany.value.companyId}`), {
         method: 'PATCH',
-        body: { ...companyForm, userId: userId.value }
+        body: { ...companyForm, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/companies'), {
         method: 'POST',
-        body: { ...companyForm, userId: userId.value }
+        body: { ...companyForm, userId: userId }
       })
     }
     await refreshCompanies()

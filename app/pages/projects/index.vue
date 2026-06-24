@@ -170,17 +170,11 @@ import { exportToCsv, exportToXlsx } from '~/modules/export'
 import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
-const userId = ref('demo-user')
-onMounted(async () => {
-  const { useAuthUser } = await import('~/composables/useAuth')
-  const u = await useAuthUser()
-  userId.value = u.userId
-})
-
-const { data: projectsData, refresh } = await useFetch(useApiUrl('/api/projects'), { getCachedData: () => undefined })
-const { data: companiesData }         = await useFetch(useApiUrl('/api/companies'))
-const { data: contactsData }          = await useFetch(useApiUrl('/api/contacts'))
+const { data: projectsData, refresh } = await useFetch(() => useApiUrl(`/api/projects?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined })
+const { data: companiesData }         = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
+const { data: contactsData }          = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`))
 
 const projects = computed(() => (projectsData.value as any)?.projects || [])
 const companies = computed(() => (companiesData.value as any)?.companies || [])
@@ -274,11 +268,11 @@ async function save() {
   try {
     if (editing.value) {
       await $fetch(useApiUrl(`/api/projects/${editing.value.projectId}`), {
-        method: 'PATCH', body: { ...form, userId: userId.value }
+        method: 'PATCH', body: { ...form, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/projects'), {
-        method: 'POST', body: { ...form, userId: userId.value }
+        method: 'POST', body: { ...form, userId: userId }
       })
     }
     await refresh()

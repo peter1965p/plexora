@@ -220,11 +220,12 @@
 import { statusLabel, statusBadge } from '~/modules/hr'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
 const tab = ref('employees')
 
 // ── Mitarbeiter ───────────────────────────────────────
-const { data, refresh } = await useFetch(useApiUrl('/api/hr'))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/hr?userId=${encodeURIComponent(userId)}`))
 const employees = computed(() => (data.value as any)?.employees || [])
 
 const activeCount      = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
@@ -235,16 +236,9 @@ const showAdd = ref(false)
 const saving  = ref(false)
 const newEmp  = reactive({ firstName: '', lastName: '', email: '', department: '', role: '', startDate: '' })
 
-const userId = ref('demo-user')
-onMounted(async () => {
-  const { useAuthUser } = await import('~/composables/useAuth')
-  const u = await useAuthUser()
-  userId.value = u.userId
-})
-
 async function addEmployee() {
   saving.value = true
-  await $fetch(useApiUrl('/api/hr'), { method: 'POST', body: { ...newEmp, userId: userId.value, status: 'active' } })
+  await $fetch(useApiUrl('/api/hr'), { method: 'POST', body: { ...newEmp, userId: userId, status: 'active' } })
   await refresh()
   showAdd.value = false
   Object.assign(newEmp, { firstName: '', lastName: '', email: '', department: '', role: '', startDate: '' })
@@ -252,7 +246,7 @@ async function addEmployee() {
 }
 
 // ── Recruiting ────────────────────────────────────────
-const { data: campData, refresh: refreshCamps } = await useFetch(useApiUrl('/api/hr/campaigns'))
+const { data: campData, refresh: refreshCamps } = await useFetch(() => useApiUrl(`/api/hr/campaigns?userId=${encodeURIComponent(userId)}`))
 const campaigns = computed(() => (campData.value as any)?.campaigns || [])
 
 const activeCampaigns   = computed(() => campaigns.value.filter((c: any) => c.status === 'active').length)
@@ -296,7 +290,7 @@ function showToast(msg: string) {
 async function addCampaign() {
   saving.value = true
   try {
-    await $fetch(useApiUrl('/api/hr/campaigns'), { method: 'POST', body: { ...newCamp, userId: userId.value } })
+    await $fetch(useApiUrl('/api/hr/campaigns'), { method: 'POST', body: { ...newCamp, userId: userId } })
     await refreshCamps()
     showCampaign.value = false
     Object.assign(newCamp, { title: '', department: '', location: '', type: 'fulltime', description: '', requirements: '' })

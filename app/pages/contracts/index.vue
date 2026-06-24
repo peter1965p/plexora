@@ -166,17 +166,11 @@ import type { Contract } from '~/modules/contracts'
 import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
-const userId = ref('demo-user')
-onMounted(async () => {
-  const { useAuthUser } = await import('~/composables/useAuth')
-  const u = await useAuthUser()
-  userId.value = u.userId
-})
-
-const { data: contractsData, refresh: refreshContracts } = await useFetch(useApiUrl('/api/contracts'))
-const { data: companiesData } = await useFetch(useApiUrl('/api/companies'))
-const { data: contactsData }  = await useFetch(useApiUrl('/api/contacts'))
+const { data: contractsData, refresh: refreshContracts } = await useFetch(() => useApiUrl(`/api/contracts?userId=${encodeURIComponent(userId)}`))
+const { data: companiesData } = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
+const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`))
 
 const contracts = computed(() => (contractsData.value as any)?.contracts || [])
 const companies = computed(() => (companiesData.value as any)?.companies || [])
@@ -239,12 +233,12 @@ async function save() {
     if (editing.value) {
       await $fetch(useApiUrl(`/api/contracts/${editing.value.contractId}`), {
         method: 'PATCH',
-        body: { ...form, userId: userId.value }
+        body: { ...form, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/contracts'), {
         method: 'POST',
-        body: { ...form, userId: userId.value }
+        body: { ...form, userId: userId }
       })
     }
     await refreshContracts()

@@ -174,6 +174,7 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
 const tab      = ref('Formulare')
 const editing  = ref(false)
@@ -185,7 +186,7 @@ const submissions  = ref<any[]>([])
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 
-const { data, refresh } = await useFetch(useApiUrl('/api/forms'))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId)}`))
 const forms = computed(() => (data.value as any)?.forms || [])
 
 const current = reactive({
@@ -229,7 +230,7 @@ async function saveForm() {
   saving.value = true
   try {
     if (isNew.value) {
-      await $fetch(useApiUrl('/api/forms'), { method: 'POST', body: { ...current } })
+      await $fetch(useApiUrl('/api/forms'), { method: 'POST', body: { ...current, userId } })
     } else {
       await $fetch(useApiUrl(`/api/forms/${current.formId}`), { method: 'PUT', body: { ...current } })
     }

@@ -93,8 +93,9 @@
 import { priorityLabel, priorityBadge, statusLabel } from '~/modules/support'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
-const { data, refresh } = await useFetch(useApiUrl('/api/support'))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/support?userId=${encodeURIComponent(userId)}`))
 const tickets = computed(() => (data.value as any)?.tickets || [])
 
 const openCount       = computed(() => tickets.value.filter((t: any) => t.status === 'open').length)
@@ -108,7 +109,7 @@ const newTicket = reactive({ title: '', client: '', priority: 'medium' })
 
 async function addTicket() {
   saving.value = true
-  await $fetch(useApiUrl('/api/support'), { method: 'POST', body: { ...newTicket, userId: 'demo-user', status: 'open' } })
+  await $fetch(useApiUrl('/api/support'), { method: 'POST', body: { ...newTicket, userId: userId, status: 'open' } })
   await refresh()
   showAdd.value = false
   Object.assign(newTicket, { title: '', client: '', priority: 'medium' })

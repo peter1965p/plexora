@@ -167,15 +167,16 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 const saving  = ref(false)
 const editing = ref(false)
 const toast   = ref('')
 const isNew   = ref(false)
 
-const { data: formsData } = await useFetch(useApiUrl('/api/forms'))
+const { data: formsData } = await useFetch(() => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId)}`))
 const availableForms = computed(() => (formsData.value as any)?.forms || [])
-const { data, refresh } = await useFetch(useApiUrl('/api/pages'))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/pages?userId=${encodeURIComponent(userId)}`))
 const pages = computed(() => (data.value as any)?.pages || [])
 
 const current = reactive({
@@ -229,7 +230,7 @@ async function savePage() {
   saving.value = true
   try {
     if (isNew.value) {
-      await $fetch(useApiUrl('/api/pages'), { method: 'POST', body: { ...current } })
+      await $fetch(useApiUrl('/api/pages'), { method: 'POST', body: { ...current, userId } })
     } else {
       await $fetch(useApiUrl(`/api/pages/${current.slug}`), { method: 'PUT', body: { ...current } })
     }

@@ -361,6 +361,7 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { userId } = await useAuthUser()
 
 const tab  = ref('produkte')
 const tabs = [
@@ -386,10 +387,10 @@ const supplierForm = reactive({ name: '', contact: '', email: '', phone: '', web
 const categories = ref(['SOFTWARE', 'SERVICE'])
 const suppliers  = ref<any[]>([])
 
-const { data, refresh } = await useFetch(useApiUrl('/api/shop/products'))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/shop/products?userId=${encodeURIComponent(userId)}`))
 const products = computed(() => (data.value as any)?.products || [])
 
-const { data: suppData, refresh: refreshSuppliers } = await useFetch(useApiUrl('/api/shop/suppliers'))
+const { data: suppData, refresh: refreshSuppliers } = await useFetch(() => useApiUrl(`/api/shop/suppliers?userId=${encodeURIComponent(userId)}`))
 onMounted(() => {
   if ((suppData.value as any)?.suppliers) suppliers.value = (suppData.value as any).suppliers
 })
@@ -445,13 +446,13 @@ async function createProduct() {
     if (editingProduct.value) {
       await $fetch(useApiUrl(`/api/shop/products/${editingProduct.value.productId}`), {
         method: 'PATCH',
-        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), userId: editingProduct.value.userId || 'demo-user' }
+        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), userId: editingProduct.value.userId || userId }
       })
       showToast('Produkt gespeichert!')
     } else {
       await $fetch(useApiUrl('/api/shop/products'), {
         method: 'POST',
-        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), features: form.features ? form.features.split('\n').filter((f: string) => f.trim()) : [] }
+        body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), features: form.features ? form.features.split('\n').filter((f: string) => f.trim()) : [], userId }
       })
       showToast('Produkt angelegt!')
     }
@@ -506,7 +507,7 @@ const reorderProduct    = ref<any>(null)
 const reorderForm       = reactive({ quantity: 10, notes: '' })
 const reorderSaving     = ref(false)
 
-const { data: poData, refresh: refreshPO } = await useFetch(useApiUrl('/api/shop/purchase-orders'))
+const { data: poData, refresh: refreshPO } = await useFetch(() => useApiUrl(`/api/shop/purchase-orders?userId=${encodeURIComponent(userId)}`))
 watch(poData, v => { if ((v as any)?.orders) purchaseOrders.value = (v as any).orders }, { immediate: true })
 
 function openReorderModal(product: any) {
