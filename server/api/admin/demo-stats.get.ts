@@ -2,9 +2,9 @@ import { getDemoStats } from '../../utils/demoTracker'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const userId = getQuery(event).userId as string
+  const email = getQuery(event).email as string
 
-  if (!userId || userId !== config.adminEmail) {
+  if (!email || email !== config.adminEmail) {
     throw createError({ statusCode: 403, message: 'Forbidden' })
   }
 

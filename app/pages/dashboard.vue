@@ -215,7 +215,7 @@ const { data: ticketsData }   = await useFetch(() => useApiUrl(`/api/support?use
 const { data: invoicesData }  = await useFetch(() => useApiUrl(`/api/finance?userId=${userId}`))
 
 const { data: demoStatsRaw } = await useFetch(
-  () => useApiUrl(`/api/admin/demo-stats?userId=${encodeURIComponent(userId)}`),
+  () => useApiUrl(`/api/admin/demo-stats?email=${encodeURIComponent(email)}`),
   { default: () => null, onResponseError: () => {} }
 )
 const demoStats = computed(() => demoStatsRaw.value as any)
