@@ -228,7 +228,9 @@ function exportCsv()  { exportToCsv(`projekte-${new Date().toISOString().slice(0
 function exportXlsx() { exportToXlsx(`projekte-${new Date().toISOString().slice(0,10)}.xlsx`, exportRows(), 'Projekte') }
 
 // Modal
+const route = useRoute()
 const showModal = ref(false)
+onMounted(() => { if (route.query.new) showModal.value = true })
 const editing   = ref<any>(null)
 const saving    = ref(false)
 const form = reactive({

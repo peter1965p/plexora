@@ -306,6 +306,8 @@ onMounted(() => {
     const c = contacts.value.find((x: Contact) => x.contactId === editId)
     if (c) openEditContact(c)
   }
+  if (route.query.new === 'contact') openAddContact()
+  if (route.query.new === 'deal') openAddDeal()
 })
 
 const { data: dealsData,     refresh: refreshDeals     } = await useFetch(() => useApiUrl(`/api/deals?userId=${encodeURIComponent(userId)}`))

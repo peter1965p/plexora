@@ -337,7 +337,9 @@ function copyQrUrl() {
 }
 
 // ── Modal ────────────────────────────────────────────
+const route = useRoute()
 const showModal = ref(false)
+onMounted(() => { if (route.query.new) showModal.value = true })
 const editing   = ref<any>(null)
 const saving    = ref(false)
 const form = reactive({

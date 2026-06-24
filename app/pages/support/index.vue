@@ -103,7 +103,9 @@ const inProgressCount = computed(() => tickets.value.filter((t: any) => t.status
 const resolvedCount   = computed(() => tickets.value.filter((t: any) => t.status === 'resolved').length)
 const criticalCount   = computed(() => tickets.value.filter((t: any) => t.priority === 'critical' || t.priority === 'high').length)
 
+const route = useRoute()
 const showAdd   = ref(false)
+onMounted(() => { if (route.query.new) showAdd.value = true })
 const saving    = ref(false)
 const newTicket = reactive({ title: '', client: '', priority: 'medium' })
 

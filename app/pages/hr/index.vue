@@ -232,8 +232,10 @@ const activeCount      = computed(() => employees.value.filter((e: any) => e.sta
 const vacationCount    = computed(() => employees.value.filter((e: any) => e.status === 'vacation').length)
 const offboardingCount = computed(() => employees.value.filter((e: any) => e.status === 'offboarding').length)
 
+const route = useRoute()
 const showAdd = ref(false)
 const saving  = ref(false)
+onMounted(() => { if (route.query.new) showAdd.value = true })
 const newEmp  = reactive({ firstName: '', lastName: '', email: '', department: '', role: '', startDate: '' })
 
 async function addEmployee() {

@@ -152,7 +152,9 @@ const paidCount    = computed(() => invoices.value.filter((i: any) => i.status =
 const pendingCount = computed(() => invoices.value.filter((i: any) => i.status === 'pending').length)
 const overdueCount = computed(() => invoices.value.filter((i: any) => i.status === 'overdue').length)
 
+const route = useRoute()
 const showAdd = ref(false)
+onMounted(() => { if (route.query.new) showAdd.value = true })
 const saving  = ref(false)
 const sending = ref<string | null>(null)
 const toast   = ref('')

@@ -48,9 +48,22 @@
           </div>
         </div>
       </div>
-      <button class="accent-btn">
-        <i class="ti ti-plus"></i> Neu
-      </button>
+      <div style="position:relative" ref="quickRef">
+        <button class="accent-btn" @click="showQuick = !showQuick">
+          <i class="ti ti-plus"></i> Neu
+        </button>
+        <div v-if="showQuick" style="position:absolute;top:44px;right:0;width:220px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden;padding:6px">
+          <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em">SCHNELL ERSTELLEN</div>
+          <div v-for="item in quickItems" :key="item.label"
+            @click="quickNav(item)"
+            style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .1s;font-size:13px"
+            onmouseover="this.style.background='var(--bg-hover)'"
+            onmouseout="this.style.background='transparent'">
+            <i class="ti" :class="item.icon" style="font-size:16px;color:var(--accent);width:18px;text-align:center"></i>
+            <span>{{ item.label }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 </template>
@@ -80,8 +93,25 @@ const titles: Record<string, string> = {
 const title = computed(() => titles[route.path] || 'Plexora')
 
 const showMenu   = ref(false)
+const showQuick  = ref(false)
+const quickRef   = ref<HTMLElement | null>(null)
 const displayName = ref('User')
 const initials   = ref('U')
+
+const quickItems = [
+  { label: 'Neuer Kontakt',   icon: 'ti-user-plus',      path: '/crm',       query: 'new=contact' },
+  { label: 'Neuer Deal',      icon: 'ti-briefcase',      path: '/crm',       query: 'new=deal'    },
+  { label: 'Neue Rechnung',   icon: 'ti-receipt',        path: '/finance',   query: 'new=1'       },
+  { label: 'Neues Projekt',   icon: 'ti-layout-kanban',  path: '/projects',  query: 'new=1'       },
+  { label: 'Neues Ticket',    icon: 'ti-headset',        path: '/support',   query: 'new=1'       },
+  { label: 'Neuer Mitarbeiter', icon: 'ti-id-badge',     path: '/hr',        query: 'new=1'       },
+  { label: 'Neue Kampagne',   icon: 'ti-speakerphone',   path: '/marketing', query: 'new=1'       },
+]
+
+function quickNav(item: typeof quickItems[0]) {
+  showQuick.value = false
+  router.push(`${item.path}?${item.query}`)
+}
 
 onMounted(async () => {
   try {
@@ -92,9 +122,8 @@ onMounted(async () => {
   } catch {}
 
   document.addEventListener('click', (e) => {
-    if (!(e.target as Element).closest('.topbar-user')) {
-      showMenu.value = false
-    }
+    if (!(e.target as Element).closest('.topbar-user')) showMenu.value = false
+    if (quickRef.value && !(e.target as Element).closest(quickRef.value as any)) showQuick.value = false
   })
 })
 
