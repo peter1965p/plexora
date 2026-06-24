@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { Resend } from 'resend'
 import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { generateLicenseKey, TIER_MODULES, TIER_LABELS } from '../../utils/license'
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const config  = useRuntimeConfig()
   const stripe  = new Stripe(config.stripeSecretKey as string)
   const dynamo  = getDynamoClient()
-  const ses     = new SESClient({ region: 'eu-central-1' })
+  const resend  = new Resend(config.resendApiKey as string)
 
   // Cognito-Client — in Lambda via IAM-Role, lokal via Env-Vars
   const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME
@@ -103,28 +103,23 @@ export default defineEventHandler(async (event) => {
 
       // Welcome Mail
       if (customerEmail) {
-        const subject  = `Willkommen bei Plexora — ${productName}`
-        const rawEmail = [
-          `From: Plexora <billing@plexora.eu>`,
-          `To: ${customerEmail}`,
-          `Subject: ${subject}`,
-          `MIME-Version: 1.0`,
-          `Content-Type: text/html; charset=UTF-8`,
-          ``,
-          `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">`,
-          `<h1 style="color:#ea580c">Willkommen bei Plexora! 🎉</h1>`,
-          `<p>Hallo ${customerName},</p>`,
-          `<p>vielen Dank für deinen Kauf von <strong>${productName}</strong>!</p>`,
-          `<p>Dein Zugang wird in Kürze eingerichtet. Du erhältst eine weitere E-Mail mit deinen Login-Daten.</p>`,
-          `<div style="margin:32px 0;text-align:center">`,
-          `<a href="https://app.plexora.eu" style="background:#ea580c;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold">Zu Plexora</a>`,
-          `</div>`,
-          `<p style="color:#999;font-size:12px">Das Plexora Team</p>`,
-          `</body></html>`,
-        ].join('\r\n')
-
         try {
-          await ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(rawEmail) } }))
+          await resend.emails.send({
+            from:    'Plexora <noreply@plexora.eu>',
+            to:      customerEmail,
+            subject: `Willkommen bei Plexora — ${productName}`,
+            html: `
+              <html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">
+                <h1 style="color:#ea580c">Willkommen bei Plexora! 🎉</h1>
+                <p>Hallo ${customerName},</p>
+                <p>vielen Dank für deinen Kauf von <strong>${productName}</strong>!</p>
+                <p>Dein Zugang wird in Kürze eingerichtet. Du erhältst eine weitere E-Mail mit deinen Login-Daten.</p>
+                <div style="margin:32px 0;text-align:center">
+                  <a href="https://app.plexora.eu" style="background:#ea580c;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold">Zu Plexora</a>
+                </div>
+                <p style="color:#999;font-size:12px">Das Plexora Team</p>
+              </body></html>`,
+          })
           console.log(`✅ Welcome Mail an ${customerEmail}`)
         } catch (err) { console.error('Welcome Mail fehlgeschlagen:', err) }
       }
@@ -220,37 +215,27 @@ export default defineEventHandler(async (event) => {
             <p style="margin:0;color:#1e40af;font-size:13px">Du hast bereits einen Account — logge dich einfach mit deiner E-Mail-Adresse ein.</p>
           </div>`
 
-        const subject  = `Dein Plexora ${tierLabel} — Login & Lizenz-Key`
-        const rawEmail = [
-          `From: Plexora <billing@plexora.eu>`,
-          `To: ${customerEmail}`,
-          `Subject: ${subject}`,
-          `MIME-Version: 1.0`,
-          `Content-Type: text/html; charset=UTF-8`,
-          ``,
-          `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;padding:32px">`,
-          `<div style="text-align:center;margin-bottom:32px">`,
-          `<div style="display:inline-block;background:#6C3FE8;border-radius:12px;padding:10px 18px">`,
-          `<span style="color:#fff;font-weight:900;font-size:18px;letter-spacing:1px">PLEXORA</span>`,
-          `</div>`,
-          `</div>`,
-          `<h1 style="color:#6C3FE8;margin:0 0 8px">Willkommen bei Plexora! 🎉</h1>`,
-          `<p style="color:#555;margin:0 0 24px">Hallo ${customerName}, vielen Dank für deinen Kauf von <strong>Plexora ${tierLabel}</strong>.<br>Alles was du brauchst findest du direkt in dieser Mail.</p>`,
-          loginSection,
-          `<div style="background:#f5f3ff;border:2px solid #6C3FE8;border-radius:12px;padding:20px 28px;margin:24px 0;text-align:center">`,
-          `<div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7c6ab5;margin-bottom:8px">Dein persönlicher Lizenz-Key</div>`,
-          `<code style="font-size:26px;font-weight:900;letter-spacing:5px;color:#6C3FE8">${licenseKey}</code>`,
-          `<div style="margin-top:10px;font-size:12px;color:#7c6ab5">${moduleCount} Module freigeschaltet · ${tierLabel} Plan</div>`,
-          `</div>`,
-          `<div style="text-align:center;margin:32px 0">`,
-          `<a href="https://app.plexora.eu/portal" style="background:#6C3FE8;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Zum Kunden-Portal</a>`,
-          `</div>`,
-          `<p style="font-size:12px;color:#aaa;border-top:1px solid #eee;padding-top:20px;margin-top:32px">Das Plexora Team · <a href="mailto:billing@plexora.eu" style="color:#6C3FE8">billing@plexora.eu</a></p>`,
-          `</body></html>`,
-        ].join('\r\n')
-
         try {
-          await ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(rawEmail) } }))
+          await resend.emails.send({
+            from:    'Plexora <billing@plexora.eu>',
+            to:      customerEmail,
+            subject: `Dein Plexora ${tierLabel} — Login & Lizenz-Key`,
+            html: [
+              `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;padding:32px">`,
+              `<div style="text-align:center;margin-bottom:32px"><div style="display:inline-block;background:#6C3FE8;border-radius:12px;padding:10px 18px"><span style="color:#fff;font-weight:900;font-size:18px;letter-spacing:1px">PLEXORA</span></div></div>`,
+              `<h1 style="color:#6C3FE8;margin:0 0 8px">Willkommen bei Plexora! 🎉</h1>`,
+              `<p style="color:#555;margin:0 0 24px">Hallo ${customerName}, vielen Dank für deinen Kauf von <strong>Plexora ${tierLabel}</strong>.<br>Alles was du brauchst findest du direkt in dieser Mail.</p>`,
+              loginSection,
+              `<div style="background:#f5f3ff;border:2px solid #6C3FE8;border-radius:12px;padding:20px 28px;margin:24px 0;text-align:center">`,
+              `<div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7c6ab5;margin-bottom:8px">Dein persönlicher Lizenz-Key</div>`,
+              `<code style="font-size:26px;font-weight:900;letter-spacing:5px;color:#6C3FE8">${licenseKey}</code>`,
+              `<div style="margin-top:10px;font-size:12px;color:#7c6ab5">${moduleCount} Module freigeschaltet · ${tierLabel} Plan</div>`,
+              `</div>`,
+              `<div style="text-align:center;margin:32px 0"><a href="https://app.plexora.eu/portal" style="background:#6C3FE8;color:#fff;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Zum Kunden-Portal</a></div>`,
+              `<p style="font-size:12px;color:#aaa;border-top:1px solid #eee;padding-top:20px;margin-top:32px">Das Plexora Team · <a href="mailto:billing@plexora.eu" style="color:#6C3FE8">billing@plexora.eu</a></p>`,
+              `</body></html>`,
+            ].join(''),
+          })
           console.log(`✅ Kombinierte Login+Lizenz-Mail an ${customerEmail}`)
         } catch (err) { console.error('Lizenz-Mail fehlgeschlagen:', err) }
       }

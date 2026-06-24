@@ -1,21 +1,7 @@
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { Resend } from 'resend'
 import { GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
-
-function createSESClient() {
-  const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME
-  if (isLambda) {
-    return new SESClient({ region: 'eu-central-1' })
-  }
-  const config = useRuntimeConfig()
-  const accessKey = (config.awsAccessKeyId as string || process.env.AWS_ACCESS_KEY_ID_CUSTOM || '').replace(/^"|"$/g, '')
-  const secretKey = (config.awsSecretAccessKey as string || process.env.AWS_SECRET_ACCESS_KEY_CUSTOM || '').replace(/^"|"$/g, '')
-  return new SESClient({
-    region: 'eu-central-1',
-    credentials: { accessKeyId: accessKey, secretAccessKey: secretKey }
-  })
-}
 
 async function generatePDF(invoice: any, branding: any, company: any = {}, invoiceSettings: any = {}): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
@@ -152,45 +138,29 @@ export default defineEventHandler(async (event) => {
 
   const pdfBuffer = await generatePDF(invoice, branding, company, invoiceSettings)
 
-  // Mail via SES senden
-  const toEmail   = body.toEmail || invoice.clientEmail
-  const fromEmail = (config.sesFromEmail as string) || 'billing@plexora.eu'
-  const subject   = `Rechnung ${invoice.number || invoiceId?.slice(0,8).toUpperCase()} von ${branding.brandName}`
-  const boundary  = `----=_Part_${Date.now()}`
+  // Mail via Resend senden
+  const toEmail  = body.toEmail || invoice.clientEmail
+  const subject  = `Rechnung ${invoice.number || invoiceId?.slice(0,8).toUpperCase()} von ${branding.brandName}`
+  const resend   = new Resend(config.resendApiKey as string)
 
-  const rawEmail = [
-    `From: ${branding.brandName} <${fromEmail}>`,
-    `To: ${toEmail}`,
-    `Subject: ${subject}`,
-    `MIME-Version: 1.0`,
-    `Content-Type: multipart/mixed; boundary="${boundary}"`,
-    ``,
-    `--${boundary}`,
-    `Content-Type: text/html; charset=UTF-8`,
-    ``,
-    `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">`,
-    `<h2 style="color:#ea580c">${branding.brandName}</h2>`,
-    `<p>Hallo,</p>`,
-    `<p>im Anhang finden Sie Ihre Rechnung <strong>${invoice.number || invoiceId?.slice(0,8).toUpperCase()}</strong> über <strong>€ ${Number(invoice.amount).toLocaleString('de-DE')}</strong>.</p>`,
-    `<p>Bitte begleichen Sie den Betrag bis zum <strong>${invoice.dueDate || '–'}</strong>.</p>`,
-    `<p>Vielen Dank für Ihr Vertrauen!</p>`,
-    `<p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>`,
-    `</body></html>`,
-    ``,
-    `--${boundary}`,
-    `Content-Type: application/pdf; name="Rechnung-${invoice.number || invoiceId?.slice(0,8)}.pdf"`,
-    `Content-Transfer-Encoding: base64`,
-    `Content-Disposition: attachment; filename="Rechnung-${invoice.number || invoiceId?.slice(0,8)}.pdf"`,
-    ``,
-    pdfBuffer.toString('base64'),
-    ``,
-    `--${boundary}--`,
-  ].join('\r\n')
-
-  const ses = createSESClient()
-  await ses.send(new SendRawEmailCommand({
-    RawMessage: { Data: Buffer.from(rawEmail) }
-  }))
+  await resend.emails.send({
+    from: `${branding.brandName} <billing@plexora.eu>`,
+    to:   toEmail,
+    subject,
+    html: `
+      <html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">
+        <h2 style="color:#ea580c">${branding.brandName}</h2>
+        <p>Hallo,</p>
+        <p>im Anhang finden Sie Ihre Rechnung <strong>${invoice.number || invoiceId?.slice(0,8).toUpperCase()}</strong> über <strong>€ ${Number(invoice.amount).toLocaleString('de-DE')}</strong>.</p>
+        <p>Bitte begleichen Sie den Betrag bis zum <strong>${invoice.dueDate || '–'}</strong>.</p>
+        <p>Vielen Dank für Ihr Vertrauen!</p>
+        <p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>
+      </body></html>`,
+    attachments: [{
+      filename: `Rechnung-${invoice.number || invoiceId?.slice(0,8)}.pdf`,
+      content:  pdfBuffer,
+    }],
+  })
 
   // Status auf 'sent' aktualisieren
   await dynamo.send(new UpdateCommand({
