@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       scope:        'global',
       brandName:    body.brandName    || 'Plexora',
       brandTagline: body.brandTagline || 'Business Platform',
-      primaryColor: body.primaryColor || '#7C3AED',
+      primaryColor: body.primaryColor || '#ea580c',
       portalTitle:  body.portalTitle  || 'Kundenportal',
       logoUrl:      body.logoUrl      || '',
       updated:      new Date().toISOString(),

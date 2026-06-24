@@ -132,6 +132,13 @@
       </table>
     </div>
 
+  <!-- Kündigungsbutton §312k BGB -->
+  <div v-if="isCustomer" style="margin-top:32px;padding-top:16px;border-top:0.5px solid var(--border);text-align:right">
+    <button @click="cancelSubscription" style="background:transparent;border:0.5px solid var(--border);color:var(--text-muted);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='#e05c5c';this.style.color='#e05c5c'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+      Abonnement kündigen
+    </button>
+  </div>
+
   </div>
 </template>
 
@@ -144,11 +151,24 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const chartRef = ref<HTMLCanvasElement | null>(null)
 
-const { data: dealsData }     = await useFetch(useApiUrl('/api/deals'))
-const { data: contactsData }  = await useFetch(useApiUrl('/api/contacts'))
-const { data: employeesData } = await useFetch(useApiUrl('/api/hr'))
-const { data: ticketsData }   = await useFetch(useApiUrl('/api/support'))
-const { data: invoicesData }  = await useFetch(useApiUrl('/api/finance'))
+const { userId, email, role } = await useAuthUser()
+const isCustomer = role === 'customers'
+
+async function cancelSubscription() {
+  if (!confirm('Abonnement wirklich kündigen? Es läuft bis Ende des Abrechnungszeitraums weiter.')) return
+  try {
+    const res = await $fetch(useApiUrl('/api/licenses/portal'), { method: 'POST', body: { email } }) as any
+    if (res.url) window.location.href = res.url
+  } catch {
+    alert('Kein aktives Abonnement gefunden.')
+  }
+}
+
+const { data: dealsData }     = await useFetch(() => useApiUrl(`/api/deals?userId=${userId}`))
+const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?userId=${userId}`))
+const { data: employeesData } = await useFetch(() => useApiUrl(`/api/hr?userId=${userId}`))
+const { data: ticketsData }   = await useFetch(() => useApiUrl(`/api/support?userId=${userId}`))
+const { data: invoicesData }  = await useFetch(() => useApiUrl(`/api/finance?userId=${userId}`))
 
 const deals     = computed(() => (dealsData.value as any)?.deals     || [])
 const contacts  = computed(() => sortByMostUsed((contactsData.value as any)?.contacts || []).slice(0, 5))

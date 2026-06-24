@@ -98,7 +98,7 @@ const pageStyle = computed(() => {
   return {
     '--accent': accentColor.value,
     '--accent-rgb': accentColor.value.replace('#', '').match(/.{2}/g)
-      ?.map((h: string) => parseInt(h, 16)).join(', ') || '108, 63, 232',
+      ?.map((h: string) => parseInt(h, 16)).join(', ') || '234, 88, 12',
   }
 })
 

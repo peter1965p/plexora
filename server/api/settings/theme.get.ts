@@ -4,7 +4,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 const DEFAULTS = {
   theme: 'dark',
   accent: '#6C3FE8',
-  accentRgb: '108, 63, 232',
+  accentRgb: '234, 88, 12',
 }
 
 export default defineEventHandler(async () => {

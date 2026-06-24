@@ -26,7 +26,7 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
     doc.on('error', reject)
 
     const brand = branding?.brandName || 'Plexora'
-    const accent = [124, 58, 237] // violet
+    const accent = [234, 88, 12] // violet
 
     // Header
     doc.fontSize(28).fillColor(accent).font('Helvetica-Bold').text(brand, 50, 50)
@@ -169,7 +169,7 @@ export default defineEventHandler(async (event) => {
     `Content-Type: text/html; charset=UTF-8`,
     ``,
     `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">`,
-    `<h2 style="color:#7C3AED">${branding.brandName}</h2>`,
+    `<h2 style="color:#ea580c">${branding.brandName}</h2>`,
     `<p>Hallo,</p>`,
     `<p>im Anhang finden Sie Ihre Rechnung <strong>${invoice.number || invoiceId?.slice(0,8).toUpperCase()}</strong> über <strong>€ ${Number(invoice.amount).toLocaleString('de-DE')}</strong>.</p>`,
     `<p>Bitte begleichen Sie den Betrag bis zum <strong>${invoice.dueDate || '–'}</strong>.</p>`,

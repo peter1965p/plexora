@@ -11,7 +11,7 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
     doc.on('error', reject)
 
     const brand  = branding?.brandName || 'Plexora'
-    const accent = [124, 58, 237]
+    const accent = [234, 88, 12]
 
     doc.fontSize(28).fillColor(accent).font('Helvetica-Bold').text(brand, 50, 50)
     doc.fontSize(10).fillColor([150,150,150]).font('Helvetica').text(branding?.brandTagline || 'Business Platform', 50, 85)

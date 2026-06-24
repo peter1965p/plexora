@@ -2,7 +2,7 @@ export const useBranding = () => {
   const branding = useState('branding', () => ({
     brandName:    'Plexora',
     brandTagline: 'Business Platform',
-    primaryColor: '#7C3AED',
+    primaryColor: '#ea580c',
     portalTitle:  'Kundenportal',
     logoUrl:      '',
   }))

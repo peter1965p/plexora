@@ -1,8 +1,5 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb'
-import { getDynamoClient } from '../../utils/dynamodb'
-
-export default defineEventHandler(async () => {
-  const client = getDynamoClient()
-  const result = await client.send(new ScanCommand({ TableName: 'plexora-hr' }))
-  return { employees: result.Items || [] }
+import { queryByUser, getUserId } from '../../utils/queryByUser'
+export default defineEventHandler(async (event) => {
+  const items = await queryByUser('plexora-hr', getUserId(event))
+  return { employees: items }
 })

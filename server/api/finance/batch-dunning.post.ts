@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
           `<tr style="background:#E05C5C;color:white"><td style="padding:8px"><strong>Gesamtbetrag</strong></td><td style="padding:8px"><strong>€ ${total.toLocaleString('de-DE')}</strong></td></tr>`,
           `</table>`,
           `<div style="text-align:center;margin:24px 0">`,
-          `<a href="${payUrl}" style="background:#7C3AED;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">Jetzt online bezahlen</a>`,
+          `<a href="${payUrl}" style="background:#ea580c;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">Jetzt online bezahlen</a>`,
           `</div>`,
           `<p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>`,
           `</body></html>`,

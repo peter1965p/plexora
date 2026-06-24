@@ -14,9 +14,10 @@ export default defineNuxtConfig({
     head: {
       link: [
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@400;500;600&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700&display=swap",
         },
         {
           rel: "stylesheet",

@@ -4,7 +4,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 const DEFAULTS = {
   brandName:    'Plexora',
   brandTagline: 'Business Platform',
-  primaryColor: '#7C3AED',
+  primaryColor: '#ea580c',
   portalTitle:  'Kundenportal',
 }
 

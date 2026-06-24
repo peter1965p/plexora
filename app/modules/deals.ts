@@ -16,11 +16,14 @@ export const stageLabel: Record<string, string> = {
   danger:  'Verloren',
 }
 
+function parseValue(v: any): number {
+  if (typeof v === 'number') return v
+  if (!v) return 0
+  return parseFloat(String(v).replace(/[€.\s]/g, '').replace(',', '.')) || 0
+}
+
 export function calcTotalValue(deals: Deal[]): number {
-  return deals.reduce((sum, d) => {
-    const num = parseFloat(d.value.replace(/[€.\s]/g, '').replace(',', '.'))
-    return sum + (isNaN(num) ? 0 : num)
-  }, 0)
+  return deals.reduce((sum, d) => sum + parseValue(d.value), 0)
 }
 
 export function calcWinRate(deals: Deal[]): number {
@@ -31,8 +34,8 @@ export function calcWinRate(deals: Deal[]): number {
 
 export function calcWeightedPipeline(deals: Deal[]): number {
   return deals.reduce((sum, d) => {
-    const num = parseFloat(d.value.replace(/[€.\s]/g, '').replace(',', '.'))
-    return sum + (isNaN(num) ? 0 : num * d.prob / 100)
+    const num = parseValue(d.value)
+    return sum + num * ((d.prob ?? (d as any).probability ?? 0) / 100)
   }, 0)
 }
 

@@ -3,7 +3,7 @@
     <!-- NAV -->
     <nav style="border-bottom:0.5px solid rgba(255,255,255,0.07);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto">
       <NuxtLink to="/" style="text-decoration:none">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px">Plexo<span style="color:#6c3fe8">ra</span></div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px">Plexo<span style="color:#ea580c">ra</span></div>
       </NuxtLink>
       <NuxtLink to="/login" style="text-decoration:none;color:#8b8fa8;font-size:13px">Bereits Kunde? Einloggen →</NuxtLink>
     </nav>
@@ -57,9 +57,9 @@
           :class="{ selected: selected === 'pro' }"
           @click="selected = 'pro'"
         >
-          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6c3fe8;color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap">Beliebteste Wahl</div>
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#ea580c;color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap">Beliebteste Wahl</div>
           <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a78bfa;margin-bottom:12px">Pro</div>
-          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#6c3fe8;line-height:1;margin-bottom:4px">149 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
+          <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#ea580c;line-height:1;margin-bottom:4px">149 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
           <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>CRM + Support</li>
@@ -95,7 +95,7 @@
         <button
           @click="checkout"
           :disabled="loading"
-          style="background:#6c3fe8;color:#fff;font-size:16px;font-weight:700;padding:16px 48px;border-radius:40px;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.2s;min-width:280px"
+          style="background:#ea580c;color:#fff;font-size:16px;font-weight:700;padding:16px 48px;border-radius:40px;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.2s;min-width:280px"
           :style="loading ? 'opacity:0.6;cursor:not-allowed' : ''"
         >
           {{ loading ? 'Weiterleitung zu Stripe...' : `Jetzt kaufen — ${prices[selected]} €` }}
@@ -181,9 +181,9 @@ async function checkout() {
   position: relative;
 }
 .pcard:hover { border-color: rgba(108,63,232,0.5); transform: translateY(-2px); }
-.pcard.selected { border-color: #6c3fe8; border-width: 2px; }
+.pcard.selected { border-color: #ea580c; border-width: 2px; }
 .pcard-featured { background: linear-gradient(160deg, rgba(108,63,232,0.1), #13182a); border-color: rgba(108,63,232,0.4); }
-.pcard-featured.selected { border-color: #6c3fe8; border-width: 2px; }
+.pcard-featured.selected { border-color: #ea580c; border-width: 2px; }
 .select-indicator {
   text-align: center;
   font-size: 13px;

@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
                 Html: {
                   Data: `
                     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-                      <h2 style="color:#7C3AED">Bestellung bestätigt!</h2>
+                      <h2 style="color:#ea580c">Bestellung bestätigt!</h2>
                       <p>Vielen Dank für Ihre Bestellung.</p>
                       <p>Bestellnummer: <strong>${orderId.slice(0,8).toUpperCase()}</strong></p>
                       <p>Wir bearbeiten Ihre Bestellung und melden uns in Kürze.</p>

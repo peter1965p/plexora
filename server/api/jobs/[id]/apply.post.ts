@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
           Html: {
             Data: `
               <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-                <h2 style="color:#7C3AED">${brandName}</h2>
+                <h2 style="color:#ea580c">${brandName}</h2>
                 <p>Hallo ${body.firstName},</p>
                 <p>vielen Dank für Ihre Bewerbung als <strong>${campaign.title}</strong>.</p>
                 <p>Wir haben Ihre Unterlagen erhalten und melden uns in Kürze bei Ihnen.</p>

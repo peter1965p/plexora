@@ -1,70 +1,29 @@
 <template>
-  <div style="min-height:100vh;background:var(--bg-base)">
-    <!-- Navbar -->
-    <nav style="background:var(--bg-surface);border-bottom:0.5px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
-      <NuxtLink to="/" style="text-decoration:none">
-        <span class="logo-text" style="font-size:22px">{{ brandFirst }}<span class="logo-accent">{{ brandLast }}</span></span>
-      </NuxtLink>
-      <div style="display:flex;align-items:center;gap:8px">
-        <NuxtLink v-for="p in navPages" :key="p.slug" :to="`/p/${p.slug}`" style="text-decoration:none">
-          <button style="padding:6px 16px;border-radius:8px;border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:500;transition:color 0.15s"
-            @mouseenter="e => e.currentTarget.style.color='var(--text-primary)'"
-            @mouseleave="e => e.currentTarget.style.color='var(--text-muted)'">
-            {{ p.navLabel || p.title }}
-          </button>
-        </NuxtLink>
-        <NuxtLink to="/impressum" style="text-decoration:none">
-          <button style="padding:6px 16px;border-radius:8px;border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:500;transition:color 0.15s"
-            @mouseenter="e => e.currentTarget.style.color='var(--text-primary)'"
-            @mouseleave="e => e.currentTarget.style.color='var(--text-muted)'">
-            Impressum
-          </button>
-        </NuxtLink>
-        <NuxtLink to="/datenschutz" style="text-decoration:none">
-          <button style="padding:6px 16px;border-radius:8px;border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:500;transition:color 0.15s"
-            @mouseenter="e => e.currentTarget.style.color='var(--text-primary)'"
-            @mouseleave="e => e.currentTarget.style.color='var(--text-muted)'">
-            Datenschutz
-          </button>
-        </NuxtLink>
-        <NuxtLink to="/agb" style="text-decoration:none">
-          <button style="padding:6px 16px;border-radius:8px;border:none;background:none;color:var(--accent);cursor:pointer;font-size:13px;font-weight:600">
-            AGB
-          </button>
-        </NuxtLink>
-        <NuxtLink to="/shop">
-          <button class="accent-btn" style="height:36px">Shop</button>
-        </NuxtLink>
-        <NuxtLink to="/login">
-          <button style="padding:6px 16px;border-radius:8px;border:0.5px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-size:13px">Anmelden</button>
-        </NuxtLink>
-      </div>
-    </nav>
-
-    <!-- Content -->
-    <div style="max-width:900px;margin:0 auto;padding:60px 24px 100px">
-      <div class="agb-content" style="font-size:15px;line-height:1.8;color:var(--text-muted)" v-html="agbHtml"></div>
-    </div>
+  <div>
+    <div class="agb-content" v-html="agbHtml"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { marked } from 'marked'
-definePageMeta({ layout: false })
-
-const { branding, loadBranding } = useBranding()
-const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
-const brandLast  = computed(() => branding.value.brandName.slice(-1))
-onMounted(() => loadBranding())
+definePageMeta({ layout: 'lp' })
 
 const { data } = await useFetch(useApiUrl('/api/settings/agb'))
 const agb = computed(() => (data.value as any)?.agb)
 const agbHtml = computed(() => marked.parse(agb.value?.content || ''))
-
-const { data: pagesData } = await useFetch(useApiUrl('/api/pages'))
-const navPages = computed(() =>
-  ((pagesData.value as any)?.pages || [])
-    .filter((p: any) => p.inNav && p.status === 'published' && ['impressum','datenschutz','agb'].indexOf(p.slug) === -1)
-    .sort((a: any, b: any) => (a.navLabel || '').localeCompare(b.navLabel || ''))
-)
 </script>
+
+<style scoped>
+.agb-content { font-size: 14px; line-height: 1.9; color: #8b8fa8; }
+.agb-content :deep(h1) { font-family: "Space Grotesk", sans-serif; font-size: 36px; font-weight: 800; color: #f0eef9; margin: 0 0 8px; letter-spacing: -0.5px; }
+.agb-content :deep(h2) { font-family: "Space Grotesk", sans-serif; font-size: 18px; font-weight: 700; color: #f0eef9; margin: 32px 0 12px; }
+.agb-content :deep(h3) { font-family: "Space Grotesk", sans-serif; font-size: 15px; font-weight: 600; color: #c4c2d4; margin: 20px 0 8px; }
+.agb-content :deep(p) { margin: 0 0 12px; }
+.agb-content :deep(strong) { color: #f0eef9; font-weight: 600; }
+.agb-content :deep(em) { color: #c4c2d4; font-style: italic; }
+.agb-content :deep(a) { color: #ea580c; text-decoration: none; }
+.agb-content :deep(a:hover) { text-decoration: underline; }
+.agb-content :deep(ul), .agb-content :deep(ol) { padding-left: 20px; margin: 0 0 12px; }
+.agb-content :deep(li) { margin-bottom: 4px; }
+.agb-content :deep(hr) { border: none; border-top: 0.5px solid rgba(255,255,255,0.08); margin: 24px 0; }
+</style>

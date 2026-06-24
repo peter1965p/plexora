@@ -32,8 +32,8 @@
 const store = useAppStore()
 onMounted(() => store.loadModules())
 const { branding, loadBranding } = useBranding()
-const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
-const brandLast  = computed(() => branding.value.brandName.slice(-1))
+const brandFirst = computed(() => branding.value.brandName.slice(0, -2))
+const brandLast  = computed(() => branding.value.brandName.slice(-2))
 onMounted(() => loadBranding())
 
 const route = useRoute()
@@ -62,13 +62,13 @@ const navSections = computed(() => [
     label: 'Übersicht',
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: 'ti-layout-dashboard', key: 'dashboard' },
-      { to: '/analytics', label: 'Analytics',  icon: 'ti-chart-bar',        key: 'analytics' },
+      { to: '/analytics', label: 'Analytics', icon: 'ti-chart-bar',        key: 'analytics' },
     ]
   },
   {
     label: 'Module',
     items: store.modules
-      .filter(m => m.on && !m.locked && moduleRoutes[m.key])
+      .filter(m => m.on && !m.locked && moduleRoutes[m.key] && m.key !== 'analytics')
       .map(m => ({ to: moduleRoutes[m.key], label: m.name, icon: m.icon, key: m.key }))
   },
   {

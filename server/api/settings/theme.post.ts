@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       scope:     'global',
       theme:     body.theme === 'light' ? 'light' : 'dark',
       accent:    body.accent    || '#6C3FE8',
-      accentRgb: body.accentRgb || '108, 63, 232',
+      accentRgb: body.accentRgb || '234, 88, 12',
       updated:   new Date().toISOString(),
     }
   }))

@@ -27,7 +27,7 @@ async function generateDunningPDF(invoice: any, dunning: any, branding: any): Pr
     doc.on('error', reject)
 
     const brand  = branding?.brandName || 'Plexora'
-    const accent = [124, 58, 237]
+    const accent = [234, 88, 12]
     const red    = [224, 92, 92]
 
     doc.fontSize(28).fillColor(accent).font('Helvetica-Bold').text(brand, 50, 50)
