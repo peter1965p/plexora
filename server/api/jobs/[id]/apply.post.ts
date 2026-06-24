@@ -1,17 +1,7 @@
 import { PutCommand, GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
+import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
-
-function getSESClient() {
-  const config = useRuntimeConfig()
-  const accessKey = (config.awsAccessKeyId as string).replace(/^"|"$/g, '')
-  const secretKey = (config.awsSecretAccessKey as string).replace(/^"|"$/g, '')
-  return new SESClient({
-    region: 'eu-central-1',
-    credentials: { accessKeyId: accessKey, secretAccessKey: secretKey }
-  })
-}
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
@@ -51,31 +41,22 @@ export default defineEventHandler(async (event) => {
     if (bs.Item?.brandName) brandName = bs.Item.brandName
   } catch {}
 
-  const ses = getSESClient()
-  const fromEmail = 'billing@plexora.eu'
-
   // Mail an Bewerber
   try {
-    await ses.send(new SendEmailCommand({
-      Source: `${brandName} HR <${fromEmail}>`,
-      Destination: { ToAddresses: [body.email] },
-      Message: {
-        Subject: { Data: `Bewerbungseingang: ${campaign.title}` },
-        Body: {
-          Html: {
-            Data: `
-              <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-                <h2 style="color:#ea580c">${brandName}</h2>
-                <p>Hallo ${body.firstName},</p>
-                <p>vielen Dank für Ihre Bewerbung als <strong>${campaign.title}</strong>.</p>
-                <p>Wir haben Ihre Unterlagen erhalten und melden uns in Kürze bei Ihnen.</p>
-                <p style="color:#999;font-size:12px">– Das ${brandName} HR Team</p>
-              </div>
-            `
-          }
-        }
-      }
-    }))
+    const resend = new Resend(useRuntimeConfig().resendApiKey as string)
+    await resend.emails.send({
+      from:    `${brandName} HR <noreply@plexora.eu>`,
+      to:      body.email,
+      subject: `Bewerbungseingang: ${campaign.title}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <h2 style="color:#ea580c">${brandName}</h2>
+          <p>Hallo ${body.firstName},</p>
+          <p>vielen Dank für Ihre Bewerbung als <strong>${campaign.title}</strong>.</p>
+          <p>Wir haben Ihre Unterlagen erhalten und melden uns in Kürze bei Ihnen.</p>
+          <p style="color:#999;font-size:12px">– Das ${brandName} HR Team</p>
+        </div>`,
+    })
   } catch (err: any) {
     console.log('Bewerber-Mail Fehler:', err.message)
   }

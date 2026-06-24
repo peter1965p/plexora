@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import { UpdateCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
+import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {
@@ -45,32 +45,19 @@ export default defineEventHandler(async (event) => {
       // Bestätigungsmail
       if (email) {
         try {
-          const ses = new SESClient({
-            region: 'eu-central-1',
-            credentials: {
-              accessKeyId:     (config.awsAccessKeyId as string).replace(/^"|"$/g, ''),
-              secretAccessKey: (config.awsSecretAccessKey as string).replace(/^"|"$/g, ''),
-            }
+          const resend = new Resend(config.resendApiKey as string)
+          await resend.emails.send({
+            from:    'Plexora Shop <billing@plexora.eu>',
+            to:      email,
+            subject: `Bestellung bestätigt — ${orderId.slice(0,8).toUpperCase()}`,
+            html: `
+              <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+                <h2 style="color:#ea580c">Bestellung bestätigt!</h2>
+                <p>Vielen Dank für Ihre Bestellung.</p>
+                <p>Bestellnummer: <strong>${orderId.slice(0,8).toUpperCase()}</strong></p>
+                <p>Wir bearbeiten Ihre Bestellung und melden uns in Kürze.</p>
+              </div>`,
           })
-          await ses.send(new SendEmailCommand({
-            Source: `billing@plexora.eu`,
-            Destination: { ToAddresses: [email] },
-            Message: {
-              Subject: { Data: `Bestellung bestätigt — ${orderId.slice(0,8).toUpperCase()}` },
-              Body: {
-                Html: {
-                  Data: `
-                    <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-                      <h2 style="color:#ea580c">Bestellung bestätigt!</h2>
-                      <p>Vielen Dank für Ihre Bestellung.</p>
-                      <p>Bestellnummer: <strong>${orderId.slice(0,8).toUpperCase()}</strong></p>
-                      <p>Wir bearbeiten Ihre Bestellung und melden uns in Kürze.</p>
-                    </div>
-                  `
-                }
-              }
-            }
-          }))
         } catch (e: any) {
           console.log('Mail Fehler:', e.message)
         }

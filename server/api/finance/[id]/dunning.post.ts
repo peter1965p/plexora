@@ -1,16 +1,7 @@
 import { ScanCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
-
-function createSESClient() {
-  const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME
-  if (isLambda) return new SESClient({ region: 'eu-central-1' })
-  const config = useRuntimeConfig()
-  const accessKey = (config.awsAccessKeyId as string || process.env.AWS_ACCESS_KEY_ID_CUSTOM || '').replace(/^"|"$/g, '')
-  const secretKey = (config.awsSecretAccessKey as string || process.env.AWS_SECRET_ACCESS_KEY_CUSTOM || '').replace(/^"|"$/g, '')
-  return new SESClient({ region: 'eu-central-1', credentials: { accessKeyId: accessKey, secretAccessKey: secretKey } })
-}
 
 const DUNNING_LEVELS: Record<number, { status: string, label: string, fee: number, text: string }> = {
   1: { status: 'dunning_1', label: '1. Mahnung',                    fee: 0,  text: 'Wir möchten Sie freundlich daran erinnern, dass die folgende Rechnung noch offen ist.' },
@@ -120,42 +111,27 @@ export default defineEventHandler(async (event) => {
   const total     = brutto + dunning.fee
 
   if (toEmail) {
-    const rawEmail = [
-      `From: ${branding.brandName} <${fromEmail}>`,
-      `To: ${toEmail}`,
-      `Subject: ${subject}`,
-      `MIME-Version: 1.0`,
-      `Content-Type: multipart/mixed; boundary="${boundary}"`,
-      ``,
-      `--${boundary}`,
-      `Content-Type: text/html; charset=UTF-8`,
-      ``,
-      `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">`,
-      `<h2 style="color:#E05C5C">${dunning.label}</h2>`,
-      `<p>Sehr geehrte/r ${invoice.client},</p>`,
-      `<p>${dunning.text}</p>`,
-      `<table style="border-collapse:collapse;width:100%;margin:20px 0">`,
-      `<tr style="background:#fff5f5"><td style="padding:8px;border:1px solid #eee">Rechnungsnummer</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.number}</strong></td></tr>`,
-      `<tr><td style="padding:8px;border:1px solid #eee">Fällig seit</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.dueDate}</strong></td></tr>`,
-      `<tr><td style="padding:8px;border:1px solid #eee">Offener Betrag</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${brutto.toLocaleString('de-DE')}</strong></td></tr>`,
-      dunning.fee > 0 ? `<tr><td style="padding:8px;border:1px solid #eee">Mahngebühr</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${dunning.fee}</strong></td></tr>` : '',
-      `<tr style="background:#E05C5C;color:white"><td style="padding:8px"><strong>Gesamtbetrag</strong></td><td style="padding:8px"><strong>€ ${total.toLocaleString('de-DE')}</strong></td></tr>`,
-      `</table>`,
-      `<p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>`,
-      `</body></html>`,
-      ``,
-      `--${boundary}`,
-      `Content-Type: application/pdf; name="${dunning.label}-${invoice.number}.pdf"`,
-      `Content-Transfer-Encoding: base64`,
-      `Content-Disposition: attachment; filename="${dunning.label}-${invoice.number}.pdf"`,
-      ``,
-      pdfBuffer.toString('base64'),
-      ``,
-      `--${boundary}--`,
-    ].join('\r\n')
-
-    const ses = createSESClient()
-    await ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(rawEmail) } }))
+    const resend = new Resend(useRuntimeConfig().resendApiKey as string)
+    await resend.emails.send({
+      from: `${branding.brandName} <billing@plexora.eu>`,
+      to:   toEmail,
+      subject,
+      html: `
+        <html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">
+          <h2 style="color:#E05C5C">${dunning.label}</h2>
+          <p>Sehr geehrte/r ${invoice.client},</p>
+          <p>${dunning.text}</p>
+          <table style="border-collapse:collapse;width:100%;margin:20px 0">
+            <tr style="background:#fff5f5"><td style="padding:8px;border:1px solid #eee">Rechnungsnummer</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.number}</strong></td></tr>
+            <tr><td style="padding:8px;border:1px solid #eee">Fällig seit</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.dueDate}</strong></td></tr>
+            <tr><td style="padding:8px;border:1px solid #eee">Offener Betrag</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${brutto.toLocaleString('de-DE')}</strong></td></tr>
+            ${dunning.fee > 0 ? `<tr><td style="padding:8px;border:1px solid #eee">Mahngebühr</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${dunning.fee}</strong></td></tr>` : ''}
+            <tr style="background:#E05C5C;color:white"><td style="padding:8px"><strong>Gesamtbetrag</strong></td><td style="padding:8px"><strong>€ ${total.toLocaleString('de-DE')}</strong></td></tr>
+          </table>
+          <p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>
+        </body></html>`,
+      attachments: [{ filename: `${dunning.label}-${invoice.number}.pdf`, content: pdfBuffer }],
+    })
   }
 
   // Status updaten

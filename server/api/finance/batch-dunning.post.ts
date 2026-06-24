@@ -1,11 +1,11 @@
 import { ScanCommand, UpdateCommand, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { Resend } from 'resend'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
-  const dynamo = getDynamoClient()
-  const ses    = new SESClient({ region: 'eu-central-1' })
+  const dynamo  = getDynamoClient()
+  const resend  = new Resend(useRuntimeConfig().resendApiKey as string)
 
   // Branding laden
   let branding = { brandName: 'Plexora', brandTagline: 'Business Platform' }
@@ -93,41 +93,30 @@ export default defineEventHandler(async (event) => {
 
     if (invoice.clientEmail) {
       try {
-        const subject  = `${label}: Rechnung ${invoice.number || invoice.invoiceId?.slice(0,8)} — ${branding.brandName}`
-        const boundary = `----=_Part_${Date.now()}`
-        const payUrl   = `https://app.plexora.eu/pay/${invoice.invoiceId}`
-
-        const rawEmail = [
-          `From: ${branding.brandName} <billing@plexora.eu>`,
-          `To: ${invoice.clientEmail}`,
-          `Subject: ${subject}`,
-          `MIME-Version: 1.0`,
-          `Content-Type: multipart/mixed; boundary="${boundary}"`,
-          ``,
-          `--${boundary}`,
-          `Content-Type: text/html; charset=UTF-8`,
-          ``,
-          `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">`,
-          `<h2 style="color:#E05C5C">${label}</h2>`,
-          `<p>Sehr geehrte/r ${invoice.client},</p>`,
-          `<p>${levelConfig.text}</p>`,
-          `<table style="border-collapse:collapse;width:100%;margin:20px 0">`,
-          `<tr style="background:#fff5f5"><td style="padding:8px;border:1px solid #eee">Rechnungsnummer</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.number || invoice.invoiceId?.slice(0,8)}</strong></td></tr>`,
-          `<tr><td style="padding:8px;border:1px solid #eee">Fällig seit</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.dueDate}</strong></td></tr>`,
-          `<tr><td style="padding:8px;border:1px solid #eee">Offener Betrag</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${brutto.toLocaleString('de-DE')}</strong></td></tr>`,
-          levelConfig.fee > 0 ? `<tr><td style="padding:8px;border:1px solid #eee">Mahngebühr</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${levelConfig.fee}</strong></td></tr>` : '',
-          `<tr style="background:#E05C5C;color:white"><td style="padding:8px"><strong>Gesamtbetrag</strong></td><td style="padding:8px"><strong>€ ${total.toLocaleString('de-DE')}</strong></td></tr>`,
-          `</table>`,
-          `<div style="text-align:center;margin:24px 0">`,
-          `<a href="${payUrl}" style="background:#ea580c;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">Jetzt online bezahlen</a>`,
-          `</div>`,
-          `<p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>`,
-          `</body></html>`,
-          ``,
-          `--${boundary}--`,
-        ].join('\r\n')
-
-        await ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(rawEmail) } }))
+        const subject = `${label}: Rechnung ${invoice.number || invoice.invoiceId?.slice(0,8)} — ${branding.brandName}`
+        const payUrl  = `https://app.plexora.eu/pay/${invoice.invoiceId}`
+        await resend.emails.send({
+          from: `${branding.brandName} <billing@plexora.eu>`,
+          to:   invoice.clientEmail,
+          subject,
+          html: `
+            <html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto">
+              <h2 style="color:#E05C5C">${label}</h2>
+              <p>Sehr geehrte/r ${invoice.client},</p>
+              <p>${levelConfig.text}</p>
+              <table style="border-collapse:collapse;width:100%;margin:20px 0">
+                <tr style="background:#fff5f5"><td style="padding:8px;border:1px solid #eee">Rechnungsnummer</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.number || invoice.invoiceId?.slice(0,8)}</strong></td></tr>
+                <tr><td style="padding:8px;border:1px solid #eee">Fällig seit</td><td style="padding:8px;border:1px solid #eee"><strong>${invoice.dueDate}</strong></td></tr>
+                <tr><td style="padding:8px;border:1px solid #eee">Offener Betrag</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${brutto.toLocaleString('de-DE')}</strong></td></tr>
+                ${levelConfig.fee > 0 ? `<tr><td style="padding:8px;border:1px solid #eee">Mahngebühr</td><td style="padding:8px;border:1px solid #eee"><strong>€ ${levelConfig.fee}</strong></td></tr>` : ''}
+                <tr style="background:#E05C5C;color:white"><td style="padding:8px"><strong>Gesamtbetrag</strong></td><td style="padding:8px"><strong>€ ${total.toLocaleString('de-DE')}</strong></td></tr>
+              </table>
+              <div style="text-align:center;margin:24px 0">
+                <a href="${payUrl}" style="background:#ea580c;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">Jetzt online bezahlen</a>
+              </div>
+              <p style="color:#999;font-size:12px">– Das ${branding.brandName} Team</p>
+            </body></html>`,
+        })
         results.mailed++
       } catch (err) {
         console.error('Mail fehlgeschlagen:', invoice.invoiceId, err)
