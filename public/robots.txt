@@ -1,2 +1,22 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /crm
+Disallow: /finance
+Disallow: /projects
+Disallow: /hr
+Disallow: /support
+Disallow: /analytics
+Disallow: /settings
+Disallow: /contracts
+Disallow: /marketing
+Disallow: /shop-admin
+Disallow: /pagebuilder
+Disallow: /forms
+Disallow: /invite
+Disallow: /portal
+Disallow: /pay
+Disallow: /lead
+Disallow: /api
+
+Sitemap: https://app.plexora.eu/sitemap.xml

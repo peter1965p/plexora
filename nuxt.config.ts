@@ -12,6 +12,10 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
+      titleTemplate: '%s — Plexora',
+      meta: [
+        { name: 'theme-color', content: '#6C3FE8' },
+      ],
       link: [
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
@@ -34,6 +38,7 @@ export default defineNuxtConfig({
     sesSesRegion: "",
     awsRegion: "",
     resendApiKey: "",
+    adminEmail: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",

@@ -132,6 +132,50 @@
       </table>
     </div>
 
+  <!-- Admin: Demo Stats -->
+  <div v-if="demoStats" class="card" style="margin-bottom:14px">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-eye" style="color:var(--accent);margin-right:6px"></i>Demo-Nutzung</span>
+      <span style="font-size:11px;color:var(--text-muted)">nur sichtbar für Admin</span>
+    </div>
+    <div class="stats-grid" style="padding:16px 20px">
+      <div class="stat-card">
+        <i class="ti ti-infinity stat-icon"></i>
+        <div class="stat-label">Gesamt</div>
+        <div class="stat-value">{{ demoStats.total.toLocaleString('de-DE') }}</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> API-Aufrufe</div>
+      </div>
+      <div class="stat-card">
+        <i class="ti ti-calendar-today stat-icon"></i>
+        <div class="stat-label">Heute</div>
+        <div class="stat-value">{{ demoStats.today }}</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> Aufrufe</div>
+      </div>
+      <div class="stat-card">
+        <i class="ti ti-calendar-month stat-icon"></i>
+        <div class="stat-label">Diesen Monat</div>
+        <div class="stat-value">{{ demoStats.month.toLocaleString('de-DE') }}</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> Aufrufe</div>
+      </div>
+      <div class="stat-card" style="grid-column:span 1">
+        <i class="ti ti-chart-bar stat-icon"></i>
+        <div class="stat-label">Letzte 7 Tage</div>
+        <div style="display:flex;align-items:flex-end;gap:4px;height:36px;margin-top:4px">
+          <div v-for="d in demoStats.last7" :key="d.date"
+            :title="`${d.date}: ${d.count}`"
+            :style="{
+              flex: 1,
+              background: 'var(--accent)',
+              opacity: 0.5 + 0.5 * (d.count / (Math.max(...demoStats.last7.map((x:any)=>x.count)) || 1)),
+              borderRadius: '3px 3px 0 0',
+              height: demoStats.last7.some((x:any)=>x.count>0) ? `${Math.max(4, Math.round((d.count / Math.max(...demoStats.last7.map((x:any)=>x.count))) * 36))}px` : '4px',
+            }">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Kündigungsbutton §312k BGB -->
   <div v-if="isCustomer" style="margin-top:32px;padding-top:16px;border-top:0.5px solid var(--border);text-align:right">
     <button @click="cancelSubscription" style="background:transparent;border:0.5px solid var(--border);color:var(--text-muted);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='#e05c5c';this.style.color='#e05c5c'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
@@ -169,6 +213,12 @@ const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?us
 const { data: employeesData } = await useFetch(() => useApiUrl(`/api/hr?userId=${userId}`))
 const { data: ticketsData }   = await useFetch(() => useApiUrl(`/api/support?userId=${userId}`))
 const { data: invoicesData }  = await useFetch(() => useApiUrl(`/api/finance?userId=${userId}`))
+
+const { data: demoStatsRaw } = await useFetch(
+  () => useApiUrl(`/api/admin/demo-stats?userId=${encodeURIComponent(userId)}`),
+  { default: () => null, onResponseError: () => {} }
+)
+const demoStats = computed(() => demoStatsRaw.value as any)
 
 const deals     = computed(() => (dealsData.value as any)?.deals     || [])
 const contacts  = computed(() => sortByMostUsed((contactsData.value as any)?.contacts || []).slice(0, 5))
