@@ -888,6 +888,55 @@
       </div>
     </div>
 
+  <!-- TEAM -->
+    <div v-if="tab === 'team'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-users" style="margin-right:8px;color:var(--accent)"></i>Team</span>
+      </div>
+      <div class="card-body">
+
+        <!-- Invite Form -->
+        <div style="display:flex;gap:10px;margin-bottom:24px" v-if="!isDemo">
+          <input v-model="teamInviteEmail" placeholder="E-Mail des neuen Mitglieds" style="flex:1" @keydown.enter="inviteTeamMember" />
+          <select v-model="teamInviteRole" style="width:120px;padding:0 10px;height:36px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-primary)">
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button class="accent-btn" :disabled="teamInviting || !teamInviteEmail" @click="inviteTeamMember">
+            <i class="ti" :class="teamInviting ? 'ti-loader-2 spin' : 'ti-send'"></i>
+            {{ teamInviting ? 'Sendet...' : 'Einladen' }}
+          </button>
+        </div>
+
+        <!-- Member List -->
+        <div v-if="teamLoading" style="color:var(--text-muted);font-size:13px">Lädt...</div>
+        <div v-else-if="teamMembers.length === 0" style="color:var(--text-muted);font-size:13px">Noch keine Teammitglieder.</div>
+        <div v-else style="display:flex;flex-direction:column;gap:8px">
+          <div v-for="m in teamMembers" :key="m.memberEmail"
+            style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--bg-surface);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--accent)">
+                {{ m.memberEmail[0].toUpperCase() }}
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600">{{ m.memberEmail }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">{{ m.role }} · {{ m.status === 'invited' ? 'Einladung ausstehend' : 'Aktiv' }}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span :style="m.status === 'active' ? 'font-size:11px;padding:3px 8px;border-radius:5px;background:#00C85322;color:#00C853' : 'font-size:11px;padding:3px 8px;border-radius:5px;background:#F0B42822;color:#F0B428'">
+                {{ m.status === 'active' ? 'Aktiv' : 'Eingeladen' }}
+              </span>
+              <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" title="Entfernen">
+                <i class="ti ti-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   <!-- Settings Toast -->
   <div v-if="settingsToast"
     :style="settingsToastErr ? 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#E05C5C;color:#fff' : 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#00C853;color:#fff'">
@@ -1027,6 +1076,7 @@ const tabs = [
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
   { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
   { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
+  { key: 'team',        label: 'Team',             icon: 'ti-users'           },
 ]
 
 // ── Auth ──────────────────────────────────────────────
@@ -1358,4 +1408,51 @@ async function saveAgb() {
     agbSaving.value = false
   }
 }
+
+// ── Team ──────────────────────────────────────────────
+const teamMembers    = ref<any[]>([])
+const teamLoading    = ref(false)
+const teamInviteEmail = ref('')
+const teamInviteRole  = ref('member')
+const teamInviting   = ref(false)
+
+async function loadTeamMembers() {
+  if (!userEmail.value || userEmail.value === '–') return
+  teamLoading.value = true
+  try {
+    const res = await $fetch<any>(useApiUrl(`/api/team/members?userId=${encodeURIComponent(userEmail.value)}`))
+    teamMembers.value = res.members || []
+  } catch {} finally {
+    teamLoading.value = false
+  }
+}
+
+async function inviteTeamMember() {
+  if (!teamInviteEmail.value || teamInviting.value) return
+  teamInviting.value = true
+  try {
+    await $fetch(useApiUrl('/api/team/invite'), {
+      method: 'POST',
+      body: { inviterEmail: userEmail.value, inviteeEmail: teamInviteEmail.value, role: teamInviteRole.value },
+    })
+    teamInviteEmail.value = ''
+    await loadTeamMembers()
+  } catch (e: any) {
+    alert(e?.data?.message || 'Fehler beim Einladen')
+  } finally {
+    teamInviting.value = false
+  }
+}
+
+async function removeTeamMember(email: string) {
+  if (!confirm(`${email} wirklich entfernen?`)) return
+  try {
+    await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}?userId=${encodeURIComponent(userEmail.value)}`), { method: 'DELETE' })
+    await loadTeamMembers()
+  } catch (e: any) {
+    alert(e?.data?.message || 'Fehler beim Entfernen')
+  }
+}
+
+watch(tab, v => { if (v === 'team') loadTeamMembers() })
 </script>

@@ -1,3 +1,4 @@
+import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
@@ -7,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const client = getDynamoClient()
 
   const contact = {
-    userId:        body.userId || 'demo-user',
+    userId: await resolveUserId(body.userId || 'demo-user'),
     contactId:     randomUUID(),
     firstName:     body.firstName,
     lastName:      body.lastName,

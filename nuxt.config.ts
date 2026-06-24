@@ -33,6 +33,7 @@ export default defineNuxtConfig({
     sesFromEmail: "",
     sesSesRegion: "",
     awsRegion: "",
+    resendApiKey: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",
