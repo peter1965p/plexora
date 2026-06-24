@@ -20,3 +20,22 @@ Disallow: /lead
 Disallow: /api
 
 Sitemap: https://app.plexora.eu/sitemap.xml
+
+# AI Crawlers
+User-agent: GPTBot
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /
+
+User-agent: Googlebot
+Allow: /

@@ -1,0 +1,41 @@
+# Plexora
+
+> All-in-One Business Plattform für KMU, Startups und Agenturen — Eine Lizenz, alle Module.
+
+Plexora ersetzt bis zu 12 Einzeltools durch eine einzige monatliche Lizenz pro User. Statt für CRM, Projektmanagement, Buchhaltung, HR, Support, Marketing und Shop jeweils separate SaaS-Abos zu zahlen, bekommen Teams alles in einer Plattform ab 34 € / User / Monat.
+
+## Was Plexora kann
+
+- **CRM & Pipeline**: Kontakte, Unternehmen, Leads, Deals mit Wahrscheinlichkeiten und Phasen
+- **Projektmanagement**: Kanban-Boards, Meilensteine, Teamaufgaben, Deadlines
+- **Finanzen & Rechnungen**: Rechnungen erstellen, PDF-Versand, automatisches Mahnwesen (3 Stufen), Exportfunktion
+- **HR & Recruiting**: Mitarbeiterverwaltung, Stellenkampagnen, Bewerbermanagement, öffentliche Jobseiten
+- **Support-Ticketsystem**: Tickets mit Prioritäten (niedrig bis kritisch), Statusverfolgung, SLA
+- **E-Mail-Marketing**: Kampagnen erstellen und versenden, Formulare, Statistiken
+- **Shop & Produkte**: Produktkatalog, Kategorien, Lieferanten, Bestellwesen
+- **Analytics**: KPI-Dashboards, Umsatz- und Pipeline-Berichte, Daten-Exports (CSV, Excel)
+- **Pagebuilder**: Eigene Landing Pages und öffentliche Seiten ohne Code erstellen
+- **Team-Funktion**: Mehrere Nutzer unter einer gemeinsamen Lizenz mit Admin/Member-Rollen
+
+## Zielgruppe
+
+Kleine und mittlere Unternehmen (KMU), Startups und Agenturen in Deutschland und dem deutschsprachigen Raum, die ihre Tool-Landschaft konsolidieren und Lizenzkosten reduzieren wollen.
+
+## Preismodell
+
+- Einheitspreis: 34 € pro User / Monat
+- Alle Module inklusive — keine versteckten Add-ons
+- Demo sofort verfügbar ohne Registrierung oder Kreditkarte
+
+## Technologie
+
+- Cloud-gehostet (Cloudflare Edge)
+- DSGVO-konform, Server-Standort Europa
+- Responsive — funktioniert auf Desktop und Tablet
+
+## Links
+
+- Website & Demo: https://app.plexora.eu
+- Impressum: https://app.plexora.eu/impressum
+- Datenschutz: https://app.plexora.eu/datenschutz
+- AGB: https://app.plexora.eu/agb

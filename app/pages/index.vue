@@ -235,34 +235,75 @@ useHead({
   link: [
     { rel: 'canonical', href: 'https://app.plexora.eu' },
   ],
-  script: [{
-    type: 'application/ld+json',
-    innerHTML: JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'SoftwareApplication',
-      name: 'Plexora',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      url: 'https://app.plexora.eu',
-      description: 'All-in-One Business Plattform: CRM, Projekte, Finanzen, HR, Support, Marketing und Shop in einer Lizenz.',
-      offers: {
-        '@type': 'Offer',
-        price: '34',
-        priceCurrency: 'EUR',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'Plexora',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: 'https://app.plexora.eu',
+        description: 'All-in-One Business Plattform: CRM, Projekte, Finanzen, HR, Support, Marketing und Shop in einer Lizenz.',
+        offers: {
+          '@type': 'Offer',
           price: '34',
           priceCurrency: 'EUR',
-          unitText: 'User/Monat',
+          priceSpecification: {
+            '@type': 'UnitPriceSpecification',
+            price: '34',
+            priceCurrency: 'EUR',
+            unitText: 'User/Monat',
+          },
         },
-      },
-      provider: {
-        '@type': 'Organization',
-        name: 'Plexora',
-        url: 'https://app.plexora.eu',
-      },
-    }),
-  }],
+        provider: {
+          '@type': 'Organization',
+          name: 'Plexora',
+          url: 'https://app.plexora.eu',
+        },
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Was kostet Plexora?',
+            acceptedAnswer: { '@type': 'Answer', text: '34 € pro User pro Monat — alle Module inklusive, keine versteckten Kosten.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Welche Tools ersetzt Plexora?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Plexora ersetzt HubSpot oder Salesforce (CRM), Asana oder Monday (Projekte), Lexoffice (Rechnungen), Personio (HR), Zendesk (Support), Mailchimp (Marketing) und mehr — alles in einer Plattform.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Gibt es eine kostenlose Demo?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Ja. Auf app.plexora.eu kann sofort ohne Registrierung eine Demo gestartet werden — kein Account, keine Kreditkarte nötig.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Ist Plexora DSGVO-konform?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Ja. Alle Daten werden in europäischen Rechenzentren gespeichert und verarbeitet. Plexora ist vollständig DSGVO-konform.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Kann ich Plexora mit meinem Team nutzen?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Ja. Mit der Team-Funktion können Mitarbeiter per E-Mail-Einladung hinzugefügt werden. Alle teilen dieselben Daten unter einer Admin-Lizenz.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Für wen ist Plexora geeignet?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Plexora ist ideal für KMU (2–200 Mitarbeiter), Startups in der Wachstumsphase und Agenturen, die ihre Tool-Landschaft konsolidieren wollen.' },
+          },
+        ],
+      }),
+    },
+  ],
 })
 
 const users = ref(25)

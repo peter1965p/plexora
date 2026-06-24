@@ -1,0 +1,75 @@
+# Plexora — Vollständige Produktbeschreibung
+
+## Überblick
+
+Plexora ist eine deutschsprachige All-in-One Business Software (SaaS) für KMU, Startups und Agenturen. Die Plattform vereint CRM, Projektmanagement, Finanzbuchhaltung, Personalverwaltung, Kundensupport, E-Mail-Marketing, Shop-Management und Website-Erstellung in einer einzigen Anwendung.
+
+Kernversprechen: Unternehmen zahlen statt 100+ Euro für viele Einzeltools nur 34 € pro User pro Monat für alles.
+
+## Module im Detail
+
+### CRM (Customer Relationship Management)
+Verwaltung von Kontakten, Unternehmen und Geschäftsbeziehungen. Leads können durch eine Verkaufspipeline mit konfigurierbaren Phasen geführt werden. Deals werden mit Wert, Abschlusswahrscheinlichkeit und Status verfolgt. Export als CSV und Excel möglich.
+
+### Projektmanagement
+Projekte mit Kanban-Ansicht, Meilensteinen und Teamzuweisung. Fortschrittsanzeige in Prozent, Prioritätsstufen (niedrig, mittel, hoch, kritisch), Deadlines und Statusverfolgung (aktiv, review, fertig, verzug).
+
+### Finanzen & Rechnungswesen
+Rechnungen erstellen mit automatischer Nummerierung, PDF-Generierung und direktem E-Mail-Versand. Dreistufiges automatisches Mahnwesen (1., 2., 3. Mahnung) per E-Mail mit PDF-Anhang. Rechnungsstatus: ausstehend, bezahlt, überfällig, Mahnung 1-3. Massenmahnlauf möglich. Export als CSV und Excel.
+
+### HR & Personalverwaltung
+Mitarbeiterstammdaten, Abteilungen, Rollen, Startdaten und Status (aktiv, Urlaub, Offboarding). Recruiting-Modul: Stellenkampagnen mit individueller Gestaltung (Logo, Farbe, Beschreibung), öffentlich zugängliche Bewerbungsseiten, Bewerbermanagement mit Status-Tracking.
+
+### Support-Ticketsystem
+Ticket-Erstellung mit Titel, Kunde, Priorität (niedrig, mittel, hoch, kritisch) und Status (offen, in Bearbeitung, gelöst, geschlossen). Übersicht nach Priorität und Status.
+
+### E-Mail-Marketing
+Kampagnenverwaltung mit Empfängerlisten und Versandplanung. Formular-Builder für Lead-Generierung: verschiedene Feldtypen (Text, E-Mail, Telefon, Textarea, Select, Checkbox), anpassbare Erfolgs-Meldungen, E-Mail-Benachrichtigungen bei neuer Einsendung.
+
+### Shop & Produktverwaltung
+Produktkatalog mit Kategorien, Preisen, Beschreibungen, Bildern und Lagerbeständen. Lieferantenverwaltung. Bestellwesen (Purchase Orders) für Nachbestellungen. Mindestbestand-Warnungen.
+
+### Analytics & Berichte
+Dashboard-Übersicht mit Finanzkennzahlen (Umsatz, ausstehend, überfällig), Pipeline-Wert, Kontakt-Konversionsrate, Supportticket-Statistiken. Chart-Visualisierungen für Rechnungen, Deals, Kontakte und Projekte.
+
+### Pagebuilder
+Eigene Webseiten und Landing Pages ohne Programmierkenntnisse erstellen. Block-basierter Editor: Hero-Section, Textblöcke, Bilder, 2-Spalten-Layouts, CTA-Banner, Trennlinien, eingebettete Formulare. Seiten werden unter eigener Domain veröffentlicht.
+
+### Team-Funktion
+Mehrere Nutzer können unter einer Admin-Lizenz arbeiten. Admin lädt Mitarbeiter per E-Mail ein (Magic Link). Mitglieder sehen und bearbeiten dieselben Daten. Admin kann Mitglieder entfernen.
+
+## Technische Details
+
+- Frontend: Nuxt 4 (Vue 3), deployed auf Cloudflare Pages (global CDN)
+- Backend: AWS DynamoDB (NoSQL), AWS Cognito (Authentifizierung)
+- E-Mail: Resend API (transaktionale E-Mails von plexora.eu)
+- Zahlungen: Stripe (Abonnements und Einmalkäufe)
+- DSGVO-konform, Daten in EU-Region
+
+## Häufig gestellte Fragen
+
+**Was kostet Plexora?**
+34 € pro User pro Monat, alle Module inklusive. Keine versteckten Kosten.
+
+**Gibt es eine kostenlose Demo?**
+Ja. Auf app.plexora.eu kann sofort ohne Registrierung eine Demo gestartet werden (Demo-Zugangsdaten: demo@plexora.eu / Demo1234!).
+
+**Welche Tools ersetzt Plexora?**
+Plexora kann ersetzen: HubSpot oder Salesforce (CRM), Asana oder Monday (Projekte), Lexoffice oder Sevdesk (Rechnungen), Personio (HR), Zendesk (Support), Mailchimp (Marketing), Shopify-Backend (Produkte), Webflow (Pagebuilder).
+
+**Ist Plexora DSGVO-konform?**
+Ja. Daten werden in europäischen Rechenzentren gespeichert und verarbeitet.
+
+**Für wen ist Plexora geeignet?**
+Kleine und mittlere Unternehmen (2–200 Mitarbeiter), Startups in der Wachstumsphase und Agenturen, die mehrere Kundenprojekte gleichzeitig verwalten.
+
+**Kann ich Plexora mit meinem Team nutzen?**
+Ja. Die Team-Funktion ermöglicht es, Mitarbeiter per E-Mail-Einladung hinzuzufügen. Alle Teammitglieder teilen dieselben Daten unter der Admin-Lizenz.
+
+## Kontakt & Links
+
+- Website: https://app.plexora.eu
+- Demo starten: https://app.plexora.eu (Demo-Button auf der Startseite)
+- Impressum: https://app.plexora.eu/impressum
+- Datenschutzerklärung: https://app.plexora.eu/datenschutz
+- AGB: https://app.plexora.eu/agb
