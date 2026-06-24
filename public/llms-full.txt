@@ -4,7 +4,7 @@
 
 Plexora ist eine deutschsprachige All-in-One Business Software (SaaS) für KMU, Startups und Agenturen. Die Plattform vereint CRM, Projektmanagement, Finanzbuchhaltung, Personalverwaltung, Kundensupport, E-Mail-Marketing, Shop-Management und Website-Erstellung in einer einzigen Anwendung.
 
-Kernversprechen: Unternehmen zahlen statt 100+ Euro für viele Einzeltools nur 34 € pro User pro Monat für alles.
+Kernversprechen: Unternehmen zahlen statt 100+ Euro für viele Einzeltools eine einzige monatliche Pauschale ab 49 € für alle Module.
 
 ## Module im Detail
 
@@ -49,7 +49,7 @@ Mehrere Nutzer können unter einer Admin-Lizenz arbeiten. Admin lädt Mitarbeite
 ## Häufig gestellte Fragen
 
 **Was kostet Plexora?**
-34 € pro User pro Monat, alle Module inklusive. Keine versteckten Kosten.
+Starter 49 €/Monat, Pro 149 €/Monat, Enterprise 299 €/Monat. Alle Pakete monatlich kündbar, keine versteckten Kosten.
 
 **Gibt es eine kostenlose Demo?**
 Ja. Auf app.plexora.eu kann sofort ohne Registrierung eine Demo gestartet werden (Demo-Zugangsdaten: demo@plexora.eu / Demo1234!).

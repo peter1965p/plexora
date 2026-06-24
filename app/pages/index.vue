@@ -125,16 +125,25 @@
       </div>
     </section>
 
-    <!-- TESTIMONIAL -->
-    <section class="lp-wrap">
-      <div class="lp-testi">
-        <div class="lp-testi-quote">
-          „Wir haben Salesforce, Jira, Personio und Lexoffice gekündigt. Plexora
-          macht das alles – und unsere Buchhalterin musste sich nur einmal neu
-          einarbeiten."
+    <!-- TESTIMONIALS SLIDER -->
+    <section class="lp-wrap lp-testi-section">
+      <div class="lp-section-label" style="text-align:center;margin-bottom:8px">Das sagen unsere Kunden</div>
+      <div class="lp-testi-slider">
+        <div class="lp-testi-track" :style="{ transform: `translateX(-${testiIdx * 100}%)` }">
+          <div class="lp-testi-slide" v-for="(t, i) in testimonials" :key="i">
+            <div class="lp-testi-stars">★★★★★</div>
+            <div class="lp-testi-quote">„{{ t.quote }}"</div>
+            <div class="lp-testi-author"><strong>{{ t.name }}</strong> · {{ t.role }}</div>
+          </div>
         </div>
-        <div class="lp-testi-author">
-          <strong>Markus T.</strong>, CTO · Münchner SaaS-Startup, 60 Mitarbeiter
+        <div class="lp-testi-dots">
+          <button
+            v-for="(_, i) in testimonials"
+            :key="i"
+            class="lp-testi-dot"
+            :class="{ active: i === testiIdx }"
+            @click="testiIdx = i"
+          />
         </div>
       </div>
     </section>
@@ -406,6 +415,18 @@ const navPages = computed(() =>
     .filter((p: any) => p.inNav && p.status === 'published' && !['impressum','datenschutz','agb'].includes(p.slug))
     .sort((a: any, b: any) => (a.navLabel || '').localeCompare(b.navLabel || ''))
 )
+
+const testimonials = [
+  { quote: 'Wir haben Salesforce, Jira, Personio und Lexoffice gekündigt. Plexora macht das alles – und unsere Buchhalterin musste sich nur einmal neu einarbeiten.', name: 'Markus T.', role: 'CTO · Münchner SaaS-Startup, 60 Mitarbeiter' },
+  { quote: 'Endlich ein Tool, das nicht nach 3 Klicks überfordert. Das CRM und die Rechnungsstellung allein haben uns schon 300 € pro Monat an anderen Abos gespart.', name: 'Sandra K.', role: 'Geschäftsführerin · Marketingagentur, Berlin' },
+  { quote: 'Wir nutzen Plexora für Projektmanagement und HR. Besonders die öffentlichen Jobseiten sind ein Hammer-Feature – haben sofort Bewerbungen bekommen.', name: 'Tobias M.', role: 'Gründer · E-Commerce Startup, Hamburg' },
+  { quote: 'Support antwortet schnell, die App läuft stabil und wir hatten in 3 Monaten null Downtimes. Für 149 € im Monat absolut unschlagbar.', name: 'Lena F.', role: 'Operations Lead · IT-Dienstleister, München' },
+  { quote: 'Als Freelancer brauche ich kein Enterprise-Monster. Plexora Starter ist perfekt – CRM, Rechnungen, Tickets. Alles was ich brauche, nichts was ich nicht brauche.', name: 'Jonas R.', role: 'Freelance Developer · Köln' },
+]
+const testiIdx = ref(0)
+let testiTimer: ReturnType<typeof setInterval>
+onMounted(() => { testiTimer = setInterval(() => { testiIdx.value = (testiIdx.value + 1) % testimonials.length }, 5000) })
+onUnmounted(() => clearInterval(testiTimer))
 </script>
 
 <style scoped>
@@ -561,13 +582,36 @@ const navPages = computed(() =>
 .lp-ccard-items { display: flex; flex-direction: column; gap: 10px; list-style: none; }
 .lp-ccard-items li { font-size: 13px; color: #8b8fa8; display: flex; align-items: center; gap: 8px; }
 
-/* TESTIMONIAL */
-.lp-testi {
-  border-left: 2px solid #ea580c; padding: 16px 24px; margin: 0 0 48px;
-  background: rgba(108,63,232,0.06); border-radius: 0 12px 12px 0;
+/* TESTIMONIALS SLIDER */
+.lp-testi-section { padding: 0 0 56px; }
+.lp-testi-slider {
+  position: relative; overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(108,63,232,0.08), rgba(234,88,12,0.04));
+  border: 0.5px solid rgba(255,255,255,0.07);
 }
-.lp-testi-quote { font-size: 15px; color: #f0eef9; line-height: 1.7; margin-bottom: 10px; font-style: italic; }
-.lp-testi-author { font-size: 12px; color: #8b8fa8; }
+.lp-testi-track {
+  display: flex; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change: transform;
+}
+.lp-testi-slide {
+  min-width: 100%; padding: 40px 48px 32px; box-sizing: border-box;
+}
+.lp-testi-stars { font-size: 18px; color: #ea580c; margin-bottom: 16px; letter-spacing: 2px; }
+.lp-testi-quote { font-size: 17px; color: #f0eef9; line-height: 1.75; margin-bottom: 20px; font-style: italic; }
+.lp-testi-author { font-size: 13px; color: #8b8fa8; }
+.lp-testi-author strong { color: #c4b5fd; }
+.lp-testi-dots {
+  display: flex; justify-content: center; gap: 8px; padding: 0 0 20px;
+}
+.lp-testi-dot {
+  width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,0.15); transition: background 0.3s, transform 0.3s;
+}
+.lp-testi-dot.active { background: #ea580c; transform: scale(1.3); }
+@media (max-width: 640px) {
+  .lp-testi-slide { padding: 28px 24px 24px; }
+  .lp-testi-quote { font-size: 14px; }
+}
 
 /* PRICING */
 .lp-pricing-section { padding: 0 0 64px; }

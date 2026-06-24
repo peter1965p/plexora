@@ -2,7 +2,7 @@
 
 > All-in-One Business Plattform für KMU, Startups und Agenturen — Eine Lizenz, alle Module.
 
-Plexora ersetzt bis zu 12 Einzeltools durch eine einzige monatliche Lizenz pro User. Statt für CRM, Projektmanagement, Buchhaltung, HR, Support, Marketing und Shop jeweils separate SaaS-Abos zu zahlen, bekommen Teams alles in einer Plattform ab 34 € / User / Monat.
+Plexora ersetzt bis zu 12 Einzeltools durch eine einzige monatliche Pauschale. Statt für CRM, Projektmanagement, Buchhaltung, HR, Support, Marketing und Shop jeweils separate SaaS-Abos zu zahlen, bekommen Teams alles in einer Plattform ab 49 € / Monat.
 
 ## Was Plexora kann
 
@@ -23,8 +23,10 @@ Kleine und mittlere Unternehmen (KMU), Startups und Agenturen in Deutschland und
 
 ## Preismodell
 
-- Einheitspreis: 34 € pro User / Monat
-- Alle Module inklusive — keine versteckten Add-ons
+- Starter: 49 € / Monat (CRM, Support, Kunden-Portal)
+- Pro: 149 € / Monat (alle wichtigen Module, für wachsende Unternehmen)
+- Enterprise: 299 € / Monat (voller Funktionsumfang, Marketing-Suite, Prioritäts-Support)
+- Alle Pakete: keine versteckten Add-ons, monatlich kündbar
 - Demo sofort verfügbar ohne Registrierung oder Kreditkarte
 
 ## Technologie
