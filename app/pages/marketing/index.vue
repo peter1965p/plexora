@@ -252,15 +252,28 @@
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userId = ref('demo-user')
+
+const { data: campaignsData, refresh } = await useFetch(
+  () => useApiUrl(`/api/marketing?userId=${encodeURIComponent(userId.value)}`),
+  { getCachedData: () => undefined }
+)
+const { data: formsData, refresh: refreshForms } = await useFetch(
+  () => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId.value)}`),
+  { getCachedData: () => undefined }
+)
+const { data: statsData, refresh: refreshStats } = await useFetch(
+  () => useApiUrl(`/api/marketing/stats?userId=${encodeURIComponent(userId.value)}`),
+  { getCachedData: () => undefined }
+)
+
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
-  userId.value = u.userId
+  if (u.userId && u.userId !== 'demo-user') {
+    userId.value = u.userId
+    await Promise.all([refresh(), refreshForms(), refreshStats()])
+  }
 })
-
-const { data: campaignsData, refresh } = await useFetch(useApiUrl('/api/marketing'), { getCachedData: () => undefined })
-const { data: formsData }               = await useFetch(useApiUrl('/api/forms'),     { getCachedData: () => undefined })
-const { data: statsData }               = await useFetch(useApiUrl('/api/marketing/stats'), { getCachedData: () => undefined })
 
 const campaigns = computed(() => (campaignsData.value as any)?.campaigns || [])
 const forms     = computed(() => (formsData.value as any)?.forms || [])
