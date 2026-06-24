@@ -1,6 +1,12 @@
 <template>
   <div class="page">
 
+    <!-- DEMO BANNER -->
+    <div v-if="isDemo" style="background:linear-gradient(135deg,#f59e0b22,#f59e0b11);border:1px solid #f59e0b55;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <i class="ti ti-lock" style="color:#f59e0b;font-size:18px"></i>
+      <span style="color:#f59e0b;font-weight:600;font-size:13px">Demo-Modus — Einstellungen können nicht gespeichert werden</span>
+    </div>
+
     <!-- TAB NAV -->
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
       <button v-for="t in tabs" :key="t.key" class="theme-opt" :class="{ active: tab === t.key }" @click="tab=t.key">
@@ -12,7 +18,7 @@
     <div v-if="tab === 'branding'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>Branding</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="brandSaving" @click="saveBranding">
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || brandSaving" @click="saveBranding">
           <span v-if="brandSaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
@@ -68,7 +74,7 @@
     <div v-if="tab === 'company'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-building-bank" style="margin-right:8px;color:var(--accent)"></i>Unternehmensdaten</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="companySaving" @click="saveCompany">
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || companySaving" @click="saveCompany">
           <span v-if="companySaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
@@ -126,7 +132,7 @@
     <div v-if="tab === 'agb'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-file-text" style="margin-right:8px;color:var(--accent)"></i>Allgemeine Geschäftsbedingungen</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="agbSaving" @click="saveAgb">
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || agbSaving" @click="saveAgb">
           <span v-if="agbSaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
@@ -147,39 +153,75 @@
     <!-- DARSTELLUNG -->
     <div v-if="tab === 'appearance'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Darstellung</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="appearanceSaving" @click="saveAppearance">
+        <span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Theme</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || appearanceSaving" @click="saveAppearance">
           <span v-if="appearanceSaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
       </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:28px">
+      <div class="card-body" style="display:flex;flex-direction:column;gap:24px">
         <p style="font-size:12px;color:var(--text-muted);margin:0">
-          Diese Einstellungen betreffen nur dein Dashboard (Admin-Oberfläche) — nicht die öffentlichen Seiten. Die gestaltest du unter "Themes".
+          Gilt für Dashboard <strong style="color:var(--text-secondary)">und</strong> öffentliche Seiten — alles zieht am gleichen Strang.
         </p>
-        <div>
-          <div class="settings-label">Farbmodus</div>
-          <div class="theme-toggle">
-            <button class="theme-opt" :class="{ active: store.theme === 'dark' }" @click="store.setTheme('dark')">
-              <i class="ti ti-moon"></i> Dark
-            </button>
-            <button class="theme-opt" :class="{ active: store.theme === 'light' }" @click="store.setTheme('light')">
-              <i class="ti ti-sun"></i> Light
-            </button>
-          </div>
+
+        <!-- Theme Grid -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+          <button
+            v-for="(t, key) in THEMES" :key="key"
+            @click="store.setTheme(key)"
+            :style="`
+              border: 1.5px solid ${store.theme === key ? t.accent : 'var(--border)'};
+              border-radius: 14px;
+              padding: 0;
+              overflow: hidden;
+              cursor: pointer;
+              background: none;
+              transition: all .15s;
+              position: relative;
+            `"
+          >
+            <!-- Preview -->
+            <div :style="`background:${t.bg};height:56px;display:flex;gap:0`">
+              <div :style="`width:36px;background:${t.surface};height:100%;border-right:1px solid rgba(255,255,255,0.06)`">
+                <div :style="`margin:8px auto 0;width:20px;height:4px;border-radius:2px;background:${t.accent};opacity:0.9`"></div>
+                <div style="margin:6px auto 0;width:20px;height:3px;border-radius:2px;background:rgba(255,255,255,0.15)"></div>
+                <div style="margin:4px auto 0;width:20px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1)"></div>
+                <div style="margin:4px auto 0;width:20px;height:3px;border-radius:2px;background:rgba(255,255,255,0.08)"></div>
+              </div>
+              <div style="flex:1;padding:8px">
+                <div style="height:3px;border-radius:2px;background:rgba(255,255,255,0.15);margin-bottom:5px"></div>
+                <div style="height:3px;border-radius:2px;background:rgba(255,255,255,0.08);margin-bottom:5px;width:70%"></div>
+                <div :style="`height:18px;border-radius:6px;background:${t.accent};margin-top:8px;width:50%;opacity:0.85`"></div>
+              </div>
+            </div>
+            <!-- Label -->
+            <div :style="`
+              padding: 8px 10px;
+              background: ${t.surface};
+              border-top: 1px solid rgba(255,255,255,0.06);
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            `">
+              <span style="font-size:12px;font-weight:700;color:#fff">{{ t.name }}</span>
+              <div v-if="store.theme === key" :style="`width:16px;height:16px;border-radius:50%;background:${t.accent};display:flex;align-items:center;justify-content:center`">
+                <i class="ti ti-check" style="font-size:10px;color:#fff"></i>
+              </div>
+              <div :style="`width:12px;height:12px;border-radius:50%;background:${t.accent}`" v-else></div>
+            </div>
+          </button>
         </div>
-        <div>
-          <div class="settings-label">
-            Akzentfarbe — {{ store.accentColors.find(c => c.hex === store.accent)?.name || 'Eigene Farbe' }}
-          </div>
-          <div class="accent-picker">
-            <div v-for="c in store.accentColors" :key="c.hex" class="accent-swatch"
-              :class="{ active: store.accent === c.hex }" :style="{ background: c.hex }"
-              :title="c.name" @click="store.setAccent(c.hex, c.rgb)"></div>
-            <label class="accent-swatch" style="display:flex;align-items:center;justify-content:center;border:1px dashed var(--border);cursor:pointer;position:relative" title="Eigene Farbe">
-              <i class="ti ti-color-picker" style="color:var(--text-muted)"></i>
+
+        <!-- Eigene Akzentfarbe -->
+        <div style="padding-top:16px;border-top:0.5px solid var(--border)">
+          <div class="settings-label" style="margin-bottom:10px">Eigene Akzentfarbe (überschreibt Theme)</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <label style="cursor:pointer;position:relative">
+              <div :style="`width:40px;height:40px;border-radius:10px;background:${store.accent};border:0.5px solid var(--border)`"></div>
               <input type="color" v-model="customAccent" @change="applyCustomAccent" style="position:absolute;inset:0;opacity:0;cursor:pointer" />
             </label>
+            <code style="font-size:13px;color:var(--text-secondary);font-weight:600">{{ store.accent }}</code>
+            <span style="font-size:11px;color:var(--text-muted)">— klick auf den Farbkreis zum Ändern</span>
           </div>
         </div>
       </div>
@@ -189,7 +231,7 @@
     <div v-if="tab === 'security'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-shield-lock" style="margin-right:8px;color:var(--accent)"></i>Sicherheit</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="securitySaving" @click="saveSecurity">
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || securitySaving" @click="saveSecurity">
           <span v-if="securitySaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
@@ -215,7 +257,7 @@
     <div v-if="tab === 'invoices'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-receipt" style="margin-right:8px;color:var(--accent)"></i>Rechnungseinstellungen</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="invoiceSaving" @click="saveInvoiceSettings">
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || invoiceSaving" @click="saveInvoiceSettings">
           <span v-if="invoiceSaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
@@ -274,7 +316,7 @@
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
           <span class="card-title"><i class="ti ti-alert-triangle" style="margin-right:8px;color:#E05C5C"></i>Mahnwesen</span>
-          <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="dunningSaving" @click="saveDunningSettings">
+          <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || dunningSaving" @click="saveDunningSettings">
             <span v-if="dunningSaving"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
           </button>
@@ -364,7 +406,7 @@
             <span v-else class="badge badge-danger"><i class="ti ti-key-off" style="margin-right:4px"></i>Keine Lizenz</span>
             <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on && !m.locked).length }} / {{ store.modules.length }} aktiv</span>
             <button v-if="modulesDirty" class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;background:#00C853;border-color:#00C853"
-              :disabled="modulesSaving" @click="saveModules">
+              :disabled="isDemo || modulesSaving" @click="saveModules">
               <span v-if="modulesSaving"><i class="ti ti-loader-2 spin"></i></span>
               <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
             </button>
@@ -554,7 +596,7 @@
     <div v-if="tab === 'payment'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>Payment-Gateways</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="paymentSaving" @click="savePayment">
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || paymentSaving" @click="savePayment">
           <span v-if="paymentSaving"><i class="ti ti-loader-2 spin"></i></span>
           <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
         </button>
@@ -722,7 +764,7 @@
           </div>
         </div>
         <div style="margin-top:16px;display:flex;gap:8px">
-          <button class="accent-btn" @click="saveNavOrder" :disabled="savingNav">
+          <button class="accent-btn" @click="saveNavOrder" :disabled="isDemo || savingNav">
             <i class="ti ti-device-floppy"></i> {{ savingNav ? 'Speichern...' : 'Reihenfolge speichern' }}
           </button>
         </div>
@@ -858,7 +900,7 @@
 <script setup lang="ts">
 import { marked } from 'marked'
 import { getCurrentUser } from 'aws-amplify/auth'
-import { useAppStore } from '~/stores/app'
+import { useAppStore, THEMES } from '~/stores/app'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -941,6 +983,7 @@ function applyCustomAccent() {
 }
 
 async function saveAppearance() {
+  if (isDemo.value) return
   appearanceSaving.value = true
   try {
     await store.saveTheme()
@@ -958,6 +1001,7 @@ if ((sessionData.value as any)?.session) {
 }
 
 async function saveSecurity() {
+  if (isDemo.value) return
   securitySaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/session'), {
@@ -988,6 +1032,7 @@ const tabs = [
 // ── Auth ──────────────────────────────────────────────
 const userName  = ref('–')
 const userEmail = ref('–')
+const isDemo    = computed(() => userEmail.value === 'demo@plexora.eu')
 
 // ── Branding ──────────────────────────────────────────
 const brandSaving = ref(false)
@@ -1063,6 +1108,7 @@ async function uploadLogo(e: Event) {
 }
 
 async function saveCompany() {
+  if (isDemo.value) return
   companySaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company } })
@@ -1075,6 +1121,7 @@ async function saveCompany() {
 }
 
 async function saveBranding() {
+  if (isDemo.value) return
   brandSaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/branding'), { method: 'POST', body: { ...brand } })
@@ -1087,6 +1134,7 @@ async function saveBranding() {
 }
 
 async function saveInvoiceSettings() {
+  if (isDemo.value) return
   invoiceSaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/invoice'), { method: 'POST', body: { ...invoiceSettings } })
@@ -1096,6 +1144,7 @@ async function saveInvoiceSettings() {
 }
 
 async function saveDunningSettings() {
+  if (isDemo.value) return
   dunningSaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/dunning'), { method: 'POST', body: { ...dunning } })
@@ -1109,6 +1158,7 @@ const modulesDirty  = ref(false)
 const modulesSaving = ref(false)
 
 async function saveModules() {
+  if (isDemo.value) return
   modulesSaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/modules'), {
@@ -1157,6 +1207,7 @@ const gateways = [
 ]
 
 async function savePayment() {
+  if (isDemo.value) return
   paymentSaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', body: { ...payment } })
@@ -1183,6 +1234,7 @@ function moveNav(idx: number, dir: number) {
 }
 
 async function saveNavOrder() {
+  if (isDemo.value) return
   savingNav.value = true
   await Promise.all(
     navPages.value.map((p, idx) =>
@@ -1298,6 +1350,7 @@ onMounted(async () => {
 })
 
 async function saveAgb() {
+  if (isDemo.value) return
   agbSaving.value = true
   try {
     await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', body: { content: agb.content } })

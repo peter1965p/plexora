@@ -1,8 +1,21 @@
 import { defineStore } from "pinia";
 
+export type ThemeKey = "dark" | "light" | "midnight" | "forest" | "violet" | "rose" | "carbon" | "ocean";
+
+export const THEMES: Record<ThemeKey, { name: string; accent: string; accentRgb: string; bg: string; surface: string }> = {
+  dark:     { name: "Dark",     accent: "#6C3FE8", accentRgb: "108,63,232",  bg: "#0a0e1a", surface: "#13182a" },
+  light:    { name: "Light",    accent: "#ea580c", accentRgb: "234,88,12",   bg: "#fafafa", surface: "#ffffff" },
+  midnight: { name: "Midnight", accent: "#3b82f6", accentRgb: "59,130,246",  bg: "#020817", surface: "#0d1627" },
+  forest:   { name: "Forest",   accent: "#10b981", accentRgb: "16,185,129",  bg: "#030f08", surface: "#0a1f10" },
+  violet:   { name: "Violet",   accent: "#8b5cf6", accentRgb: "139,92,246",  bg: "#080512", surface: "#130e24" },
+  rose:     { name: "Rose",     accent: "#e11d48", accentRgb: "225,29,72",   bg: "#0f0308", surface: "#1f0a14" },
+  carbon:   { name: "Carbon",   accent: "#e2e8f0", accentRgb: "226,232,240", bg: "#000000", surface: "#0f0f0f" },
+  ocean:    { name: "Ocean",    accent: "#06b6d4", accentRgb: "6,182,212",   bg: "#020d14", surface: "#081a28" },
+};
+
 export const useAppStore = defineStore("app", {
   state: () => ({
-    theme: "dark" as "dark" | "light",
+    theme: "dark" as ThemeKey,
     accent: "#6C3FE8",
     accentRgb: "108, 63, 232",
     activeRoute: "dashboard",
@@ -25,15 +38,20 @@ export const useAppStore = defineStore("app", {
       { key: "contracts",   name: "Verträge",      icon: "ti-file-text",      on: true,  locked: false, plan: "pro",        desc: "Vertragsverwaltung, MRR-Schätzung, Kündigungsfristen-Tracking" },
       { key: "hr",          name: "HR",            icon: "ti-id-badge",       on: false, locked: false, plan: "pro",        desc: "Mitarbeiterverwaltung, Urlaub, Recruiting-Kampagnen, Onboarding" },
       { key: "analytics",   name: "Analytics",     icon: "ti-chart-dots",     on: false, locked: false, plan: "pro",        desc: "Umsatz-Trends, Lead-Conversion, Win Rate, Modul-Übersicht" },
+      { key: "marketing",   name: "Marketing",     icon: "ti-speakerphone",   on: true,  locked: false, plan: "enterprise", desc: "Lead-Kampagnen, Landing-Page-Builder, UTM-Tracking, QR-Codes, Stats" },
       { key: "shop",        name: "Shop",          icon: "ti-shopping-cart",  on: false, locked: false, plan: "pro",        desc: "Produkt-Verwaltung, Stripe-Checkout, Bestellungen, Webhooks" },
       { key: "pagebuilder", name: "Pagebuilder",   icon: "ti-layout-2",       on: false, locked: false, plan: "pro",        desc: "Drag & Drop Seiteneditor, öffentliche Seiten, Navigation" },
       { key: "forms",       name: "Formulare",     icon: "ti-forms",          on: false, locked: false, plan: "pro",        desc: "Formular-Builder, Einbettung, Submissions-Übersicht" },
-      { key: "marketing",   name: "Marketing",     icon: "ti-speakerphone",   on: true,  locked: false, plan: "enterprise", desc: "Lead-Kampagnen, Landing-Page-Builder, UTM-Tracking, QR-Codes, Stats" },
     ],
   }),
   actions: {
-    setTheme(t: "dark" | "light") {
+    setTheme(t: ThemeKey) {
       this.theme = t;
+      const preset = THEMES[t];
+      if (preset) {
+        this.accent = preset.accent;
+        this.accentRgb = preset.accentRgb;
+      }
       if (typeof document !== "undefined") {
         document.documentElement.setAttribute("data-theme", t);
       }
@@ -55,8 +73,8 @@ export const useAppStore = defineStore("app", {
       try {
         const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"));
         const t = res?.theme || {};
-        if (t.theme === "dark" || t.theme === "light") this.setTheme(t.theme);
-        if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
+        if (t.theme && t.theme in THEMES) this.setTheme(t.theme as ThemeKey);
+        else if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
       } catch {
         // Defaults bleiben aktiv
       } finally {

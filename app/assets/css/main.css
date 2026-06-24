@@ -1,14 +1,14 @@
 /* ===== PLEXORA DESIGN SYSTEM ===== */
 :root {
-  --accent: #6c3fe8;
-  --accent-rgb: 108, 63, 232;
-  --accent-2: #00d4b4;
+  --accent: #ea580c;
+  --accent-rgb: 234, 88, 12;
+  --accent-2: #f97316;
   --bg-base: #0a0e1a;
   --bg-surface: #13182a;
   --bg-elevated: #1c2338;
   --bg-hover: #232942;
   --border: rgba(255, 255, 255, 0.07);
-  --border-accent: rgba(108, 63, 232, 0.25);
+  --border-accent: rgba(234, 88, 12, 0.25);
   --text-primary: #f0eef9;
   --text-secondary: #8b8fa8;
   --text-muted: #545870;
@@ -16,15 +16,108 @@
 }
 
 [data-theme="light"] {
-  --bg-base: #f4f3fa;
+  --accent: #ea580c;
+  --accent-rgb: 234, 88, 12;
+  --accent-2: #f97316;
+  --bg-base: #fafafa;
   --bg-surface: #ffffff;
-  --bg-elevated: #f0eef9;
-  --bg-hover: #e8e6f5;
+  --bg-elevated: #fff4ee;
+  --bg-hover: #ffe8d6;
   --border: rgba(0, 0, 0, 0.08);
-  --border-accent: rgba(108, 63, 232, 0.2);
+  --border-accent: rgba(234, 88, 12, 0.2);
   --text-primary: #0a0e1a;
   --text-secondary: #5a5e78;
   --text-muted: #9a9eb8;
+}
+
+[data-theme="midnight"] {
+  --accent: #3b82f6;
+  --accent-rgb: 59, 130, 246;
+  --accent-2: #60a5fa;
+  --bg-base: #020817;
+  --bg-surface: #0d1627;
+  --bg-elevated: #162038;
+  --bg-hover: #1e2d4a;
+  --border: rgba(59, 130, 246, 0.1);
+  --border-accent: rgba(59, 130, 246, 0.3);
+  --text-primary: #e2e8f0;
+  --text-secondary: #7b92b0;
+  --text-muted: #435166;
+}
+
+[data-theme="forest"] {
+  --accent: #10b981;
+  --accent-rgb: 16, 185, 129;
+  --accent-2: #34d399;
+  --bg-base: #030f08;
+  --bg-surface: #0a1f10;
+  --bg-elevated: #112b18;
+  --bg-hover: #183820;
+  --border: rgba(16, 185, 129, 0.1);
+  --border-accent: rgba(16, 185, 129, 0.3);
+  --text-primary: #e2f5ec;
+  --text-secondary: #6b9e80;
+  --text-muted: #3d6b50;
+}
+
+[data-theme="violet"] {
+  --accent: #8b5cf6;
+  --accent-rgb: 139, 92, 246;
+  --accent-2: #a78bfa;
+  --bg-base: #080512;
+  --bg-surface: #130e24;
+  --bg-elevated: #1e1538;
+  --bg-hover: #271c48;
+  --border: rgba(139, 92, 246, 0.1);
+  --border-accent: rgba(139, 92, 246, 0.3);
+  --text-primary: #ede9fe;
+  --text-secondary: #8b7bac;
+  --text-muted: #524970;
+}
+
+[data-theme="rose"] {
+  --accent: #e11d48;
+  --accent-rgb: 225, 29, 72;
+  --accent-2: #fb7185;
+  --bg-base: #0f0308;
+  --bg-surface: #1f0a14;
+  --bg-elevated: #2d1020;
+  --bg-hover: #3d162c;
+  --border: rgba(225, 29, 72, 0.1);
+  --border-accent: rgba(225, 29, 72, 0.3);
+  --text-primary: #ffe4e6;
+  --text-secondary: #a06070;
+  --text-muted: #6b3a47;
+}
+
+[data-theme="carbon"] {
+  --accent: #e2e8f0;
+  --accent-rgb: 226, 232, 240;
+  --accent-2: #f8fafc;
+  --bg-base: #000000;
+  --bg-surface: #0f0f0f;
+  --bg-elevated: #1a1a1a;
+  --bg-hover: #252525;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(226, 232, 240, 0.2);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+}
+
+[data-theme="ocean"] {
+  --accent: #06b6d4;
+  --accent-rgb: 6, 182, 212;
+  --accent-2: #22d3ee;
+  --bg-base: #020d14;
+  --bg-surface: #081a28;
+  --bg-elevated: #0f2840;
+  --bg-hover: #163554;
+  --border: rgba(6, 182, 212, 0.1);
+  --border-accent: rgba(6, 182, 212, 0.3);
+  --text-primary: #e0f7fa;
+  --text-secondary: #5b8fa0;
+  --text-muted: #2d5e6e;
 }
 
 *,
@@ -37,7 +130,7 @@
 html,
 body {
   height: 100%;
-  font-family: "Inter", sans-serif;
+  font-family: "Exo 2", sans-serif;
   background: var(--bg-base);
   color: var(--text-primary);
   font-size: 14px;
@@ -49,7 +142,7 @@ a {
 }
 button {
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: "Exo 2", sans-serif;
 }
 ul {
   list-style: none;
@@ -98,13 +191,16 @@ ul {
   flex-shrink: 0;
 }
 .logo-text {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 800;
   font-size: 20px;
   letter-spacing: -0.5px;
 }
 .logo-text span {
-  color: var(--accent);
+  background: linear-gradient(160deg, #ffb347 0%, #ea580c 50%, #c2390a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .sidebar-nav {
   padding: 12px 10px;
@@ -112,19 +208,19 @@ ul {
   overflow-y: auto;
 }
 .nav-section-label {
-  font-size: 10px;
+  font-size: 9.5px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: 8px 10px 6px;
+  padding: 6px 10px 4px;
   font-weight: 500;
 }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 7px;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
@@ -218,7 +314,7 @@ ul {
   flex-shrink: 0;
 }
 .topbar-title {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 16px;
   font-weight: 700;
   flex: 1;
@@ -300,7 +396,7 @@ ul {
   margin-bottom: 8px;
 }
 .stat-value {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 26px;
   font-weight: 800;
   color: var(--text-primary);
@@ -349,7 +445,7 @@ ul {
   border-bottom: 0.5px solid var(--border);
 }
 .card-title {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 14px;
   font-weight: 700;
 }
@@ -419,7 +515,7 @@ ul {
   color: #e05c5c;
 }
 .badge-info {
-  background: rgba(108, 63, 232, 0.12);
+  background: rgba(234, 88, 12, 0.12);
   color: var(--accent);
 }
 
@@ -617,7 +713,7 @@ ul {
   max-width: 480px;
 }
 .auth-logo {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 800;
   font-size: 24px;
   letter-spacing: -0.5px;
@@ -628,7 +724,7 @@ ul {
   color: var(--accent);
 }
 .auth-title {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 22px;
   font-weight: 800;
   color: var(--text-primary);
@@ -678,7 +774,7 @@ ul {
   padding: 10px 14px;
   font-size: 14px;
   color: var(--text-primary);
-  font-family: "Inter", sans-serif;
+  font-family: "Exo 2", sans-serif;
   outline: none;
   transition: border-color 0.15s;
   width: 100%;
@@ -715,7 +811,7 @@ ul {
   padding: 12px;
   font-size: 14px;
   font-weight: 600;
-  font-family: "Inter", sans-serif;
+  font-family: "Exo 2", sans-serif;
   cursor: pointer;
   transition: opacity 0.15s;
   margin-top: 4px;
@@ -780,7 +876,7 @@ ul {
   color: var(--accent);
 }
 .placeholder-title {
-  font-family: "Syne", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 24px;
   font-weight: 800;
   color: var(--text-primary);
