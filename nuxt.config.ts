@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     preset: "static",
     prerender: {
       crawlLinks: false,
-      routes: ['/', '/login', '/impressum', '/datenschutz', '/agb', '/kaufen'],
+      routes: ['/', '/impressum', '/datenschutz', '/agb', '/kaufen'],
     }
   },
   app: {
