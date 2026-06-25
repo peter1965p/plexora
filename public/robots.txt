@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+Allow: /kaufen
+Allow: /impressum
+Allow: /datenschutz
+Allow: /agb
 Disallow: /dashboard
 Disallow: /crm
 Disallow: /finance
