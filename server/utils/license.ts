@@ -2,8 +2,8 @@ import { randomUUID } from 'crypto'
 
 export const TIER_MODULES: Record<string, string[]> = {
   starter:    ['crm', 'support'],
-  pro:        ['crm', 'support', 'finance', 'projects', 'contracts', 'hr', 'analytics', 'shop', 'pagebuilder', 'forms'],
-  enterprise: ['crm', 'support', 'finance', 'projects', 'contracts', 'hr', 'analytics', 'shop', 'pagebuilder', 'forms', 'marketing'],
+  pro:        ['crm', 'support', 'finance', 'projects', 'contracts', 'hr', 'analytics', 'shop', 'forms'],
+  enterprise: ['crm', 'support', 'finance', 'projects', 'contracts', 'hr', 'analytics', 'shop', 'forms', 'marketing'],
 }
 
 export const TIER_LABELS: Record<string, string> = {

@@ -40,7 +40,6 @@ export const useAppStore = defineStore("app", {
       { key: "analytics",   name: "Analytics",     icon: "ti-chart-dots",     on: false, locked: false, plan: "pro",        desc: "Umsatz-Trends, Lead-Conversion, Win Rate, Modul-Übersicht" },
       { key: "marketing",   name: "Marketing",     icon: "ti-speakerphone",   on: true,  locked: false, plan: "enterprise", desc: "Lead-Kampagnen, Landing-Page-Builder, UTM-Tracking, QR-Codes, Stats" },
       { key: "shop",        name: "Shop",          icon: "ti-shopping-cart",  on: false, locked: false, plan: "pro",        desc: "Produkt-Verwaltung, Stripe-Checkout, Bestellungen, Webhooks" },
-      { key: "pagebuilder", name: "Pagebuilder",   icon: "ti-layout-2",       on: false, locked: false, plan: "pro",        desc: "Drag & Drop Seiteneditor, öffentliche Seiten, Navigation" },
       { key: "forms",       name: "Formulare",     icon: "ti-forms",          on: false, locked: false, plan: "pro",        desc: "Formular-Builder, Einbettung, Submissions-Übersicht" },
     ],
   }),

@@ -48,7 +48,7 @@ const openTickets = computed(() => {
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
   hr: '/hr', support: '/support', analytics: '/analytics', shop: '/shop-admin',
-  pagebuilder: '/pagebuilder', forms: '/forms', marketing: '/marketing',
+  forms: '/forms', marketing: '/marketing',
 }
 
 const navSections = computed(() => [

@@ -311,7 +311,7 @@ const i18n = {
       popular: 'Beliebteste Wahl',
       cta: 'Jetzt starten',
       starter: { note: 'Für Freelancer & Einzelunternehmer', items: ['CRM & Kontaktverwaltung','Finanzen & Rechnungen','Projekte & Aufgaben','Marketing & Kampagnen','Formulare & Support-Tickets'] },
-      pro:     { note: 'Für wachsende Teams',               items: ['Alles aus Starter','HR, Zeiterfassung & Urlaub','Verträge & Kunden-Portal','Shop & Pagebuilder','Analytics & Lead-Kampagnen'] },
+      pro:     { note: 'Für wachsende Teams',               items: ['Alles aus Starter','HR, Zeiterfassung & Urlaub','Verträge & Kunden-Portal','Shop & Bestellungen','Analytics & Lead-Kampagnen'] },
       enterprise: { note: 'Für größere Unternehmen',        items: ['Alles aus Pro','White-Label & eigenes Branding','UTM-Tracking & QR-Codes','API-Zugang & Integrationen','Prioritäts-Support & SLA'] },
     },
     footerCta: {
