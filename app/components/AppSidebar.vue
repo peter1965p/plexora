@@ -37,44 +37,43 @@ const brandLast  = computed(() => branding.value.brandName.slice(-2))
 onMounted(() => loadBranding())
 
 const route = useRoute()
+const { t } = useLang()
+
 const { data } = await useFetch(useApiUrl('/api/support'))
 const openTickets = computed(() => {
   const tickets = (data.value as any)?.tickets || []
-  return tickets.filter((t: any) => t.status === 'open' || t.status === 'in_progress').length
+  return tickets.filter((tk: any) => tk.status === 'open' || tk.status === 'in_progress').length
 })
 
 const moduleRoutes: Record<string, string> = {
-  crm:         '/crm',
-  projects:    '/projects',
-  contracts:   '/contracts',
-  finance:     '/finance',
-  hr:          '/hr',
-  support:     '/support',
-  analytics:   '/analytics',
-  shop:        '/shop-admin',
-  pagebuilder: '/pagebuilder',
-  forms:       '/forms',
-  marketing:   '/marketing',
+  crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
+  hr: '/hr', support: '/support', analytics: '/analytics', shop: '/shop-admin',
+  pagebuilder: '/pagebuilder', forms: '/forms', marketing: '/marketing',
 }
 
 const navSections = computed(() => [
   {
-    label: 'Übersicht',
+    label: t.value.navOverview,
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: 'ti-layout-dashboard', key: 'dashboard' },
-      { to: '/analytics', label: 'Analytics', icon: 'ti-chart-bar',        key: 'analytics' },
+      { to: '/analytics', label: 'Analytics',  icon: 'ti-chart-bar',        key: 'analytics' },
     ]
   },
   {
-    label: 'Module',
+    label: t.value.navModules,
     items: store.modules
       .filter(m => m.on && !m.locked && moduleRoutes[m.key] && m.key !== 'analytics')
-      .map(m => ({ to: moduleRoutes[m.key], label: m.name, icon: m.icon, key: m.key }))
+      .map(m => ({
+        to: moduleRoutes[m.key],
+        label: t.value.moduleNames[m.key] || m.name,
+        icon: m.icon,
+        key: m.key,
+      }))
   },
   {
-    label: 'System',
+    label: t.value.navSystem,
     items: [
-      { to: '/settings', label: 'Einstellungen', icon: 'ti-settings', key: 'settings' },
+      { to: '/settings', label: t.value.settings, icon: 'ti-settings', key: 'settings' },
     ]
   }
 ])

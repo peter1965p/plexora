@@ -5,27 +5,27 @@
     <div class="stats-grid">
       <div class="stat-card">
         <i class="ti ti-trending-up stat-icon"></i>
-        <div class="stat-label">Pipeline Gewichtet</div>
+        <div class="stat-label">{{ t.dash.weightedPipeline }}</div>
         <div class="stat-value">{{ formatEur(weightedPipeline) }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ deals.length }} Deals aktiv</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ deals.length }} {{ t.dash.dealsActive }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-briefcase stat-icon"></i>
-        <div class="stat-label">Aktive Deals</div>
+        <div class="stat-label">{{ t.dash.activeDeals }}</div>
         <div class="stat-value">{{ deals.length }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} gewonnen</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} {{ t.dash.won }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-headset stat-icon"></i>
-        <div class="stat-label">Offene Tickets</div>
+        <div class="stat-label">{{ t.dash.openTickets }}</div>
         <div class="stat-value">{{ openTickets }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ tickets.length }} gesamt</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ tickets.length }} {{ t.dash.total }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-users stat-icon"></i>
-        <div class="stat-label">Mitarbeiter</div>
+        <div class="stat-label">{{ t.dash.employees }}</div>
         <div class="stat-value">{{ employees.length }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ activeEmployees }} aktiv</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ activeEmployees }} {{ t.dash.active }}</div>
       </div>
     </div>
 
@@ -33,7 +33,7 @@
     <div class="grid-3-1">
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Finanzen — Übersicht</span>
+          <span class="card-title">{{ t.dash.financeOverview }}</span>
           <span class="card-action">Export ↗</span>
         </div>
         <div class="card-body">
@@ -45,8 +45,8 @@
 
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Kontakte</span>
-          <NuxtLink to="/crm" class="card-action">Alle ansehen</NuxtLink>
+          <span class="card-title">{{ t.dash.contacts }}</span>
+          <NuxtLink to="/crm" class="card-action">{{ t.dash.viewAll }}</NuxtLink>
         </div>
         <div class="card-body" style="padding:16px 20px">
           <div class="activity-item" v-for="c in contacts" :key="c.contactId">
@@ -55,10 +55,10 @@
               <div class="activity-text">
                 <NuxtLink :to="`/crm?edit=${c.contactId}`" style="color:var(--accent)">{{ c.firstName }} {{ c.lastName }}</NuxtLink>
               </div>
-              <div class="activity-time">{{ c.company }} · <span :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></div>
+              <div class="activity-time">{{ c.company }} · <span :class="statusBadge(c.status)">{{ t.contactStatus[c.status] || statusLabel(c.status) }}</span></div>
             </div>
           </div>
-          <div v-if="!contacts.length" style="color:var(--text-muted);font-size:13px">Keine Kontakte</div>
+          <div v-if="!contacts.length" style="color:var(--text-muted);font-size:13px">{{ t.dash.noContacts }}</div>
         </div>
       </div>
     </div>
@@ -66,22 +66,22 @@
     <!-- DEALS TABLE -->
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">
-        <span class="card-title">Pipeline — Deals</span>
-        <span class="card-action" @click="navigateTo('/crm')">Alle Deals ansehen</span>
+        <span class="card-title">{{ t.dash.pipelineDeals }}</span>
+        <span class="card-action" @click="navigateTo('/crm')">{{ t.dash.viewAllDeals }}</span>
       </div>
       <table class="data-table">
         <thead>
           <tr>
-            <th>Unternehmen</th>
-            <th>Wert</th>
-            <th>Phase</th>
-            <th>Wahrscheinlichkeit</th>
-            <th>Status</th>
+            <th>{{ t.dash.colCompany }}</th>
+            <th>{{ t.dash.colValue }}</th>
+            <th>{{ t.dash.colStage }}</th>
+            <th>{{ t.dash.colProbability }}</th>
+            <th>{{ t.dash.colStatus }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="!deals.length">
-            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Keine Deals vorhanden</td>
+            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.dash.noDeals }}</td>
           </tr>
           <tr v-for="d in deals" :key="d.dealId">
             <td class="td-name">{{ d.name }}</td>
@@ -97,7 +97,7 @@
                 <span style="font-size:11px;color:var(--text-muted);min-width:28px">{{ d.prob }}%</span>
               </div>
             </td>
-            <td><span class="badge" :class="'badge-' + d.status">{{ dealStageLabel[d.status] }}</span></td>
+            <td><span class="badge" :class="'badge-' + d.status">{{ t.dealStage[d.status] || dealStageLabel[d.status] }}</span></td>
           </tr>
         </tbody>
       </table>
@@ -106,27 +106,27 @@
     <!-- SUPPORT TICKETS -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Support — Offene Tickets</span>
-        <span class="card-action" @click="navigateTo('/support')">Alle Tickets</span>
+        <span class="card-title">{{ t.dash.supportTickets }}</span>
+        <span class="card-action" @click="navigateTo('/support')">{{ t.dash.viewAllTickets }}</span>
       </div>
       <table class="data-table">
         <thead>
           <tr>
-            <th>Titel</th>
-            <th>Kunde</th>
-            <th>Priorität</th>
-            <th>Status</th>
+            <th>{{ t.dash.colTitle }}</th>
+            <th>{{ t.dash.colClient }}</th>
+            <th>{{ t.dash.colPriority }}</th>
+            <th>{{ t.dash.colStatus }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="!tickets.length">
-            <td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">Keine Tickets</td>
+            <td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.dash.noTickets }}</td>
           </tr>
-          <tr v-for="t in tickets" :key="t.ticketId">
-            <td class="td-name">{{ t.title }}</td>
-            <td>{{ t.client }}</td>
-            <td><span class="badge" :class="priorityBadge(t.priority)">{{ priorityLabel(t.priority) }}</span></td>
-            <td><span class="badge" :class="t.status === 'open' ? 'badge-danger' : 'badge-warning'">{{ ticketStatusLabel(t.status) }}</span></td>
+          <tr v-for="tkt in tickets" :key="tkt.ticketId">
+            <td class="td-name">{{ tkt.title }}</td>
+            <td>{{ tkt.client }}</td>
+            <td><span class="badge" :class="priorityBadge(tkt.priority)">{{ t.priority[tkt.priority] || priorityLabel(tkt.priority) }}</span></td>
+            <td><span class="badge" :class="tkt.status === 'open' ? 'badge-danger' : 'badge-warning'">{{ t.ticketStatus[tkt.status] || tkt.status }}</span></td>
           </tr>
         </tbody>
       </table>
@@ -135,31 +135,31 @@
   <!-- Admin: Demo Stats -->
   <div v-if="demoStats" class="card" style="margin-bottom:14px">
     <div class="card-header">
-      <span class="card-title"><i class="ti ti-eye" style="color:var(--accent);margin-right:6px"></i>Demo-Nutzung</span>
-      <span style="font-size:11px;color:var(--text-muted)">nur sichtbar für Admin</span>
+      <span class="card-title"><i class="ti ti-eye" style="color:var(--accent);margin-right:6px"></i>{{ t.dash.demoUsage }}</span>
+      <span style="font-size:11px;color:var(--text-muted)">{{ t.dash.adminOnly }}</span>
     </div>
     <div class="stats-grid" style="padding:16px 20px">
       <div class="stat-card">
         <i class="ti ti-infinity stat-icon"></i>
-        <div class="stat-label">Gesamt</div>
+        <div class="stat-label">{{ t.dash.totalLabel }}</div>
         <div class="stat-value">{{ demoStats.total.toLocaleString('de-DE') }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> API-Aufrufe</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.dash.apiCalls }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-calendar-today stat-icon"></i>
-        <div class="stat-label">Heute</div>
+        <div class="stat-label">{{ t.dash.today }}</div>
         <div class="stat-value">{{ demoStats.today }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> Aufrufe</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.dash.calls }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-calendar-month stat-icon"></i>
-        <div class="stat-label">Diesen Monat</div>
+        <div class="stat-label">{{ t.dash.thisMonth }}</div>
         <div class="stat-value">{{ demoStats.month.toLocaleString('de-DE') }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> Aufrufe</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.dash.calls }}</div>
       </div>
       <div class="stat-card" style="grid-column:span 1">
         <i class="ti ti-chart-bar stat-icon"></i>
-        <div class="stat-label">Letzte 7 Tage</div>
+        <div class="stat-label">{{ t.dash.last7days }}</div>
         <div style="display:flex;align-items:flex-end;gap:4px;height:36px;margin-top:4px">
           <div v-for="d in demoStats.last7" :key="d.date"
             :title="`${d.date}: ${d.count}`"
@@ -179,7 +179,7 @@
   <!-- Kündigungsbutton §312k BGB -->
   <div v-if="isCustomer" style="margin-top:32px;padding-top:16px;border-top:0.5px solid var(--border);text-align:right">
     <button @click="cancelSubscription" style="background:transparent;border:0.5px solid var(--border);color:var(--text-muted);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='#e05c5c';this.style.color='#e05c5c'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-      Abonnement kündigen
+      {{ t.dash.cancelSub }}
     </button>
   </div>
 
@@ -193,18 +193,22 @@ import { priorityLabel, priorityBadge } from '~/modules/support'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
+const { t, lang } = useLang()
 const chartRef = ref<HTMLCanvasElement | null>(null)
 
 const { userId, email, role } = await useAuthUser()
 const isCustomer = role === 'customers'
 
 async function cancelSubscription() {
-  if (!confirm('Abonnement wirklich kündigen? Es läuft bis Ende des Abrechnungszeitraums weiter.')) return
+  const msg = lang.value === 'en'
+    ? 'Cancel subscription? It will remain active until the end of the billing period.'
+    : 'Abonnement wirklich kündigen? Es läuft bis Ende des Abrechnungszeitraums weiter.'
+  if (!confirm(msg)) return
   try {
     const res = await $fetch(useApiUrl('/api/licenses/portal'), { method: 'POST', body: { email } }) as any
     if (res.url) window.location.href = res.url
   } catch {
-    alert('Kein aktives Abonnement gefunden.')
+    alert(lang.value === 'en' ? 'No active subscription found.' : 'Kein aktives Abonnement gefunden.')
   }
 }
 
@@ -231,21 +235,23 @@ const wonDeals         = computed(() => deals.value.filter((d: any) => d.status 
 const openTickets      = computed(() => tickets.value.filter((t: any) => t.status === 'open' || t.status === 'in_progress').length)
 const activeEmployees  = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
 
-const ticketStatusLabel = (s: string) => ({ open: 'Offen', in_progress: 'In Arbeit', resolved: 'Gelöst', closed: 'Geschlossen' }[s] || s)
+let _chartInstance: any = null
 
-onMounted(async () => {
+async function buildChart() {
   if (!chartRef.value) return
+  if (_chartInstance) { _chartInstance.destroy(); _chartInstance = null }
   const { Chart, registerables } = await import('chart.js')
   Chart.register(...registerables)
 
   const paid    = invoices.value.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + i.amount, 0)
   const pending = invoices.value.filter((i: any) => i.status === 'pending').reduce((s: number, i: any) => s + i.amount, 0)
   const overdue = invoices.value.filter((i: any) => i.status === 'overdue').reduce((s: number, i: any) => s + i.amount, 0)
+  const locale  = lang.value === 'en' ? 'en-GB' : 'de-DE'
 
-  new Chart(chartRef.value, {
+  _chartInstance = new Chart(chartRef.value, {
     type: 'doughnut',
     data: {
-      labels: ['Bezahlt', 'Ausstehend', 'Überfällig'],
+      labels: [t.value.dash.invoicePaid, t.value.dash.invoicePending, t.value.dash.invoiceOverdue],
       datasets: [{
         data: [paid, pending, overdue],
         backgroundColor: ['#00D4B4', '#6C3FE8', '#E05C5C'],
@@ -259,10 +265,13 @@ onMounted(async () => {
         legend: { display: true, position: 'bottom', labels: { color: '#8B8FA8', font: { size: 11 } } },
         tooltip: {
           backgroundColor: '#1C2338',
-          callbacks: { label: (ctx) => ' € ' + ctx.parsed.toLocaleString('de-DE') }
+          callbacks: { label: (ctx) => ' € ' + ctx.parsed.toLocaleString(locale) }
         }
       }
     }
   })
-})
+}
+
+onMounted(() => buildChart())
+watch(lang, () => buildChart())
 </script>

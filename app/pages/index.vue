@@ -19,8 +19,8 @@
           </NuxtLink>
           <!-- Language Toggle -->
           <div class="lang-toggle">
-            <button :class="['lang-btn', { active: lang === 'de' }]" @click="setLang('de')">DE</button>
-            <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">EN</button>
+            <button :class="['lang-btn', { active: lang === 'de' }]" @click="setLang('de')">🇩🇪</button>
+            <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">🇬🇧</button>
           </div>
           <button class="lp-btn-ghost" @click="navigateTo('/login')">{{ t.nav.login }}</button>
           <button class="lp-btn-demo" @click="startDemo" :disabled="demoLoading">
@@ -224,8 +224,8 @@
         <div class="lp-footer-right">
           <!-- Language Switcher -->
           <div class="lang-toggle" style="margin-bottom:12px">
-            <button :class="['lang-btn', { active: lang === 'de' }]" @click="setLang('de')">DE</button>
-            <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">EN</button>
+            <button :class="['lang-btn', { active: lang === 'de' }]" @click="setLang('de')">🇩🇪</button>
+            <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">🇬🇧</button>
           </div>
           <!-- Made In -->
           <a href="https://www.paeffgen-it.de" target="_blank" rel="noopener" class="lp-made-by">

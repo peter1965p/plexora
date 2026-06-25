@@ -40,11 +40,11 @@
         <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted)"></i>
         <div v-if="showMenu" class="topbar-menu">
           <div class="topbar-menu-item" @click="navigateTo('/settings')">
-            <i class="ti ti-settings"></i> Einstellungen
+            <i class="ti ti-settings"></i> {{ t.menuSettings }}
           </div>
           <div class="topbar-menu-divider"></div>
           <div class="topbar-menu-item danger" @click="logout">
-            <i class="ti ti-logout"></i> Abmelden
+            <i class="ti ti-logout"></i> {{ t.menuLogout }}
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@
           <i class="ti ti-plus"></i> Neu
         </button>
         <div v-if="showQuick" style="position:absolute;top:44px;right:0;width:220px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden;padding:6px">
-          <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em">SCHNELL ERSTELLEN</div>
+          <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em">{{ lang === 'en' ? 'QUICK CREATE' : 'SCHNELL ERSTELLEN' }}</div>
           <div v-for="item in quickItems" :key="item.label"
             @click="quickNav(item)"
             style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .1s;font-size:13px"
@@ -73,24 +73,9 @@ import { signOut, getCurrentUser } from 'aws-amplify/auth'
 
 const route  = useRoute()
 const router = useRouter()
+const { t, lang } = useLang()
 
-const titles: Record<string, string> = {
-  '/dashboard':  'Dashboard',
-  '/crm':        'CRM',
-  '/projects':   'Projekte',
-  '/lead':        'Lead-Landingpage',
-  '/finance':    'Finanzen',
-  '/contracts':  'Verträge',
-  '/hr':         'HR',
-  '/support':    'Support',
-  '/marketing':   'Marketing',
-  '/shop-admin':  'Shop',
-  '/pagebuilder': 'Pagebuilder',
-  '/forms':       'Formulare',
-  '/analytics':   'Analytics',
-  '/settings':    'Einstellungen',
-}
-const title = computed(() => titles[route.path] || 'Plexora')
+const title = computed(() => t.value.pageTitles[route.path] || 'Plexora')
 
 const showMenu   = ref(false)
 const showQuick  = ref(false)
@@ -98,17 +83,9 @@ const quickRef   = ref<HTMLElement | null>(null)
 const displayName = ref('User')
 const initials   = ref('U')
 
-const quickItems = [
-  { label: 'Neuer Kontakt',   icon: 'ti-user-plus',      path: '/crm',       query: 'new=contact' },
-  { label: 'Neuer Deal',      icon: 'ti-briefcase',      path: '/crm',       query: 'new=deal'    },
-  { label: 'Neue Rechnung',   icon: 'ti-receipt',        path: '/finance',   query: 'new=1'       },
-  { label: 'Neues Projekt',   icon: 'ti-layout-kanban',  path: '/projects',  query: 'new=1'       },
-  { label: 'Neues Ticket',    icon: 'ti-headset',        path: '/support',   query: 'new=1'       },
-  { label: 'Neuer Mitarbeiter', icon: 'ti-id-badge',     path: '/hr',        query: 'new=1'       },
-  { label: 'Neue Kampagne',   icon: 'ti-speakerphone',   path: '/marketing', query: 'new=1'       },
-]
+const quickItems = computed(() => t.value.quick)
 
-function quickNav(item: typeof quickItems[0]) {
+function quickNav(item: typeof quickItems.value[0]) {
   showQuick.value = false
   router.push(`${item.path}?${item.query}`)
 }
