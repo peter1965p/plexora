@@ -29,13 +29,12 @@
     </div>
 
     <!-- TABS -->
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button class="theme-opt" :class="{ active: tab === 'employees' }" @click="tab='employees'">
-        <i class="ti ti-users"></i> Mitarbeiter
-      </button>
-      <button class="theme-opt" :class="{ active: tab === 'recruiting' }" @click="tab='recruiting'">
-        <i class="ti ti-speakerphone"></i> Recruiting
-      </button>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="theme-opt" :class="{ active: tab === 'employees' }"   @click="tab='employees'">   <i class="ti ti-users"></i> Mitarbeiter</button>
+      <button class="theme-opt" :class="{ active: tab === 'recruiting' }"  @click="tab='recruiting'">  <i class="ti ti-speakerphone"></i> Recruiting</button>
+      <button class="theme-opt" :class="{ active: tab === 'leave' }"       @click="tab='leave'">       <i class="ti ti-beach"></i> Urlaub</button>
+      <button class="theme-opt" :class="{ active: tab === 'timelog' }"     @click="tab='timelog'">     <i class="ti ti-clock"></i> Zeiterfassung</button>
+      <button class="theme-opt" :class="{ active: tab === 'onboarding' }"  @click="tab='onboarding'">  <i class="ti ti-list-check"></i> Onboarding</button>
     </div>
 
     <!-- MITARBEITER TAB -->
@@ -212,6 +211,160 @@
       </div>
     </div>
 
+    <!-- ═══ TAB: URLAUB ═══ -->
+    <div v-if="tab === 'leave'">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title">Urlaubsanträge</span>
+          <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="showLeave=true">
+            <i class="ti ti-plus"></i> Antrag stellen
+          </button>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Mitarbeiter</th><th>Typ</th><th>Von</th><th>Bis</th><th>Grund</th><th>Status</th><th style="width:80px"></th></tr></thead>
+          <tbody>
+            <tr v-if="!leaveRequests.length"><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Keine Anträge</td></tr>
+            <tr v-for="r in leaveRequests" :key="r.leaveId">
+              <td class="td-name">{{ r.employeeName }}</td>
+              <td><span class="badge badge-info">{{ leaveTypeLabel[r.type] || r.type }}</span></td>
+              <td style="font-size:12px">{{ r.startDate }}</td>
+              <td style="font-size:12px">{{ r.endDate }}</td>
+              <td style="font-size:12px;color:var(--text-muted)">{{ r.reason || '–' }}</td>
+              <td>
+                <span class="badge" :class="r.status==='approved'?'badge-success':r.status==='rejected'?'badge-danger':'badge-warning'">
+                  {{ r.status==='approved'?'Genehmigt':r.status==='rejected'?'Abgelehnt':'Ausstehend' }}
+                </span>
+              </td>
+              <td>
+                <div v-if="r.status==='pending'" style="display:flex;gap:4px">
+                  <button class="icon-btn" style="color:#00D4B4" title="Genehmigen" @click="approveLeave(r)"><i class="ti ti-check"></i></button>
+                  <button class="icon-btn" style="color:#E05C5C" title="Ablehnen"   @click="rejectLeave(r)"><i class="ti ti-x"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: ZEITERFASSUNG ═══ -->
+    <div v-if="tab === 'timelog'">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title">Arbeitszeiten erfassen</span>
+          <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="showTimelog=true">
+            <i class="ti ti-plus"></i> Eintrag
+          </button>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Mitarbeiter</th><th>Datum</th><th>Von</th><th>Bis</th><th>Stunden</th><th>Notiz</th></tr></thead>
+          <tbody>
+            <tr v-if="!timelogEntries.length"><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Keine Einträge</td></tr>
+            <tr v-for="e in timelogEntries" :key="e.logId">
+              <td class="td-name">{{ e.employeeName }}</td>
+              <td style="font-size:12px">{{ e.date }}</td>
+              <td style="font-size:12px">{{ e.clockIn || '–' }}</td>
+              <td style="font-size:12px">{{ e.clockOut || '–' }}</td>
+              <td style="font-weight:600;color:#00D4B4">{{ (e.minutes / 60).toFixed(2) }}h</td>
+              <td style="font-size:12px;color:var(--text-muted)">{{ e.note || '–' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: ONBOARDING ═══ -->
+    <div v-if="tab === 'onboarding'">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Onboarding-Checklisten</span>
+          <select v-model="onboardingEmpId" class="form-select" style="height:28px;font-size:12px;padding:0 8px;max-width:200px">
+            <option value="">Mitarbeiter wählen</option>
+            <option v-for="e in employees" :key="e.employeeId" :value="e.employeeId">{{ e.firstName }} {{ e.lastName }}</option>
+          </select>
+        </div>
+        <div v-if="onboardingEmpId">
+          <div style="padding:12px 20px">
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input v-model="newCheckItem" placeholder="Aufgabe hinzufügen..." style="flex:1;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text-primary);outline:none" @keyup.enter="addCheckItem" />
+              <button class="accent-btn" style="height:36px;padding:0 14px" @click="addCheckItem"><i class="ti ti-plus"></i></button>
+            </div>
+            <div v-if="!currentChecklist.length" style="color:var(--text-muted);font-size:13px;text-align:center;padding:16px">Keine Aufgaben. Füge welche hinzu!</div>
+            <div v-for="item in currentChecklist" :key="item.id" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+              <input type="checkbox" :checked="item.done" @change="toggleCheck(item)" style="accent-color:var(--accent);width:16px;height:16px;flex-shrink:0" />
+              <span :style="item.done?'text-decoration:line-through;color:var(--text-muted)':''" style="flex:1;font-size:13px">{{ item.text }}</span>
+              <span style="font-size:11px;color:var(--text-muted)">{{ item.done ? '✓' : '' }}</span>
+            </div>
+            <div v-if="currentChecklist.length" style="margin-top:12px">
+              <div class="progress-bar"><div class="progress-fill cyan" :style="{ width: checkProgress + '%' }"></div></div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:4px;text-align:right">{{ doneCheckCount }}/{{ currentChecklist.length }} erledigt ({{ checkProgress }}%)</div>
+            </div>
+          </div>
+        </div>
+        <div v-else style="text-align:center;color:var(--text-muted);padding:32px;font-size:13px">Mitarbeiter oben auswählen</div>
+      </div>
+    </div>
+
+    <!-- URLAUB MODAL -->
+    <div v-if="showLeave" class="modal-overlay" @click.self="showLeave=false">
+      <div class="modal-card">
+        <div class="modal-header"><span class="card-title">Urlaubsantrag</span><button class="icon-btn" @click="showLeave=false"><i class="ti ti-x"></i></button></div>
+        <div class="modal-body">
+          <div class="auth-field">
+            <label>Mitarbeiter</label>
+            <select v-model="newLeave.employeeId" class="form-select" @change="setLeaveName">
+              <option value="">– wählen –</option>
+              <option v-for="e in employees" :key="e.employeeId" :value="e.employeeId">{{ e.firstName }} {{ e.lastName }}</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Typ</label>
+            <select v-model="newLeave.type" class="form-select">
+              <option value="vacation">Urlaub</option>
+              <option value="sick">Krank</option>
+              <option value="remote">Home Office</option>
+              <option value="other">Sonstiges</option>
+            </select>
+          </div>
+          <div class="auth-row">
+            <div class="auth-field"><label>Von</label><input v-model="newLeave.startDate" type="date" /></div>
+            <div class="auth-field"><label>Bis</label><input v-model="newLeave.endDate" type="date" /></div>
+          </div>
+          <div class="auth-field"><label>Grund (optional)</label><input v-model="newLeave.reason" placeholder="..." /></div>
+          <button class="auth-btn" :disabled="saving||!newLeave.employeeId" @click="submitLeave">
+            <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else>Antrag einreichen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELOG MODAL -->
+    <div v-if="showTimelog" class="modal-overlay" @click.self="showTimelog=false">
+      <div class="modal-card">
+        <div class="modal-header"><span class="card-title">Arbeitszeit erfassen</span><button class="icon-btn" @click="showTimelog=false"><i class="ti ti-x"></i></button></div>
+        <div class="modal-body">
+          <div class="auth-field">
+            <label>Mitarbeiter</label>
+            <select v-model="newTimelog.employeeId" class="form-select" @change="setTimelogName">
+              <option value="">– wählen –</option>
+              <option v-for="e in employees" :key="e.employeeId" :value="e.employeeId">{{ e.firstName }} {{ e.lastName }}</option>
+            </select>
+          </div>
+          <div class="auth-field"><label>Datum</label><input v-model="newTimelog.date" type="date" /></div>
+          <div class="auth-row">
+            <div class="auth-field"><label>Von (Uhrzeit)</label><input v-model="newTimelog.clockIn" type="time" /></div>
+            <div class="auth-field"><label>Bis (Uhrzeit)</label><input v-model="newTimelog.clockOut" type="time" /></div>
+          </div>
+          <div class="auth-field"><label>Notiz</label><input v-model="newTimelog.note" placeholder="z.B. Kundenprojekt" /></div>
+          <button class="auth-btn" :disabled="saving||!newTimelog.employeeId" @click="submitTimelog">
+            <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else>Speichern</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- TOAST -->
   </div>
 </template>
@@ -300,5 +453,73 @@ async function addCampaign() {
   } finally {
     saving.value = false
   }
+}
+
+// ── Urlaub ────────────────────────────────────────────
+const { data: leaveData, refresh: refreshLeave } = await useFetch(() => useApiUrl(`/api/hr/leave?userId=${encodeURIComponent(userId)}`))
+const leaveRequests = computed(() => (leaveData.value as any)?.requests || [])
+const leaveTypeLabel: Record<string,string> = { vacation:'Urlaub', sick:'Krank', remote:'Home Office', other:'Sonstiges' }
+const showLeave = ref(false)
+const newLeave = reactive({ employeeId:'', employeeName:'', type:'vacation', startDate:'', endDate:'', reason:'' })
+
+function setLeaveName() {
+  const e = employees.value.find((x: any) => x.employeeId === newLeave.employeeId)
+  newLeave.employeeName = e ? `${e.firstName} ${e.lastName}` : ''
+}
+async function submitLeave() {
+  saving.value = true
+  try {
+    await $fetch(useApiUrl('/api/hr/leave'), { method:'POST', body:{ ...newLeave, userId } })
+    await refreshLeave(); showLeave.value=false
+    Object.assign(newLeave, { employeeId:'', employeeName:'', type:'vacation', startDate:'', endDate:'', reason:'' })
+    showToast('Antrag eingereicht!')
+  } finally { saving.value=false }
+}
+async function approveLeave(r: any) {
+  await $fetch(useApiUrl(`/api/hr/leave/${r.leaveId}/approve`), { method:'POST', body:{ userId } })
+  await refreshLeave(); showToast('Genehmigt!')
+}
+async function rejectLeave(r: any) {
+  await $fetch(useApiUrl(`/api/hr/leave/${r.leaveId}/reject`), { method:'POST', body:{ userId } })
+  await refreshLeave(); showToast('Abgelehnt!')
+}
+
+// ── Zeiterfassung ─────────────────────────────────────
+const { data: timelogData, refresh: refreshTimelog } = await useFetch(() => useApiUrl(`/api/hr/timelog?userId=${encodeURIComponent(userId)}`))
+const timelogEntries = computed(() => (timelogData.value as any)?.entries || [])
+const showTimelog  = ref(false)
+const newTimelog   = reactive({ employeeId:'', employeeName:'', date: new Date().toISOString().slice(0,10), clockIn:'', clockOut:'', note:'' })
+
+function setTimelogName() {
+  const e = employees.value.find((x: any) => x.employeeId === newTimelog.employeeId)
+  newTimelog.employeeName = e ? `${e.firstName} ${e.lastName}` : ''
+}
+async function submitTimelog() {
+  saving.value = true
+  try {
+    await $fetch(useApiUrl('/api/hr/timelog'), { method:'POST', body:{ ...newTimelog, userId } })
+    await refreshTimelog(); showTimelog.value=false
+    Object.assign(newTimelog, { employeeId:'', employeeName:'', date: new Date().toISOString().slice(0,10), clockIn:'', clockOut:'', note:'' })
+    showToast('Zeit erfasst!')
+  } finally { saving.value=false }
+}
+
+// ── Onboarding ────────────────────────────────────────
+const onboardingEmpId  = ref('')
+const onboardingLists  = ref<Record<string, any[]>>({})
+const newCheckItem     = ref('')
+
+const currentChecklist = computed(() => onboardingLists.value[onboardingEmpId.value] || [])
+const doneCheckCount   = computed(() => currentChecklist.value.filter((i: any) => i.done).length)
+const checkProgress    = computed(() => currentChecklist.value.length ? Math.round(doneCheckCount.value / currentChecklist.value.length * 100) : 0)
+
+function addCheckItem() {
+  if (!newCheckItem.value.trim() || !onboardingEmpId.value) return
+  const list = onboardingLists.value[onboardingEmpId.value] || []
+  onboardingLists.value[onboardingEmpId.value] = [...list, { id: Date.now().toString(), text: newCheckItem.value, done: false }]
+  newCheckItem.value = ''
+}
+function toggleCheck(item: any) {
+  item.done = !item.done
 }
 </script>
