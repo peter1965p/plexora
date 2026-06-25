@@ -269,14 +269,14 @@
       <!-- EXPORTE -->
       <div class="card">
         <div class="card-header"><span class="card-title">Exporte</span></div>
-        <div style="padding:16px 20px;display:flex;gap:10px;flex-wrap:wrap">
-          <button class="accent-btn" style="gap:8px" @click="doDatevExport">
+        <div style="padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap">
+          <button class="accent-btn" style="height:38px;padding:0 20px;font-size:13px;display:flex;align-items:center;gap:8px" @click="doDatevExport">
             <i class="ti ti-file-spreadsheet"></i> DATEV Buchungsstapel {{ taxYear }}
           </button>
-          <button class="icon-btn" style="padding:0 16px;height:36px;gap:6px;font-size:13px" @click="doExportCsv">
+          <button class="accent-btn" style="height:38px;padding:0 18px;font-size:13px;background:transparent;border:0.5px solid var(--border);display:flex;align-items:center;gap:8px" @click="doExportCsv">
             <i class="ti ti-file-type-csv"></i> Rechnungen CSV
           </button>
-          <button class="icon-btn" style="padding:0 16px;height:36px;gap:6px;font-size:13px" @click="doExportXlsx">
+          <button class="accent-btn" style="height:38px;padding:0 18px;font-size:13px;background:transparent;border:0.5px solid var(--border);display:flex;align-items:center;gap:8px" @click="doExportXlsx">
             <i class="ti ti-file-spreadsheet"></i> Rechnungen Excel
           </button>
         </div>
