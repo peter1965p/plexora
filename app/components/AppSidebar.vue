@@ -74,6 +74,7 @@ const navSections = computed(() => [
     label: t.value.navSystem,
     items: [
       { to: '/settings', label: t.value.settings, icon: 'ti-settings', key: 'settings' },
+      { to: '/seo', label: 'SEO / GEO', icon: 'ti-chart-line', key: 'seo' },
     ]
   }
 ])
