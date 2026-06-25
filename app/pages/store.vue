@@ -12,6 +12,20 @@
       </div>
     </div>
 
+    <!-- Aktueller Plan Banner -->
+    <div v-if="currentPlan" style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:14px 18px;background:var(--bg-elevated);border:1px solid var(--accent)44;border-radius:10px">
+      <div style="width:34px;height:34px;background:var(--accent)18;border:1px solid var(--accent)44;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="ti ti-rosette" style="color:var(--accent);font-size:16px"></i>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text-muted)">Dein aktueller Plan</div>
+        <div style="font-size:14px;font-weight:700">{{ currentPlan.label }} <span style="font-size:12px;color:var(--text-muted);font-weight:400">· €{{ currentPlan.price }}/Monat</span></div>
+      </div>
+      <div style="margin-left:auto;font-size:11px;color:#22c55e;background:#22c55e18;border:1px solid #22c55e44;border-radius:20px;padding:3px 12px;font-weight:600">
+        <i class="ti ti-check"></i> Aktiv
+      </div>
+    </div>
+
     <!-- Tab Navigation -->
     <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0">
       <button
@@ -138,6 +152,17 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const store = useAppStore()
 const activeTab = ref('addons')
+
+const TIER_INFO: Record<string, { label: string; price: number }> = {
+  starter:    { label: 'Starter',    price: 49 },
+  pro:        { label: 'Pro',        price: 149 },
+  enterprise: { label: 'Enterprise', price: 299 },
+}
+
+const currentPlan = computed(() => {
+  const tier = store.license?.tier
+  return tier ? TIER_INFO[tier] || null : null
+})
 
 const tabs = [
   { key: 'addons',   label: 'Add-on Module',   icon: 'ti-puzzle' },
