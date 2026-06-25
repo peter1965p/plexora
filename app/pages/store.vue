@@ -251,19 +251,19 @@ const branchenPakete = [
 
 const plans = [
   {
-    key: 'starter', name: 'Starter', price: '€19', featured: false, cta: 'Starten',
-    desc: 'Perfekt für Einzelpersonen und kleine Teams.',
-    features: ['CRM', 'Support', 'Finanzen', '3 Nutzer', '5 GB Speicher'],
+    key: 'starter', name: 'Starter', price: '€49', featured: false, cta: 'Jetzt starten',
+    desc: 'Für Freelancer & Einzelunternehmer.',
+    features: ['CRM & Kontaktverwaltung', 'Finanzen & Rechnungen', 'Projekte & Aufgaben', 'Marketing & Kampagnen', 'Formulare & Support-Tickets'],
   },
   {
-    key: 'pro', name: 'Pro', price: '€49', featured: true, cta: 'Jetzt upgraden',
-    desc: 'Für wachsende Teams mit mehr Bedarf.',
-    features: ['Alle Starter-Module', 'Projekte', 'HR', 'Marketing', '15 Nutzer', '25 GB Speicher', 'Priority Support'],
+    key: 'pro', name: 'Pro', price: '€149', featured: true, cta: 'Jetzt upgraden',
+    desc: 'Für wachsende Teams.',
+    features: ['Alles aus Starter', 'HR, Zeiterfassung & Urlaub', 'Verträge & Kunden-Portal', 'Shop & Pagebuilder', 'Analytics & Lead-Kampagnen'],
   },
   {
-    key: 'enterprise', name: 'Enterprise', price: '€99', featured: false, cta: 'Kontakt aufnehmen',
-    desc: 'Für Unternehmen mit individuellen Anforderungen.',
-    features: ['Alle Module', 'Branchen-Pakete inklusive', 'Unbegrenzte Nutzer', '100 GB Speicher', 'Dedicated Support', 'Custom Branding', 'SLA-Garantie'],
+    key: 'enterprise', name: 'Enterprise', price: '€299', featured: false, cta: 'Kontakt aufnehmen',
+    desc: 'Für größere Unternehmen.',
+    features: ['Alles aus Pro', 'White-Label & eigenes Branding', 'UTM-Tracking & QR-Codes', 'API-Zugang & Integrationen', 'Prioritäts-Support & SLA'],
   },
 ]
 
