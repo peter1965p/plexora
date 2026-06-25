@@ -87,26 +87,6 @@
       </div>
     </template>
 
-    <!-- PAKETE TAB -->
-    <template v-else-if="activeTab === 'pakete'">
-      <div class="plans-grid">
-        <div v-for="plan in plans" :key="plan.key" class="plan-card" :class="{ featured: plan.featured }">
-          <div v-if="plan.featured" class="plan-badge">Beliebt</div>
-          <div class="plan-name">{{ plan.name }}</div>
-          <div class="plan-price">
-            <span class="plan-amount">{{ plan.price }}</span>
-            <span class="plan-period">/Monat</span>
-          </div>
-          <div class="plan-desc">{{ plan.desc }}</div>
-          <ul class="plan-features">
-            <li v-for="f in plan.features" :key="f"><i class="ti ti-check" style="color:var(--accent)"></i> {{ f }}</li>
-          </ul>
-          <button class="btn-plan" :class="{ 'btn-featured': plan.featured }" @click="openBuy(plan)">
-            {{ plan.cta }}
-          </button>
-        </div>
-      </div>
-    </template>
 
     <!-- BUY MODAL -->
     <div v-if="buyItem" class="modal-overlay" @click.self="buyItem = null">
@@ -160,9 +140,8 @@ const store = useAppStore()
 const activeTab = ref('addons')
 
 const tabs = [
-  { key: 'addons',   label: 'Add-on Module',    icon: 'ti-puzzle' },
-  { key: 'branchen', label: 'Branchen-Pakete',  icon: 'ti-building-factory-2' },
-  { key: 'pakete',   label: 'Pläne & Preise',   icon: 'ti-rosette' },
+  { key: 'addons',   label: 'Add-on Module',   icon: 'ti-puzzle' },
+  { key: 'branchen', label: 'Branchen-Pakete', icon: 'ti-building-factory-2' },
 ]
 
 const addons = computed(() => [
@@ -249,23 +228,6 @@ const branchenPakete = [
   },
 ]
 
-const plans = [
-  {
-    key: 'starter', name: 'Starter', price: '€49', featured: false, cta: 'Jetzt starten',
-    desc: 'Für Freelancer & Einzelunternehmer.',
-    features: ['CRM & Kontaktverwaltung', 'Finanzen & Rechnungen', 'Projekte & Aufgaben', 'Marketing & Kampagnen', 'Formulare & Support-Tickets'],
-  },
-  {
-    key: 'pro', name: 'Pro', price: '€149', featured: true, cta: 'Jetzt upgraden',
-    desc: 'Für wachsende Teams.',
-    features: ['Alles aus Starter', 'HR, Zeiterfassung & Urlaub', 'Verträge & Kunden-Portal', 'Shop & Pagebuilder', 'Analytics & Lead-Kampagnen'],
-  },
-  {
-    key: 'enterprise', name: 'Enterprise', price: '€299', featured: false, cta: 'Kontakt aufnehmen',
-    desc: 'Für größere Unternehmen.',
-    features: ['Alles aus Pro', 'White-Label & eigenes Branding', 'UTM-Tracking & QR-Codes', 'API-Zugang & Integrationen', 'Prioritäts-Support & SLA'],
-  },
-]
 
 const buyItem = ref<any>(null)
 const notifyItem = ref<any>(null)
@@ -439,95 +401,6 @@ function checkout() {
   color: #fff;
 }
 
-/* Plans */
-.plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
-  max-width: 900px;
-}
-
-.plan-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.plan-card.featured {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent)44;
-}
-
-.plan-badge {
-  position: absolute;
-  top: -11px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--accent);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 14px;
-  border-radius: 20px;
-  letter-spacing: .5px;
-}
-
-.plan-name { font-size: 16px; font-weight: 700; }
-
-.plan-price {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.plan-amount { font-size: 32px; font-weight: 800; }
-.plan-period { font-size: 13px; color: var(--text-muted); }
-.plan-desc { font-size: 12px; color: var(--text-muted); }
-
-.plan-features {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.plan-features li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.btn-plan {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .15s;
-  margin-top: 4px;
-}
-
-.btn-plan:hover { border-color: var(--accent); color: var(--accent); }
-
-.btn-featured {
-  background: var(--accent) !important;
-  border-color: var(--accent) !important;
-  color: #fff !important;
-}
-
-.btn-featured:hover { opacity: .85; }
 
 /* Modal */
 .modal-overlay {
