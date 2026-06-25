@@ -160,13 +160,13 @@
           <div class="lp-pcard-tier">Starter</div>
           <div class="lp-pcard-price">49 <span>€ / Monat</span></div>
           <div style="font-size:11px;color:#545870;margin-bottom:2px">zzgl. MwSt.</div>
-          <div class="lp-pcard-note">Für Einzelunternehmer & kleine Teams</div>
+          <div class="lp-pcard-note">Für Freelancer & Einzelunternehmer</div>
           <ul class="lp-pcard-items">
-            <li><i class="ti ti-check lp-tick"></i>CRM</li>
-            <li><i class="ti ti-check lp-tick"></i>Support-Tickets</li>
-            <li><i class="ti ti-check lp-tick"></i>Kunden-Portal</li>
-            <li style="color:#545870"><i class="ti ti-minus" style="color:#545870"></i>Finanzen & Rechnungen</li>
-            <li style="color:#545870"><i class="ti ti-minus" style="color:#545870"></i>Projekte & HR</li>
+            <li><i class="ti ti-check lp-tick"></i>CRM & Kontaktverwaltung</li>
+            <li><i class="ti ti-check lp-tick"></i>Finanzen & Rechnungen</li>
+            <li><i class="ti ti-check lp-tick"></i>Projekte & Aufgaben</li>
+            <li><i class="ti ti-check lp-tick"></i>Marketing & Kampagnen</li>
+            <li><i class="ti ti-check lp-tick"></i>Formulare & Support-Tickets</li>
           </ul>
           <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>Jetzt starten</span></button>
         </div>
@@ -177,13 +177,13 @@
           <div class="lp-pcard-tier">Pro</div>
           <div class="lp-pcard-price">149 <span>€ / Monat</span></div>
           <div style="font-size:11px;color:#545870;margin-bottom:2px">zzgl. MwSt.</div>
-          <div class="lp-pcard-note">Für wachsende Unternehmen</div>
+          <div class="lp-pcard-note">Für wachsende Teams</div>
           <ul class="lp-pcard-items">
-            <li><i class="ti ti-check lp-tick"></i>CRM + Support</li>
-            <li><i class="ti ti-check lp-tick"></i>Finanzen & Rechnungen</li>
-            <li><i class="ti ti-check lp-tick"></i>Projekte & Verträge</li>
-            <li><i class="ti ti-check lp-tick"></i>HR & Analytics</li>
-            <li><i class="ti ti-check lp-tick"></i>Shop, Pagebuilder, Formulare</li>
+            <li><i class="ti ti-check lp-tick"></i>Alles aus Starter</li>
+            <li><i class="ti ti-check lp-tick"></i>HR, Zeiterfassung & Urlaub</li>
+            <li><i class="ti ti-check lp-tick"></i>Verträge & Kunden-Portal</li>
+            <li><i class="ti ti-check lp-tick"></i>Shop & Pagebuilder</li>
+            <li><i class="ti ti-check lp-tick"></i>Analytics & Lead-Kampagnen</li>
           </ul>
           <button class="lp-pcard-btn" @click="navigateTo('/kaufen')"><span>Jetzt starten</span></button>
         </div>
@@ -193,13 +193,13 @@
           <div class="lp-pcard-tier">Enterprise</div>
           <div class="lp-pcard-price">299 <span>€ / Monat</span></div>
           <div style="font-size:11px;color:#545870;margin-bottom:2px">zzgl. MwSt.</div>
-          <div class="lp-pcard-note">Für Teams mit vollem Funktionsumfang</div>
+          <div class="lp-pcard-note">Für größere Unternehmen</div>
           <ul class="lp-pcard-items">
             <li><i class="ti ti-check lp-tick"></i>Alles aus Pro</li>
-            <li><i class="ti ti-check lp-tick"></i>Marketing-Suite</li>
+            <li><i class="ti ti-check lp-tick"></i>White-Label & eigenes Branding</li>
             <li><i class="ti ti-check lp-tick"></i>UTM-Tracking & QR-Codes</li>
-            <li><i class="ti ti-check lp-tick"></i>Lead-Kampagnen</li>
-            <li><i class="ti ti-check lp-tick"></i>Prioritäts-Support</li>
+            <li><i class="ti ti-check lp-tick"></i>API-Zugang & Integrationen</li>
+            <li><i class="ti ti-check lp-tick"></i>Prioritäts-Support & SLA</li>
           </ul>
           <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>Jetzt starten</span></button>
         </div>
@@ -228,7 +228,7 @@ useSeoMeta({
   title: 'Eine Lizenz. Alles drin.',
   description: 'Plexora ist die All-in-One Business Plattform für Teams: CRM, Projekte, Finanzen, HR, Support, Marketing und Shop — alles in einer Lizenz.',
   ogTitle: 'Plexora — Eine Lizenz. Alles drin.',
-  ogDescription: 'Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt? CRM, Finanzen, HR, Projekte und mehr — ab 34 € / User.',
+  ogDescription: 'Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt? CRM, Finanzen, HR, Projekte und mehr — ab 49 € / Monat.',
   ogImage: 'https://app.plexora.eu/og-image.png',
   ogUrl: 'https://app.plexora.eu',
   ogType: 'website',

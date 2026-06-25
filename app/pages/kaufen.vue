@@ -43,10 +43,11 @@
           <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:4px">49 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
           <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>CRM</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>CRM & Kontakte</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Finanzen & Rechnungen</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Projekte & Aufgaben</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Marketing & Formulare</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Support-Tickets</li>
-            <li style="font-size:13px;color:#545870;display:flex;gap:8px;align-items:center"><i class="ti ti-minus" style="color:#545870"></i>Finanzen</li>
-            <li style="font-size:13px;color:#545870;display:flex;gap:8px;align-items:center"><i class="ti ti-minus" style="color:#545870"></i>Projekte & HR</li>
           </ul>
           <div class="select-indicator">{{ selected === 'starter' ? '✓ Ausgewählt' : 'Auswählen' }}</div>
         </div>
@@ -62,10 +63,11 @@
           <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#ea580c;line-height:1;margin-bottom:4px">149 <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:#8b8fa8">€</span></div>
           <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>CRM + Support</li>
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Finanzen & Rechnungen</li>
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Projekte & HR</li>
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Shop, Pagebuilder, Formulare</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Alles aus Starter</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>HR, Zeiterfassung & Urlaub</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Verträge & Kunden-Portal</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Shop & Pagebuilder</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Analytics & Lead-Kampagnen</li>
           </ul>
           <div class="select-indicator">{{ selected === 'pro' ? '✓ Ausgewählt' : 'Auswählen' }}</div>
         </div>
@@ -81,9 +83,10 @@
           <div style="font-size:12px;color:#8b8fa8;margin-bottom:20px">/ Monat</div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:20px">
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Alles aus Pro</li>
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Marketing-Suite</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>White-Label & eigenes Branding</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>UTM-Tracking & QR-Codes</li>
-            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Prioritäts-Support</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>API-Zugang & Integrationen</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Prioritäts-Support & SLA</li>
           </ul>
           <div class="select-indicator">{{ selected === 'enterprise' ? '✓ Ausgewählt' : 'Auswählen' }}</div>
         </div>
