@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, GetCommand, UpdateCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { getDynamoClient } from '../../utils/dynamodb'
@@ -127,7 +127,38 @@ export default defineEventHandler(async (event) => {
       console.log(`✅ Shop-Kauf: Tenant ${tenantId} für ${customerEmail}`)
     }
 
-    // ── FALL 3: Plexora Lizenz-Kauf → Lizenz + Cognito-User + kombinierte Mail
+    // ── FALL 3: Modul-Kauf → Lizenz-Module aktualisieren ───────────────────
+    if (metadata.type === 'module_purchase' && metadata.moduleKey && metadata.email) {
+      const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id
+      try {
+        const scan = await dynamo.send(new ScanCommand({
+          TableName: 'plexora-licenses',
+          FilterExpression: 'customerEmail = :e AND #st = :active',
+          ExpressionAttributeNames: { '#st': 'status' },
+          ExpressionAttributeValues: { ':e': metadata.email, ':active': 'active' }
+        }))
+        const license = scan.Items?.[0]
+        if (license) {
+          const currentModules: string[] = license.modules || []
+          if (!currentModules.includes(metadata.moduleKey)) {
+            currentModules.push(metadata.moduleKey)
+          }
+          await dynamo.send(new UpdateCommand({
+            TableName: 'plexora-licenses',
+            Key: { licenseKey: license.licenseKey },
+            UpdateExpression: 'SET modules = :m, updated = :u' + (customerId ? ', stripeCustomerId = :cid' : ''),
+            ExpressionAttributeValues: {
+              ':m': currentModules,
+              ':u': new Date().toISOString(),
+              ...(customerId ? { ':cid': customerId } : {}),
+            }
+          }))
+          console.log(`✅ Modul ${metadata.moduleKey} zu Lizenz ${license.licenseKey} hinzugefügt`)
+        }
+      } catch (err) { console.error('Modul-Update fehlgeschlagen:', err) }
+    }
+
+    // ── FALL 4: Plexora Lizenz-Kauf → Lizenz + Cognito-User + kombinierte Mail
     if (metadata.type === 'license_purchase') {
       const tier          = metadata.tier || 'pro'
       const customerEmail = session.customer_details?.email || metadata.email || ''
@@ -145,13 +176,14 @@ export default defineEventHandler(async (event) => {
           customerEmail,
           customerName,
           tier,
-          status:          'active',
-          modules:         TIER_MODULES[tier] || [],
-          validFrom:       now,
-          validUntil:      null,
-          stripeSessionId: session.id,
-          created:         now,
-          updated:         now,
+          status:           'active',
+          modules:          TIER_MODULES[tier] || [],
+          validFrom:        now,
+          validUntil:       null,
+          stripeSessionId:  session.id,
+          stripeCustomerId: typeof session.customer === 'string' ? session.customer : (session.customer as any)?.id || null,
+          created:          now,
+          updated:          now,
         }
       }))
       console.log(`✅ Lizenz erstellt: ${licenseKey} (${tier}) für ${customerEmail}`)

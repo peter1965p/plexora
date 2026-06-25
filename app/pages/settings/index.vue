@@ -719,13 +719,108 @@
     <div v-if="tab === 'account'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-user-circle" style="margin-right:8px;color:var(--accent)"></i>Konto</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || accountSaving" @click="saveAccount">
+          <span v-if="accountSaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
       </div>
-      <div class="card-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div><div class="settings-label">Name</div><div style="font-size:13px;color:var(--text-primary);font-weight:500">{{ userName }}</div></div>
-          <div><div class="settings-label">E-Mail</div><div style="font-size:13px;color:var(--text-primary)">{{ userEmail }}</div></div>
-          <div><div class="settings-label">Rolle</div><span class="badge badge-info">Administrator</span></div>
-          <div><div class="settings-label">Plan</div><span class="badge badge-success">Plexora Pro</span></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-width:480px">
+        <div class="auth-field">
+          <label>Name</label>
+          <input v-model="accountForm.name" placeholder="Dein Name" :disabled="isDemo" />
+        </div>
+        <div class="auth-field">
+          <label>E-Mail</label>
+          <input :value="userEmail" disabled style="opacity:.6;cursor:not-allowed" />
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">E-Mail kann nicht geändert werden</div>
+        </div>
+        <div class="auth-field">
+          <label>Rolle</label>
+          <input value="Administrator" disabled style="opacity:.6;cursor:not-allowed" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ABRECHNUNG -->
+    <div v-if="tab === 'billing'">
+      <!-- Aktueller Plan -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-rosette" style="margin-right:8px;color:var(--accent)"></i>Aktueller Plan</span>
+        </div>
+        <div class="card-body">
+          <div v-if="store.license" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <div style="font-size:22px;font-weight:800">{{ TIER_LABELS[store.license.tier] || store.license.tier }}</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-top:2px">{{ TIER_PRICES[store.license.tier] ? `€${TIER_PRICES[store.license.tier]}/Monat` : '' }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:12px;color:var(--text-muted)">Lizenz-Key</div>
+              <code style="font-size:13px;font-weight:700;color:var(--accent);letter-spacing:2px">{{ store.license.licenseKey }}</code>
+            </div>
+            <span style="padding:4px 14px;background:#22c55e18;border:1px solid #22c55e44;border-radius:20px;font-size:12px;font-weight:600;color:#22c55e">
+              <i class="ti ti-check"></i> Aktiv
+            </span>
+          </div>
+          <div v-else style="color:var(--text-muted);font-size:13px">Keine aktive Lizenz gefunden.</div>
+        </div>
+      </div>
+
+      <!-- Stripe Portal Aktionen -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>Zahlung & Abonnement</span>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;max-width:500px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
+            <div>
+              <div style="font-size:13px;font-weight:600">Zahlungsart ändern</div>
+              <div style="font-size:11px;color:var(--text-muted)">Kreditkarte, SEPA-Lastschrift usw.</div>
+            </div>
+            <button class="accent-btn" style="height:30px;font-size:12px;padding:0 14px" :disabled="isDemo || billingPortalLoading" @click="openBillingPortal('payment')">
+              <i class="ti ti-external-link" style="margin-right:4px"></i> Ändern
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
+            <div>
+              <div style="font-size:13px;font-weight:600">Rechnungshistorie</div>
+              <div style="font-size:11px;color:var(--text-muted)">Alle Belege als PDF herunterladen</div>
+            </div>
+            <button class="accent-btn" style="height:30px;font-size:12px;padding:0 14px" :disabled="isDemo || billingPortalLoading" @click="openBillingPortal('invoices')">
+              <i class="ti ti-external-link" style="margin-right:4px"></i> Anzeigen
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
+            <div>
+              <div style="font-size:13px;font-weight:600">Abo verwalten / kündigen</div>
+              <div style="font-size:11px;color:var(--text-muted)">Plan wechseln oder Abonnement beenden</div>
+            </div>
+            <button class="btn-secondary" style="height:30px;font-size:12px;padding:0 14px" :disabled="isDemo || billingPortalLoading" @click="openBillingPortal('subscription')">
+              <i class="ti ti-settings" style="margin-right:4px"></i> Verwalten
+            </button>
+          </div>
+          <div v-if="billingPortalError" style="font-size:12px;color:#E05C5C;padding:8px 12px;background:#E05C5C18;border-radius:8px">
+            {{ billingPortalError }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Module Übersicht -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>Freigeschaltete Module</span>
+          <NuxtLink to="/store" style="font-size:12px;color:var(--accent);text-decoration:none">
+            <i class="ti ti-building-store" style="margin-right:4px"></i>Modul-Store
+          </NuxtLink>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <span v-for="mod in store.licenseModules" :key="mod"
+              style="padding:4px 12px;background:var(--accent)18;border:1px solid var(--accent)44;border-radius:20px;font-size:12px;font-weight:500;color:var(--accent)">
+              <i class="ti ti-check" style="margin-right:4px"></i>{{ mod }}
+            </span>
+            <span v-if="!store.licenseModules?.length" style="font-size:13px;color:var(--text-muted)">Keine Module gefunden</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1074,6 +1169,7 @@ const tabs = [
   { key: 'licenses',    label: 'Lizenzen',         icon: 'ti-key'             },
   { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
+  { key: 'billing',     label: 'Abrechnung',       icon: 'ti-credit-card'     },
   { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
   { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
   { key: 'team',        label: 'Team',             icon: 'ti-users'           },
@@ -1084,6 +1180,47 @@ const userName  = ref('–')
 const userEmail = ref('–')
 const userId    = ref('demo-user')
 const isDemo    = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
+
+// ── Account ───────────────────────────────────────────
+const accountSaving = ref(false)
+const accountForm = reactive({ name: '' })
+
+async function saveAccount() {
+  if (isDemo.value) return
+  accountSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/account'), {
+      method: 'POST',
+      body: { name: accountForm.name }
+    })
+    userName.value = accountForm.name
+    showSettingsToast('Konto gespeichert')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + e.message, true)
+  } finally { accountSaving.value = false }
+}
+
+// ── Abrechnung / Billing Portal ───────────────────────
+const billingPortalLoading = ref(false)
+const billingPortalError   = ref('')
+
+const TIER_LABELS: Record<string, string> = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise' }
+const TIER_PRICES: Record<string, number>  = { starter: 49, pro: 149, enterprise: 299 }
+
+async function openBillingPortal(_section?: string) {
+  if (isDemo.value) return
+  billingPortalLoading.value = true
+  billingPortalError.value = ''
+  try {
+    const data = await $fetch<{ url: string }>(useApiUrl('/api/billing/portal'), {
+      method: 'POST',
+      body: { email: userEmail.value }
+    })
+    if (data.url) window.location.href = data.url
+  } catch (e: any) {
+    billingPortalError.value = e?.data?.message || e?.message || 'Stripe Portal nicht erreichbar'
+  } finally { billingPortalLoading.value = false }
+}
 
 // ── Branding ──────────────────────────────────────────
 const brandSaving = ref(false)

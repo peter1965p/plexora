@@ -12,6 +12,15 @@
       </div>
     </div>
 
+    <!-- Erfolg Banner nach Stripe Checkout -->
+    <div v-if="successModule" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 18px;background:#22c55e18;border:1px solid #22c55e55;border-radius:10px">
+      <i class="ti ti-circle-check" style="color:#22c55e;font-size:20px;flex-shrink:0"></i>
+      <div>
+        <div style="font-weight:700;color:#22c55e">Modul erfolgreich gekauft!</div>
+        <div style="font-size:12px;color:var(--text-muted)">Deine Lizenz wird in Kürze aktualisiert. Bitte neu einloggen falls das Modul noch nicht erscheint.</div>
+      </div>
+    </div>
+
     <!-- Aktueller Plan Banner -->
     <div v-if="currentPlan" style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:14px 18px;background:var(--bg-elevated);border:1px solid var(--accent)44;border-radius:10px">
       <div style="width:34px;height:34px;background:var(--accent)18;border:1px solid var(--accent)44;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -118,8 +127,9 @@
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn-secondary" style="flex:1" @click="buyItem = null">Abbrechen</button>
-          <button class="btn-accent" style="flex:2" @click="checkout">
-            <i class="ti ti-credit-card" style="margin-right:6px"></i>Jetzt kaufen
+          <button class="btn-accent" style="flex:2" @click="checkout" :disabled="checkoutLoading">
+            <i class="ti" :class="checkoutLoading ? 'ti-loader-2 spin' : 'ti-credit-card'" style="margin-right:6px"></i>
+            {{ checkoutLoading ? 'Weiterleitung...' : 'Jetzt kaufen' }}
           </button>
         </div>
         <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-muted)">
@@ -254,20 +264,38 @@ const branchenPakete = [
 ]
 
 
-const buyItem = ref<any>(null)
+const buyItem    = ref<any>(null)
 const notifyItem = ref<any>(null)
+const checkoutLoading = ref(false)
 
-function openBuy(item: any) {
-  buyItem.value = item
-}
+const route = useRoute()
+const successModule = computed(() => route.query.success === '1' ? route.query.module as string : null)
 
-function notify(item: any) {
-  notifyItem.value = item
-}
+function openBuy(item: any) { buyItem.value = item }
+function notify(item: any)  { notifyItem.value = item }
 
-function checkout() {
-  buyItem.value = null
-  // Stripe checkout integration kommt hier rein
+async function checkout() {
+  if (!buyItem.value) return
+  checkoutLoading.value = true
+  try {
+    const { useAuthUser } = await import('~/composables/useAuth')
+    const u = await useAuthUser()
+    const data = await $fetch<{ url: string }>(useApiUrl('/api/store/checkout'), {
+      method: 'POST',
+      body: {
+        moduleKey: buyItem.value.key,
+        name:      buyItem.value.name,
+        priceEur:  parseFloat(buyItem.value.price.replace('€', '')),
+      },
+      headers: { 'x-user-email': u.email || '' },
+    })
+    if (data.url) window.location.href = data.url
+  } catch (e: any) {
+    alert(`Fehler beim Checkout: ${e?.message || 'Unbekannter Fehler'}`)
+  } finally {
+    checkoutLoading.value = false
+    buyItem.value = null
+  }
 }
 </script>
 
