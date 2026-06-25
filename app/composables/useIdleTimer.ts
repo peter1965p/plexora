@@ -29,8 +29,11 @@ export function useIdleTimer() {
 
   async function doLogout() {
     if (interval) clearInterval(interval)
-    try { await signOut() } catch {}
-    if (typeof window !== 'undefined') window.location.href = '/login?reason=idle'
+    let isRealUser = false
+    try { await signOut(); isRealUser = true } catch {}
+    if (typeof window !== 'undefined') {
+      window.location.href = isRealUser ? '/login?reason=idle' : '/'
+    }
   }
 
   function handleActivity() {

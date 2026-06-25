@@ -1082,7 +1082,8 @@ const tabs = [
 // ── Auth ──────────────────────────────────────────────
 const userName  = ref('–')
 const userEmail = ref('–')
-const isDemo    = computed(() => userEmail.value === 'demo@plexora.eu')
+const userId    = ref('demo-user')
+const isDemo    = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
 
 // ── Branding ──────────────────────────────────────────
 const brandSaving = ref(false)
@@ -1119,6 +1120,7 @@ onMounted(async () => {
     const user = await getCurrentUser()
     userEmail.value = user.signInDetails?.loginId || '–'
     userName.value  = user.username || '–'
+    userId.value    = user.userId || 'demo-user'
   } catch {}
 
   try {
@@ -1161,7 +1163,7 @@ async function saveCompany() {
   if (isDemo.value) return
   companySaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company } })
+    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company, userId: userId.value } })
     showSettingsToast('Unternehmensdaten gespeichert!')
   } catch {
     showSettingsToast('Fehler beim Speichern!', true)
@@ -1174,7 +1176,7 @@ async function saveBranding() {
   if (isDemo.value) return
   brandSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/branding'), { method: 'POST', body: { ...brand } })
+    await $fetch(useApiUrl('/api/settings/branding'), { method: 'POST', body: { ...brand, userId: userId.value } })
     const { useBranding } = await import('~/composables/useBranding')
     const { branding } = useBranding()
     Object.assign(branding.value, brand)
@@ -1187,7 +1189,7 @@ async function saveInvoiceSettings() {
   if (isDemo.value) return
   invoiceSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/invoice'), { method: 'POST', body: { ...invoiceSettings } })
+    await $fetch(useApiUrl('/api/settings/invoice'), { method: 'POST', body: { ...invoiceSettings, userId: userId.value } })
   } finally {
     invoiceSaving.value = false
   }
@@ -1197,7 +1199,7 @@ async function saveDunningSettings() {
   if (isDemo.value) return
   dunningSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/dunning'), { method: 'POST', body: { ...dunning } })
+    await $fetch(useApiUrl('/api/settings/dunning'), { method: 'POST', body: { ...dunning, userId: userId.value } })
   } finally {
     dunningSaving.value = false
   }
@@ -1260,7 +1262,7 @@ async function savePayment() {
   if (isDemo.value) return
   paymentSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', body: { ...payment } })
+    await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', body: { ...payment, userId: userId.value } })
     showSettingsToast('Payment-Einstellungen gespeichert!')
   } catch {
     showSettingsToast('Fehler beim Speichern!', true)
@@ -1403,7 +1405,7 @@ async function saveAgb() {
   if (isDemo.value) return
   agbSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', body: { content: agb.content } })
+    await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', body: { content: agb.content, userId: userId.value } })
   } finally {
     agbSaving.value = false
   }

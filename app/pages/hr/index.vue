@@ -249,6 +249,17 @@
 
     <!-- ═══ TAB: ZEITERFASSUNG ═══ -->
     <div v-if="tab === 'timelog'">
+      <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(167,139,250,0.06));border-color:rgba(99,102,241,0.25)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px">
+          <div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:4px">Digitale Stempeluhr</div>
+            <div style="font-size:12px;color:var(--text-muted)">Kiosk-Modus für Mitarbeiter — auf großem Display oder Tablet öffnen</div>
+          </div>
+          <NuxtLink to="/stempel" target="_blank" class="accent-btn" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+            <i class="ti ti-clock-play"></i> Stempeluhr öffnen
+          </NuxtLink>
+        </div>
+      </div>
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
           <span class="card-title">Arbeitszeiten erfassen</span>

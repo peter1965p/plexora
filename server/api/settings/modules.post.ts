@@ -1,8 +1,11 @@
+import { demoGuard } from '../../utils/demoGuard'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
+import { demoGuard } from '../../utils/demoGuard'
 import { getDynamoClient } from '../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {
-  const body   = await readBody(event)
+  const body = await readBody(event)
+  demoGuard(body?.userId)
   const client = getDynamoClient()
 
   if (!body.modules) throw createError({ statusCode: 400, statusMessage: 'modules erforderlich' })
