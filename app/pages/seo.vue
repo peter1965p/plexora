@@ -161,8 +161,6 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-const { email } = await useAuthUser()
-
 const stats   = ref<any>(null)
 const loading = ref(true)
 const error   = ref<string>('')
@@ -183,7 +181,7 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
-    const data = await $fetch(useApiUrl(`/api/admin/seo-stats?email=${encodeURIComponent(email)}`)) as any
+    const data = await $fetch(useApiUrl('/api/admin/seo-stats')) as any
     stats.value = data
   } catch (e: any) {
     error.value = `${e?.statusCode || ''} — email: ${email}`
