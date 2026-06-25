@@ -4,27 +4,27 @@
     <div class="stats-grid">
       <div class="stat-card">
         <i class="ti ti-users stat-icon"></i>
-        <div class="stat-label">Kontakte gesamt</div>
+        <div class="stat-label">{{ t.crm.totalContacts }}</div>
         <div class="stat-value">{{ contacts.length }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ customers }} Kunden</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ customers }} {{ t.crm.customers }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-briefcase stat-icon"></i>
-        <div class="stat-label">Deals gesamt</div>
+        <div class="stat-label">{{ t.crm.totalDeals }}</div>
         <div class="stat-value">{{ deals.length }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} gewonnen</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} {{ t.crm.won }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-trending-up stat-icon"></i>
-        <div class="stat-label">Pipeline Wert</div>
+        <div class="stat-label">{{ t.crm.pipelineValue }}</div>
         <div class="stat-value">{{ formatEur(totalValue) }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> gewichtet {{ formatEur(weighted) }}</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.crm.weighted }} {{ formatEur(weighted) }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-target stat-icon"></i>
-        <div class="stat-label">Win Rate</div>
+        <div class="stat-label">{{ t.crm.winRate }}</div>
         <div class="stat-value">{{ winRate }}%</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} von {{ deals.length }}</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} {{ t.crm.of }} {{ deals.length }}</div>
       </div>
     </div>
 
@@ -33,38 +33,38 @@
       <!-- CONTACTS -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Kontakte</span>
+          <span class="card-title">{{ t.crm.contacts }}</span>
           <div style="display:flex;gap:8px">
-            <button class="icon-btn" title="Als CSV exportieren" @click="exportContactsCsv"><i class="ti ti-file-type-csv"></i></button>
-            <button class="icon-btn" title="Als Excel exportieren" @click="exportContactsXlsx"><i class="ti ti-file-spreadsheet"></i></button>
-            <button class="icon-btn" title="CSV/Excel importieren" @click="showImportModal = true"><i class="ti ti-file-import"></i></button>
+            <button class="icon-btn" title="CSV" @click="exportContactsCsv"><i class="ti ti-file-type-csv"></i></button>
+            <button class="icon-btn" title="Excel" @click="exportContactsXlsx"><i class="ti ti-file-spreadsheet"></i></button>
+            <button class="icon-btn" title="Import" @click="showImportModal = true"><i class="ti ti-file-import"></i></button>
             <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddContact">
-              <i class="ti ti-plus"></i> Neu
+              <i class="ti ti-plus"></i> {{ t.common.new }}
             </button>
           </div>
         </div>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Name</th><th>Unternehmen</th><th>E-Mail</th><th>Status</th><th>Lead</th><th style="width:100px"></th>
+              <th>{{ t.common.name }}</th><th>{{ t.common.company }}</th><th>E-Mail</th><th>{{ t.common.status }}</th><th>Lead</th><th style="width:100px"></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!contacts.length">
-              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Keine Kontakte</td>
+              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.crm.noContacts }}</td>
             </tr>
             <tr v-for="c in contacts" :key="c.contactId">
               <td class="td-name">{{ c.firstName }} {{ c.lastName }}</td>
               <td>{{ companyName(c) }}</td>
               <td style="font-size:12px">{{ c.email }}</td>
-              <td><span class="badge" :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></td>
+              <td><span class="badge" :class="statusBadge(c.status)">{{ t.contactStatus[c.status] || statusLabel(c.status) }}</span></td>
               <td>
                 <span v-if="c.status === 'lead'" class="badge" :class="leadStatusBadge(c.leadStatus)">{{ leadStatusLabel(c.leadStatus) }}</span>
                 <span v-else style="color:var(--text-muted)">—</span>
               </td>
               <td>
                 <div style="display:flex;gap:4px">
-                  <button v-if="c.status === 'lead'" class="icon-btn" title="Zu Kunde machen" @click="convertContact(c)"><i class="ti ti-user-check"></i></button>
+                  <button v-if="c.status === 'lead'" class="icon-btn" :title="t.crm.makeCustomer" @click="convertContact(c)"><i class="ti ti-user-check"></i></button>
                   <button class="icon-btn" @click="openEditContact(c)"><i class="ti ti-pencil"></i></button>
                   <button class="icon-btn" style="color:var(--danger)" @click="deleteContact(c)"><i class="ti ti-trash"></i></button>
                 </div>
@@ -77,26 +77,26 @@
       <!-- DEALS -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Deals</span>
+          <span class="card-title">{{ t.crm.deals }}</span>
           <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddDeal">
-            <i class="ti ti-plus"></i> Neu
+            <i class="ti ti-plus"></i> {{ t.common.new }}
           </button>
         </div>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Unternehmen</th><th>Wert</th><th>Phase</th><th>Status</th><th style="width:64px"></th>
+              <th>{{ t.common.company }}</th><th>{{ t.common.value }}</th><th>{{ t.common.stage }}</th><th>{{ t.common.status }}</th><th style="width:64px"></th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!deals.length">
-              <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Keine Deals</td>
+              <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.crm.noDeals }}</td>
             </tr>
             <tr v-for="d in deals" :key="d.dealId">
               <td class="td-name">{{ d.name }}</td>
               <td>{{ d.value }}</td>
               <td>{{ d.stage }}</td>
-              <td><span class="badge" :class="'badge-'+d.status">{{ stageLabel[d.status] }}</span></td>
+              <td><span class="badge" :class="'badge-'+d.status">{{ t.dealStage[d.status] || stageLabel[d.status] }}</span></td>
               <td>
                 <div style="display:flex;gap:4px">
                   <button class="icon-btn" @click="openEditDeal(d)"><i class="ti ti-pencil"></i></button>
@@ -112,22 +112,22 @@
     <!-- COMPANIES -->
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">
-        <span class="card-title">Unternehmen</span>
+        <span class="card-title">{{ t.crm.companies }}</span>
         <div style="display:flex;gap:8px">
-          <button class="icon-btn" title="Als CSV exportieren" @click="exportCompaniesCsv"><i class="ti ti-file-type-csv"></i></button>
-          <button class="icon-btn" title="Als Excel exportieren" @click="exportCompaniesXlsx"><i class="ti ti-file-spreadsheet"></i></button>
+          <button class="icon-btn" title="CSV" @click="exportCompaniesCsv"><i class="ti ti-file-type-csv"></i></button>
+          <button class="icon-btn" title="Excel" @click="exportCompaniesXlsx"><i class="ti ti-file-spreadsheet"></i></button>
           <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddCompany">
-            <i class="ti ti-plus"></i> Neu
+            <i class="ti ti-plus"></i> {{ t.common.new }}
           </button>
         </div>
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>Name</th><th>Branche</th><th>Ort</th><th>Website</th><th style="width:64px"></th></tr>
+          <tr><th>{{ t.common.name }}</th><th>{{ t.common.industry }}</th><th>{{ t.common.city }}</th><th>Website</th><th style="width:64px"></th></tr>
         </thead>
         <tbody>
           <tr v-if="!companies.length">
-            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Keine Unternehmen</td>
+            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.crm.noCompanies }}</td>
           </tr>
           <tr v-for="co in companies" :key="co.companyId">
             <td class="td-name">{{ co.name }}</td>
@@ -152,61 +152,61 @@
     <div v-if="showContactModal" class="modal-overlay" @click.self="showContactModal=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">{{ editingContact ? 'Kontakt bearbeiten' : 'Neuer Kontakt' }}</span>
+          <span class="card-title">{{ editingContact ? t.crm.editContact : t.crm.newContact }}</span>
           <button class="icon-btn" @click="showContactModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
           <div class="auth-row">
-            <div class="auth-field"><label>Vorname</label><input v-model="contactForm.firstName" placeholder="Max" /></div>
-            <div class="auth-field"><label>Nachname</label><input v-model="contactForm.lastName" placeholder="Mustermann" /></div>
+            <div class="auth-field"><label>{{ t.crm.firstName }}</label><input v-model="contactForm.firstName" placeholder="Max" /></div>
+            <div class="auth-field"><label>{{ t.crm.lastName }}</label><input v-model="contactForm.lastName" placeholder="Mustermann" /></div>
           </div>
           <div class="auth-field"><label>E-Mail</label><input v-model="contactForm.email" placeholder="max@firma.de" /></div>
 
           <div class="auth-field">
-            <label>Unternehmen (Datenbank)</label>
+            <label>{{ t.crm.companyDb }}</label>
             <select v-model="contactForm.companyId" class="form-select" @change="onCompanySelect">
-              <option value="">— kein Unternehmen verknüpft —</option>
+              <option value="">{{ t.crm.noCompanyLinked }}</option>
               <option v-for="co in companies" :key="co.companyId" :value="co.companyId">{{ co.name }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Firma (Freitext)</label><input v-model="contactForm.company" placeholder="Firma GmbH" /></div>
+          <div class="auth-field"><label>{{ t.crm.companyFreetext }}</label><input v-model="contactForm.company" placeholder="Firma GmbH" /></div>
 
-          <div class="auth-field"><label>Telefon</label><input v-model="contactForm.phone" placeholder="+49 89 123456" /></div>
+          <div class="auth-field"><label>{{ t.common.phone }}</label><input v-model="contactForm.phone" placeholder="+49 89 123456" /></div>
 
           <div class="auth-row">
             <div class="auth-field">
-              <label>Status</label>
+              <label>{{ t.common.status }}</label>
               <select v-model="contactForm.status" class="form-select">
-                <option value="lead">Lead</option>
-                <option value="customer">Kunde</option>
-                <option value="churned">Verloren</option>
+                <option value="lead">{{ t.crm.optLead }}</option>
+                <option value="customer">{{ t.crm.optCustomer }}</option>
+                <option value="churned">{{ t.crm.optChurned }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>Lead-Quelle</label>
+              <label>{{ t.crm.leadSourceLabel }}</label>
               <select v-model="contactForm.leadSource" class="form-select">
-                <option value="manual">Manuell</option>
-                <option value="csv-import">CSV/Excel-Import</option>
-                <option value="landingpage">Landingpage</option>
-                <option value="referral">Empfehlung</option>
-                <option value="other">Sonstiges</option>
+                <option value="manual">{{ t.crm.srcManual }}</option>
+                <option value="csv-import">{{ t.crm.srcCsv }}</option>
+                <option value="landingpage">{{ t.crm.srcLandingpage }}</option>
+                <option value="referral">{{ t.crm.srcReferral }}</option>
+                <option value="other">{{ t.crm.srcOther }}</option>
               </select>
             </div>
           </div>
 
           <div class="auth-field" v-if="contactForm.status === 'lead'">
-            <label>Lead-Status</label>
+            <label>{{ t.crm.leadStatusLabel }}</label>
             <select v-model="contactForm.leadStatus" class="form-select">
-              <option value="new">Neu</option>
-              <option value="contacted">Kontaktiert</option>
-              <option value="qualified">Qualifiziert</option>
-              <option value="unqualified">Unqualifiziert</option>
+              <option value="new">{{ t.crm.lsNew }}</option>
+              <option value="contacted">{{ t.crm.lsContacted }}</option>
+              <option value="qualified">{{ t.crm.lsQualified }}</option>
+              <option value="unqualified">{{ t.crm.lsUnqualified }}</option>
             </select>
           </div>
 
           <button class="auth-btn" :disabled="saving" @click="saveContact">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ editingContact ? 'Speichern' : 'Kontakt anlegen' }}</span>
+            <span v-else>{{ editingContact ? t.common.save : t.crm.createContact }}</span>
           </button>
         </div>
       </div>
@@ -216,29 +216,29 @@
     <div v-if="showDealModal" class="modal-overlay" @click.self="showDealModal=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">{{ editingDeal ? 'Deal bearbeiten' : 'Neuer Deal' }}</span>
+          <span class="card-title">{{ editingDeal ? t.crm.editDeal : t.crm.newDeal }}</span>
           <button class="icon-btn" @click="showDealModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Unternehmen</label><input v-model="dealForm.name" placeholder="Firma GmbH" /></div>
-          <div class="auth-field"><label>Wert</label><input v-model="dealForm.value" placeholder="€ 10.000" /></div>
-          <div class="auth-field"><label>Phase</label><input v-model="dealForm.stage" placeholder="Discovery" /></div>
+          <div class="auth-field"><label>{{ t.common.company }}</label><input v-model="dealForm.name" placeholder="Firma GmbH" /></div>
+          <div class="auth-field"><label>{{ t.common.value }}</label><input v-model="dealForm.value" placeholder="€ 10.000" /></div>
+          <div class="auth-field"><label>{{ t.common.stage }}</label><input v-model="dealForm.stage" placeholder="Discovery" /></div>
           <div class="auth-field">
-            <label>Wahrscheinlichkeit %</label>
+            <label>{{ t.crm.dealProb }}</label>
             <input v-model.number="dealForm.prob" type="number" min="0" max="100" placeholder="50" />
           </div>
           <div class="auth-field">
-            <label>Status</label>
+            <label>{{ t.common.status }}</label>
             <select v-model="dealForm.status" class="form-select">
-              <option value="info">In Arbeit</option>
-              <option value="warning">Verhandlung</option>
-              <option value="success">Gewonnen</option>
-              <option value="danger">Verloren</option>
+              <option value="info">{{ t.crm.dsInProgress }}</option>
+              <option value="warning">{{ t.crm.dsNegotiation }}</option>
+              <option value="success">{{ t.crm.dsWon }}</option>
+              <option value="danger">{{ t.crm.dsLost }}</option>
             </select>
           </div>
           <button class="auth-btn" :disabled="saving" @click="saveDeal">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ editingDeal ? 'Speichern' : 'Deal anlegen' }}</span>
+            <span v-else>{{ editingDeal ? t.common.save : t.crm.createDeal }}</span>
           </button>
         </div>
       </div>
@@ -248,29 +248,29 @@
     <div v-if="showCompanyModal" class="modal-overlay" @click.self="showCompanyModal=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">{{ editingCompany ? 'Unternehmen bearbeiten' : 'Neues Unternehmen' }}</span>
+          <span class="card-title">{{ editingCompany ? t.crm.editCompany : t.crm.newCompany }}</span>
           <button class="icon-btn" @click="showCompanyModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Name</label><input v-model="companyForm.name" placeholder="Firma GmbH" /></div>
+          <div class="auth-field"><label>{{ t.common.name }}</label><input v-model="companyForm.name" placeholder="Firma GmbH" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>Branche</label><input v-model="companyForm.branche" placeholder="IT-Dienstleistung" /></div>
+            <div class="auth-field"><label>{{ t.common.industry }}</label><input v-model="companyForm.branche" placeholder="IT" /></div>
             <div class="auth-field"><label>Website</label><input v-model="companyForm.website" placeholder="https://firma.de" /></div>
           </div>
           <div class="auth-row">
             <div class="auth-field"><label>E-Mail</label><input v-model="companyForm.email" placeholder="info@firma.de" /></div>
-            <div class="auth-field"><label>Telefon</label><input v-model="companyForm.phone" placeholder="+49 89 123456" /></div>
+            <div class="auth-field"><label>{{ t.common.phone }}</label><input v-model="companyForm.phone" placeholder="+49 123456" /></div>
           </div>
-          <div class="auth-field"><label>Straße & Nr.</label><input v-model="companyForm.street" placeholder="Musterstraße 1" /></div>
+          <div class="auth-field"><label>{{ t.common.street }}</label><input v-model="companyForm.street" placeholder="Musterstraße 1" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>PLZ</label><input v-model="companyForm.zip" placeholder="12345" /></div>
-            <div class="auth-field"><label>Stadt</label><input v-model="companyForm.city" placeholder="Köln" /></div>
+            <div class="auth-field"><label>{{ t.common.zip }}</label><input v-model="companyForm.zip" placeholder="12345" /></div>
+            <div class="auth-field"><label>{{ t.common.city }}</label><input v-model="companyForm.city" placeholder="Köln" /></div>
           </div>
-          <div class="auth-field"><label>Land</label><input v-model="companyForm.country" placeholder="Deutschland" /></div>
-          <div class="auth-field"><label>Notizen</label><textarea v-model="companyForm.notes" rows="2" placeholder="Interne Notizen..."></textarea></div>
+          <div class="auth-field"><label>{{ t.common.country }}</label><input v-model="companyForm.country" placeholder="Deutschland" /></div>
+          <div class="auth-field"><label>{{ t.common.notes }}</label><textarea v-model="companyForm.notes" rows="2" :placeholder="t.crm.internalNotes"></textarea></div>
           <button class="auth-btn" :disabled="saving" @click="saveCompany">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ editingCompany ? 'Speichern' : 'Unternehmen anlegen' }}</span>
+            <span v-else>{{ editingCompany ? t.common.save : t.crm.createCompany }}</span>
           </button>
         </div>
       </div>
@@ -297,6 +297,7 @@ import type { Deal } from '~/modules/deals'
 import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { t, lang } = useLang()
 const { userId } = await useAuthUser()
 const route = useRoute()
 
@@ -438,7 +439,8 @@ async function saveContact() {
 }
 
 async function deleteContact(c: Contact) {
-  if (!confirm(`${c.firstName} ${c.lastName} wirklich löschen?`)) return
+  const msg = lang.value === 'en' ? `Really delete ${c.firstName} ${c.lastName}?` : `${c.firstName} ${c.lastName} wirklich löschen?`
+  if (!confirm(msg)) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}`), {
     method: 'DELETE',
     body: { userId: userId }
@@ -447,7 +449,8 @@ async function deleteContact(c: Contact) {
 }
 
 async function convertContact(c: Contact) {
-  if (!confirm(`${c.firstName} ${c.lastName} zu Kunde konvertieren?`)) return
+  const msg = lang.value === 'en' ? `Convert ${c.firstName} ${c.lastName} to customer?` : `${c.firstName} ${c.lastName} zu Kunde konvertieren?`
+  if (!confirm(msg)) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}/convert`), { method: 'POST' })
   await refreshContacts()
 }
@@ -491,7 +494,8 @@ async function saveDeal() {
 }
 
 async function deleteDeal(d: Deal) {
-  if (!confirm(`Deal "${d.name}" wirklich löschen?`)) return
+  const msg = lang.value === 'en' ? `Really delete deal "${d.name}"?` : `Deal "${d.name}" wirklich löschen?`
+  if (!confirm(msg)) return
   await $fetch(useApiUrl(`/api/deals/${d.dealId}`), {
     method: 'DELETE',
     body: { userId: userId }
@@ -548,7 +552,8 @@ async function saveCompany() {
 }
 
 async function deleteCompany(co: Company) {
-  if (!confirm(`${co.name} wirklich löschen?`)) return
+  const msg = lang.value === 'en' ? `Really delete ${co.name}?` : `${co.name} wirklich löschen?`
+  if (!confirm(msg)) return
   await $fetch(useApiUrl(`/api/companies/${co.companyId}`), { method: 'DELETE' })
   await refreshCompanies()
 }
