@@ -184,7 +184,7 @@ async function reload() {
     const data = await $fetch(useApiUrl('/api/admin/seo-stats')) as any
     stats.value = data
   } catch (e: any) {
-    error.value = `${e?.statusCode || ''} — email: ${email}`
+    error.value = `${e?.statusCode || e?.status || '?'} — ${e?.message || e?.data?.message || 'API nicht erreichbar'}`
   } finally {
     loading.value = false
   }
