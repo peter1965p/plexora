@@ -4,24 +4,29 @@
     <nav class="lp-nav">
       <div class="lp-wrap" style="display:flex;align-items:center;justify-content:space-between">
         <div class="lp-logo">Plexo<span>ra</span></div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <NuxtLink v-for="p in navPages" :key="p.slug" :to="`/p/${p.slug}`" style="text-decoration:none">
             <button class="lp-btn-ghost" style="font-size:13px">{{ p.navLabel || p.title }}</button>
           </NuxtLink>
           <NuxtLink to="/impressum" style="text-decoration:none">
-            <button class="lp-btn-ghost" style="font-size:13px">Impressum</button>
+            <button class="lp-btn-ghost" style="font-size:13px">{{ t.nav.impressum }}</button>
           </NuxtLink>
           <NuxtLink to="/datenschutz" style="text-decoration:none">
-            <button class="lp-btn-ghost" style="font-size:13px">Datenschutz</button>
+            <button class="lp-btn-ghost" style="font-size:13px">{{ t.nav.datenschutz }}</button>
           </NuxtLink>
           <NuxtLink to="/agb" style="text-decoration:none">
-            <button class="lp-btn-ghost" style="font-size:13px">AGB</button>
+            <button class="lp-btn-ghost" style="font-size:13px">{{ t.nav.agb }}</button>
           </NuxtLink>
-          <button class="lp-btn-ghost" @click="navigateTo('/login')">Anmelden</button>
+          <!-- Language Toggle -->
+          <div class="lang-toggle">
+            <button :class="['lang-btn', { active: lang === 'de' }]" @click="setLang('de')">DE</button>
+            <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">EN</button>
+          </div>
+          <button class="lp-btn-ghost" @click="navigateTo('/login')">{{ t.nav.login }}</button>
           <button class="lp-btn-demo" @click="startDemo" :disabled="demoLoading">
-            {{ demoLoading ? '...' : 'Demo starten ↗' }}
+            {{ demoLoading ? '...' : t.nav.demo }}
           </button>
-          <button class="lp-btn" @click="scrollTo('#pricing')">Preise</button>
+          <button class="lp-btn" @click="scrollTo('#pricing')">{{ t.nav.pricing }}</button>
         </div>
       </div>
     </nav>
@@ -32,30 +37,27 @@
       <div class="lp-wrap lp-hero-inner">
         <div class="lp-eyebrow">Business Platform</div>
         <h1 class="lp-h1">
-          Eine Lizenz.<br /><span class="lp-hl">Alles drin.</span>
+          {{ t.hero.h1a }}<br /><span class="lp-hl">{{ t.hero.h1b }}</span>
         </h1>
-        <p class="lp-sub">
-          Warum 100+ Lizenzen zahlen,<br />wenn es die eine für alles gibt?
-        </p>
+        <p class="lp-sub" v-html="t.hero.sub"></p>
         <div class="lp-ctas">
           <button class="lp-btn lp-btn-lg" @click="startDemo" :disabled="demoLoading">
-            {{ demoLoading ? 'Wird geladen...' : 'Demo ausprobieren ↗' }}
+            {{ demoLoading ? t.hero.ctaLoading : t.hero.ctaDemo }}
           </button>
           <button class="lp-btn-ghost lp-btn-lg" @click="scrollTo('#pricing')">
-            Preise ansehen
+            {{ t.hero.ctaPricing }}
           </button>
         </div>
-        <!-- Demo Credentials -->
         <div class="lp-demo-hint">
           <i class="ti ti-user-circle"></i>
-          Demo-Zugang: <strong>demo@plexora.eu</strong> · <strong>Demo1234!</strong>
+          {{ t.hero.demoHint }} <strong>demo@plexora.eu</strong> · <strong>Demo1234!</strong>
         </div>
       </div>
     </section>
 
     <!-- MODULE GRID -->
     <section class="lp-wrap lp-modules-section" id="modules">
-      <div class="lp-section-label">Klicken Sie ein Modul an</div>
+      <div class="lp-section-label">{{ t.modules.label }}</div>
       <div class="lp-modules-grid">
         <div
           v-for="mod in modules"
@@ -67,7 +69,7 @@
           <i class="ti lp-mod-icon" :class="mod.icon"></i>
           <div class="lp-mod-name">{{ mod.name }}</div>
           <div class="lp-mod-desc">{{ mod.desc }}</div>
-          <span v-if="mod.on" class="lp-mod-badge">Aktiv</span>
+          <span v-if="mod.on" class="lp-mod-badge">{{ t.modules.active }}</span>
         </div>
       </div>
     </section>
@@ -75,19 +77,19 @@
     <!-- SAVINGS -->
     <section class="lp-wrap" id="savings">
       <div class="lp-savings">
-        <div class="lp-savings-label">Ihre monatliche Ersparnis</div>
+        <div class="lp-savings-label">{{ t.savings.label }}</div>
         <div class="lp-savings-row">
           <div class="lp-savings-num">{{ formatNum(savings) }} €</div>
           <div class="lp-savings-unit">
-            / Monat<br /><span>gegenüber Einzeltools</span>
+            {{ t.savings.unit }}<br /><span>{{ t.savings.per }}</span>
           </div>
         </div>
         <div class="lp-savings-sub">
-          Statt <strong>{{ formatNum(oldCost) }} €</strong> für Einzellizenzen
-          zahlen Sie nur <strong>{{ formatNum(newCost) }} €</strong> mit Plexora
+          {{ t.savings.instead }} <strong>{{ formatNum(oldCost) }} €</strong> {{ t.savings.for }}
+          <strong>{{ formatNum(newCost) }} €</strong> {{ t.savings.with }}
         </div>
         <div class="lp-slider-row">
-          <label>Nutzer</label>
+          <label>{{ t.savings.users }}</label>
           <input type="range" min="5" max="200" step="5" v-model="users" />
           <span>{{ users }}</span>
         </div>
@@ -96,30 +98,24 @@
 
     <!-- COMPARE -->
     <section class="lp-wrap lp-compare-section">
-      <h2 class="lp-section-title">Plexora vs. der Tool-Zoo</h2>
+      <h2 class="lp-section-title">{{ t.compare.heading }}</h2>
       <div class="lp-compare-grid">
         <div class="lp-ccard">
-          <div class="lp-ccard-tag">Bisherige Lösung</div>
-          <div class="lp-ccard-name">Einzeltools</div>
-          <div class="lp-ccard-price">8–12 <span>Tools</span></div>
-          <div class="lp-ccard-note">Jedes mit eigener Lizenz & Login</div>
+          <div class="lp-ccard-tag">{{ t.compare.oldTag }}</div>
+          <div class="lp-ccard-name">{{ t.compare.oldName }}</div>
+          <div class="lp-ccard-price">8–12 <span>{{ t.compare.oldPriceUnit }}</span></div>
+          <div class="lp-ccard-note">{{ t.compare.oldNote }}</div>
           <ul class="lp-ccard-items">
-            <li><i class="ti ti-x lp-cross"></i>Daten über mehrere Systeme verteilt</li>
-            <li><i class="ti ti-x lp-cross"></i>Integrationen brechen regelmäßig</li>
-            <li><i class="ti ti-x lp-cross"></i>Separate Verträge & Rechnungen</li>
-            <li><i class="ti ti-x lp-cross"></i>Kein einheitliches Reporting</li>
+            <li v-for="item in t.compare.oldItems" :key="item"><i class="ti ti-x lp-cross"></i>{{ item }}</li>
           </ul>
         </div>
         <div class="lp-ccard lp-ccard-featured">
-          <div class="lp-ccard-tag">Empfohlen</div>
+          <div class="lp-ccard-tag">{{ t.compare.newTag }}</div>
           <div class="lp-ccard-name">Plexora</div>
-          <div class="lp-ccard-price lp-price-accent">1 <span>Plattform</span></div>
-          <div class="lp-ccard-note">Eine Lizenz, alle Module inklusive</div>
+          <div class="lp-ccard-price lp-price-accent">1 <span>{{ t.compare.newPriceUnit }}</span></div>
+          <div class="lp-ccard-note">{{ t.compare.newNote }}</div>
           <ul class="lp-ccard-items">
-            <li><i class="ti ti-check lp-tick"></i>Alle Daten zentral & verknüpft</li>
-            <li><i class="ti ti-check lp-tick"></i>Module greifen nahtlos ineinander</li>
-            <li><i class="ti ti-check lp-tick"></i>Ein Vertrag, eine Rechnung</li>
-            <li><i class="ti ti-check lp-tick"></i>Unternehmensweites Dashboard</li>
+            <li v-for="item in t.compare.newItems" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
           </ul>
         </div>
       </div>
@@ -127,18 +123,18 @@
 
     <!-- TESTIMONIALS SLIDER -->
     <section class="lp-wrap lp-testi-section">
-      <div class="lp-section-label" style="text-align:center;margin-bottom:8px">Das sagen unsere Kunden</div>
+      <div class="lp-section-label" style="text-align:center;margin-bottom:8px">{{ t.testi.label }}</div>
       <div class="lp-testi-slider">
         <div class="lp-testi-track" :style="{ transform: `translateX(-${testiIdx * 100}%)` }">
-          <div class="lp-testi-slide" v-for="(t, i) in testimonials" :key="i">
+          <div class="lp-testi-slide" v-for="(tst, i) in t.testi.items" :key="i">
             <div class="lp-testi-stars">★★★★★</div>
-            <div class="lp-testi-quote">„{{ t.quote }}"</div>
-            <div class="lp-testi-author"><strong>{{ t.name }}</strong> · {{ t.role }}</div>
+            <div class="lp-testi-quote">„{{ tst.quote }}"</div>
+            <div class="lp-testi-author"><strong>{{ tst.name }}</strong> · {{ tst.role }}</div>
           </div>
         </div>
         <div class="lp-testi-dots">
           <button
-            v-for="(_, i) in testimonials"
+            v-for="(_, i) in t.testi.items"
             :key="i"
             class="lp-testi-dot"
             :class="{ active: i === testiIdx }"
@@ -150,58 +146,46 @@
 
     <!-- PRICING -->
     <section class="lp-wrap lp-pricing-section" id="pricing">
-      <div class="lp-section-label">Transparente Preise</div>
-      <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">Wählen Sie Ihr Paket</h2>
-      <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px">Monatlich kündbar. Keine Einrichtungsgebühr. Keine versteckten Kosten.</p>
+      <div class="lp-section-label">{{ t.pricing.label }}</div>
+      <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.pricing.heading }}</h2>
+      <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px">{{ t.pricing.sub }}</p>
       <div class="lp-pricing-grid">
 
         <!-- Starter -->
         <div class="lp-pcard">
           <div class="lp-pcard-tier">Starter</div>
-          <div class="lp-pcard-price">49 <span>€ / Monat</span></div>
-          <div style="font-size:11px;color:#545870;margin-bottom:2px">zzgl. MwSt.</div>
-          <div class="lp-pcard-note">Für Freelancer & Einzelunternehmer</div>
+          <div class="lp-pcard-price">49 <span>€ / {{ t.pricing.month }}</span></div>
+          <div style="font-size:11px;color:#545870;margin-bottom:2px">{{ t.pricing.vat }}</div>
+          <div class="lp-pcard-note">{{ t.pricing.starter.note }}</div>
           <ul class="lp-pcard-items">
-            <li><i class="ti ti-check lp-tick"></i>CRM & Kontaktverwaltung</li>
-            <li><i class="ti ti-check lp-tick"></i>Finanzen & Rechnungen</li>
-            <li><i class="ti ti-check lp-tick"></i>Projekte & Aufgaben</li>
-            <li><i class="ti ti-check lp-tick"></i>Marketing & Kampagnen</li>
-            <li><i class="ti ti-check lp-tick"></i>Formulare & Support-Tickets</li>
+            <li v-for="item in t.pricing.starter.items" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
           </ul>
-          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>Jetzt starten</span></button>
+          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>{{ t.pricing.cta }}</span></button>
         </div>
 
         <!-- Pro -->
         <div class="lp-pcard lp-pcard-featured">
-          <div class="lp-pcard-popular">Beliebteste Wahl</div>
+          <div class="lp-pcard-popular">{{ t.pricing.popular }}</div>
           <div class="lp-pcard-tier">Pro</div>
-          <div class="lp-pcard-price">149 <span>€ / Monat</span></div>
-          <div style="font-size:11px;color:#545870;margin-bottom:2px">zzgl. MwSt.</div>
-          <div class="lp-pcard-note">Für wachsende Teams</div>
+          <div class="lp-pcard-price">149 <span>€ / {{ t.pricing.month }}</span></div>
+          <div style="font-size:11px;color:#545870;margin-bottom:2px">{{ t.pricing.vat }}</div>
+          <div class="lp-pcard-note">{{ t.pricing.pro.note }}</div>
           <ul class="lp-pcard-items">
-            <li><i class="ti ti-check lp-tick"></i>Alles aus Starter</li>
-            <li><i class="ti ti-check lp-tick"></i>HR, Zeiterfassung & Urlaub</li>
-            <li><i class="ti ti-check lp-tick"></i>Verträge & Kunden-Portal</li>
-            <li><i class="ti ti-check lp-tick"></i>Shop & Pagebuilder</li>
-            <li><i class="ti ti-check lp-tick"></i>Analytics & Lead-Kampagnen</li>
+            <li v-for="item in t.pricing.pro.items" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
           </ul>
-          <button class="lp-pcard-btn" @click="navigateTo('/kaufen')"><span>Jetzt starten</span></button>
+          <button class="lp-pcard-btn" @click="navigateTo('/kaufen')"><span>{{ t.pricing.cta }}</span></button>
         </div>
 
         <!-- Enterprise -->
         <div class="lp-pcard">
           <div class="lp-pcard-tier">Enterprise</div>
-          <div class="lp-pcard-price">299 <span>€ / Monat</span></div>
-          <div style="font-size:11px;color:#545870;margin-bottom:2px">zzgl. MwSt.</div>
-          <div class="lp-pcard-note">Für größere Unternehmen</div>
+          <div class="lp-pcard-price">299 <span>€ / {{ t.pricing.month }}</span></div>
+          <div style="font-size:11px;color:#545870;margin-bottom:2px">{{ t.pricing.vat }}</div>
+          <div class="lp-pcard-note">{{ t.pricing.enterprise.note }}</div>
           <ul class="lp-pcard-items">
-            <li><i class="ti ti-check lp-tick"></i>Alles aus Pro</li>
-            <li><i class="ti ti-check lp-tick"></i>White-Label & eigenes Branding</li>
-            <li><i class="ti ti-check lp-tick"></i>UTM-Tracking & QR-Codes</li>
-            <li><i class="ti ti-check lp-tick"></i>API-Zugang & Integrationen</li>
-            <li><i class="ti ti-check lp-tick"></i>Prioritäts-Support & SLA</li>
+            <li v-for="item in t.pricing.enterprise.items" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
           </ul>
-          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>Jetzt starten</span></button>
+          <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>{{ t.pricing.cta }}</span></button>
         </div>
 
       </div>
@@ -209,20 +193,229 @@
 
     <!-- FOOTER CTA -->
     <section class="lp-wrap lp-footer-cta">
-      <h2 class="lp-h2">Überzeugen Sie sich selbst.</h2>
-      <p>Demo-Zugang sofort verfügbar — kein Account nötig.</p>
+      <h2 class="lp-h2">{{ t.footerCta.heading }}</h2>
+      <p>{{ t.footerCta.sub }}</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <button class="lp-btn lp-btn-lg" @click="startDemo" :disabled="demoLoading">
-          {{ demoLoading ? 'Wird geladen...' : 'Demo starten ↗' }}
+          {{ demoLoading ? t.footerCta.ctaLoading : t.footerCta.ctaDemo }}
         </button>
-        <button class="lp-btn-ghost lp-btn-lg" @click="scrollTo('#pricing')">Preise ansehen</button>
+        <button class="lp-btn-ghost lp-btn-lg" @click="scrollTo('#pricing')">{{ t.footerCta.ctaPricing }}</button>
       </div>
     </section>
+
+    <!-- FOOTER -->
+    <footer class="lp-footer">
+      <div class="lp-wrap lp-footer-inner">
+
+        <div class="lp-footer-left">
+          <div class="lp-logo" style="margin-bottom:8px">Plexo<span>ra</span></div>
+          <div class="lp-footer-tagline">{{ t.footer.tagline }}</div>
+        </div>
+
+        <div class="lp-footer-center">
+          <div class="lp-footer-links">
+            <NuxtLink to="/impressum" class="lp-footer-link">{{ t.nav.impressum }}</NuxtLink>
+            <NuxtLink to="/datenschutz" class="lp-footer-link">{{ t.nav.datenschutz }}</NuxtLink>
+            <NuxtLink to="/agb" class="lp-footer-link">{{ t.nav.agb }}</NuxtLink>
+            <NuxtLink to="/kaufen" class="lp-footer-link">{{ t.nav.pricing }}</NuxtLink>
+          </div>
+        </div>
+
+        <div class="lp-footer-right">
+          <!-- Language Switcher -->
+          <div class="lang-toggle" style="margin-bottom:12px">
+            <button :class="['lang-btn', { active: lang === 'de' }]" @click="setLang('de')">DE</button>
+            <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">EN</button>
+          </div>
+          <!-- Made In -->
+          <a href="https://www.paeffgen-it.de" target="_blank" rel="noopener" class="lp-made-by">
+            <span>Made in Germany</span>
+            <span class="lp-heart">♥</span>
+            <span>from Manderscheid | Vulkaneifel</span>
+          </a>
+          <div class="lp-footer-copy">© {{ new Date().getFullYear() }} Plexora · paeffgen-it.de</div>
+        </div>
+
+      </div>
+    </footer>
+
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: false })
+
+// ── i18n ────────────────────────────────────────────────────────────────────
+const lang = ref<'de'|'en'>('de')
+
+function setLang(l: 'de'|'en') {
+  lang.value = l
+  if (typeof localStorage !== 'undefined') localStorage.setItem('plexora-lang', l)
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('plexora-lang') as 'de'|'en' | null
+  if (saved === 'de' || saved === 'en') lang.value = saved
+})
+
+const i18n = {
+  de: {
+    nav: { impressum: 'Impressum', datenschutz: 'Datenschutz', agb: 'AGB', login: 'Anmelden', demo: 'Demo starten ↗', pricing: 'Preise' },
+    hero: {
+      h1a: 'Eine Lizenz.',
+      h1b: 'Alles drin.',
+      sub: 'Warum 100+ Lizenzen zahlen,<br />wenn es die eine für alles gibt?',
+      ctaDemo: 'Demo ausprobieren ↗',
+      ctaLoading: 'Wird geladen...',
+      ctaPricing: 'Preise ansehen',
+      demoHint: 'Demo-Zugang:',
+    },
+    modules: { label: 'Klicken Sie ein Modul an', active: 'Aktiv' },
+    savings: {
+      label: 'Ihre monatliche Ersparnis',
+      unit: '/ Monat',
+      per: 'gegenüber Einzeltools',
+      instead: 'Statt',
+      for: 'für Einzellizenzen zahlen Sie nur',
+      with: 'mit Plexora',
+      users: 'Nutzer',
+    },
+    compare: {
+      heading: 'Plexora vs. der Tool-Zoo',
+      oldTag: 'Bisherige Lösung',
+      oldName: 'Einzeltools',
+      oldPriceUnit: 'Tools',
+      oldNote: 'Jedes mit eigener Lizenz & Login',
+      oldItems: ['Daten über mehrere Systeme verteilt','Integrationen brechen regelmäßig','Separate Verträge & Rechnungen','Kein einheitliches Reporting'],
+      newTag: 'Empfohlen',
+      newPriceUnit: 'Plattform',
+      newNote: 'Eine Lizenz, alle Module inklusive',
+      newItems: ['Alle Daten zentral & verknüpft','Module greifen nahtlos ineinander','Ein Vertrag, eine Rechnung','Unternehmensweites Dashboard'],
+    },
+    testi: {
+      label: 'Das sagen unsere Kunden',
+      items: [
+        { quote: 'Wir haben Salesforce, Jira, Personio und Lexoffice gekündigt. Plexora macht das alles – und unsere Buchhalterin musste sich nur einmal neu einarbeiten.', name: 'Markus T.', role: 'CTO · Münchner SaaS-Startup, 60 Mitarbeiter' },
+        { quote: 'Endlich ein Tool, das nicht nach 3 Klicks überfordert. Das CRM und die Rechnungsstellung allein haben uns schon 300 € pro Monat an anderen Abos gespart.', name: 'Sandra K.', role: 'Geschäftsführerin · Marketingagentur, Berlin' },
+        { quote: 'Wir nutzen Plexora für Projektmanagement und HR. Besonders die öffentlichen Jobseiten sind ein Hammer-Feature – haben sofort Bewerbungen bekommen.', name: 'Tobias M.', role: 'Gründer · E-Commerce Startup, Hamburg' },
+        { quote: 'Support antwortet schnell, die App läuft stabil und wir hatten in 3 Monaten null Downtimes. Für 149 € im Monat absolut unschlagbar.', name: 'Lena F.', role: 'Operations Lead · IT-Dienstleister, München' },
+        { quote: 'Als Freelancer brauche ich kein Enterprise-Monster. Plexora Starter ist perfekt – CRM, Rechnungen, Tickets. Alles was ich brauche, nichts was ich nicht brauche.', name: 'Jonas R.', role: 'Freelance Developer · Köln' },
+      ],
+    },
+    pricing: {
+      label: 'Transparente Preise',
+      heading: 'Wählen Sie Ihr Paket',
+      sub: 'Monatlich kündbar. Keine Einrichtungsgebühr. Keine versteckten Kosten.',
+      month: 'Monat',
+      vat: 'zzgl. MwSt.',
+      popular: 'Beliebteste Wahl',
+      cta: 'Jetzt starten',
+      starter: { note: 'Für Freelancer & Einzelunternehmer', items: ['CRM & Kontaktverwaltung','Finanzen & Rechnungen','Projekte & Aufgaben','Marketing & Kampagnen','Formulare & Support-Tickets'] },
+      pro:     { note: 'Für wachsende Teams',               items: ['Alles aus Starter','HR, Zeiterfassung & Urlaub','Verträge & Kunden-Portal','Shop & Pagebuilder','Analytics & Lead-Kampagnen'] },
+      enterprise: { note: 'Für größere Unternehmen',        items: ['Alles aus Pro','White-Label & eigenes Branding','UTM-Tracking & QR-Codes','API-Zugang & Integrationen','Prioritäts-Support & SLA'] },
+    },
+    footerCta: {
+      heading: 'Überzeugen Sie sich selbst.',
+      sub: 'Demo-Zugang sofort verfügbar — kein Account nötig.',
+      ctaDemo: 'Demo starten ↗',
+      ctaLoading: 'Wird geladen...',
+      ctaPricing: 'Preise ansehen',
+    },
+    footer: {
+      tagline: 'Die All-in-One Business Plattform für KMU.',
+    },
+  },
+  en: {
+    nav: { impressum: 'Legal Notice', datenschutz: 'Privacy Policy', agb: 'Terms', login: 'Sign In', demo: 'Start Demo ↗', pricing: 'Pricing' },
+    hero: {
+      h1a: 'One License.',
+      h1b: 'Everything Included.',
+      sub: 'Why pay for 100+ tools<br />when one covers everything?',
+      ctaDemo: 'Try the Demo ↗',
+      ctaLoading: 'Loading...',
+      ctaPricing: 'View Pricing',
+      demoHint: 'Demo access:',
+    },
+    modules: { label: 'Click a module to activate', active: 'Active' },
+    savings: {
+      label: 'Your monthly savings',
+      unit: '/ month',
+      per: 'compared to individual tools',
+      instead: 'Instead of',
+      for: 'for single licenses, you only pay',
+      with: 'with Plexora',
+      users: 'Users',
+    },
+    compare: {
+      heading: 'Plexora vs. the Tool Jungle',
+      oldTag: 'Current Setup',
+      oldName: 'Individual Tools',
+      oldPriceUnit: 'Tools',
+      oldNote: 'Each with its own license & login',
+      oldItems: ['Data scattered across systems','Integrations break regularly','Separate contracts & invoices','No unified reporting'],
+      newTag: 'Recommended',
+      newPriceUnit: 'Platform',
+      newNote: 'One license, all modules included',
+      newItems: ['All data central & connected','Modules work seamlessly together','One contract, one invoice','Company-wide dashboard'],
+    },
+    testi: {
+      label: 'What our customers say',
+      items: [
+        { quote: 'We cancelled Salesforce, Jira, Personio and Lexoffice. Plexora does it all — and our accountant only had to learn one tool.', name: 'Markus T.', role: 'CTO · Munich SaaS Startup, 60 employees' },
+        { quote: 'Finally a tool that doesn\'t overwhelm you after 3 clicks. CRM and invoicing alone have saved us €300/month in subscriptions.', name: 'Sandra K.', role: 'CEO · Marketing Agency, Berlin' },
+        { quote: 'We use Plexora for project management and HR. The public job pages are a killer feature — got applications immediately.', name: 'Tobias M.', role: 'Founder · E-Commerce Startup, Hamburg' },
+        { quote: 'Support responds fast, the app runs stable and we had zero downtime in 3 months. Absolutely unbeatable for €149/month.', name: 'Lena F.', role: 'Operations Lead · IT Services, Munich' },
+        { quote: 'As a freelancer I don\'t need an enterprise monster. Plexora Starter is perfect — CRM, invoices, tickets. Everything I need, nothing I don\'t.', name: 'Jonas R.', role: 'Freelance Developer · Cologne' },
+      ],
+    },
+    pricing: {
+      label: 'Transparent Pricing',
+      heading: 'Choose Your Plan',
+      sub: 'Cancel anytime. No setup fee. No hidden costs.',
+      month: 'month',
+      vat: 'excl. VAT',
+      popular: 'Most Popular',
+      cta: 'Get Started',
+      starter: { note: 'For freelancers & solo businesses', items: ['CRM & Contact Management','Finance & Invoicing','Projects & Tasks','Marketing & Campaigns','Forms & Support Tickets'] },
+      pro:     { note: 'For growing teams',                items: ['Everything in Starter','HR, Time Tracking & Leave','Contracts & Client Portal','Shop & Page Builder','Analytics & Lead Campaigns'] },
+      enterprise: { note: 'For larger organizations',     items: ['Everything in Pro','White-Label & Custom Branding','UTM Tracking & QR Codes','API Access & Integrations','Priority Support & SLA'] },
+    },
+    footerCta: {
+      heading: 'See it for yourself.',
+      sub: 'Demo access available instantly — no account needed.',
+      ctaDemo: 'Start Demo ↗',
+      ctaLoading: 'Loading...',
+      ctaPricing: 'View Pricing',
+    },
+    footer: {
+      tagline: 'The all-in-one business platform for SMEs.',
+    },
+  },
+}
+
+const t = computed(() => i18n[lang.value])
+
+const moduleData = {
+  de: [
+    { key: 'crm',       name: 'CRM',       icon: 'ti-users',         desc: 'Kontakte, Pipelines, Deals',        on: true,  cost: 45 },
+    { key: 'projects',  name: 'Projekte',   icon: 'ti-layout-kanban', desc: 'Kanban, Meilensteine, Teams',       on: true,  cost: 35 },
+    { key: 'finance',   name: 'Finanzen',   icon: 'ti-receipt',       desc: 'Rechnungen, Ausgaben, Berichte',    on: true,  cost: 55 },
+    { key: 'hr',        name: 'HR',         icon: 'ti-id-badge',      desc: 'Mitarbeiter, Urlaub, Zeiterfassung',on: false, cost: 40 },
+    { key: 'support',   name: 'Support',    icon: 'ti-headset',       desc: 'Tickets, SLA, Kunden-Portal',       on: false, cost: 30 },
+    { key: 'analytics', name: 'Analytics',  icon: 'ti-chart-dots',    desc: 'Dashboards, KPIs, Exports',         on: false, cost: 25 },
+  ],
+  en: [
+    { key: 'crm',       name: 'CRM',        icon: 'ti-users',         desc: 'Contacts, Pipelines, Deals',       on: true,  cost: 45 },
+    { key: 'projects',  name: 'Projects',   icon: 'ti-layout-kanban', desc: 'Kanban, Milestones, Teams',        on: true,  cost: 35 },
+    { key: 'finance',   name: 'Finance',    icon: 'ti-receipt',       desc: 'Invoices, Expenses, Reports',      on: true,  cost: 55 },
+    { key: 'hr',        name: 'HR',         icon: 'ti-id-badge',      desc: 'Employees, Leave, Time Tracking',  on: false, cost: 40 },
+    { key: 'support',   name: 'Support',    icon: 'ti-headset',       desc: 'Tickets, SLA, Client Portal',      on: false, cost: 30 },
+    { key: 'analytics', name: 'Analytics',  icon: 'ti-chart-dots',    desc: 'Dashboards, KPIs, Exports',        on: false, cost: 25 },
+  ],
+}
+
+const moduleState = reactive({ de: moduleData.de.map(m => ({ ...m })), en: moduleData.en.map(m => ({ ...m })) })
+const modules = computed(() => moduleState[lang.value])
 
 useSeoMeta({
   title: 'Eine Lizenz. Alles drin.',
@@ -241,9 +434,7 @@ useSeoMeta({
 })
 
 useHead({
-  link: [
-    { rel: 'canonical', href: 'https://app.plexora.eu' },
-  ],
+  link: [{ rel: 'canonical', href: 'https://app.plexora.eu' }],
   script: [
     {
       type: 'application/ld+json',
@@ -255,22 +446,8 @@ useHead({
         operatingSystem: 'Web',
         url: 'https://app.plexora.eu',
         description: 'All-in-One Business Plattform: CRM, Projekte, Finanzen, HR, Support, Marketing und Shop in einer Lizenz.',
-        offers: {
-          '@type': 'Offer',
-          price: '34',
-          priceCurrency: 'EUR',
-          priceSpecification: {
-            '@type': 'UnitPriceSpecification',
-            price: '34',
-            priceCurrency: 'EUR',
-            unitText: 'User/Monat',
-          },
-        },
-        provider: {
-          '@type': 'Organization',
-          name: 'Plexora',
-          url: 'https://app.plexora.eu',
-        },
+        offers: { '@type': 'Offer', price: '49', priceCurrency: 'EUR' },
+        provider: { '@type': 'Organization', name: 'Plexora', url: 'https://app.plexora.eu' },
       }),
     },
     {
@@ -279,36 +456,10 @@ useHead({
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
         mainEntity: [
-          {
-            '@type': 'Question',
-            name: 'Was kostet Plexora?',
-            acceptedAnswer: { '@type': 'Answer', text: '34 € pro User pro Monat — alle Module inklusive, keine versteckten Kosten.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Welche Tools ersetzt Plexora?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Plexora ersetzt HubSpot oder Salesforce (CRM), Asana oder Monday (Projekte), Lexoffice (Rechnungen), Personio (HR), Zendesk (Support), Mailchimp (Marketing) und mehr — alles in einer Plattform.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Gibt es eine kostenlose Demo?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Ja. Auf app.plexora.eu kann sofort ohne Registrierung eine Demo gestartet werden — kein Account, keine Kreditkarte nötig.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Ist Plexora DSGVO-konform?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Ja. Alle Daten werden in europäischen Rechenzentren gespeichert und verarbeitet. Plexora ist vollständig DSGVO-konform.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Kann ich Plexora mit meinem Team nutzen?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Ja. Mit der Team-Funktion können Mitarbeiter per E-Mail-Einladung hinzugefügt werden. Alle teilen dieselben Daten unter einer Admin-Lizenz.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Für wen ist Plexora geeignet?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Plexora ist ideal für KMU (2–200 Mitarbeiter), Startups in der Wachstumsphase und Agenturen, die ihre Tool-Landschaft konsolidieren wollen.' },
-          },
+          { '@type': 'Question', name: 'Was kostet Plexora?', acceptedAnswer: { '@type': 'Answer', text: 'Starter 49 €/Monat, Pro 149 €/Monat, Enterprise 299 €/Monat — alle Module inklusive, keine versteckten Kosten.' } },
+          { '@type': 'Question', name: 'Welche Tools ersetzt Plexora?', acceptedAnswer: { '@type': 'Answer', text: 'Plexora ersetzt HubSpot oder Salesforce (CRM), Asana oder Monday (Projekte), Lexoffice (Rechnungen), Personio (HR), Zendesk (Support), Mailchimp (Marketing) und mehr.' } },
+          { '@type': 'Question', name: 'Gibt es eine kostenlose Demo?', acceptedAnswer: { '@type': 'Answer', text: 'Ja. Auf app.plexora.eu kann sofort ohne Registrierung eine Demo gestartet werden — kein Account, keine Kreditkarte nötig.' } },
+          { '@type': 'Question', name: 'Ist Plexora DSGVO-konform?', acceptedAnswer: { '@type': 'Answer', text: 'Ja. Alle Daten werden in europäischen Rechenzentren gespeichert und verarbeitet.' } },
         ],
       }),
     },
@@ -318,21 +469,11 @@ useHead({
 const users = ref(25)
 const demoLoading = ref(false)
 
-const modules = reactive([
-  { key: 'crm',       name: 'CRM',       icon: 'ti-users',         desc: 'Kontakte, Pipelines, Deals',        on: true,  cost: 45 },
-  { key: 'projects',  name: 'Projekte',   icon: 'ti-layout-kanban', desc: 'Kanban, Meilensteine, Teams',       on: true,  cost: 35 },
-  { key: 'finance',   name: 'Finanzen',   icon: 'ti-receipt',       desc: 'Rechnungen, Ausgaben, Berichte',    on: true,  cost: 55 },
-  { key: 'hr',        name: 'HR',         icon: 'ti-id-badge',      desc: 'Mitarbeiter, Urlaub, Lohnbuch.',    on: false, cost: 40 },
-  { key: 'support',   name: 'Support',    icon: 'ti-headset',       desc: 'Tickets, SLA, Wissensbasis',        on: false, cost: 30 },
-  { key: 'analytics', name: 'Analytics',  icon: 'ti-chart-dots',    desc: 'Dashboards, KPIs, Exports',         on: false, cost: 25 },
-])
-
-const activeCost = computed(() => modules.filter(m => m.on).reduce((s, m) => s + m.cost, 0))
+const activeCost = computed(() => modules.value.filter(m => m.on).reduce((s, m) => s + m.cost, 0))
 const oldCost    = computed(() => Math.round((users.value * activeCost.value * 0.85) / 10) * 10)
-const newCost    = computed(() => Math.round((users.value * 34) / 10) * 10)
+const newCost    = computed(() => Math.round((users.value * 49) / 10) * 10)
 const savings    = computed(() => Math.max(0, oldCost.value - newCost.value))
-
-const formatNum = (n: number) => n.toLocaleString('de-DE')
+const formatNum  = (n: number) => n.toLocaleString('de-DE')
 
 function scrollTo(selector: string) {
   document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' })
@@ -416,16 +557,9 @@ const navPages = computed(() =>
     .sort((a: any, b: any) => (a.navLabel || '').localeCompare(b.navLabel || ''))
 )
 
-const testimonials = [
-  { quote: 'Wir haben Salesforce, Jira, Personio und Lexoffice gekündigt. Plexora macht das alles – und unsere Buchhalterin musste sich nur einmal neu einarbeiten.', name: 'Markus T.', role: 'CTO · Münchner SaaS-Startup, 60 Mitarbeiter' },
-  { quote: 'Endlich ein Tool, das nicht nach 3 Klicks überfordert. Das CRM und die Rechnungsstellung allein haben uns schon 300 € pro Monat an anderen Abos gespart.', name: 'Sandra K.', role: 'Geschäftsführerin · Marketingagentur, Berlin' },
-  { quote: 'Wir nutzen Plexora für Projektmanagement und HR. Besonders die öffentlichen Jobseiten sind ein Hammer-Feature – haben sofort Bewerbungen bekommen.', name: 'Tobias M.', role: 'Gründer · E-Commerce Startup, Hamburg' },
-  { quote: 'Support antwortet schnell, die App läuft stabil und wir hatten in 3 Monaten null Downtimes. Für 149 € im Monat absolut unschlagbar.', name: 'Lena F.', role: 'Operations Lead · IT-Dienstleister, München' },
-  { quote: 'Als Freelancer brauche ich kein Enterprise-Monster. Plexora Starter ist perfekt – CRM, Rechnungen, Tickets. Alles was ich brauche, nichts was ich nicht brauche.', name: 'Jonas R.', role: 'Freelance Developer · Köln' },
-]
 const testiIdx = ref(0)
 let testiTimer: ReturnType<typeof setInterval>
-onMounted(() => { testiTimer = setInterval(() => { testiIdx.value = (testiIdx.value + 1) % testimonials.length }, 5000) })
+onMounted(() => { testiTimer = setInterval(() => { testiIdx.value = (testiIdx.value + 1) % t.value.testi.items.length }, 5000) })
 onUnmounted(() => clearInterval(testiTimer))
 </script>
 
@@ -445,18 +579,14 @@ onUnmounted(() => clearInterval(testiTimer))
 }
 
 /* NETWORK CANVAS */
-.lp-network {
-  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
-}
+.lp-network { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 .lp-wrap { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
 /* NAV */
 .lp-nav {
   border-bottom: 0.5px solid rgba(255,255,255,0.07);
   padding: 20px 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: sticky; top: 0; z-index: 100;
   background: rgba(10,14,26,0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -465,10 +595,23 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-logo { font-family: "Space Grotesk", sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
 .lp-logo span {
   background: linear-gradient(160deg, #ffb347 0%, #ea580c 50%, #c2390a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
+
+/* LANGUAGE TOGGLE */
+.lang-toggle {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.05);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 20px; overflow: hidden;
+}
+.lang-btn {
+  padding: 5px 12px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  cursor: pointer; border: none; background: transparent; color: #8b8fa8;
+  font-family: "Exo 2", sans-serif; transition: all .15s;
+}
+.lang-btn.active { background: #ea580c; color: #fff; border-radius: 20px; }
+.lang-btn:hover:not(.active) { color: #f0eef9; }
 
 /* BUTTONS */
 .lp-btn {
@@ -502,22 +645,14 @@ onUnmounted(() => clearInterval(testiTimer))
   color: #00d4b4; margin-bottom: 20px; font-weight: 500;
 }
 .lp-h1 {
-  font-family: "Roboto", sans-serif;
-  font-size: 64px;
-  font-weight: 900;
-  line-height: 1.08;
-  letter-spacing: -2px;
-  margin-bottom: 16px;
+  font-family: "Roboto", sans-serif; font-size: 64px; font-weight: 900;
+  line-height: 1.08; letter-spacing: -2px; margin-bottom: 16px;
   background: linear-gradient(160deg, #ffffff 0%, #e0e0e0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .lp-hl {
   background: linear-gradient(160deg, #ffb347 0%, #ea580c 45%, #c2390a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .lp-sub { font-size: 18px; color: #8b8fa8; margin-bottom: 36px; line-height: 1.5; }
 .lp-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
@@ -582,48 +717,31 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-ccard-items { display: flex; flex-direction: column; gap: 10px; list-style: none; }
 .lp-ccard-items li { font-size: 13px; color: #8b8fa8; display: flex; align-items: center; gap: 8px; }
 
-/* TESTIMONIALS SLIDER */
+/* TESTIMONIALS */
 .lp-testi-section { padding: 0 0 56px; }
 .lp-testi-slider {
-  position: relative; overflow: hidden;
-  border-radius: 16px;
+  position: relative; overflow: hidden; border-radius: 16px;
   background: linear-gradient(135deg, rgba(108,63,232,0.08), rgba(234,88,12,0.04));
   border: 0.5px solid rgba(255,255,255,0.07);
 }
-.lp-testi-track {
-  display: flex; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change: transform;
-}
-.lp-testi-slide {
-  min-width: 100%; padding: 40px 48px 32px; box-sizing: border-box;
-}
+.lp-testi-track { display: flex; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change: transform; }
+.lp-testi-slide { min-width: 100%; padding: 40px 48px 32px; box-sizing: border-box; }
 .lp-testi-stars { font-size: 18px; color: #ea580c; margin-bottom: 16px; letter-spacing: 2px; }
 .lp-testi-quote { font-size: 17px; color: #f0eef9; line-height: 1.75; margin-bottom: 20px; font-style: italic; }
 .lp-testi-author { font-size: 13px; color: #8b8fa8; }
 .lp-testi-author strong { color: #c4b5fd; }
-.lp-testi-dots {
-  display: flex; justify-content: center; gap: 8px; padding: 0 0 20px;
-}
-.lp-testi-dot {
-  width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer;
-  background: rgba(255,255,255,0.15); transition: background 0.3s, transform 0.3s;
-}
+.lp-testi-dots { display: flex; justify-content: center; gap: 8px; padding: 0 0 20px; }
+.lp-testi-dot { width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.15); transition: background 0.3s, transform 0.3s; }
 .lp-testi-dot.active { background: #ea580c; transform: scale(1.3); }
-@media (max-width: 640px) {
-  .lp-testi-slide { padding: 28px 24px 24px; }
-  .lp-testi-quote { font-size: 14px; }
-}
 
 /* PRICING */
 .lp-pricing-section { padding: 0 0 64px; }
 .lp-pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
 .lp-pcard {
   background: #13182a; border: 0.5px solid rgba(255,255,255,0.07);
-  border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; gap: 0; position: relative;
+  border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; position: relative;
 }
-.lp-pcard-featured {
-  border-color: #ea580c; border-width: 1.5px;
-  background: linear-gradient(160deg, rgba(108,63,232,0.1), #13182a);
-}
+.lp-pcard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(108,63,232,0.1), #13182a); }
 .lp-pcard-popular {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
   background: #ea580c; color: #fff; font-size: 10px; font-weight: 700;
@@ -644,38 +762,25 @@ onUnmounted(() => clearInterval(testiTimer))
   position: relative; overflow: hidden; transition: box-shadow 0.3s, transform 0.2s;
 }
 .lp-pcard-btn::before {
-  content: '';
-  position: absolute; inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(160deg, #ffb347 0%, #ea580c 45%, #ff3d00 80%, #c2390a 100%);
-  opacity: 0;
-  transition: opacity 0.35s;
+  opacity: 0; transition: opacity 0.35s;
 }
 .lp-pcard-btn:hover::before { opacity: 1; }
-.lp-pcard-btn:hover {
-  box-shadow: 0 0 18px rgba(234,88,12,0.55), 0 0 40px rgba(255,100,0,0.2);
-  transform: translateY(-1px);
-}
+.lp-pcard-btn:hover { box-shadow: 0 0 18px rgba(234,88,12,0.55), 0 0 40px rgba(255,100,0,0.2); transform: translateY(-1px); }
 .lp-pcard-btn span, .lp-pcard-btn-ghost span { position: relative; z-index: 1; }
-
 .lp-pcard-btn-ghost {
   background: transparent; color: #f0eef9; border: 0.5px solid rgba(240,238,249,0.2);
   position: relative; overflow: hidden; transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
 }
 .lp-pcard-btn-ghost::before {
-  content: '';
-  position: absolute; inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(160deg, rgba(255,179,71,0.15) 0%, rgba(234,88,12,0.2) 50%, rgba(194,57,10,0.15) 100%);
-  opacity: 0;
-  transition: opacity 0.35s;
+  opacity: 0; transition: opacity 0.35s;
 }
 .lp-pcard-btn-ghost:hover::before { opacity: 1; }
-.lp-pcard-btn-ghost:hover {
-  border-color: rgba(234,88,12,0.5);
-  box-shadow: 0 0 14px rgba(234,88,12,0.2);
-  transform: translateY(-1px);
-}
+.lp-pcard-btn-ghost:hover { border-color: rgba(234,88,12,0.5); box-shadow: 0 0 14px rgba(234,88,12,0.2); transform: translateY(-1px); }
 
-/* SHARED */
 .lp-tick { color: #00d4b4; font-size: 15px; }
 .lp-cross { color: #545870; font-size: 15px; }
 
@@ -683,4 +788,78 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-footer-cta { text-align: center; padding: 64px 0; border-top: 0.5px solid rgba(255,255,255,0.07); }
 .lp-h2 { font-family: "Space Grotesk", sans-serif; font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
 .lp-footer-cta p { font-size: 14px; color: #8b8fa8; margin-bottom: 28px; }
+
+/* FOOTER */
+.lp-footer {
+  border-top: 0.5px solid rgba(255,255,255,0.07);
+  background: rgba(5,8,18,0.8);
+  padding: 40px 0 32px;
+}
+.lp-footer-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+.lp-footer-tagline {
+  font-size: 12px;
+  color: #545870;
+  line-height: 1.6;
+  max-width: 200px;
+}
+.lp-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lp-footer-link {
+  font-size: 13px;
+  color: #8b8fa8;
+  text-decoration: none;
+  transition: color .15s;
+}
+.lp-footer-link:hover { color: #f0eef9; }
+.lp-footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.lp-made-by {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #8b8fa8;
+  text-decoration: none;
+  transition: color .15s;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.lp-made-by:hover { color: #f0eef9; }
+.lp-heart {
+  color: #ea580c;
+  font-size: 14px;
+  animation: heartbeat 1.8s ease-in-out infinite;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+}
+.lp-footer-copy {
+  font-size: 11px;
+  color: #333a55;
+}
+
+@media (max-width: 640px) {
+  .lp-testi-slide { padding: 28px 24px 24px; }
+  .lp-testi-quote { font-size: 14px; }
+  .lp-footer-inner { grid-template-columns: 1fr; }
+  .lp-footer-right { align-items: flex-start; }
+  .lp-modules-grid { grid-template-columns: repeat(2,1fr); }
+  .lp-pricing-grid { grid-template-columns: 1fr; }
+  .lp-compare-grid { grid-template-columns: 1fr; }
+}
 </style>
