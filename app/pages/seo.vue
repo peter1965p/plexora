@@ -151,7 +151,8 @@
 
     <div v-else style="text-align:center;padding:60px;color:var(--text-muted)">
       <i class="ti ti-lock" style="font-size:32px;display:block;margin-bottom:8px"></i>
-      Kein Zugriff
+      <div style="margin-bottom:8px">Kein Zugriff</div>
+      <div v-if="error" style="font-size:11px;font-family:monospace;color:#E05C5C">{{ error }}</div>
     </div>
 
   </div>
@@ -164,6 +165,7 @@ const { email } = await useAuthUser()
 
 const stats   = ref<any>(null)
 const loading = ref(true)
+const error   = ref<string>('')
 
 const botRate = computed(() => {
   if (!stats.value) return 0
@@ -179,11 +181,12 @@ const maxDay = computed(() => {
 
 async function reload() {
   loading.value = true
+  error.value = ''
   try {
     const data = await $fetch(useApiUrl(`/api/admin/seo-stats?email=${encodeURIComponent(email)}`)) as any
     stats.value = data
-  } catch {
-    await navigateTo('/dashboard')
+  } catch (e: any) {
+    error.value = `${e?.statusCode || ''} — email: ${email}`
   } finally {
     loading.value = false
   }
