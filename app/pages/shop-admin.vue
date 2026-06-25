@@ -4,26 +4,26 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Shop <span style="color:var(--accent)">Admin</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Produkte, Kategorien, Lieferanten & Bestand</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ t.shop.title }} <span style="color:var(--accent)">Admin</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ t.shop.subtitle }}</p>
       </div>
       <div style="display:flex;gap:10px">
         <NuxtLink to="/shop" target="_blank">
           <button class="icon-btn"><i class="ti ti-external-link"></i></button>
         </NuxtLink>
         <button v-if="tab==='produkte'" class="accent-btn" @click="openModal">
-          <i class="ti ti-plus"></i> Neues Produkt
+          <i class="ti ti-plus"></i> {{ t.shop.newProduct }}
         </button>
         <button v-if="tab==='lieferanten'" class="accent-btn" @click="openSupplierModal">
-          <i class="ti ti-plus"></i> Neuer Lieferant
+          <i class="ti ti-plus"></i> {{ t.shop.newSupplier }}
         </button>
       </div>
     </div>
 
     <!-- Settings-Style Tabs -->
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-      <button v-for="t in tabs" :key="t.key" class="theme-opt" :class="{ active: tab === t.key }" @click="tab=t.key">
-        <i class="ti" :class="t.icon"></i> {{ t.label }}
+      <button v-for="tabItem in tabs" :key="tabItem.key" class="theme-opt" :class="{ active: tab === tabItem.key }" @click="tab=tabItem.key">
+        <i class="ti" :class="tabItem.icon"></i> {{ tabItem.label }}
       </button>
     </div>
 
@@ -31,7 +31,7 @@
     <div v-if="tab === 'produkte'">
       <div v-if="!products.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-package" style="font-size:48px;display:block;margin-bottom:12px"></i>
-        Noch keine Produkte — leg das erste an!
+        {{ t.shop.noProducts }}
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
         <div v-for="p in products" :key="p.productId"
@@ -42,10 +42,10 @@
             <img v-if="p.image" :src="p.image" style="width:100%;height:100%;object-fit:cover" />
             <i v-else class="ti ti-package" style="font-size:40px;color:var(--text-muted)"></i>
             <span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600">
-              {{ p.vatRate ?? 19 }}% MwSt.
+              {{ p.vatRate ?? 19 }}% {{ t.shop.vat }}
             </span>
             <span v-if="p.stock <= (p.minStock || 10)" style="position:absolute;top:8px;right:8px;background:#E05C5C;color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600">
-              ⚠ Niedrig
+              ⚠ {{ t.common.low }}
             </span>
           </div>
           <div style="padding:14px;flex:1;display:flex;flex-direction:column">
@@ -55,7 +55,7 @@
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border)">
               <div>
                 <span style="font-weight:800;font-size:16px;color:var(--accent)">€ {{ p.price }}</span>
-                <span style="font-size:11px;color:var(--text-muted);margin-left:8px">Stock: {{ p.stock ?? '∞' }}</span>
+                <span style="font-size:11px;color:var(--text-muted);margin-left:8px">{{ t.shop.stock }} {{ p.stock ?? '∞' }}</span>
               </div>
               <div style="display:flex;gap:4px">
                 <button @click="openEditModal(p)" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:16px;padding:4px">
@@ -75,17 +75,17 @@
     <div v-if="tab === 'kategorien'">
       <div class="card" style="margin-bottom:16px">
         <div class="card-header">
-          <span class="card-title">Neue Kategorie</span>
+          <span class="card-title">{{ t.shop.newCategory }}</span>
         </div>
         <div class="card-body">
           <div style="display:flex;gap:12px;align-items:flex-end">
-            <div class="auth-field" style="flex:1;margin:0"><label>Name</label><input v-model="newCat" placeholder="z.B. ADDON" /></div>
-            <button class="accent-btn" @click="addCategory" :disabled="!newCat"><i class="ti ti-plus"></i> Hinzufügen</button>
+            <div class="auth-field" style="flex:1;margin:0"><label>{{ t.common.name }}</label><input v-model="newCat" placeholder="z.B. ADDON" /></div>
+            <button class="accent-btn" @click="addCategory" :disabled="!newCat"><i class="ti ti-plus"></i> {{ t.shop.add }}</button>
           </div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">Kategorien ({{ categories.length }})</span></div>
+        <div class="card-header"><span class="card-title">{{ t.shop.tabCategories }} ({{ categories.length }})</span></div>
         <div v-for="k in categories" :key="k"
           style="padding:14px 24px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
           <div style="display:flex;align-items:center;gap:10px">
@@ -93,7 +93,7 @@
             <span style="font-weight:600">{{ k }}</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:var(--text-muted)">{{ products.filter(p => p.category === k).length }} Produkte</span>
+            <span style="font-size:11px;color:var(--text-muted)">{{ products.filter(p => p.category === k).length }} {{ t.shop.tabProducts }}</span>
             <button v-if="!['SOFTWARE','SERVICE'].includes(k)" @click="removeCategory(k)"
               style="background:none;border:none;color:#E05C5C;cursor:pointer;font-size:16px"><i class="ti ti-trash"></i></button>
             <span v-else style="font-size:11px;color:var(--text-muted);padding:2px 8px;border:0.5px solid var(--border);border-radius:4px">Standard</span>
@@ -106,12 +106,12 @@
     <div v-if="tab === 'lieferanten'">
       <div v-if="!suppliers.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-truck" style="font-size:48px;display:block;margin-bottom:12px"></i>
-        Noch keine Lieferanten angelegt!
+        {{ t.shop.noSuppliers }}
       </div>
       <div class="card" v-else>
         <table class="data-table">
           <thead>
-            <tr><th>Firma</th><th>Kontakt</th><th>E-Mail</th><th>Telefon</th><th>Produkte</th><th style="width:80px"></th></tr>
+            <tr><th>{{ t.common.company }}</th><th>{{ t.shop.contactPerson }}</th><th>{{ t.common.email }}</th><th>{{ t.common.phone }}</th><th>{{ t.shop.tabProducts }}</th><th style="width:80px"></th></tr>
           </thead>
           <tbody>
             <tr v-for="s in suppliers" :key="s.supplierId">
@@ -132,14 +132,14 @@
     <!-- TAB: Bestand -->
     <div v-if="tab === 'bestand'">
       <div class="card">
-        <div class="card-header"><span class="card-title">Bestandsübersicht</span></div>
+        <div class="card-header"><span class="card-title">{{ t.shop.stockOverview }}</span></div>
         <table class="data-table">
           <thead>
-            <tr><th>Produkt</th><th>Kategorie</th><th>Bestand</th><th>Mindestbestand</th><th>Lieferant</th><th>Status</th><th></th></tr>
+            <tr><th>{{ t.shop.product }}</th><th>{{ t.shop.category }}</th><th>{{ t.shop.tabStock }}</th><th>{{ t.shop.minStock }}</th><th>{{ t.shop.supplier }}</th><th>{{ t.common.status }}</th><th></th></tr>
           </thead>
           <tbody>
             <tr v-if="!products.length">
-              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Keine Produkte</td>
+              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.shop.noProductsStock }}</td>
             </tr>
             <tr v-for="p in products" :key="p.productId">
               <td style="font-weight:600">{{ p.name }}</td>
@@ -152,14 +152,14 @@
               <td style="font-size:12px;color:var(--text-muted)">{{ p.minStock || 10 }}</td>
               <td style="font-size:12px">{{ suppliers.find(s => s.supplierId === p.supplierId)?.name || '—' }}</td>
               <td>
-                <span v-if="p.stock <= (p.minStock || 10)" class="badge badge-danger">⚠ Nachbestellen</span>
-                <span v-else class="badge badge-success">OK</span>
+                <span v-if="p.stock <= (p.minStock || 10)" class="badge badge-danger">⚠ {{ t.shop.reorder }}</span>
+                <span v-else class="badge badge-success">{{ t.shop.ok }}</span>
               </td>
               <td>
                 <button v-if="p.stock <= (p.minStock || 10)" class="accent-btn"
                   style="height:26px;font-size:11px;padding:0 10px"
                   @click="openReorderModal(p)">
-                  <i class="ti ti-shopping-cart"></i> Bestellen
+                  <i class="ti ti-shopping-cart"></i> {{ t.shop.orderBtn }}
                 </button>
               </td>
             </tr>
@@ -172,22 +172,22 @@
     <div v-if="tab === 'bestellungen'">
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Bestellvorgänge</span>
-          <span style="font-size:12px;color:var(--text-muted)">{{ purchaseOrders.filter(o => o.status === 'offen').length }} offen</span>
+          <span class="card-title">{{ t.shop.orders }}</span>
+          <span style="font-size:12px;color:var(--text-muted)">{{ purchaseOrders.filter(o => o.status === 'offen').length }} {{ t.shop.openOrders }}</span>
         </div>
         <table class="data-table">
           <thead>
-            <tr><th>Bestell-Nr.</th><th>Produkt</th><th>Lieferant</th><th>Menge</th><th>Datum</th><th>Status</th><th style="width:120px"></th></tr>
+            <tr><th>{{ t.shop.orderNumber }}</th><th>{{ t.shop.product }}</th><th>{{ t.shop.supplier }}</th><th>{{ t.shop.quantity }}</th><th>{{ t.common.date }}</th><th>{{ t.common.status }}</th><th style="width:120px"></th></tr>
           </thead>
           <tbody>
             <tr v-if="!purchaseOrders.length">
-              <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Keine Bestellungen vorhanden</td>
+              <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.shop.noOrders }}</td>
             </tr>
             <tr v-for="o in purchaseOrders" :key="o.orderId">
               <td style="font-size:12px;font-family:monospace">{{ o.orderId?.slice(0,8).toUpperCase() }}</td>
               <td style="font-weight:600">{{ o.productName }}</td>
               <td style="font-size:12px">{{ o.supplierName || '—' }}</td>
-              <td><span class="badge badge-info">{{ o.quantity }} Stk.</span></td>
+              <td><span class="badge badge-info">{{ o.quantity }} {{ t.shop.units }}</span></td>
               <td style="font-size:12px;color:var(--text-muted)">{{ new Date(o.created).toLocaleDateString('de-DE') }}</td>
               <td>
                 <span class="badge" :class="o.status === 'offen' ? 'badge-warning' : o.status === 'geliefert' ? 'badge-success' : 'badge-info'">
@@ -196,11 +196,11 @@
               </td>
               <td>
                 <div style="display:flex;gap:4px">
-                  <button v-if="o.status === 'offen'" class="icon-btn" title="Als bestätigt markieren"
+                  <button v-if="o.status === 'offen'" class="icon-btn" :title="t.shop.confirmOrder"
                     @click="updateOrderStatus(o.orderId, 'bestätigt')">
                     <i class="ti ti-check"></i>
                   </button>
-                  <button v-if="o.status === 'bestätigt'" class="icon-btn" title="Als geliefert markieren"
+                  <button v-if="o.status === 'bestätigt'" class="icon-btn" :title="t.shop.confirmDelivery"
                     style="color:#00D4B4" @click="updateOrderStatus(o.orderId, 'geliefert')">
                     <i class="ti ti-package-import"></i>
                   </button>
@@ -216,7 +216,7 @@
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
       <div class="modal-card" style="max-width:600px">
         <div class="modal-header">
-          <span class="card-title">{{ editingProduct ? "Produkt bearbeiten" : "Neues Produkt anlegen" }}</span>
+          <span class="card-title">{{ editingProduct ? t.shop.editProduct : t.shop.newProductTitle }}</span>
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
@@ -225,63 +225,63 @@
             <img v-if="form.image" :src="form.image" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />
             <div v-else style="text-align:center;color:var(--text-muted)">
               <i class="ti ti-photo-up" style="font-size:32px;display:block;margin-bottom:6px"></i>
-              <span style="font-size:13px">{{ imageUploading ? 'Lädt...' : 'Produktbild hochladen' }}</span>
+              <span style="font-size:13px">{{ imageUploading ? t.common.loading : t.common.upload }}</span>
             </div>
             <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="uploadProductImage" />
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field"><label>Produktname *</label><input v-model="form.name" placeholder="Plexora Starter" /></div>
-            <div class="auth-field"><label>Preis (€) *</label><input v-model="form.price" type="number" placeholder="29" /></div>
+            <div class="auth-field"><label>{{ t.shop.productName }}</label><input v-model="form.name" placeholder="Plexora Starter" /></div>
+            <div class="auth-field"><label>{{ t.shop.price }}</label><input v-model="form.price" type="number" placeholder="29" /></div>
             <div class="auth-field">
-              <label>Kategorie</label>
+              <label>{{ t.shop.category }}</label>
               <select v-model="form.category" class="form-select">
                 <option v-for="k in categories" :key="k" :value="k">{{ k }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>MwSt.-Satz</label>
+              <label>{{ t.shop.vat }}</label>
               <select v-model.number="form.vatRate" class="form-select">
-                <option :value="19">19% (Standard)</option>
-                <option :value="7">7% (ermäßigt)</option>
-                <option :value="0">0% (steuerfrei)</option>
+                <option :value="19">{{ t.shop.vat19 }}</option>
+                <option :value="7">{{ t.shop.vat7 }}</option>
+                <option :value="0">{{ t.shop.vat0 }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Stock</label><input v-model="form.stock" type="number" placeholder="999" /></div>
-            <div class="auth-field"><label>Mindestbestand</label><input v-model="form.minStock" type="number" placeholder="10" /></div>
+            <div class="auth-field"><label>{{ t.shop.tabStock }}</label><input v-model="form.stock" type="number" placeholder="999" /></div>
+            <div class="auth-field"><label>{{ t.shop.minStock }}</label><input v-model="form.minStock" type="number" placeholder="10" /></div>
             <div class="auth-field" style="grid-column:span 2">
-              <label>Lieferant</label>
+              <label>{{ t.shop.supplier }}</label>
               <select v-model="form.supplierId" class="form-select">
-                <option value="">— kein Lieferant —</option>
+                <option value="">{{ t.shop.noSupplier }}</option>
                 <option v-for="s in suppliers" :key="s.supplierId" :value="s.supplierId">{{ s.name }}</option>
               </select>
             </div>
           </div>
           <div class="auth-field">
-            <label>Kurzbeschreibung</label>
+            <label>{{ t.shop.shortDesc }}</label>
             <textarea v-model="form.description" placeholder="Ein Satz der das Produkt beschreibt..." style="height:60px;resize:none;width:100%" class="form-select"></textarea>
           </div>
           <div class="auth-field">
-            <label>Preismodell</label>
+            <label>{{ t.shop.priceModel }}</label>
             <select v-model="form.priceModel" class="form-select">
-              <option value="einmalig">Einmalig</option>
-              <option value="monatlich">Monatlich</option>
-              <option value="jährlich">Jährlich</option>
-              <option value="auf Anfrage">Auf Anfrage</option>
+              <option value="einmalig">{{ t.common.oneTime }}</option>
+              <option value="monatlich">{{ t.common.monthly }}</option>
+              <option value="jährlich">{{ t.common.annual }}</option>
+              <option value="auf Anfrage">{{ t.shop.onRequest }}</option>
             </select>
           </div>
           <div class="auth-field">
-            <label>Langbeschreibung</label>
+            <label>{{ t.shop.longDesc }}</label>
             <textarea v-model="form.longDescription" placeholder="Ausführliche Beschreibung des Produkts..." style="height:80px;resize:none;width:100%" class="form-select"></textarea>
           </div>
           <div class="auth-field">
-            <label>Features (eine pro Zeile)</label>
+            <label>{{ t.shop.features }}</label>
             <textarea v-model="form.features" placeholder="CRM mit Kontaktverwaltung&#10;Deals & Pipeline&#10;CSV Export" style="height:80px;resize:none;width:100%" class="form-select"></textarea>
           </div>
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="createProduct" :disabled="saving || !form.name || !form.price">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-plus"></i> {{ editingProduct ? 'Speichern' : 'Produkt anlegen' }}</span>
+            <span v-else><i class="ti ti-plus"></i> {{ editingProduct ? t.common.save : t.shop.createProduct }}</span>
           </button>
         </div>
       </div>
@@ -291,23 +291,23 @@
     <div v-if="showSupplierModal" class="modal-overlay" @click.self="showSupplierModal=false">
       <div class="modal-card" style="max-width:500px">
         <div class="modal-header">
-          <span class="card-title">Neuer Lieferant</span>
+          <span class="card-title">{{ t.shop.newSupplierTitle }}</span>
           <button class="icon-btn" @click="showSupplierModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field" style="grid-column:span 2"><label>Firmenname *</label><input v-model="supplierForm.name" placeholder="Muster GmbH" /></div>
-            <div class="auth-field"><label>Ansprechpartner</label><input v-model="supplierForm.contact" placeholder="Max Mustermann" /></div>
-            <div class="auth-field"><label>Telefon</label><input v-model="supplierForm.phone" placeholder="+49 123 456789" /></div>
-            <div class="auth-field"><label>E-Mail</label><input v-model="supplierForm.email" placeholder="info@lieferant.de" /></div>
-            <div class="auth-field"><label>Website</label><input v-model="supplierForm.website" placeholder="https://..." /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Adresse</label><input v-model="supplierForm.address" placeholder="Musterstraße 1, 12345 Musterstadt" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ t.shop.companyName }}</label><input v-model="supplierForm.name" placeholder="Muster GmbH" /></div>
+            <div class="auth-field"><label>{{ t.shop.contactPersonLabel }}</label><input v-model="supplierForm.contact" placeholder="Max Mustermann" /></div>
+            <div class="auth-field"><label>{{ t.common.phone }}</label><input v-model="supplierForm.phone" placeholder="+49 123 456789" /></div>
+            <div class="auth-field"><label>{{ t.common.email }}</label><input v-model="supplierForm.email" placeholder="info@lieferant.de" /></div>
+            <div class="auth-field"><label>{{ t.common.website }}</label><input v-model="supplierForm.website" placeholder="https://..." /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ t.shop.address }}</label><input v-model="supplierForm.address" placeholder="Musterstraße 1, 12345 Musterstadt" /></div>
           </div>
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="createSupplier" :disabled="supplierSaving || !supplierForm.name">
             <span v-if="supplierSaving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-plus"></i> Lieferant anlegen</span>
+            <span v-else><i class="ti ti-plus"></i> {{ t.shop.createSupplier }}</span>
           </button>
         </div>
       </div>
@@ -317,25 +317,25 @@
     <div v-if="showReorderModal" class="modal-overlay" @click.self="showReorderModal=false">
       <div class="modal-card" style="max-width:460px">
         <div class="modal-header">
-          <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>Nachbestellung</span>
+          <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>{{ t.shop.reorderTitle }}</span>
           <button class="icon-btn" @click="showReorderModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
           <div style="background:var(--bg-elevated);border-radius:10px;padding:14px">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Produkt</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">{{ t.shop.product }}</div>
             <div style="font-weight:700">{{ reorderProduct?.name }}</div>
             <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
-              Aktueller Bestand: <span style="color:#E05C5C;font-weight:700">{{ reorderProduct?.stock }}</span>
-              · Mindestbestand: {{ reorderProduct?.minStock || 10 }}
-              · Lieferant: {{ suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.name || '—' }}
+              {{ t.shop.currentStock }} <span style="color:#E05C5C;font-weight:700">{{ reorderProduct?.stock }}</span>
+              · {{ t.shop.minStockLabel }} {{ reorderProduct?.minStock || 10 }}
+              · {{ t.shop.supplierLabel }} {{ suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.name || '—' }}
             </div>
           </div>
           <div class="auth-field">
-            <label>Bestellmenge</label>
+            <label>{{ t.shop.orderQty }}</label>
             <input v-model.number="reorderForm.quantity" type="number" min="1" placeholder="10" />
           </div>
           <div class="auth-field">
-            <label>Hinweise an Lieferant (optional)</label>
+            <label>{{ t.shop.orderNotes }}</label>
             <textarea v-model="reorderForm.notes" rows="3"
               style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:none;font-family:inherit"
               placeholder="Lieferdatum, Besonderheiten..."></textarea>
@@ -349,7 +349,7 @@
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="createPurchaseOrder" :disabled="reorderSaving">
             <span v-if="reorderSaving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-send"></i> Bestellung aufgeben</span>
+            <span v-else><i class="ti ti-send"></i> {{ t.shop.placeOrder }}</span>
           </button>
         </div>
       </div>
@@ -362,15 +362,16 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { userId } = await useAuthUser()
+const { t, lang } = useLang()
 
 const tab  = ref('produkte')
-const tabs = [
-  { key: 'produkte',     label: 'Produkte',     icon: 'ti-package'        },
-  { key: 'kategorien',   label: 'Kategorien',   icon: 'ti-tag'            },
-  { key: 'lieferanten',  label: 'Lieferanten',  icon: 'ti-truck'          },
-  { key: 'bestand',      label: 'Bestand',      icon: 'ti-chart-bar'      },
-  { key: 'bestellungen', label: 'Bestellungen', icon: 'ti-clipboard-list' },
-]
+const tabs = computed(() => [
+  { key: 'produkte',     label: t.value.shop.tabProducts,   icon: 'ti-package'        },
+  { key: 'kategorien',   label: t.value.shop.tabCategories, icon: 'ti-tag'            },
+  { key: 'lieferanten',  label: t.value.shop.tabSuppliers,  icon: 'ti-truck'          },
+  { key: 'bestand',      label: t.value.shop.tabStock,      icon: 'ti-chart-bar'      },
+  { key: 'bestellungen', label: t.value.shop.tabOrders,     icon: 'ti-clipboard-list' },
+])
 
 const saving         = ref(false)
 const supplierSaving = ref(false)

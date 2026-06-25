@@ -4,25 +4,25 @@
     <div class="stats-grid">
       <div class="stat-card">
         <i class="ti ti-speakerphone stat-icon"></i>
-        <div class="stat-label">Kampagnen</div>
+        <div class="stat-label">{{ t.marketing.campaigns }}</div>
         <div class="stat-value">{{ campaigns.length }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ campaigns.filter((c:any) => c.active).length }} aktiv</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ campaigns.filter((c:any) => c.active).length }} {{ t.common.active }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-users stat-icon"></i>
-        <div class="stat-label">Leads gesamt</div>
+        <div class="stat-label">{{ t.marketing.totalLeads }}</div>
         <div class="stat-value">{{ totalLeads }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> via Landingpages</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.marketing.viaLandingpages }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-chart-bar stat-icon"></i>
-        <div class="stat-label">Beste Kampagne</div>
+        <div class="stat-label">{{ t.marketing.bestCampaign }}</div>
         <div class="stat-value" style="font-size:16px">{{ bestCampaign }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> meiste Leads</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.marketing.mostLeads }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-link stat-icon"></i>
-        <div class="stat-label">Basis-URL</div>
+        <div class="stat-label">{{ t.marketing.baseUrl }}</div>
         <div class="stat-value" style="font-size:13px">app.plexora.eu</div>
         <div class="stat-delta up">/lead/[formId]</div>
       </div>
@@ -31,23 +31,23 @@
     <!-- KAMPAGNEN-LISTE -->
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">
-        <span class="card-title">Kampagnen</span>
+        <span class="card-title">{{ t.marketing.campaigns }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAdd">
-          <i class="ti ti-plus"></i> Neue Kampagne
+          <i class="ti ti-plus"></i> {{ t.marketing.newCampaign }}
         </button>
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>Name</th><th>Formular</th><th>Slug</th><th>Leads</th><th>UTM</th><th style="width:120px"></th></tr>
+          <tr><th>{{ t.common.name }}</th><th>{{ t.marketing.form }}</th><th>{{ t.marketing.slug }}</th><th>{{ t.marketing.leads }}</th><th>{{ t.marketing.utm }}</th><th style="width:120px"></th></tr>
         </thead>
         <tbody>
           <tr v-if="!campaigns.length">
-            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Keine Kampagnen — erste anlegen!</td>
+            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.marketing.noCampaigns }}</td>
           </tr>
           <tr v-for="c in campaigns" :key="c.campaignId">
             <td class="td-name">
               {{ c.name }}
-              <span v-if="!c.active" class="badge badge-warning" style="margin-left:6px">Inaktiv</span>
+              <span v-if="!c.active" class="badge badge-warning" style="margin-left:6px">{{ t.marketing.inactive }}</span>
             </td>
             <td style="font-size:12px">{{ formTitle(c.formId) }}</td>
             <td style="font-size:12px">
@@ -60,8 +60,8 @@
             <td style="font-size:11px;color:var(--text-muted)">{{ c.utmSource || '—' }} / {{ c.utmCampaign || '—' }}</td>
             <td>
               <div style="display:flex;gap:4px">
-                <button class="icon-btn" title="Link kopieren" @click="copyLink(c)"><i class="ti ti-copy"></i></button>
-                <button class="icon-btn" title="QR-Code" @click="showQr(c)"><i class="ti ti-qrcode"></i></button>
+                <button class="icon-btn" :title="t.marketing.copyLink" @click="copyLink(c)"><i class="ti ti-copy"></i></button>
+                <button class="icon-btn" :title="t.marketing.qrCode" @click="showQr(c)"><i class="ti ti-qrcode"></i></button>
                 <button class="icon-btn" @click="openEdit(c)"><i class="ti ti-pencil"></i></button>
                 <button class="icon-btn" style="color:var(--danger)" @click="deleteCampaign(c)"><i class="ti ti-trash"></i></button>
               </div>
@@ -75,38 +75,38 @@
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
       <div class="modal-card" style="max-width:720px;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
-          <span class="card-title">{{ editing ? 'Kampagne bearbeiten' : 'Neue Kampagne' }}</span>
+          <span class="card-title">{{ editing ? t.marketing.editCampaign : t.marketing.newCampaignTitle }}</span>
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
           <!-- LINKE SPALTE: Einstellungen -->
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="auth-field"><label>Kampagnen-Name</label><input v-model="form.name" placeholder="Kostenlose Beratung" /></div>
+            <div class="auth-field"><label>{{ t.marketing.campaignName }}</label><input v-model="form.name" placeholder="Kostenlose Beratung" /></div>
             <div class="auth-field">
-              <label>Formular</label>
+              <label>{{ t.marketing.form }}</label>
               <select v-model="form.formId" class="form-select">
-                <option value="">— Formular wählen —</option>
+                <option value="">{{ t.marketing.noForm }}</option>
                 <option v-for="f in forms" :key="f.formId" :value="f.formId">{{ f.title }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>Vanity-Slug (optional)</label>
+              <label>{{ t.marketing.vanitySlug }}</label>
               <div style="display:flex;align-items:center;gap:6px">
                 <span style="font-size:13px;color:var(--text-muted)">/</span>
                 <input v-model="form.slug" placeholder="beratung" style="flex:1" />
               </div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
-                Link: app.plexora.eu/{{ form.slug || 'lead/' + (form.formId?.slice(0,8) || '...') }}
+                {{ t.marketing.link }} app.plexora.eu/{{ form.slug || 'lead/' + (form.formId?.slice(0,8) || '...') }}
               </div>
             </div>
 
             <div style="border-top:0.5px solid var(--border);padding-top:14px">
-              <div class="settings-label" style="margin-bottom:10px">🎨 Design</div>
-              <div class="auth-field"><label>Headline</label><input v-model="form.headline" placeholder="Kostenlose IT-Beratung" /></div>
-              <div class="auth-field"><label>Subtext</label><input v-model="form.subtext" placeholder="Jetzt unverbindlich anfragen" /></div>
+              <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.design }}</div>
+              <div class="auth-field"><label>{{ t.marketing.headline }}</label><input v-model="form.headline" placeholder="Kostenlose IT-Beratung" /></div>
+              <div class="auth-field"><label>{{ t.marketing.subtext }}</label><input v-model="form.subtext" placeholder="Jetzt unverbindlich anfragen" /></div>
               <div class="auth-field">
-                <label>Header-Banner</label>
+                <label>{{ t.marketing.headerBanner }}</label>
 
                 <!-- CROP nach Dateiauswahl -->
                 <div v-if="cropSrc" style="margin-bottom:10px">
@@ -125,7 +125,7 @@
                     <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto"
                       :disabled="headerUploading" @click="confirmCropAndUpload">
                       <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
-                      {{ headerUploading ? 'Lädt...' : 'Übernehmen & hochladen' }}
+                      {{ headerUploading ? t.common.loading : 'Übernehmen & hochladen' }}
                     </button>
                     <button class="icon-btn" style="color:var(--danger)" @click="cropSrc=null;cropRect=null"><i class="ti ti-x"></i></button>
                   </div>
@@ -138,11 +138,11 @@
                   <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
                     <label style="cursor:pointer">
                       <input type="file" accept="image/*" style="display:none" @change="selectBannerFile" />
-                      <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none" title="Ändern">
+                      <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none">
                         <i class="ti ti-pencil"></i>
                       </span>
                     </label>
-                    <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.headerImageUrl=''" title="Entfernen">
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.headerImageUrl=''">
                       <i class="ti ti-trash"></i>
                     </button>
                   </div>
@@ -152,7 +152,7 @@
                 <label v-if="!form.headerImageUrl && !cropSrc" style="cursor:pointer;display:block">
                   <input type="file" accept="image/*" style="display:none" @change="selectBannerFile" />
                   <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
-                    <i class="ti ti-photo-up"></i> Bild hochladen
+                    <i class="ti ti-photo-up"></i> {{ t.common.upload }}
                   </span>
                 </label>
               </div>
@@ -166,7 +166,7 @@
             </div>
 
             <div style="border-top:0.5px solid var(--border);padding-top:14px">
-              <div class="settings-label" style="margin-bottom:10px">📊 UTM-Tracking</div>
+              <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.utmTracking }}</div>
               <div class="auth-row">
                 <div class="auth-field"><label>utm_source</label><input v-model="form.utmSource" placeholder="linkedin" /></div>
                 <div class="auth-field"><label>utm_medium</label><input v-model="form.utmMedium" placeholder="social" /></div>
@@ -177,7 +177,7 @@
 
           <!-- RECHTE SPALTE: Live-Vorschau -->
           <div>
-            <div class="settings-label" style="margin-bottom:10px">👁 Live-Vorschau</div>
+            <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.livePreview }}</div>
             <div :style="`background:#0a0e1a;border-radius:12px;overflow:hidden;border:0.5px solid var(--border);min-height:300px`">
               <div v-if="form.headerImageUrl" style="height:150px;overflow:hidden;position:relative">
                 <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover;display:block" />
@@ -210,7 +210,7 @@
 
             <!-- Kampagnen-Link -->
             <div v-if="form.formId" style="margin-top:12px;background:var(--bg-elevated);border-radius:8px;padding:12px;font-size:12px">
-              <div style="color:var(--text-muted);margin-bottom:4px">Kampagnen-Link:</div>
+              <div style="color:var(--text-muted);margin-bottom:4px">{{ t.marketing.link }}</div>
               <div style="color:var(--accent);word-break:break-all">{{ campaignUrl }}</div>
             </div>
           </div>
@@ -219,7 +219,7 @@
         <div style="padding:0 24px 24px">
           <button class="auth-btn" :disabled="!form.name || !form.formId || saving" @click="save">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ editing ? 'Speichern' : 'Kampagne erstellen' }}</span>
+            <span v-else>{{ editing ? t.common.save : t.marketing.createCampaign }}</span>
           </button>
         </div>
       </div>
@@ -229,14 +229,14 @@
     <div v-if="qrCampaign" class="modal-overlay" @click.self="qrCampaign=null">
       <div class="modal-card" style="max-width:360px;text-align:center">
         <div class="modal-header">
-          <span class="card-title">QR-Code — {{ qrCampaign.name }}</span>
+          <span class="card-title">{{ t.marketing.qrCode }} — {{ qrCampaign.name }}</span>
           <button class="icon-btn" @click="qrCampaign=null"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="align-items:center">
           <div id="qr-container" style="background:#fff;padding:16px;border-radius:8px;display:inline-block"></div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:8px;word-break:break-all">{{ qrUrl }}</div>
           <button class="auth-btn" @click="copyQrUrl">
-            <i class="ti ti-copy"></i> Link kopieren
+            <i class="ti ti-copy"></i> {{ t.marketing.copyLink }}
           </button>
         </div>
       </div>
@@ -250,6 +250,7 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+const { t, lang } = useLang()
 
 const userId = ref('demo-user')
 
@@ -399,8 +400,6 @@ async function save() {
       })
     }
     await refresh()
-
-    // Vanity-Slug in _redirects eintragen wenn slug angegeben
     showModal.value = false
     showToast(editing.value ? 'Kampagne aktualisiert!' : 'Kampagne erstellt!')
   } finally {
@@ -409,7 +408,8 @@ async function save() {
 }
 
 async function deleteCampaign(c: any) {
-  if (!confirm(`Kampagne "${c.name}" wirklich löschen?`)) return
+  const msg = lang.value === 'en' ? `Really delete campaign "${c.name}"?` : `Kampagne "${c.name}" wirklich löschen?`
+  if (!confirm(msg)) return
   await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
   await refresh()
 }
@@ -457,7 +457,6 @@ async function confirmCropAndUpload() {
       const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), 'image/jpeg', 0.92))
       uploadFile = new File([blob], _cropFile.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
     }
-    // S3-Upload erwartet Base64, kein FormData
     const base64 = await new Promise<string>(r => {
       const reader = new FileReader()
       reader.onload = e => r(e.target!.result as string)
@@ -475,7 +474,6 @@ async function confirmCropAndUpload() {
     alert('Upload fehlgeschlagen — bitte erneut versuchen.')
   } finally { headerUploading.value = false }
 }
-
 
 // ── Toast ────────────────────────────────────────────
 const toast = ref('')

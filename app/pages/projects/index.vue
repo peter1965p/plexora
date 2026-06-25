@@ -2,21 +2,21 @@
   <div class="page">
 
     <div class="stats-grid">
-      <div class="stat-card"><i class="ti ti-layout-kanban stat-icon"></i><div class="stat-label">Projekte</div><div class="stat-value">{{ projects.length }}</div><div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ activeCount }} aktiv</div></div>
-      <div class="stat-card"><i class="ti ti-check stat-icon"></i><div class="stat-label">Abgeschlossen</div><div class="stat-value">{{ doneCount }}</div><div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> diesen Monat</div></div>
-      <div class="stat-card"><i class="ti ti-clock stat-icon"></i><div class="stat-label">In Verzug</div><div class="stat-value" :style="overdueCount>0?'color:#E05C5C':''">{{ overdueCount }}</div><div class="stat-delta" :class="overdueCount>0?'down':'up'"><i class="ti" :class="overdueCount>0?'ti-alert-triangle':'ti-check'"></i> {{ overdueCount>0?'sofort handeln':'alles im Plan' }}</div></div>
-      <div class="stat-card"><i class="ti ti-list-check stat-icon"></i><div class="stat-label">Offene Tasks</div><div class="stat-value">{{ openTaskCount }}</div><div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> gesamt</div></div>
+      <div class="stat-card"><i class="ti ti-layout-kanban stat-icon"></i><div class="stat-label">{{ t.moduleNames.projects }}</div><div class="stat-value">{{ projects.length }}</div><div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ activeCount }} {{ t.projects.active }}</div></div>
+      <div class="stat-card"><i class="ti ti-check stat-icon"></i><div class="stat-label">{{ t.projects.completed }}</div><div class="stat-value">{{ doneCount }}</div><div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.projects.thisMonth }}</div></div>
+      <div class="stat-card"><i class="ti ti-clock stat-icon"></i><div class="stat-label">{{ t.projects.overdue }}</div><div class="stat-value" :style="overdueCount>0?'color:#E05C5C':''">{{ overdueCount }}</div><div class="stat-delta" :class="overdueCount>0?'down':'up'"><i class="ti" :class="overdueCount>0?'ti-alert-triangle':'ti-check'"></i> {{ overdueCount>0 ? t.projects.actNow : t.projects.onTrack }}</div></div>
+      <div class="stat-card"><i class="ti ti-list-check stat-icon"></i><div class="stat-label">{{ t.projects.openTasks }}</div><div class="stat-value">{{ openTaskCount }}</div><div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.projects.total }}</div></div>
     </div>
 
     <!-- VIEW TABS + ACTIONS -->
     <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-      <button class="theme-opt" :class="{active:view==='list'}"  @click="view='list'">  <i class="ti ti-list"></i> Liste</button>
-      <button class="theme-opt" :class="{active:view==='gantt'}" @click="view='gantt'"> <i class="ti ti-chart-gantt"></i> Planer</button>
+      <button class="theme-opt" :class="{active:view==='list'}"  @click="view='list'">  <i class="ti ti-list"></i> {{ t.projects.listView }}</button>
+      <button class="theme-opt" :class="{active:view==='gantt'}" @click="view='gantt'"> <i class="ti ti-chart-gantt"></i> {{ t.projects.ganttView }}</button>
       <div style="margin-left:auto;display:flex;gap:8px">
         <button class="icon-btn" @click="exportCsv"><i class="ti ti-file-type-csv"></i></button>
         <button class="icon-btn" @click="exportXlsx"><i class="ti ti-file-spreadsheet"></i></button>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAdd">
-          <i class="ti ti-plus"></i> Neues Projekt
+          <i class="ti ti-plus"></i> {{ t.projects.newProject }}
         </button>
       </div>
     </div>
@@ -25,9 +25,9 @@
     <div v-if="view==='list'">
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
         <select v-model="filterStatus" class="form-select" style="max-width:160px">
-          <option value="">Alle Status</option>
-          <option value="active">Aktiv</option><option value="review">Review</option>
-          <option value="done">Abgeschlossen</option><option value="overdue">Verzug</option>
+          <option value="">{{ t.projects.allStatus }}</option>
+          <option value="active">{{ t.projects.statusActive }}</option><option value="review">{{ t.projects.statusReview }}</option>
+          <option value="done">{{ t.projects.statusCompleted }}</option><option value="overdue">{{ t.projects.statusOverdue }}</option>
         </select>
         <button v-if="filterStatus" class="icon-btn" @click="filterStatus=''"><i class="ti ti-x"></i></button>
       </div>
@@ -53,35 +53,35 @@
         <!-- TASKS PANEL -->
         <div v-if="expanded.has(p.projectId)" class="project-tasks">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-size:12px;font-weight:600;color:var(--text-muted)">TASKS ({{ (p.tasks||[]).length }})</span>
+            <span style="font-size:12px;font-weight:600;color:var(--text-muted)">{{ t.projects.colTasks }} ({{ (p.tasks||[]).length }})</span>
             <button class="accent-btn" style="height:24px;font-size:11px;padding:0 10px" @click="openAddTask(p)">
-              <i class="ti ti-plus"></i> Task
+              <i class="ti ti-plus"></i> {{ t.projects.task }}
             </button>
           </div>
-          <div v-if="!(p.tasks||[]).length" style="font-size:12px;color:var(--text-muted);padding:8px 0">Keine Tasks</div>
-          <div v-for="t in p.tasks||[]" :key="t.taskId" class="task-card">
+          <div v-if="!(p.tasks||[]).length" style="font-size:12px;color:var(--text-muted);padding:8px 0">{{ t.projects.noTasks }}</div>
+          <div v-for="tk in p.tasks||[]" :key="tk.taskId" class="task-card">
             <div style="display:flex;align-items:flex-start;gap:8px">
-              <input type="checkbox" :checked="t.status==='done'" @change="toggleTaskDone(p,t)" style="margin-top:2px;accent-color:var(--accent);flex-shrink:0" />
+              <input type="checkbox" :checked="tk.status==='done'" @change="toggleTaskDone(p,tk)" style="margin-top:2px;accent-color:var(--accent);flex-shrink:0" />
               <div style="flex:1;min-width:0">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                  <span style="font-size:13px;font-weight:500" :style="t.status==='done'?'text-decoration:line-through;color:var(--text-muted)':''">{{ t.title }}</span>
-                  <span class="badge" :class="priorityBadge(t.priority)" style="font-size:10px;padding:1px 6px">{{ priorityLabel(t.priority) }}</span>
-                  <span v-if="t.assignee" style="font-size:11px;color:var(--text-muted)"><i class="ti ti-user"></i> {{ t.assignee }}</span>
-                  <span v-if="t.endDate" style="font-size:11px;color:var(--text-muted)"><i class="ti ti-calendar"></i> {{ fmtDate(t.endDate) }}</span>
-                  <span v-if="t.estimatedHours" style="font-size:11px;color:var(--text-muted)">{{ (t.loggedHours||0).toFixed(1) }}/{{ t.estimatedHours }}h</span>
+                  <span style="font-size:13px;font-weight:500" :style="tk.status==='done'?'text-decoration:line-through;color:var(--text-muted)':''">{{ tk.title }}</span>
+                  <span class="badge" :class="priorityBadge(tk.priority)" style="font-size:10px;padding:1px 6px">{{ priorityLabel(tk.priority) }}</span>
+                  <span v-if="tk.assignee" style="font-size:11px;color:var(--text-muted)"><i class="ti ti-user"></i> {{ tk.assignee }}</span>
+                  <span v-if="tk.endDate" style="font-size:11px;color:var(--text-muted)"><i class="ti ti-calendar"></i> {{ fmtDate(tk.endDate) }}</span>
+                  <span v-if="tk.estimatedHours" style="font-size:11px;color:var(--text-muted)">{{ (tk.loggedHours||0).toFixed(1) }}/{{ tk.estimatedHours }}h</span>
                 </div>
 
                 <!-- SUBTASKS -->
-                <div v-if="t.subtasks?.length" style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
-                  <label v-for="s in t.subtasks" :key="s.id" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer">
-                    <input type="checkbox" :checked="s.done" @change="toggleSubtask(p,t,s)" style="accent-color:var(--accent)" />
+                <div v-if="tk.subtasks?.length" style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
+                  <label v-for="s in tk.subtasks" :key="s.id" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer">
+                    <input type="checkbox" :checked="s.done" @change="toggleSubtask(p,tk,s)" style="accent-color:var(--accent)" />
                     <span :style="s.done?'text-decoration:line-through;opacity:0.5':''">{{ s.text }}</span>
                   </label>
                 </div>
 
                 <!-- COMMENTS -->
-                <div v-if="t.comments?.length" style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
-                  <div v-for="c in t.comments" :key="c.id" style="font-size:12px;background:var(--bg-elevated);border-radius:6px;padding:6px 10px">
+                <div v-if="tk.comments?.length" style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
+                  <div v-for="c in tk.comments" :key="c.id" style="font-size:12px;background:var(--bg-elevated);border-radius:6px;padding:6px 10px">
                     <span style="color:var(--accent);font-weight:600">{{ c.author }}: </span>{{ c.text }}
                     <span style="color:var(--text-muted);margin-left:6px;font-size:10px">{{ new Date(c.created).toLocaleDateString('de-DE') }}</span>
                   </div>
@@ -89,9 +89,9 @@
 
                 <!-- TASK ACTIONS -->
                 <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-                  <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="openAddSubtask(p,t)"><i class="ti ti-list-check"></i> Subtask</button>
-                  <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="openAddComment(p,t)"><i class="ti ti-message"></i> Kommentar</button>
-                  <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="openLogTime(p,t)"><i class="ti ti-clock"></i> Zeit</button>
+                  <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="openAddSubtask(p,tk)"><i class="ti ti-list-check"></i> {{ t.projects.subtask }}</button>
+                  <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="openAddComment(p,tk)"><i class="ti ti-message"></i> {{ t.projects.comment }}</button>
+                  <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="openLogTime(p,tk)"><i class="ti ti-clock"></i> {{ t.projects.time }}</button>
                 </div>
               </div>
             </div>
@@ -102,14 +102,14 @@
 
     <!-- ═══ GANTT / PLANER ═══ -->
     <div v-if="view==='gantt'" class="card">
-      <div class="card-header"><span class="card-title">Projektplaner — Gantt</span></div>
+      <div class="card-header"><span class="card-title">{{ t.projects.ganttTitle }}</span></div>
       <div v-if="ganttProjects.length === 0" style="text-align:center;color:var(--text-muted);padding:40px">
-        Keine Projekte mit Deadline für Gantt-Ansicht. Deadline beim Projekt eintragen.
+        {{ t.projects.ganttEmpty }}
       </div>
       <div v-else style="overflow-x:auto;padding:0 16px 16px">
         <!-- DATE HEADER -->
         <div class="gantt-grid" :style="{ gridTemplateColumns: `200px repeat(${ganttWeeks}, 1fr)` }">
-          <div class="gantt-label-cell" style="font-size:11px;color:var(--text-muted);padding-bottom:6px">Projekt / Task</div>
+          <div class="gantt-label-cell" style="font-size:11px;color:var(--text-muted);padding-bottom:6px">{{ t.projects.projectTask }}</div>
           <div v-for="w in ganttWeekLabels" :key="w.iso" class="gantt-week-cell" :class="{ 'gantt-today-col': w.isThisWeek }">
             {{ w.label }}
           </div>
@@ -124,12 +124,12 @@
             </div>
 
             <!-- TASK ROWS in Gantt -->
-            <template v-for="t in (p.tasks||[]).filter((t:any) => t.endDate)" :key="t.taskId">
+            <template v-for="tk in (p.tasks||[]).filter((t:any) => t.endDate)" :key="tk.taskId">
               <div class="gantt-label-cell" style="font-size:12px;color:var(--text-muted);padding-left:20px">
-                <i class="ti ti-circle" style="font-size:8px;margin-right:4px"></i>{{ t.title }}
+                <i class="ti ti-circle" style="font-size:8px;margin-right:4px"></i>{{ tk.title }}
               </div>
               <div v-for="w in ganttWeekLabels" :key="w.iso" class="gantt-cell">
-                <div v-if="ganttTaskBar(t,w)" class="gantt-bar-fill task-bar" :style="ganttTaskBarStyle(t,w)"></div>
+                <div v-if="ganttTaskBar(tk,w)" class="gantt-bar-fill task-bar" :style="ganttTaskBarStyle(tk,w)"></div>
               </div>
             </template>
           </template>
@@ -141,44 +141,44 @@
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">{{ editing ? 'Projekt bearbeiten' : 'Neues Projekt' }}</span>
+          <span class="card-title">{{ editing ? t.projects.editProject : t.projects.newProject }}</span>
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Projektname</label><input v-model="form.name" placeholder="Projekt XY" /></div>
-          <div class="auth-field"><label>Beschreibung</label><input v-model="form.description" placeholder="Kurzbeschreibung..." /></div>
+          <div class="auth-field"><label>{{ t.projects.projectName }}</label><input v-model="form.name" placeholder="Projekt XY" /></div>
+          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="form.description" placeholder="Kurzbeschreibung..." /></div>
           <div class="auth-field">
-            <label>Mandant</label>
+            <label>{{ t.projects.client }}</label>
             <select v-model="form.companyId" class="form-select">
-              <option value="">— kein Mandant —</option>
+              <option value="">{{ t.projects.noClient }}</option>
               <option v-for="co in companies" :key="co.companyId" :value="co.companyId">{{ co.name }}</option>
             </select>
           </div>
           <div class="auth-row">
-            <div class="auth-field"><label>Team</label><input v-model="form.team" placeholder="Engineering" /></div>
-            <div class="auth-field"><label>Deadline</label><input v-model="form.deadline" type="date" /></div>
+            <div class="auth-field"><label>{{ t.projects.team }}</label><input v-model="form.team" placeholder="Engineering" /></div>
+            <div class="auth-field"><label>{{ t.projects.deadline }}</label><input v-model="form.deadline" type="date" /></div>
           </div>
           <div class="auth-row">
-            <div class="auth-field"><label>Priorität</label>
+            <div class="auth-field"><label>{{ t.projects.priority }}</label>
               <select v-model="form.priority" class="form-select">
-                <option value="low">Niedrig</option><option value="medium">Mittel</option>
-                <option value="high">Hoch</option><option value="critical">Kritisch</option>
+                <option value="low">{{ t.common.low }}</option><option value="medium">{{ t.common.medium }}</option>
+                <option value="high">{{ t.common.high }}</option><option value="critical">{{ t.common.critical }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Status</label>
+            <div class="auth-field"><label>{{ t.common.status }}</label>
               <select v-model="form.status" class="form-select">
-                <option value="active">Aktiv</option><option value="review">Review</option>
-                <option value="done">Abgeschlossen</option><option value="overdue">In Verzug</option>
+                <option value="active">{{ t.projects.statusActive }}</option><option value="review">{{ t.projects.statusReview }}</option>
+                <option value="done">{{ t.projects.statusCompleted }}</option><option value="overdue">{{ t.projects.overdue }}</option>
               </select>
             </div>
           </div>
           <div v-if="editing" class="auth-field">
-            <label>Fortschritt {{ form.progress }}%</label>
+            <label>{{ t.projects.progress }} {{ form.progress }}%</label>
             <input v-model.number="form.progress" type="range" min="0" max="100" step="5" style="width:100%;accent-color:var(--accent)" />
           </div>
           <button class="auth-btn" :disabled="saving||!form.name" @click="save">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ editing ? 'Speichern' : 'Projekt anlegen' }}</span>
+            <span v-else>{{ editing ? t.common.save : t.projects.createProject }}</span>
           </button>
         </div>
       </div>
@@ -188,28 +188,28 @@
     <div v-if="showTaskModal" class="modal-overlay" @click.self="showTaskModal=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">Neuer Task — {{ taskProject?.name }}</span>
+          <span class="card-title">{{ t.projects.newTask }} — {{ taskProject?.name }}</span>
           <button class="icon-btn" @click="showTaskModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Titel</label><input v-model="newTask.title" placeholder="Task beschreiben..." /></div>
+          <div class="auth-field"><label>{{ t.projects.taskTitle }}</label><input v-model="newTask.title" placeholder="Task beschreiben..." /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>Zuständig</label><input v-model="newTask.assignee" placeholder="Name..." /></div>
-            <div class="auth-field"><label>Priorität</label>
+            <div class="auth-field"><label>{{ t.projects.assignee }}</label><input v-model="newTask.assignee" placeholder="Name..." /></div>
+            <div class="auth-field"><label>{{ t.projects.priority }}</label>
               <select v-model="newTask.priority" class="form-select">
-                <option value="low">Niedrig</option><option value="medium">Mittel</option>
-                <option value="high">Hoch</option><option value="critical">Kritisch</option>
+                <option value="low">{{ t.common.low }}</option><option value="medium">{{ t.common.medium }}</option>
+                <option value="high">{{ t.common.high }}</option><option value="critical">{{ t.common.critical }}</option>
               </select>
             </div>
           </div>
           <div class="auth-row">
-            <div class="auth-field"><label>Start</label><input v-model="newTask.startDate" type="date" /></div>
-            <div class="auth-field"><label>Deadline</label><input v-model="newTask.endDate" type="date" /></div>
+            <div class="auth-field"><label>{{ t.projects.start }}</label><input v-model="newTask.startDate" type="date" /></div>
+            <div class="auth-field"><label>{{ t.projects.deadline }}</label><input v-model="newTask.endDate" type="date" /></div>
           </div>
-          <div class="auth-field"><label>Geschätzte Stunden</label><input v-model.number="newTask.estimatedHours" type="number" placeholder="0" /></div>
+          <div class="auth-field"><label>{{ t.projects.estimatedHours }}</label><input v-model.number="newTask.estimatedHours" type="number" placeholder="0" /></div>
           <button class="auth-btn" :disabled="saving||!newTask.title" @click="addTask">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>Task anlegen</span>
+            <span v-else>{{ t.projects.createTask }}</span>
           </button>
         </div>
       </div>
@@ -220,24 +220,24 @@
       <div class="modal-card" style="max-width:400px">
         <div class="modal-header">
           <span class="card-title">
-            {{ inlineModal.type==='subtask' ? 'Subtask hinzufügen' : inlineModal.type==='comment' ? 'Kommentar' : 'Zeit buchen' }}
+            {{ inlineModal.type==='subtask' ? t.projects.addSubtask : inlineModal.type==='comment' ? t.projects.comment : t.projects.bookTime }}
           </span>
           <button class="icon-btn" @click="inlineModal=null"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
           <div v-if="inlineModal.type==='subtask'" class="auth-field">
-            <label>Subtask</label><input v-model="inlineText" placeholder="Was zu tun ist..." />
+            <label>{{ t.projects.subtask }}</label><input v-model="inlineText" placeholder="Was zu tun ist..." />
           </div>
           <div v-if="inlineModal.type==='comment'" class="auth-field">
-            <label>Kommentar</label>
+            <label>{{ t.projects.comment }}</label>
             <textarea v-model="inlineText" rows="3" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:none;font-family:inherit"></textarea>
           </div>
           <div v-if="inlineModal.type==='time'" class="auth-field">
-            <label>Stunden</label><input v-model.number="inlineHours" type="number" step="0.25" placeholder="1.5" />
+            <label>{{ t.projects.hours }}</label><input v-model.number="inlineHours" type="number" step="0.25" placeholder="1.5" />
           </div>
           <button class="auth-btn" :disabled="saving" @click="submitInline">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>Speichern</span>
+            <span v-else>{{ t.common.save }}</span>
           </button>
         </div>
       </div>
@@ -252,6 +252,7 @@ import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { userId } = await useAuthUser()
+const { t, lang } = useLang()
 
 const { data: projectsData, refresh } = await useFetch(() => useApiUrl(`/api/projects?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined })
 const { data: companiesData }         = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
@@ -262,7 +263,7 @@ const companies = computed(() => (companiesData.value as any)?.companies || [])
 const activeCount   = computed(() => projects.value.filter((p: any) => p.status === 'active').length)
 const doneCount     = computed(() => projects.value.filter((p: any) => p.status === 'done').length)
 const overdueCount  = computed(() => projects.value.filter((p: any) => p.status === 'overdue').length)
-const openTaskCount = computed(() => projects.value.reduce((s: number, p: any) => s + (p.tasks||[]).filter((t: any) => t.status !== 'done').length, 0))
+const openTaskCount = computed(() => projects.value.reduce((s: number, p: any) => s + (p.tasks||[]).filter((tk: any) => tk.status !== 'done').length, 0))
 
 const view        = ref('list')
 const filterStatus = ref('')
@@ -290,8 +291,8 @@ const ganttRange = computed(() => {
   const allDates = ganttProjects.value.flatMap((p: any) => [
     new Date(p.created || Date.now()),
     new Date(p.deadline),
-    ...(p.tasks||[]).filter((t: any) => t.startDate).map((t: any) => new Date(t.startDate)),
-    ...(p.tasks||[]).filter((t: any) => t.endDate).map((t: any) => new Date(t.endDate)),
+    ...(p.tasks||[]).filter((tk: any) => tk.startDate).map((tk: any) => new Date(tk.startDate)),
+    ...(p.tasks||[]).filter((tk: any) => tk.endDate).map((tk: any) => new Date(tk.endDate)),
   ])
   if (!allDates.length) return { start: new Date(), end: new Date() }
   const min = new Date(Math.min(...(allDates as Date[]).map((d: Date) => d.getTime())))
@@ -317,11 +318,6 @@ const ganttWeekLabels = computed(() => {
   })
 })
 
-function posPercent(date: Date) {
-  const { start, end } = ganttRange.value
-  return ((date.getTime() - start.getTime()) / (end.getTime() - start.getTime())) * 100
-}
-
 function ganttBar(p: any, w: any) {
   const s = new Date(p.created || p.startDate || ganttRange.value.start)
   const e = new Date(p.deadline)
@@ -332,14 +328,14 @@ function ganttBarStyle(p: any, w: any) {
   const isEnd   = Math.abs(new Date(p.deadline).getTime() - w.date.getTime()) < 7*86400000
   return { borderRadius: isStart ? '6px 0 0 6px' : isEnd ? '0 6px 6px 0' : '0', background: 'var(--accent)', opacity: '0.85' }
 }
-function ganttTaskBar(t: any, w: any) {
-  const s = new Date(t.startDate || ganttRange.value.start)
-  const e = new Date(t.endDate)
+function ganttTaskBar(tk: any, w: any) {
+  const s = new Date(tk.startDate || ganttRange.value.start)
+  const e = new Date(tk.endDate)
   return w.date >= s && w.date <= e
 }
-function ganttTaskBarStyle(t: any, w: any) {
-  const isStart = Math.abs(new Date(t.startDate||ganttRange.value.start).getTime() - w.date.getTime()) < 7*86400000
-  const isEnd   = Math.abs(new Date(t.endDate).getTime() - w.date.getTime()) < 7*86400000
+function ganttTaskBarStyle(tk: any, w: any) {
+  const isStart = Math.abs(new Date(tk.startDate||ganttRange.value.start).getTime() - w.date.getTime()) < 7*86400000
+  const isEnd   = Math.abs(new Date(tk.endDate).getTime() - w.date.getTime()) < 7*86400000
   return { borderRadius: isStart ? '4px 0 0 4px' : isEnd ? '0 4px 4px 0' : '0' }
 }
 
@@ -365,7 +361,8 @@ async function save() {
   } finally { saving.value=false }
 }
 async function deleteProject(p: any) {
-  if (!confirm(`Projekt "${p.name}" wirklich löschen?`)) return
+  const msg = lang.value === 'en' ? `Really delete project "${p.name}"?` : `Projekt "${p.name}" wirklich löschen?`
+  if (!confirm(msg)) return
   await $fetch(useApiUrl(`/api/projects/${p.projectId}`), { method:'DELETE' })
   await refresh()
 }
@@ -389,9 +386,9 @@ async function addTask() {
   } finally { saving.value=false }
 }
 
-async function toggleTaskDone(p: any, t: any) {
-  await $fetch(useApiUrl(`/api/projects/${p.projectId}/tasks/${t.taskId}`), {
-    method:'PATCH', body:{ status: t.status==='done' ? 'todo' : 'done', userId }
+async function toggleTaskDone(p: any, tk: any) {
+  await $fetch(useApiUrl(`/api/projects/${p.projectId}/tasks/${tk.taskId}`), {
+    method:'PATCH', body:{ status: tk.status==='done' ? 'todo' : 'done', userId }
   })
   await refresh()
 }
@@ -401,9 +398,9 @@ const inlineModal = ref<{ type: string; project: any; task: any; subtask?: any }
 const inlineText  = ref('')
 const inlineHours = ref(0)
 
-const openAddSubtask = (p: any, t: any) => { inlineModal.value={type:'subtask',project:p,task:t}; inlineText.value='' }
-const openAddComment = (p: any, t: any) => { inlineModal.value={type:'comment',project:p,task:t}; inlineText.value='' }
-const openLogTime    = (p: any, t: any) => { inlineModal.value={type:'time',project:p,task:t};    inlineHours.value=0 }
+const openAddSubtask = (p: any, tk: any) => { inlineModal.value={type:'subtask',project:p,task:tk}; inlineText.value='' }
+const openAddComment = (p: any, tk: any) => { inlineModal.value={type:'comment',project:p,task:tk}; inlineText.value='' }
+const openLogTime    = (p: any, tk: any) => { inlineModal.value={type:'time',project:p,task:tk};    inlineHours.value=0 }
 
 async function submitInline() {
   if (!inlineModal.value) return
@@ -418,8 +415,8 @@ async function submitInline() {
   } finally { saving.value=false }
 }
 
-async function toggleSubtask(p: any, t: any, s: any) {
-  await $fetch(useApiUrl(`/api/projects/${p.projectId}/tasks/${t.taskId}`), {
+async function toggleSubtask(p: any, tk: any, s: any) {
+  await $fetch(useApiUrl(`/api/projects/${p.projectId}/tasks/${tk.taskId}`), {
     method:'PATCH', body:{ action:'toggle_subtask', subtaskId:s.id, userId }
   })
   await refresh()

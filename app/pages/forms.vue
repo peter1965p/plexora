@@ -3,38 +3,38 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Formu<span style="color:var(--accent)">lare</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Formulare erstellen & Submissions verwalten</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ t.forms.title }}</h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ t.forms.subtitle }}</p>
       </div>
-      <button class="accent-btn" @click="openNew"><i class="ti ti-plus"></i> Neues Formular</button>
+      <button class="accent-btn" @click="openNew"><i class="ti ti-plus"></i> {{ t.forms.newForm }}</button>
     </div>
 
     <!-- Tabs -->
     <div style="display:flex;gap:8px;margin-bottom:24px">
-      <button v-for="t in ['Formulare','Submissions']" :key="t" @click="tab=t"
+      <button v-for="tabItem in [t.forms.tabForms, t.forms.tabSubmissions]" :key="tabItem" @click="tab=tabItem"
         :style="`padding:8px 20px;border-radius:8px;border:0.5px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.15s;
-          background:${tab===t ? 'var(--accent)' : 'var(--bg-surface)'};color:${tab===t ? 'white' : 'var(--text-muted)'}`">
-        {{ t }}
+          background:${tab===tabItem ? 'var(--accent)' : 'var(--bg-surface)'};color:${tab===tabItem ? 'white' : 'var(--text-muted)'}`">
+        {{ tabItem }}
       </button>
     </div>
 
     <!-- TAB: Formulare -->
-    <template v-if="tab==='Formulare' && !editing">
+    <template v-if="tab===t.forms.tabForms && !editing">
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
         <div v-if="!forms.length" style="grid-column:span 3;text-align:center;color:var(--text-muted);padding:60px">
-          Noch keine Formulare
+          {{ t.forms.noForms }}
         </div>
         <div v-for="f in forms" :key="f.formId"
           style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:20px">
           <div style="font-weight:700;font-size:16px;margin-bottom:4px">{{ f.title }}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">{{ f.description }}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ f.fields?.length || 0 }} Felder</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ f.fields?.length || 0 }} {{ t.forms.fields }}</div>
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;font-family:monospace;background:var(--bg-elevated);padding:6px 10px;border-radius:6px">
             ID: {{ f.formId?.slice(0,16) }}...
           </div>
           <div style="display:flex;gap:8px">
             <button class="accent-btn" style="flex:1;height:32px;font-size:12px" @click="editForm(f)">
-              <i class="ti ti-edit"></i> Bearbeiten
+              <i class="ti ti-edit"></i> {{ t.forms.edit }}
             </button>
             <button @click="viewSubmissions(f)" style="height:32px;padding:0 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-muted);cursor:pointer;font-size:12px">
               <i class="ti ti-inbox"></i>
@@ -48,22 +48,22 @@
     </template>
 
     <!-- TAB: Editor -->
-    <template v-if="tab==='Formulare' && editing">
+    <template v-if="tab===t.forms.tabForms && editing">
       <div style="display:grid;grid-template-columns:320px 1fr;gap:24px">
         <!-- Links: Settings -->
         <div>
           <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px">
-            <div style="font-weight:700;font-size:14px;margin-bottom:16px">Formular-Einstellungen</div>
-            <div class="auth-field"><label>Titel</label><input v-model="current.title" placeholder="Kontaktformular" /></div>
-            <div class="auth-field"><label>Beschreibung</label><input v-model="current.description" placeholder="Kurze Beschreibung" /></div>
-            <div class="auth-field"><label>Button Text</label><input v-model="current.submitLabel" placeholder="Absenden" /></div>
-            <div class="auth-field"><label>Erfolgsmeldung</label><input v-model="current.successMsg" placeholder="Vielen Dank!" /></div>
-            <div class="auth-field"><label>Benachrichtigung an</label><input v-model="current.notifyEmail" placeholder="info@firma.de" /></div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:16px">{{ t.forms.settings }}</div>
+            <div class="auth-field"><label>{{ t.forms.titleLabel }}</label><input v-model="current.title" placeholder="Kontaktformular" /></div>
+            <div class="auth-field"><label>{{ t.forms.descLabel }}</label><input v-model="current.description" placeholder="Kurze Beschreibung" /></div>
+            <div class="auth-field"><label>{{ t.forms.btnText }}</label><input v-model="current.submitLabel" placeholder="Absenden" /></div>
+            <div class="auth-field"><label>{{ t.forms.successMsg }}</label><input v-model="current.successMsg" placeholder="Vielen Dank!" /></div>
+            <div class="auth-field"><label>{{ t.forms.notifyTo }}</label><input v-model="current.notifyEmail" placeholder="info@firma.de" /></div>
           </div>
 
           <!-- Feld-Typen -->
           <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:20px">
-            <div style="font-weight:700;font-size:14px;margin-bottom:16px">Feld hinzufügen</div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:16px">{{ t.forms.addField }}</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <button v-for="ft in fieldTypes" :key="ft.type" @click="addField(ft.type)"
                 style="padding:10px;border-radius:10px;border:0.5px solid var(--border);background:var(--bg-elevated);cursor:pointer;text-align:left;transition:all 0.15s"
@@ -80,16 +80,16 @@
         <div>
           <div style="display:flex;gap:8px;margin-bottom:16px">
             <button class="accent-btn" @click="saveForm" :disabled="saving">
-              <i class="ti ti-device-floppy"></i> {{ saving ? 'Speichern...' : 'Speichern' }}
+              <i class="ti ti-device-floppy"></i> {{ saving ? t.common.loading : t.common.save }}
             </button>
             <button @click="editing=false" style="padding:0 16px;height:36px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-surface);color:var(--text-muted);cursor:pointer;font-size:13px">
-              <i class="ti ti-arrow-left"></i> Zurück
+              <i class="ti ti-arrow-left"></i> {{ t.common.back }}
             </button>
           </div>
 
           <!-- Preview -->
           <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
-            <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:12px;text-transform:uppercase">Vorschau</div>
+            <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:12px;text-transform:uppercase">{{ t.common.preview }}</div>
             <div v-if="!current.fields.length" style="color:var(--text-muted);font-size:13px">Füge Felder hinzu...</div>
             <div v-for="field in current.fields" :key="field.id" style="margin-bottom:12px">
               <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">{{ field.label }}<span v-if="field.required" style="color:#E05C5C">*</span></label>
@@ -122,15 +122,15 @@
               </div>
             </div>
             <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <div class="auth-field" style="margin:0"><label>Label</label><input v-model="field.label" placeholder="Feldbezeichnung" /></div>
-              <div class="auth-field" style="margin:0"><label>Placeholder</label><input v-model="field.placeholder" placeholder="Platzhaltertext" /></div>
+              <div class="auth-field" style="margin:0"><label>{{ t.forms.labelField }}</label><input v-model="field.label" placeholder="Feldbezeichnung" /></div>
+              <div class="auth-field" style="margin:0"><label>{{ t.forms.placeholderField }}</label><input v-model="field.placeholder" placeholder="Platzhaltertext" /></div>
               <div v-if="field.type==='select'" class="auth-field" style="margin:0;grid-column:span 2">
-                <label>Optionen (kommagetrennt)</label>
+                <label>{{ t.forms.optionsField }}</label>
                 <input :value="field.options?.join(',')" @input="field.options = $event.target.value.split(',')" placeholder="Option 1,Option 2" />
               </div>
               <div style="display:flex;align-items:center;gap:8px">
                 <input type="checkbox" v-model="field.required" :id="`req-${field.id}`" style="accent-color:var(--accent)" />
-                <label :for="`req-${field.id}`" style="font-size:12px;cursor:pointer">Pflichtfeld</label>
+                <label :for="`req-${field.id}`" style="font-size:12px;cursor:pointer">{{ t.forms.required }}</label>
               </div>
             </div>
           </div>
@@ -139,23 +139,23 @@
     </template>
 
     <!-- TAB: Submissions -->
-    <template v-if="tab==='Submissions'">
+    <template v-if="tab===t.forms.tabSubmissions">
       <div v-if="!selectedForm" style="text-align:center;color:var(--text-muted);padding:60px">
-        Wähle ein Formular aus der Formulare-Liste
+        {{ t.forms.selectForm }}
       </div>
       <div v-else>
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
           <button @click="selectedForm=null" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px"><i class="ti ti-arrow-left"></i></button>
           <div>
             <div style="font-weight:700">{{ selectedForm.title }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">{{ submissions.length }} Einreichungen</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ submissions.length }} {{ t.forms.submissions }}</div>
           </div>
         </div>
-        <div v-if="!submissions.length" style="text-align:center;color:var(--text-muted);padding:40px">Noch keine Submissions</div>
+        <div v-if="!submissions.length" style="text-align:center;color:var(--text-muted);padding:40px">{{ t.forms.noSubmissions }}</div>
         <div v-for="s in submissions" :key="s.submissionId"
           style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:8px">
           <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-            <span style="font-size:12px;font-weight:600">Einreichung</span>
+            <span style="font-size:12px;font-weight:600">{{ t.forms.submission }}</span>
             <span style="font-size:11px;color:var(--text-muted)">{{ new Date(s.created).toLocaleString('de-DE') }}</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
@@ -175,14 +175,18 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { userId } = await useAuthUser()
+const { t, lang } = useLang()
 
-const tab      = ref('Formulare')
+const tab      = ref('')
 const editing  = ref(false)
 const saving   = ref(false)
 const toast    = ref('')
 const isNew    = ref(false)
 const selectedForm = ref<any>(null)
 const submissions  = ref<any[]>([])
+
+// Initialize tab after t is available
+onMounted(() => { if (!tab.value) tab.value = t.value.forms.tabForms })
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 
@@ -194,15 +198,15 @@ const current = reactive({
   successMsg: 'Vielen Dank für deine Nachricht!', notifyEmail: '', fields: [] as any[]
 })
 
-const fieldTypes = [
-  { type: 'text',     label: 'Text',       icon: 'ti-forms'        },
-  { type: 'email',    label: 'E-Mail',     icon: 'ti-mail'         },
-  { type: 'phone',    label: 'Telefon',    icon: 'ti-phone'        },
-  { type: 'number',   label: 'Zahl',       icon: 'ti-number'       },
-  { type: 'textarea', label: 'Textblock',  icon: 'ti-align-left'   },
-  { type: 'select',   label: 'Auswahl',    icon: 'ti-chevron-down' },
-  { type: 'checkbox', label: 'Checkbox',   icon: 'ti-checkbox'     },
-]
+const fieldTypes = computed(() => [
+  { type: 'text',     label: t.value.forms.ftText,     icon: 'ti-forms'        },
+  { type: 'email',    label: t.value.forms.ftEmail,    icon: 'ti-mail'         },
+  { type: 'phone',    label: t.value.forms.ftPhone,    icon: 'ti-phone'        },
+  { type: 'number',   label: t.value.forms.ftNumber,   icon: 'ti-number'       },
+  { type: 'textarea', label: t.value.forms.ftTextarea, icon: 'ti-align-left'   },
+  { type: 'select',   label: t.value.forms.ftSelect,   icon: 'ti-chevron-down' },
+  { type: 'checkbox', label: t.value.forms.ftCheckbox, icon: 'ti-checkbox'     },
+])
 
 function openNew() {
   Object.assign(current, { formId: '', title: '', description: '', submitLabel: 'Absenden', successMsg: 'Vielen Dank!', notifyEmail: '', fields: [] })
@@ -250,7 +254,7 @@ async function deleteForm(f: any) {
 
 async function viewSubmissions(f: any) {
   selectedForm.value = f
-  tab.value = 'Submissions'
+  tab.value = t.value.forms.tabSubmissions
   const res = await $fetch(useApiUrl(`/api/forms/${f.formId}/submissions`)) as any
   submissions.value = res.submissions || []
 }
