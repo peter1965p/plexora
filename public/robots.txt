@@ -4,6 +4,7 @@ Allow: /kaufen
 Allow: /impressum
 Allow: /datenschutz
 Allow: /agb
+Disallow: /seo
 Disallow: /dashboard
 Disallow: /crm
 Disallow: /finance
