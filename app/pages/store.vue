@@ -64,12 +64,12 @@
         Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.
       </div>
       <div class="store-grid">
-        <div v-for="pkg in branchenPakete" :key="pkg.key" class="store-card branche-card">
+        <div v-for="pkg in branchenPakete" :key="pkg.key" class="store-card">
           <div class="store-card-header">
-            <div class="store-icon branche-icon">
+            <div class="store-icon">
               <i class="ti" :class="pkg.icon" style="color:var(--accent)"></i>
             </div>
-            <div class="badge-soon">Demnächst</div>
+            <div class="badge-new">Branchen-Paket</div>
           </div>
           <div class="store-card-name">{{ pkg.name }}</div>
           <div class="store-card-desc">{{ pkg.desc }}</div>
@@ -81,7 +81,7 @@
               <span style="font-size:18px;font-weight:700;color:var(--text)">{{ pkg.price }}</span>
               <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
             </div>
-            <button class="btn-notify" @click="notify(pkg)">Benachrichtigen</button>
+            <button class="btn-buy" @click="openBuy(pkg)">Hinzufügen</button>
           </div>
         </div>
       </div>
