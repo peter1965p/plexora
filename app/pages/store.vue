@@ -1,0 +1,551 @@
+<template>
+  <div class="page">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+      <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-building-store" style="font-size:18px;color:#fff"></i>
+      </div>
+      <div>
+        <div style="font-size:18px;font-weight:700">Modul-Store</div>
+        <div style="font-size:12px;color:var(--text-muted)">Erweitere Plexora mit Branchen-Modulen & Add-ons</div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0">
+      <button
+        v-for="tab in tabs" :key="tab.key"
+        class="tab-btn"
+        :class="{ active: activeTab === tab.key }"
+        @click="activeTab = tab.key"
+        style="padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .15s;margin-bottom:-1px"
+        :style="activeTab === tab.key ? 'color:var(--accent);border-bottom-color:var(--accent)' : ''"
+      >
+        <i class="ti" :class="tab.icon" style="margin-right:6px"></i>{{ tab.label }}
+      </button>
+    </div>
+
+    <!-- ADD-ONS TAB -->
+    <template v-if="activeTab === 'addons'">
+      <div class="store-grid">
+        <div v-for="mod in addons" :key="mod.key" class="store-card" :class="{ owned: mod.owned }">
+          <div class="store-card-header">
+            <div class="store-icon" :style="mod.owned ? 'background:var(--success-bg)' : ''">
+              <i class="ti" :class="mod.icon" :style="mod.owned ? 'color:#22c55e' : 'color:var(--accent)'"></i>
+            </div>
+            <div v-if="mod.owned" class="badge-owned"><i class="ti ti-check"></i> Aktiv</div>
+            <div v-else-if="mod.badge" class="badge-new">{{ mod.badge }}</div>
+          </div>
+          <div class="store-card-name">{{ mod.name }}</div>
+          <div class="store-card-desc">{{ mod.desc }}</div>
+          <div class="store-card-features">
+            <span v-for="f in mod.features" :key="f" class="feature-tag">{{ f }}</span>
+          </div>
+          <div class="store-card-footer">
+            <div class="store-price">
+              <span v-if="mod.owned" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
+              <template v-else>
+                <span style="font-size:18px;font-weight:700;color:var(--text)">{{ mod.price }}</span>
+                <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
+              </template>
+            </div>
+            <button v-if="!mod.owned" class="btn-buy" @click="openBuy(mod)">Hinzufügen</button>
+            <button v-else class="btn-manage" disabled>Verwalten</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- BRANCHEN TAB -->
+    <template v-else-if="activeTab === 'branchen'">
+      <div style="margin-bottom:20px;padding:14px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center">
+        <i class="ti ti-info-circle" style="color:var(--accent);font-size:16px;flex-shrink:0"></i>
+        Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.
+      </div>
+      <div class="store-grid">
+        <div v-for="pkg in branchenPakete" :key="pkg.key" class="store-card branche-card">
+          <div class="store-card-header">
+            <div class="store-icon branche-icon">
+              <i class="ti" :class="pkg.icon" style="color:var(--accent)"></i>
+            </div>
+            <div class="badge-soon">Demnächst</div>
+          </div>
+          <div class="store-card-name">{{ pkg.name }}</div>
+          <div class="store-card-desc">{{ pkg.desc }}</div>
+          <div class="store-card-features">
+            <span v-for="f in pkg.features" :key="f" class="feature-tag">{{ f }}</span>
+          </div>
+          <div class="store-card-footer">
+            <div class="store-price">
+              <span style="font-size:18px;font-weight:700;color:var(--text)">{{ pkg.price }}</span>
+              <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
+            </div>
+            <button class="btn-notify" @click="notify(pkg)">Benachrichtigen</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- PAKETE TAB -->
+    <template v-else-if="activeTab === 'pakete'">
+      <div class="plans-grid">
+        <div v-for="plan in plans" :key="plan.key" class="plan-card" :class="{ featured: plan.featured }">
+          <div v-if="plan.featured" class="plan-badge">Beliebt</div>
+          <div class="plan-name">{{ plan.name }}</div>
+          <div class="plan-price">
+            <span class="plan-amount">{{ plan.price }}</span>
+            <span class="plan-period">/Monat</span>
+          </div>
+          <div class="plan-desc">{{ plan.desc }}</div>
+          <ul class="plan-features">
+            <li v-for="f in plan.features" :key="f"><i class="ti ti-check" style="color:var(--accent)"></i> {{ f }}</li>
+          </ul>
+          <button class="btn-plan" :class="{ 'btn-featured': plan.featured }" @click="openBuy(plan)">
+            {{ plan.cta }}
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- BUY MODAL -->
+    <div v-if="buyItem" class="modal-overlay" @click.self="buyItem = null">
+      <div class="modal">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:16px;font-weight:700">{{ buyItem.name }} hinzufügen</div>
+          <button class="icon-btn" @click="buyItem = null"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">{{ buyItem.desc }}</div>
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px">{{ buyItem.name }}</span>
+            <span style="font-weight:700">{{ buyItem.price }}/Monat</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-secondary" style="flex:1" @click="buyItem = null">Abbrechen</button>
+          <button class="btn-accent" style="flex:2" @click="checkout">
+            <i class="ti ti-credit-card" style="margin-right:6px"></i>Jetzt kaufen
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-muted)">
+          <i class="ti ti-lock" style="margin-right:4px"></i>Sicher bezahlen via Stripe
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFY MODAL -->
+    <div v-if="notifyItem" class="modal-overlay" @click.self="notifyItem = null">
+      <div class="modal" style="max-width:420px">
+        <div style="text-align:center;padding:8px 0 20px">
+          <div style="width:52px;height:52px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+            <i class="ti" :class="notifyItem.icon" style="font-size:24px;color:var(--accent)"></i>
+          </div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px">{{ notifyItem.name }}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Wir benachrichtigen dich sobald dieses Modul verfügbar ist.</div>
+          <button class="btn-accent" style="width:100%" @click="notifyItem = null">
+            <i class="ti ti-bell" style="margin-right:6px"></i>Ja, benachrichtigen!
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script setup lang="ts">
+definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+
+const store = useAppStore()
+const activeTab = ref('addons')
+
+const tabs = [
+  { key: 'addons',   label: 'Add-on Module',    icon: 'ti-puzzle' },
+  { key: 'branchen', label: 'Branchen-Pakete',  icon: 'ti-building-factory-2' },
+  { key: 'pakete',   label: 'Pläne & Preise',   icon: 'ti-rosette' },
+]
+
+const addons = computed(() => [
+  {
+    key: 'crm', name: 'CRM', icon: 'ti-users', price: '€9', badge: null,
+    owned: store.modules.find(m => m.key === 'crm')?.on,
+    desc: 'Kontakte, Deals & Lead-Tracking für dein Vertriebsteam.',
+    features: ['Kontakte & Deals', 'Pipeline-View', 'CSV Import/Export', 'Firmen-Verwaltung'],
+  },
+  {
+    key: 'finance', name: 'Finanzen', icon: 'ti-receipt', price: '€12', badge: null,
+    owned: store.modules.find(m => m.key === 'finance')?.on,
+    desc: 'Rechnungen, Angebote, Mahnwesen und Cashflow-Übersicht.',
+    features: ['PDF-Rechnungen', 'Angebote', 'Mahnwesen', 'DATEV-Export'],
+  },
+  {
+    key: 'projects', name: 'Projekte', icon: 'ti-layout-kanban', price: '€10', badge: null,
+    owned: store.modules.find(m => m.key === 'projects')?.on,
+    desc: 'Kanban-Board, Deadlines und Team-Zuordnung für Kundenprojekte.',
+    features: ['Kanban-Board', 'Deadlines', 'Team-Zuordnung', 'Fortschritts-Tracking'],
+  },
+  {
+    key: 'hr', name: 'HR', icon: 'ti-id-badge', price: '€10', badge: 'NEU',
+    owned: store.modules.find(m => m.key === 'hr')?.on,
+    desc: 'Mitarbeiterverwaltung, Urlaubsplanung und Onboarding.',
+    features: ['Mitarbeiter-Daten', 'Urlaub & Abwesenheit', 'Recruiting', 'Onboarding-Checklisten'],
+  },
+  {
+    key: 'support', name: 'Support', icon: 'ti-headset', price: '€8', badge: null,
+    owned: store.modules.find(m => m.key === 'support')?.on,
+    desc: 'Ticket-System mit SLA-Tracking und Kunden-Portal.',
+    features: ['Ticket-System', 'SLA-Tracking', 'Kunden-Portal', 'Prioritäten'],
+  },
+  {
+    key: 'marketing', name: 'Marketing', icon: 'ti-speakerphone', price: '€14', badge: 'PRO',
+    owned: store.modules.find(m => m.key === 'marketing')?.on,
+    desc: 'Lead-Kampagnen, UTM-Tracking, QR-Codes und Auswertungen.',
+    features: ['Kampagnen', 'UTM-Tracking', 'QR-Codes', 'Conversion-Stats'],
+  },
+  {
+    key: 'shop', name: 'Shop', icon: 'ti-shopping-cart', price: '€15', badge: null,
+    owned: store.modules.find(m => m.key === 'shop')?.on,
+    desc: 'Produkt-Verwaltung mit Stripe-Checkout und Bestellverfolgung.',
+    features: ['Produktkatalog', 'Stripe-Checkout', 'Bestellungen', 'Lieferanten'],
+  },
+  {
+    key: 'forms', name: 'Formulare', icon: 'ti-forms', price: '€7', badge: null,
+    owned: store.modules.find(m => m.key === 'forms')?.on,
+    desc: 'Formular-Builder zum Einbetten in jede Website.',
+    features: ['Drag & Drop', 'Einbettbar', 'Submissions-Übersicht', 'E-Mail-Benachrichtigung'],
+  },
+])
+
+const branchenPakete = [
+  {
+    key: 'automotive', name: 'Automotive', icon: 'ti-car', price: '€29',
+    desc: 'Fahrzeugverwaltung, Probefahrten, KFZ-Dokumente und Werkstatt-Aufträge.',
+    features: ['Fahrzeug-DB', 'Probefahrten', 'Werkstatt-Aufträge', 'TÜV-Erinnerungen', 'Verkaufs-Tracking'],
+  },
+  {
+    key: 'einzelhandel', name: 'Einzelhandel', icon: 'ti-building-store', price: '€24',
+    desc: 'Kassensystem, Lager-Tracking, Lieferanten-Verwaltung und Retouren.',
+    features: ['Kassensystem', 'Lagerverwaltung', 'Lieferanten', 'Retouren', 'Tagesabschluss'],
+  },
+  {
+    key: 'gastro', name: 'Gastronomie', icon: 'ti-tools-kitchen-2', price: '€22',
+    desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',
+    features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'],
+  },
+  {
+    key: 'handwerk', name: 'Handwerk', icon: 'ti-hammer', price: '€19',
+    desc: 'Aufmaß-Erfassung, Materialplanung, Stundenzettel und Baustellenverwaltung.',
+    features: ['Aufmaß-Erfassung', 'Materialplanung', 'Stundenzettel', 'Baustellen', 'Auftragszettel-PDF'],
+  },
+  {
+    key: 'immobilien', name: 'Immobilien', icon: 'ti-home', price: '€27',
+    desc: 'Objekt-Verwaltung, Besichtigungen, Mieter-Daten und Nebenkostenabrechnungen.',
+    features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM', 'Nebenkostenabrechnung', 'Dokumente'],
+  },
+  {
+    key: 'gesundheit', name: 'Gesundheit / Praxis', icon: 'ti-stethoscope', price: '€32',
+    desc: 'Patientenverwaltung, Terminplanung, Rezepte und DSGVO-konforme Dokumentation.',
+    features: ['Patienten-Verwaltung', 'Terminplanung', 'Rezepte', 'DSGVO-konform', 'Karteikartenansicht'],
+  },
+]
+
+const plans = [
+  {
+    key: 'starter', name: 'Starter', price: '€19', featured: false, cta: 'Starten',
+    desc: 'Perfekt für Einzelpersonen und kleine Teams.',
+    features: ['CRM', 'Support', 'Finanzen', '3 Nutzer', '5 GB Speicher'],
+  },
+  {
+    key: 'pro', name: 'Pro', price: '€49', featured: true, cta: 'Jetzt upgraden',
+    desc: 'Für wachsende Teams mit mehr Bedarf.',
+    features: ['Alle Starter-Module', 'Projekte', 'HR', 'Marketing', '15 Nutzer', '25 GB Speicher', 'Priority Support'],
+  },
+  {
+    key: 'enterprise', name: 'Enterprise', price: '€99', featured: false, cta: 'Kontakt aufnehmen',
+    desc: 'Für Unternehmen mit individuellen Anforderungen.',
+    features: ['Alle Module', 'Branchen-Pakete inklusive', 'Unbegrenzte Nutzer', '100 GB Speicher', 'Dedicated Support', 'Custom Branding', 'SLA-Garantie'],
+  },
+]
+
+const buyItem = ref<any>(null)
+const notifyItem = ref<any>(null)
+
+function openBuy(item: any) {
+  buyItem.value = item
+}
+
+function notify(item: any) {
+  notifyItem.value = item
+}
+
+function checkout() {
+  buyItem.value = null
+  // Stripe checkout integration kommt hier rein
+}
+</script>
+
+<style scoped>
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.store-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.store-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent)22;
+}
+
+.store-card.owned {
+  border-color: #22c55e44;
+}
+
+.store-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.store-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.badge-owned {
+  font-size: 11px;
+  font-weight: 600;
+  color: #22c55e;
+  background: #22c55e18;
+  border: 1px solid #22c55e44;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.badge-new {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent)18;
+  border: 1px solid var(--accent)44;
+  border-radius: 20px;
+  padding: 2px 10px;
+  letter-spacing: .5px;
+}
+
+.badge-soon {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f59e0b;
+  background: #f59e0b18;
+  border: 1px solid #f59e0b44;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.store-card-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.store-card-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.store-card-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  flex: 1;
+}
+
+.feature-tag {
+  font-size: 11px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  color: var(--text-muted);
+}
+
+.store-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-buy {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+
+.btn-buy:hover { opacity: .85; }
+
+.btn-manage {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.btn-notify {
+  background: none;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.btn-notify:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Plans */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  max-width: 900px;
+}
+
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan-card.featured {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent)44;
+}
+
+.plan-badge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 20px;
+  letter-spacing: .5px;
+}
+
+.plan-name { font-size: 16px; font-weight: 700; }
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.plan-amount { font-size: 32px; font-weight: 800; }
+.plan-period { font-size: 13px; color: var(--text-muted); }
+.plan-desc { font-size: 12px; color: var(--text-muted); }
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.btn-plan {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 4px;
+}
+
+.btn-plan:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-featured {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+.btn-featured:hover { opacity: .85; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #00000088;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+}
+</style>
