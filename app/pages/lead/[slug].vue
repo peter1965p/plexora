@@ -1,80 +1,102 @@
 <template>
-  <div style="min-height:100vh;background:var(--bg-base)">
+  <div class="lp-root" :style="rootStyle">
 
-    <!-- FULLHEADER MIT BANNER -->
-    <div v-if="campaign?.headerImageUrl"
-      :style="`width:100%;height:320px;background:url('${campaign.headerImageUrl}') center/cover no-repeat;position:relative`">
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.6) 100%)"></div>
-      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 24px 80px;text-align:center">
-        <img v-if="campaign.logoUrl" :src="campaign.logoUrl"
-          style="max-height:56px;max-width:180px;object-fit:contain;margin-bottom:20px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4))" />
-        <h1 style="font-size:clamp(22px,4vw,42px);font-weight:900;color:#fff;margin:0 0 10px;text-shadow:0 2px 12px rgba(0,0,0,0.5)">
-          {{ campaign.headline || form?.title || '' }}
-        </h1>
-        <p v-if="campaign.subtext"
-          style="font-size:16px;color:rgba(255,255,255,0.88);margin:0;max-width:520px;text-shadow:0 1px 6px rgba(0,0,0,0.4)">
-          {{ campaign.subtext }}
-        </p>
-      </div>
-    </div>
+    <!-- BG Layer -->
+    <div class="lp-bg" :style="bgStyle"></div>
+    <div class="lp-bg-overlay" :style="overlayStyle"></div>
 
-    <!-- KEIN BANNER -->
-    <div v-else style="padding:56px 24px 32px;text-align:center">
-      <div v-if="campaign?.logoUrl || branding.logoUrl" style="margin-bottom:16px">
-        <img :src="campaign?.logoUrl || branding.logoUrl" style="max-height:60px;max-width:200px;object-fit:contain" />
-      </div>
-      <div v-else class="logo-text" style="font-size:28px;margin-bottom:8px">
-        {{ brandFirst }}<span class="logo-accent">{{ brandLast }}</span>
-      </div>
-      <div v-if="form" style="margin-top:12px">
-        <h1 style="font-size:22px;font-weight:800;margin:0 0 8px">{{ campaign?.headline || form.title }}</h1>
-        <p v-if="campaign?.subtext || form.description" style="color:var(--text-secondary);font-size:14px;margin:0">
-          {{ campaign?.subtext || form.description }}
-        </p>
-      </div>
-    </div>
+    <!-- DESKTOP: Split — hero left / form right -->
+    <div class="lp-layout">
 
-    <!-- FORMULAR -->
-    <div style="max-width:560px;width:100%;margin:0 auto;padding:56px 24px 56px">
+      <!-- LEFT HERO -->
+      <div class="lp-hero">
+        <!-- Logo -->
+        <div class="lp-logo">
+          <img v-if="campaign?.logoUrl || branding.logoUrl"
+            :src="campaign?.logoUrl || branding.logoUrl"
+            style="max-height:48px;max-width:180px;object-fit:contain" />
+          <div v-else class="lp-logo-text">
+            {{ brandFirst }}<span :style="`color:${accent}`">{{ brandLast }}</span>
+          </div>
+        </div>
 
+        <!-- Headline -->
+        <h1 class="lp-headline">{{ campaign?.headline || form?.title || '' }}</h1>
+        <p v-if="campaign?.subtext" class="lp-subtext">{{ campaign.subtext }}</p>
 
-      <div v-if="form && !submitted" class="card">
-        <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-          <template v-for="field in form.fields" :key="field.id">
-            <div class="auth-field">
-              <label>{{ field.label }}<span v-if="field.required" style="color:var(--danger)"> *</span></label>
-              <textarea v-if="field.type === 'textarea'" v-model="formData[field.label]"
-                :placeholder="field.placeholder || ''" rows="4"
-                style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
-              <select v-else-if="field.type === 'select'" v-model="formData[field.label]" class="form-select">
-                <option value="">— bitte wählen —</option>
-                <option v-for="opt in (field.options || [])" :key="opt" :value="opt">{{ opt }}</option>
-              </select>
-              <input v-else v-model="formData[field.label]"
-                :type="field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'"
-                :placeholder="field.placeholder || ''" />
-            </div>
-          </template>
-          <button class="auth-btn" :disabled="sending"
-            :style="campaign?.accentColor ? `background:${campaign.accentColor};border-color:${campaign.accentColor}` : ''"
-            @click="submit">
-            <span v-if="sending"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>{{ form.submitLabel || 'Absenden' }}</span>
-          </button>
+        <!-- Content Block -->
+        <div v-if="contentItems.length" class="lp-benefits">
+          <div v-if="campaign?.contentTitle" class="lp-benefits-title">{{ campaign.contentTitle }}</div>
+          <div v-for="(item, i) in contentItems" :key="i" class="lp-benefit-item">
+            <span class="lp-benefit-check" :style="`background:${accent}22;color:${accent};border:1px solid ${accent}44`">
+              <i class="ti ti-check"></i>
+            </span>
+            {{ item }}
+          </div>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="lp-trust">
+          <div class="lp-trust-item"><i class="ti ti-shield-check"></i> 100% kostenlos</div>
+          <div class="lp-trust-item"><i class="ti ti-lock"></i> SSL gesichert</div>
+          <div class="lp-trust-item"><i class="ti ti-clock"></i> Antwort in 24h</div>
         </div>
       </div>
 
-      <div v-if="submitted" class="card" style="text-align:center;padding:48px">
-        <i class="ti ti-circle-check" :style="`font-size:48px;color:${campaign?.accentColor || '#00D4B4'}`"></i>
-        <h2 style="margin:16px 0 8px">{{ successMsg }}</h2>
-        <p style="color:var(--text-muted)">Wir melden uns bald bei dir.</p>
-      </div>
+      <!-- RIGHT FORM -->
+      <div class="lp-form-col">
+        <div class="lp-form-card">
 
-      <div v-if="!form && !loading" class="card" style="text-align:center;padding:48px">
-        <i class="ti ti-file-off" style="font-size:48px;color:var(--text-muted)"></i>
-        <h2 style="margin:16px 0 8px">Formular nicht gefunden</h2>
+          <div v-if="!submitted">
+            <div class="lp-form-title">{{ form?.title || campaign?.headline || 'Jetzt anfragen' }}</div>
+            <div v-if="form?.description" class="lp-form-desc">{{ form.description }}</div>
+
+            <div v-if="form" style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+              <template v-for="field in form.fields" :key="field.id">
+                <div class="lp-field">
+                  <label class="lp-label">{{ field.label }}<span v-if="field.required" :style="`color:${accent}`"> *</span></label>
+                  <textarea v-if="field.type === 'textarea'" v-model="formData[field.label]"
+                    :placeholder="field.placeholder || ''" rows="4" class="lp-input lp-textarea"></textarea>
+                  <select v-else-if="field.type === 'select'" v-model="formData[field.label]" class="lp-input lp-select">
+                    <option value="">— bitte wählen —</option>
+                    <option v-for="opt in (field.options || [])" :key="opt" :value="opt">{{ opt }}</option>
+                  </select>
+                  <input v-else v-model="formData[field.label]"
+                    :type="field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'"
+                    :placeholder="field.placeholder || ''" class="lp-input" />
+                </div>
+              </template>
+
+              <button class="lp-submit-btn" :disabled="sending"
+                :style="`background:${accent};box-shadow:0 4px 24px ${accent}55`"
+                @click="submit">
+                <span v-if="sending"><i class="ti ti-loader-2 spin"></i></span>
+                <span v-else>{{ form.submitLabel || 'Jetzt anfragen' }} <i class="ti ti-arrow-right" style="margin-left:6px"></i></span>
+              </button>
+
+              <div class="lp-privacy">
+                <i class="ti ti-lock"></i> Deine Daten sind sicher. Keine Weitergabe an Dritte.
+              </div>
+            </div>
+
+            <div v-if="!form && !loading" class="lp-no-form">
+              <i class="ti ti-file-off"></i>
+              <span>Formular nicht gefunden</span>
+            </div>
+          </div>
+
+          <!-- SUCCESS -->
+          <div v-if="submitted" class="lp-success">
+            <div class="lp-success-icon" :style="`background:${accent}22;color:${accent}`">
+              <i class="ti ti-circle-check"></i>
+            </div>
+            <h2 class="lp-success-title">{{ successMsg }}</h2>
+            <p class="lp-success-sub">Wir melden uns bald bei dir!</p>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -90,27 +112,45 @@ const utmCampaign = route.query.utm_campaign as string || ''
 const utmContent  = route.query.utm_content  as string || ''
 const utmTerm     = route.query.utm_term     as string || ''
 
-const { data, pending: loading } = await useFetch(useApiUrl(`/api/forms/${slug}`))
-const form = computed(() => (data.value as any)?.form || null)
+const { data: formDataRes, pending: loading } = await useFetch(useApiUrl(`/api/forms/${slug}`))
+const form = computed(() => (formDataRes.value as any)?.form || null)
 
-const { data: campData } = await useFetch(useApiUrl('/api/marketing'))
-const campaign = computed(() => {
-  const all = (campData.value as any)?.campaigns || []
-  return all.find((c: any) =>
-    c.slug === slug ||
-    c.formId === (data.value as any)?.form?.formId ||
-    c.utmCampaign === utmCampaign
-  ) || null
-})
+const { data: campData } = await useFetch(useApiUrl(`/api/marketing/public/${slug}`))
+const campaign = computed(() => (campData.value as any)?.campaign || null)
 
 const { branding, loadBranding } = useBranding()
-const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
-const brandLast  = computed(() => branding.value.brandName.slice(-1))
+const brandFirst = computed(() => branding.value.brandName.slice(0, -2))
+const brandLast  = computed(() => branding.value.brandName.slice(-2))
 onMounted(() => loadBranding())
 
-const formData   = reactive<Record<string, string>>({})
-const sending    = ref(false)
-const submitted  = ref(false)
+const accent = computed(() => campaign.value?.accentColor || '#6C3FE8')
+
+const contentItems = computed<string[]>(() => {
+  const raw = campaign.value?.contentItems
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw.filter(Boolean)
+  try { return JSON.parse(raw).filter(Boolean) } catch { return [] }
+})
+
+const bgStyle = computed(() => {
+  if (campaign.value?.headerImageUrl) {
+    return `background-image: url('${campaign.value.headerImageUrl}'); background-size: cover; background-position: center;`
+  }
+  return `background: linear-gradient(135deg, #050815 0%, #0f1628 60%, ${accent.value}18 100%);`
+})
+
+const overlayStyle = computed(() => {
+  if (campaign.value?.headerImageUrl) {
+    return `background: linear-gradient(135deg, rgba(5,8,21,0.85) 0%, rgba(5,8,21,0.6) 50%, rgba(5,8,21,0.75) 100%);`
+  }
+  return ''
+})
+
+const rootStyle = computed(() => `--lp-accent: ${accent.value}`)
+
+const formData  = reactive<Record<string, string>>({})
+const sending   = ref(false)
+const submitted = ref(false)
 const successMsg = ref('Vielen Dank!')
 
 async function submit() {
@@ -127,3 +167,261 @@ async function submit() {
   }
 }
 </script>
+
+<style scoped>
+.lp-root {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.lp-bg, .lp-bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.lp-layout {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .lp-layout {
+    grid-template-columns: 1fr;
+    padding: 32px 20px 60px;
+    gap: 32px;
+  }
+}
+
+/* HERO */
+.lp-hero {
+  padding: 80px 40px 80px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .lp-hero { padding: 0; text-align: center; align-items: center; }
+}
+
+.lp-logo { margin-bottom: 8px; }
+.lp-logo-text { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+
+.lp-headline {
+  font-size: clamp(28px, 3.5vw, 52px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.12;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.lp-subtext {
+  font-size: 17px;
+  color: rgba(255,255,255,0.72);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+/* BENEFITS */
+.lp-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.lp-benefits-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+
+.lp-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.88);
+}
+
+@media (max-width: 900px) {
+  .lp-benefit-item { justify-content: center; }
+}
+
+.lp-benefit-check {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* TRUST */
+.lp-trust {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .lp-trust { justify-content: center; }
+}
+
+.lp-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+.lp-trust-item i { color: var(--lp-accent); }
+
+/* FORM */
+.lp-form-col {
+  padding: 60px 0;
+}
+
+@media (max-width: 900px) {
+  .lp-form-col { padding: 0; }
+}
+
+.lp-form-card {
+  background: rgba(15, 20, 40, 0.72);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  padding: 36px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+}
+
+.lp-form-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.lp-form-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 4px;
+}
+
+.lp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.lp-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.03em;
+}
+
+.lp-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #fff;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.lp-input::placeholder { color: rgba(255,255,255,0.28); }
+.lp-input:focus { border-color: var(--lp-accent); background: rgba(255,255,255,0.09); }
+
+.lp-textarea { resize: vertical; }
+.lp-select { appearance: none; cursor: pointer; }
+.lp-select option { background: #111827; color: #fff; }
+
+.lp-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.15s;
+  margin-top: 4px;
+}
+.lp-submit-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.lp-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.lp-privacy {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.lp-no-form {
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+/* SUCCESS */
+.lp-success {
+  text-align: center;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.lp-success-icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+
+.lp-success-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.lp-success-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+</style>

@@ -194,6 +194,17 @@
             </div>
 
             <div style="border-top:0.5px solid var(--border);padding-top:14px">
+              <div class="settings-label" style="margin-bottom:4px">Content-Block</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Wird links neben dem Formular angezeigt (Bullet-Points)</div>
+              <div class="auth-field"><label>Block-Titel (optional)</label><input v-model="form.contentTitle" placeholder="Was Sie erwartet" /></div>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+                <input v-for="(_, i) in 4" :key="i" v-model="form.contentItems[i]"
+                  :placeholder="`Punkt ${i+1} (z.B. Kostenlose Erstberatung)`"
+                  style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);width:100%;box-sizing:border-box;outline:none" />
+              </div>
+            </div>
+
+            <div style="border-top:0.5px solid var(--border);padding-top:14px">
               <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.utmTracking }}</div>
               <div class="auth-row">
                 <div class="auth-field"><label>utm_source</label><input v-model="form.utmSource" placeholder="linkedin" /></div>
@@ -359,6 +370,7 @@ const saving  = ref(false)
 const form = reactive({
   name: '', slug: '', formId: '', headline: '', subtext: '',
   headerImageUrl: '', accentColor: '#6C3FE8',
+  contentTitle: '', contentItems: ['', '', '', ''] as string[],
   utmSource: '', utmMedium: 'social', utmCampaign: '',
 })
 
@@ -375,17 +387,23 @@ const campaignUrl  = computed(() => {
 })
 
 function resetForm() {
-  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', utmSource: '', utmMedium: 'social', utmCampaign: '' })
+  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '' })
 }
 
 function openAdd() { editing.value = null; resetForm(); showModal.value = true }
 
 function openEdit(c: any) {
   editing.value = c
+  let items: string[] = ['', '', '', '']
+  if (Array.isArray(c.contentItems)) items = [...c.contentItems, '', '', '', ''].slice(0, 4)
+  else if (typeof c.contentItems === 'string') {
+    try { const parsed = JSON.parse(c.contentItems); items = [...parsed, '', '', '', ''].slice(0, 4) } catch {}
+  }
   Object.assign(form, {
     name: c.name, slug: c.slug || '', formId: c.formId || '',
     headline: c.headline || '', subtext: c.subtext || '',
     headerImageUrl: c.headerImageUrl || '', accentColor: c.accentColor || '#6C3FE8',
+    contentTitle: c.contentTitle || '', contentItems: items,
     utmSource: c.utmSource || '', utmMedium: c.utmMedium || 'social', utmCampaign: c.utmCampaign || '',
   })
   showModal.value = true
@@ -394,10 +412,11 @@ function openEdit(c: any) {
 async function save() {
   saving.value = true
   try {
+    const payload = { ...form, contentItems: form.contentItems.filter(Boolean), userId: userId.value }
     if (editing.value) {
-      await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', body: { ...form, userId: userId.value } })
+      await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', body: payload })
     } else {
-      await $fetch(useApiUrl('/api/marketing'), { method: 'POST', body: { ...form, userId: userId.value } })
+      await $fetch(useApiUrl('/api/marketing'), { method: 'POST', body: payload })
     }
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
