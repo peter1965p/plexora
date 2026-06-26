@@ -10,7 +10,7 @@ interface Period {
 
 export default defineEventHandler(async (event) => {
   const query    = getQuery(event)
-  const items    = await queryByUser('plexora-finance', getUserId(event))
+  const items    = await queryByUser('plexora-finance', getUserId(event), event)
   const year     = query.year ? Number(query.year) : new Date().getFullYear()
   const mode     = (query.mode as string) || 'quarterly' // 'quarterly' | 'monthly'
 

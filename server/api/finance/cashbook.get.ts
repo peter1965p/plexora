@@ -1,7 +1,7 @@
 import { queryByUser, getUserId } from '../../utils/queryByUser'
 
 export default defineEventHandler(async (event) => {
-  const items = await queryByUser('plexora-cashbook', getUserId(event))
+  const items = await queryByUser('plexora-cashbook', getUserId(event), event)
   const sorted = (items as any[]).sort((a, b) => b.date.localeCompare(a.date))
   let balance = 0
   const withBalance = sorted.slice().reverse().map((e: any) => {

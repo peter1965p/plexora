@@ -2,7 +2,7 @@ import { queryByUser, getUserId } from '../../utils/queryByUser'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const items = await queryByUser('plexora-finance', getUserId(event))
+  const items = await queryByUser('plexora-finance', getUserId(event), event)
 
   const year  = query.year ? Number(query.year) : new Date().getFullYear()
   const invoices = (items as any[]).filter(i => {
