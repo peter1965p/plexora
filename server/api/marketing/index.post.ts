@@ -8,20 +8,24 @@ export default defineEventHandler(async (event) => {
   const client = getDynamoClient()
 
   const campaign = {
-    userId: await resolveUserId(body.userId || 'demo-user'),
-    campaignId:   randomUUID(),
-    name:         body.name || '',
-    slug:         body.slug || '',
-    formId:       body.formId || '',
-    headline:     body.headline || '',
-    subtext:      body.subtext || '',
+    userId:         await resolveUserId(body.userId || 'demo-user'),
+    campaignId:     randomUUID(),
+    name:           body.name || '',
+    slug:           body.slug || '',
+    formId:         body.formId || '',
+    headline:       body.headline || '',
+    subtext:        body.subtext || '',
     headerImageUrl: body.headerImageUrl || '',
-    accentColor:  body.accentColor || '#6C3FE8',
-    utmSource:    body.utmSource || '',
-    utmMedium:    body.utmMedium || '',
-    utmCampaign:  body.utmCampaign || '',
-    active:       true,
-    created:      new Date().toISOString(),
+    accentColor:    body.accentColor || '#6C3FE8',
+    bgImageUrl:     body.bgImageUrl || '',
+    bgColor:        body.bgColor || '#050815',
+    contentTitle:   body.contentTitle || '',
+    contentItems:   Array.isArray(body.contentItems) ? body.contentItems.filter(Boolean) : [],
+    utmSource:      body.utmSource || '',
+    utmMedium:      body.utmMedium || '',
+    utmCampaign:    body.utmCampaign || '',
+    active:         true,
+    created:        new Date().toISOString(),
   }
 
   await client.send(new PutCommand({ TableName: 'plexora-marketing', Item: campaign }))

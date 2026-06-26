@@ -24,6 +24,11 @@
         <h1 class="lp-headline">{{ campaign?.headline || form?.title || '' }}</h1>
         <p v-if="campaign?.subtext" class="lp-subtext">{{ campaign.subtext }}</p>
 
+        <!-- Banner Card -->
+        <div v-if="campaign?.headerImageUrl" class="lp-banner-card">
+          <img :src="campaign.headerImageUrl" />
+        </div>
+
         <!-- Content Block -->
         <div v-if="contentItems.length" class="lp-benefits">
           <div v-if="campaign?.contentTitle" class="lp-benefits-title">{{ campaign.contentTitle }}</div>
@@ -296,6 +301,20 @@ async function submit() {
   color: rgba(255,255,255,0.5);
 }
 .lp-trust-item i { color: var(--lp-accent); }
+
+/* BANNER CARD */
+.lp-banner-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  max-width: 420px;
+}
+.lp-banner-card img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
 
 /* FORM */
 .lp-form-col {
