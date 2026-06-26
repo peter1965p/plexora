@@ -189,13 +189,13 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
 
     // QR Code
     try {
-      const qrRes = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=72x72&data=${encodeURIComponent(payUrl)}&margin=2`)
+      const qrRes = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=52x52&data=${encodeURIComponent(payUrl)}&margin=2`)
       const qrBuf = Buffer.from(await qrRes.arrayBuffer())
       const qrY   = ty - (hasBank ? 28 : 2)
-      doc.image(qrBuf, MR - 72, qrY, { width: 72, height: 72 })
+      doc.image(qrBuf, MR - 52, qrY, { width: 52, height: 52 })
       doc.fontSize(7).fillColor(GRAY).font('Helvetica')
-        .text('QR-Code scannen', MR - 72, qrY + 74, { width: 72, align: 'center' })
-        .text('zum Bezahlen',    MR - 72, qrY + 83, { width: 72, align: 'center' })
+        .text('QR-Code scannen', MR - 52, qrY + 54, { width: 52, align: 'center' })
+        .text('zum Bezahlen',    MR - 52, qrY + 63, { width: 52, align: 'center' })
     } catch {}
 
     // ── FOOTER ────────────────────────────────────────────────────────────────
