@@ -187,15 +187,14 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
       doc.fontSize(9).fillColor('#7C3AED').font('Helvetica').text(payUrl, ML, ty, { link: payUrl, underline: true })
     }
 
-    // QR Code
+    // QR Code — klein, rechts neben dem Zahlungsbereich
     try {
-      const qrRes = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=52x52&data=${encodeURIComponent(payUrl)}&margin=2`)
+      const qrRes = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=${encodeURIComponent(payUrl)}&margin=1`)
       const qrBuf = Buffer.from(await qrRes.arrayBuffer())
-      const qrY   = ty - (hasBank ? 28 : 2)
-      doc.image(qrBuf, MR - 52, qrY, { width: 52, height: 52 })
-      doc.fontSize(7).fillColor(GRAY).font('Helvetica')
-        .text('QR-Code scannen', MR - 52, qrY + 54, { width: 52, align: 'center' })
-        .text('zum Bezahlen',    MR - 52, qrY + 63, { width: 52, align: 'center' })
+      const qrStartY = ty - (hasBank ? 42 : 14)
+      doc.image(qrBuf, MR - 48, qrStartY, { width: 48, height: 48 })
+      doc.fontSize(6.5).fillColor(GRAY).font('Helvetica')
+        .text('QR-Code', MR - 48, qrStartY + 50, { width: 48, align: 'center' })
     } catch {}
 
     // ── FOOTER ────────────────────────────────────────────────────────────────
