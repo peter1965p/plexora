@@ -133,6 +133,12 @@ const contentItems = computed<string[]>(() => {
 })
 
 const bgStyle = computed(() => {
+  if (campaign.value?.bgImageUrl) {
+    return `background-image: url('${campaign.value.bgImageUrl}'); background-size: cover; background-position: center;`
+  }
+  if (campaign.value?.bgColor) {
+    return `background: ${campaign.value.bgColor};`
+  }
   if (campaign.value?.headerImageUrl) {
     return `background-image: url('${campaign.value.headerImageUrl}'); background-size: cover; background-position: center;`
   }

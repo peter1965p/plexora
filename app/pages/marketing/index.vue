@@ -185,6 +185,49 @@
                 </label>
               </div>
               <div class="auth-field">
+                <label>Hintergrundbild (Landing Page)</label>
+                <div v-if="bgCropSrc" style="margin-bottom:10px">
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
+                  <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
+                    <img ref="bgCropImgRef" :src="bgCropSrc" style="width:100%;max-height:180px;object-fit:contain;display:block" />
+                    <div v-if="bgCropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${bgCropRect.x}px;top:${bgCropRect.y}px;width:${bgCropRect.w}px;height:${bgCropRect.h}px`"></div>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setBgCropRatio(16,9)">16:9</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setBgCropRatio(4,3)">4:3</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="bgCropRect=null">Original</button>
+                    <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="bgUploading" @click="confirmBgCropAndUpload">
+                      <i class="ti" :class="bgUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
+                      {{ bgUploading ? t.common.loading : 'Übernehmen' }}
+                    </button>
+                    <button class="icon-btn" style="color:var(--danger)" @click="bgCropSrc=null;bgCropRect=null"><i class="ti ti-x"></i></button>
+                  </div>
+                </div>
+                <div v-if="form.bgImageUrl && !bgCropSrc" style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border);position:relative">
+                  <img :src="form.bgImageUrl" style="width:100%;max-height:100px;object-fit:cover;display:block" />
+                  <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
+                    <label style="cursor:pointer">
+                      <input type="file" accept="image/*" style="display:none" @change="selectBgFile" />
+                      <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none"><i class="ti ti-pencil"></i></span>
+                    </label>
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.bgImageUrl=''"><i class="ti ti-trash"></i></button>
+                  </div>
+                </div>
+                <div v-if="!form.bgImageUrl && !bgCropSrc" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <label style="cursor:pointer">
+                    <input type="file" accept="image/*" style="display:none" @change="selectBgFile" />
+                    <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none"><i class="ti ti-photo-up"></i> Bild hochladen</span>
+                  </label>
+                  <span style="font-size:11px;color:var(--text-muted)">oder Farbe:</span>
+                  <input type="color" v-model="form.bgColor" style="width:36px;height:32px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer" />
+                  <span style="font-size:11px;color:var(--text-muted)">{{ form.bgColor }}</span>
+                </div>
+                <div v-if="form.bgImageUrl && !bgCropSrc" style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                  <span style="font-size:11px;color:var(--text-muted)">Fallback-Farbe:</span>
+                  <input type="color" v-model="form.bgColor" style="width:36px;height:32px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer" />
+                </div>
+              </div>
+              <div class="auth-field">
                 <label>Akzentfarbe</label>
                 <div style="display:flex;gap:8px;align-items:center">
                   <input type="color" v-model="form.accentColor" style="width:48px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer" />
@@ -215,27 +258,51 @@
           </div>
 
           <!-- Live-Vorschau -->
-          <div>
+          <div style="position:sticky;top:0">
             <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.livePreview }}</div>
-            <div :style="`background:#0a0e1a;border-radius:12px;overflow:hidden;border:0.5px solid var(--border);min-height:300px`">
-              <div v-if="form.headerImageUrl" style="height:150px;overflow:hidden;position:relative">
-                <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover;display:block" />
-                <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.55))"></div>
-                <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#fff;font-size:13px;font-weight:700">{{ form.headline || 'Deine Headline' }}</div>
-              </div>
-              <div style="padding:20px;text-align:center">
-                <div style="font-size:18px;font-weight:800;color:#f0eef9;margin-bottom:6px">{{ form.headline || 'Deine Headline hier' }}</div>
-                <div style="font-size:13px;color:#8b8fa8;margin-bottom:16px">{{ form.subtext || 'Dein Subtext hier' }}</div>
-                <button :style="`background:${form.accentColor};color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600`">{{ selectedForm?.submitLabel || 'Jetzt anfragen' }}</button>
-              </div>
-              <div style="padding:0 20px 16px;display:flex;flex-direction:column;gap:6px">
-                <div v-for="field in (selectedForm?.fields || []).slice(0,3)" :key="field.id" style="background:#13182a;border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;padding:8px 12px;font-size:12px;color:#545870">{{ field.label }}{{ field.required ? ' *' : '' }}</div>
-                <div v-if="(selectedForm?.fields || []).length > 3" style="font-size:11px;color:#545870;text-align:center">+ {{ (selectedForm?.fields || []).length - 3 }} weitere Felder...</div>
+            <!-- Mini Landing Page Preview -->
+            <div style="border-radius:12px;overflow:hidden;border:0.5px solid var(--border);min-height:320px;position:relative"
+              :style="form.bgImageUrl
+                ? `background:url('${form.bgImageUrl}') center/cover no-repeat`
+                : `background:${form.bgColor || '#050815'}`">
+              <!-- Overlay -->
+              <div style="position:absolute;inset:0;background:rgba(5,8,21,0.65);pointer-events:none"></div>
+              <!-- Content -->
+              <div style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;min-height:320px;align-items:center">
+                <!-- Hero links -->
+                <div style="padding:8px 4px">
+                  <div style="font-size:11px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.2">{{ form.headline || 'Deine Headline' }}</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:10px">{{ form.subtext || 'Dein Subtext' }}</div>
+                  <div v-for="(item, i) in form.contentItems.filter(Boolean).slice(0,3)" :key="i"
+                    style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+                    <span :style="`width:14px;height:14px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;background:${form.accentColor}22;color:${form.accentColor};border:1px solid ${form.accentColor}44;flex-shrink:0`">✓</span>
+                    <span style="font-size:10px;color:rgba(255,255,255,0.8)">{{ item }}</span>
+                  </div>
+                </div>
+                <!-- Form rechts -->
+                <div style="background:rgba(15,20,40,0.75);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px">
+                  <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:8px">{{ form.headline || 'Anfrage' }}</div>
+                  <div v-for="field in (selectedForm?.fields || []).slice(0,3)" :key="field.id"
+                    style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 8px;font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px">
+                    {{ field.label }}{{ field.required ? ' *' : '' }}
+                  </div>
+                  <div v-if="(selectedForm?.fields || []).length > 3" style="font-size:9px;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:4px">+ {{ (selectedForm?.fields || []).length - 3 }} weitere...</div>
+                  <button :style="`width:100%;background:${form.accentColor};color:#fff;border:none;padding:6px;border-radius:6px;font-size:10px;font-weight:700;cursor:default`">
+                    {{ selectedForm?.submitLabel || 'Jetzt anfragen' }}
+                  </button>
+                </div>
               </div>
             </div>
-            <div v-if="form.formId" style="margin-top:12px;background:var(--bg-elevated);border-radius:8px;padding:12px;font-size:12px">
-              <div style="color:var(--text-muted);margin-bottom:4px">{{ t.marketing.link }}</div>
-              <div style="color:var(--accent);word-break:break-all">{{ campaignUrl }}</div>
+            <!-- Banner Vorschau (Card) -->
+            <div v-if="form.headerImageUrl" style="margin-top:8px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border);height:60px;position:relative">
+              <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover;display:block" />
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center">
+                <span style="font-size:10px;color:rgba(255,255,255,0.7)">Card-Banner</span>
+              </div>
+            </div>
+            <div v-if="form.formId" style="margin-top:8px;background:var(--bg-elevated);border-radius:8px;padding:10px;font-size:11px">
+              <div style="color:var(--text-muted);margin-bottom:3px">Link:</div>
+              <div style="color:var(--accent);word-break:break-all;font-size:10px">{{ campaignUrl }}</div>
             </div>
           </div>
         </div>
@@ -370,6 +437,7 @@ const saving  = ref(false)
 const form = reactive({
   name: '', slug: '', formId: '', headline: '', subtext: '',
   headerImageUrl: '', accentColor: '#6C3FE8',
+  bgImageUrl: '', bgColor: '#050815',
   contentTitle: '', contentItems: ['', '', '', ''] as string[],
   utmSource: '', utmMedium: 'social', utmCampaign: '',
 })
@@ -387,7 +455,7 @@ const campaignUrl  = computed(() => {
 })
 
 function resetForm() {
-  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '' })
+  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', bgImageUrl: '', bgColor: '#050815', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '' })
 }
 
 function openAdd() { editing.value = null; resetForm(); showModal.value = true }
@@ -403,6 +471,7 @@ function openEdit(c: any) {
     name: c.name, slug: c.slug || '', formId: c.formId || '',
     headline: c.headline || '', subtext: c.subtext || '',
     headerImageUrl: c.headerImageUrl || '', accentColor: c.accentColor || '#6C3FE8',
+    bgImageUrl: c.bgImageUrl || '', bgColor: c.bgColor || '#050815',
     contentTitle: c.contentTitle || '', contentItems: items,
     utmSource: c.utmSource || '', utmMedium: c.utmMedium || 'social', utmCampaign: c.utmCampaign || '',
   })
@@ -499,6 +568,66 @@ async function confirmCropAndUpload() {
   } catch (err) {
     alert('Upload fehlgeschlagen — bitte erneut versuchen.')
   } finally { headerUploading.value = false }
+}
+
+// ── Background-Upload mit Crop ──
+const bgUploading = ref(false)
+const bgCropSrc    = ref<string | null>(null)
+const bgCropRect   = ref<{ x: number; y: number; w: number; h: number } | null>(null)
+const bgCropImgRef = ref<HTMLImageElement | null>(null)
+let _bgCropFile: File | null = null
+
+function selectBgFile(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  _bgCropFile = file
+  const reader = new FileReader()
+  reader.onload = ev => { bgCropSrc.value = ev.target?.result as string; bgCropRect.value = null }
+  reader.readAsDataURL(file)
+}
+
+function setBgCropRatio(rw: number, rh: number) {
+  const img = bgCropImgRef.value
+  if (!img) return
+  const dw = img.clientWidth, dh = img.clientHeight
+  const ratio = rw / rh
+  let w = dw, h = Math.round(w / ratio)
+  if (h > dh) { h = dh; w = Math.round(h * ratio) }
+  bgCropRect.value = { x: Math.round((dw - w) / 2), y: Math.round((dh - h) / 2), w, h }
+}
+
+async function confirmBgCropAndUpload() {
+  if (!_bgCropFile) return
+  bgUploading.value = true
+  try {
+    let uploadFile: File = _bgCropFile
+    if (bgCropRect.value && bgCropImgRef.value) {
+      const img = bgCropImgRef.value
+      const sx = img.naturalWidth / img.clientWidth
+      const sy = img.naturalHeight / img.clientHeight
+      const { x, y, w, h } = bgCropRect.value
+      const canvas = document.createElement('canvas')
+      canvas.width  = Math.round(w * sx)
+      canvas.height = Math.round(h * sy)
+      canvas.getContext('2d')!.drawImage(img, Math.round(x*sx), Math.round(y*sy), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height)
+      const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), 'image/jpeg', 0.92))
+      uploadFile = new File([blob], _bgCropFile.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
+    }
+    const base64 = await new Promise<string>(r => {
+      const reader = new FileReader()
+      reader.onload = e => r(e.target!.result as string)
+      reader.readAsDataURL(uploadFile)
+    })
+    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
+      method: 'POST',
+      body: { fileBase64: base64, fileName: `bg-${Date.now()}.jpg`, prefix: 'marketing/' }
+    })
+    if (res?.url)      form.bgImageUrl = res.url
+    else if (res?.key) form.bgImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
+    bgCropSrc.value = null; bgCropRect.value = null; _bgCropFile = null
+  } catch {
+    alert('Upload fehlgeschlagen — bitte erneut versuchen.')
+  } finally { bgUploading.value = false }
 }
 
 const toast = ref('')
