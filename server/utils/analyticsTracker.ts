@@ -44,28 +44,57 @@ export function detectBot(ua: string): string | null {
   return null
 }
 
+export function detectBrowser(ua: string): string {
+  if (!ua) return 'Unknown'
+  if (/SamsungBrowser/i.test(ua)) return 'Samsung Browser'
+  if (/OPR\//i.test(ua))          return 'Opera'
+  if (/Edg\//i.test(ua))          return 'Edge'
+  if (/Chrome\//i.test(ua))       return 'Chrome'
+  if (/Firefox\//i.test(ua))      return 'Firefox'
+  if (/Safari\//i.test(ua))       return 'Safari'
+  if (/MSIE|Trident/i.test(ua))   return 'IE'
+  return 'Other'
+}
+
+export function detectOS(ua: string): string {
+  if (!ua) return 'Unknown'
+  if (/iPhone|iPad/i.test(ua))  return 'iOS'
+  if (/Android/i.test(ua))      return 'Android'
+  if (/Windows NT/i.test(ua))   return 'Windows'
+  if (/Mac OS X/i.test(ua))     return 'macOS'
+  if (/CrOS/i.test(ua))         return 'ChromeOS'
+  if (/Linux/i.test(ua))        return 'Linux'
+  return 'Other'
+}
+
 // ── Track a visit ──────────────────────────────────────────────────────────────
 export function trackVisit(opts: {
   path: string
   ua: string
   referrer: string
   ip: string
+  country?: string
+  city?: string
 }): void {
-  const { path, ua, referrer } = opts
+  const { path, ua, referrer, ip, country, city } = opts
   const today = new Date().toISOString().slice(0, 10)
   const botName = detectBot(ua)
-  const isBot = !!botName
-  const client = getDynamoClient()
+  const isBot   = !!botName
+  const client  = getDynamoClient()
 
-  const typeKey  = isBot ? 'bot' : 'human'
-  const botLabel = botName ? botName.replace(/[^a-zA-Z0-9 ()]/g, '') : ''
-  const refLabel = referrer
+  const typeKey    = isBot ? 'bot' : 'human'
+  const botLabel   = botName ? botName.replace(/[^a-zA-Z0-9 ()]/g, '') : ''
+  const refLabel   = referrer
     ? referrer.replace(/^https?:\/\//, '').split('/')[0].slice(0, 50)
     : 'direct'
-  const pageLabel = path.split('?')[0].slice(0, 80) || '/'
-  const dayKey    = `analytics-day-${today}`
+  const pageLabel    = path.split('?')[0].slice(0, 80) || '/'
+  const dayKey       = `analytics-day-${today}`
+  const browserLabel = !isBot ? detectBrowser(ua)                           : null
+  const osLabel      = !isBot ? detectOS(ua)                                 : null
+  const countryCode  = country?.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2) || ''
+  const cityLabel    = city?.slice(0, 50) || ''
 
-  // ── Total counters (top-level ADD — always safe) ────────────────────────────
+  // ── Total counters ──────────────────────────────────────────────────────────
   client.send(new UpdateCommand({
     TableName: TABLE,
     Key: { pk: 'analytics-total' },
@@ -74,33 +103,61 @@ export function trackVisit(opts: {
     ExpressionAttributeValues: { ':v': 1 },
   })).catch(() => {})
 
-  // ── Daily counters — two-step to avoid nested-ADD-on-missing-map failure ────
-  // DynamoDB's ADD on a nested path (pages./) fails when the parent map doesn't
-  // exist yet. Step 1 ensures the maps are initialised; step 2 then atomically
-  // increments the nested counters (ADD on existing map keys is safe & atomic).
+  // ── Daily counters — two-step: init maps, then atomic ADD ──────────────────
   const trackDay = async () => {
     await client.send(new UpdateCommand({
       TableName: TABLE,
       Key: { pk: dayKey },
-      UpdateExpression: 'SET #p = if_not_exists(#p, :em), #r = if_not_exists(#r, :em), #d = if_not_exists(#d, :d)',
-      ExpressionAttributeNames: { '#p': 'pages', '#r': 'refs', '#d': 'date' },
+      UpdateExpression: 'SET #p = if_not_exists(#p, :em), #r = if_not_exists(#r, :em), #br = if_not_exists(#br, :em), #os = if_not_exists(#os, :em), #co = if_not_exists(#co, :em), #ci = if_not_exists(#ci, :em), #d = if_not_exists(#d, :d)',
+      ExpressionAttributeNames: { '#p': 'pages', '#r': 'refs', '#br': 'browsers', '#os': 'oss', '#co': 'countries', '#ci': 'cities', '#d': 'date' },
       ExpressionAttributeValues: { ':em': {}, ':d': today },
     }))
+
+    const names: Record<string, string> = {
+      '#t': typeKey, '#p': 'pages', '#pg': pageLabel, '#r': 'refs', '#rf': refLabel,
+    }
+    let expr = 'ADD #t :one, #p.#pg :one, #r.#rf :one'
+    const vals: Record<string, any> = { ':one': 1 }
+
+    if (browserLabel) {
+      names['#br'] = 'browsers'; names['#brl'] = browserLabel
+      expr += ', #br.#brl :one'
+    }
+    if (osLabel) {
+      names['#os'] = 'oss'; names['#osl'] = osLabel
+      expr += ', #os.#osl :one'
+    }
+    if (countryCode) {
+      names['#co'] = 'countries'; names['#col'] = countryCode
+      expr += ', #co.#col :one'
+    }
+    if (cityLabel) {
+      names['#ci'] = 'cities'; names['#cil'] = cityLabel
+      expr += ', #ci.#cil :one'
+    }
+
     await client.send(new UpdateCommand({
       TableName: TABLE,
       Key: { pk: dayKey },
-      UpdateExpression: 'ADD #t :one, #p.#pg :one, #r.#rf :one',
-      ExpressionAttributeNames: {
-        '#t':  typeKey,
-        '#p':  'pages',
-        '#pg': pageLabel,
-        '#r':  'refs',
-        '#rf': refLabel,
-      },
-      ExpressionAttributeValues: { ':one': 1 },
+      UpdateExpression: expr,
+      ExpressionAttributeNames: names,
+      ExpressionAttributeValues: vals,
     }))
   }
   trackDay().catch(() => {})
+
+  // ── Recent IPs (admin-only, last 100) ──────────────────────────────────────
+  if (!isBot && ip) {
+    const ts  = new Date().toISOString()
+    const entry = `${ts}|${ip}|${countryCode}|${cityLabel}|${pageLabel}`
+    client.send(new UpdateCommand({
+      TableName: TABLE,
+      Key: { pk: 'analytics-ips' },
+      UpdateExpression: 'SET #l = list_append(if_not_exists(#l, :em), :new)',
+      ExpressionAttributeNames: { '#l': 'log' },
+      ExpressionAttributeValues: { ':em': [], ':new': [entry] },
+    })).catch(() => {})
+  }
 
   // ── Bot breakdown ───────────────────────────────────────────────────────────
   if (isBot && botLabel) {
@@ -117,17 +174,15 @@ export function trackVisit(opts: {
 // ── Query analytics ────────────────────────────────────────────────────────────
 export async function getSeoStats() {
   const client = getDynamoClient()
-  const today = new Date().toISOString().slice(0, 10)
+  const today  = new Date().toISOString().slice(0, 10)
 
-  const res = await client.send(new ScanCommand({ TableName: TABLE }))
+  const res   = await client.send(new ScanCommand({ TableName: TABLE }))
   const items = res.Items || []
 
-  // Totals
-  const totals = items.find(i => i.pk === 'analytics-total') || {}
+  const totals     = items.find(i => i.pk === 'analytics-total') || {}
   const humanTotal = totals.human || 0
   const botTotal   = totals.bot   || 0
 
-  // Bot breakdown
   const botBreakdown = items.find(i => i.pk === 'analytics-bots') || {}
   const bots = Object.entries(botBreakdown)
     .filter(([k]) => k !== 'pk')
@@ -135,43 +190,50 @@ export async function getSeoStats() {
     .slice(0, 15)
     .map(([name, count]) => ({ name, count: count as number }))
 
-  // Last 30 days
   const days = Array.from({ length: 30 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() - (29 - i))
-    const key = `analytics-day-${d.toISOString().slice(0, 10)}`
+    const key  = `analytics-day-${d.toISOString().slice(0, 10)}`
     const item = items.find(x => x.pk === key) || {}
-    return {
-      date:  d.toISOString().slice(0, 10),
-      human: item.human || 0,
-      bot:   item.bot   || 0,
-    }
+    return { date: d.toISOString().slice(0, 10), human: item.human || 0, bot: item.bot || 0 }
   })
 
-  // Top pages (aggregate across all days)
-  const pagesMap: Record<string, number> = {}
-  const refsMap:  Record<string, number> = {}
+  const pagesMap:    Record<string, number> = {}
+  const refsMap:     Record<string, number> = {}
+  const browsersMap: Record<string, number> = {}
+  const ossMap:      Record<string, number> = {}
+  const countriesMap:Record<string, number> = {}
+  const citiesMap:   Record<string, number> = {}
+
   for (const item of items) {
     if (typeof item.pk === 'string' && item.pk.startsWith('analytics-day-')) {
-      for (const [pg, cnt] of Object.entries(item.pages || {})) {
-        pagesMap[pg] = (pagesMap[pg] || 0) + (cnt as number)
-      }
-      for (const [rf, cnt] of Object.entries(item.refs || {})) {
-        refsMap[rf] = (refsMap[rf] || 0) + (cnt as number)
-      }
+      for (const [k, v] of Object.entries(item.pages     || {})) pagesMap[k]     = (pagesMap[k]     || 0) + (v as number)
+      for (const [k, v] of Object.entries(item.refs      || {})) refsMap[k]      = (refsMap[k]      || 0) + (v as number)
+      for (const [k, v] of Object.entries(item.browsers  || {})) browsersMap[k]  = (browsersMap[k]  || 0) + (v as number)
+      for (const [k, v] of Object.entries(item.oss       || {})) ossMap[k]       = (ossMap[k]       || 0) + (v as number)
+      for (const [k, v] of Object.entries(item.countries || {})) countriesMap[k] = (countriesMap[k] || 0) + (v as number)
+      for (const [k, v] of Object.entries(item.cities    || {})) citiesMap[k]    = (citiesMap[k]    || 0) + (v as number)
     }
   }
 
-  const topPages = Object.entries(pagesMap)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
-    .map(([path, count]) => ({ path, count }))
+  const sort = (m: Record<string, number>, n: number) =>
+    Object.entries(m).sort(([,a],[,b]) => b-a).slice(0, n)
 
-  const topRefs = Object.entries(refsMap)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
-    .map(([ref, count]) => ({ ref, count }))
+  const topPages     = sort(pagesMap,     10).map(([path,    count]) => ({ path,    count }))
+  const topRefs      = sort(refsMap,      10).map(([ref,     count]) => ({ ref,     count }))
+  const topBrowsers  = sort(browsersMap,   8).map(([name,    count]) => ({ name,    count }))
+  const topOss       = sort(ossMap,        8).map(([name,    count]) => ({ name,    count }))
+  const topCountries = sort(countriesMap, 15).map(([code,    count]) => ({ code,    count }))
+  const topCities    = sort(citiesMap,    10).map(([city,    count]) => ({ city,    count }))
 
-  // Today detail
+  const ipLog = items.find(i => i.pk === 'analytics-ips')
+  const recentIps = ((ipLog?.log || []) as string[])
+    .slice(-100)
+    .reverse()
+    .map((e: string) => {
+      const [ts, ip, country, city, page] = e.split('|')
+      return { ts, ip, country, city, page }
+    })
+
   const todayItem = items.find(i => i.pk === `analytics-day-${today}`) || {}
 
   return {
@@ -179,5 +241,6 @@ export async function getSeoStats() {
     todayHuman: todayItem.human || 0,
     todayBot:   todayItem.bot   || 0,
     days, bots, topPages, topRefs,
+    topBrowsers, topOss, topCountries, topCities, recentIps,
   }
 }

@@ -129,8 +129,73 @@
         </div>
       </div>
 
+      <!-- BROWSER / OS / COUNTRY / CITY -->
+      <div class="grid-2" style="margin-bottom:14px">
+
+        <!-- BROWSER -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-browser" style="color:var(--accent);margin-right:6px"></i>Browser</span></div>
+          <div v-if="!stats.topBrowsers?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+            <div v-for="b in stats.topBrowsers" :key="b.name" style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:13px;min-width:120px">{{ b.name }}</span>
+              <div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:6px;overflow:hidden">
+                <div :style="`width:${Math.round((b.count/stats.topBrowsers[0].count)*100)}%;background:var(--accent);height:100%;border-radius:4px`"></div>
+              </div>
+              <span style="font-size:12px;font-weight:600;min-width:28px;text-align:right">{{ b.count }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- OS -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-device-desktop" style="color:var(--accent);margin-right:6px"></i>Betriebssystem</span></div>
+          <div v-if="!stats.topOss?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+            <div v-for="o in stats.topOss" :key="o.name" style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:13px;min-width:120px">{{ osIcon(o.name) }} {{ o.name }}</span>
+              <div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:6px;overflow:hidden">
+                <div :style="`width:${Math.round((o.count/stats.topOss[0].count)*100)}%;background:var(--accent);height:100%;border-radius:4px`"></div>
+              </div>
+              <span style="font-size:12px;font-weight:600;min-width:28px;text-align:right">{{ o.count }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COUNTRIES -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-world" style="color:var(--accent);margin-right:6px"></i>Länder</span></div>
+          <div v-if="!stats.topCountries?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+            <div v-for="c in stats.topCountries" :key="c.code" style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:16px;width:24px">{{ flag(c.code) }}</span>
+              <span style="font-size:13px;min-width:80px">{{ countryName(c.code) }}</span>
+              <div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:6px;overflow:hidden">
+                <div :style="`width:${Math.round((c.count/stats.topCountries[0].count)*100)}%;background:var(--accent);height:100%;border-radius:4px`"></div>
+              </div>
+              <span style="font-size:12px;font-weight:600;min-width:28px;text-align:right">{{ c.count }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CITIES -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-building" style="color:var(--accent);margin-right:6px"></i>Städte</span></div>
+          <div v-if="!stats.topCities?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <table v-else class="data-table">
+            <thead><tr><th>Stadt</th><th style="text-align:right">Aufrufe</th></tr></thead>
+            <tbody>
+              <tr v-for="c in stats.topCities" :key="c.city">
+                <td style="font-size:13px">{{ c.city }}</td>
+                <td style="text-align:right;font-weight:600">{{ c.count }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- BOT BREAKDOWN -->
-      <div class="card">
+      <div class="card" style="margin-bottom:14px">
         <div class="card-header">
           <span class="card-title"><i class="ti ti-robot" style="color:var(--accent);margin-right:6px"></i>Bot-Aufschlüsselung</span>
           <span style="font-size:11px;color:var(--text-muted)">{{ stats.bots.length }} verschiedene Crawler</span>
@@ -145,6 +210,29 @@
             <span style="font-size:13px;font-weight:700;color:var(--accent)">{{ b.count }}</span>
           </div>
         </div>
+      </div>
+
+      <!-- RECENT IPs -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-network" style="color:var(--accent);margin-right:6px"></i>Letzte Besucher-IPs</span>
+          <span style="font-size:11px;color:var(--text-muted)">nur für Admin · letzte 100</span>
+        </div>
+        <div v-if="!stats.recentIps?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
+          Noch keine Daten
+        </div>
+        <table v-else class="data-table">
+          <thead><tr><th>Zeit</th><th>IP</th><th>Land</th><th>Stadt</th><th>Seite</th></tr></thead>
+          <tbody>
+            <tr v-for="(r, i) in stats.recentIps.slice(0,20)" :key="i">
+              <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">{{ r.ts?.slice(0,16).replace('T',' ') }}</td>
+              <td style="font-family:monospace;font-size:12px">{{ r.ip }}</td>
+              <td style="font-size:14px">{{ flag(r.country) }}</td>
+              <td style="font-size:12px">{{ r.city }}</td>
+              <td style="font-family:monospace;font-size:12px;color:var(--text-muted)">{{ r.page }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
     </template>
@@ -164,6 +252,30 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const stats   = ref<any>(null)
 const loading = ref(true)
 const error   = ref<string>('')
+
+function flag(code: string): string {
+  if (!code || code.length !== 2) return '🌍'
+  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397))
+}
+
+const COUNTRY_NAMES: Record<string, string> = {
+  DE:'Deutschland', AT:'Österreich', CH:'Schweiz', US:'USA', GB:'Großbritannien',
+  FR:'Frankreich', NL:'Niederlande', BE:'Belgien', PL:'Polen', IT:'Italien',
+  ES:'Spanien', RU:'Russland', UA:'Ukraine', TR:'Türkei', IN:'Indien',
+  CN:'China', JP:'Japan', BR:'Brasilien', AU:'Australien', CA:'Kanada',
+  LU:'Luxemburg', DK:'Dänemark', SE:'Schweden', NO:'Norwegen', FI:'Finnland',
+  CZ:'Tschechien', SK:'Slowakei', HU:'Ungarn', RO:'Rumänien', XX:'Unbekannt',
+}
+function countryName(code: string): string {
+  return COUNTRY_NAMES[code] || code
+}
+
+function osIcon(os: string): string {
+  const icons: Record<string, string> = {
+    Windows:'🪟', macOS:'🍎', Linux:'🐧', Android:'🤖', iOS:'📱', ChromeOS:'🌐', Other:'💻'
+  }
+  return icons[os] || '💻'
+}
 
 const botRate = computed(() => {
   if (!stats.value) return 0

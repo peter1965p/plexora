@@ -9,11 +9,13 @@ export default defineEventHandler((event) => {
   if (method !== 'GET') return
   if (!PUBLIC_PAGES.includes(path)) return
 
-  const ua       = getHeader(event, 'user-agent') || ''
+  const ua      = getHeader(event, 'user-agent') || ''
   const referrer = getHeader(event, 'referer') || ''
-  const ip       = getHeader(event, 'cf-connecting-ip')
+  const ip      = getHeader(event, 'cf-connecting-ip')
     || getHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim()
     || ''
+  const country = getHeader(event, 'cf-ipcountry') || ''
+  const city    = getHeader(event, 'cf-ipcity')    || ''
 
-  trackVisit({ path, ua, referrer, ip })
+  trackVisit({ path, ua, referrer, ip, country, city })
 })
