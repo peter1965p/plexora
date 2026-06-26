@@ -387,7 +387,7 @@ function formTitle(formId: string): string {
 }
 
 function getCampaignUrl(c: any): string {
-  const base = c.slug ? `${BASE_URL}/${c.slug}` : `${BASE_URL}/lead/${c.formId}`
+  const base = `${BASE_URL}/lead/${c.campaignId}`
   const params = new URLSearchParams()
   if (c.utmSource)   params.set('utm_source', c.utmSource)
   if (c.utmMedium)   params.set('utm_medium', c.utmMedium)
@@ -445,7 +445,8 @@ const form = reactive({
 const selectedForm = computed(() => forms.value.find((f: any) => f.formId === form.formId) || null)
 const campaignUrl  = computed(() => {
   if (!form.formId) return ''
-  const base = form.slug ? `${BASE_URL}/${form.slug}` : `${BASE_URL}/lead/${form.formId}`
+  const id = editing.value?.campaignId || '...'
+  const base = `${BASE_URL}/lead/${id}`
   const params = new URLSearchParams()
   if (form.utmSource)   params.set('utm_source', form.utmSource)
   if (form.utmMedium)   params.set('utm_medium', form.utmMedium)

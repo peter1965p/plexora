@@ -117,11 +117,9 @@ const utmCampaign = route.query.utm_campaign as string || ''
 const utmContent  = route.query.utm_content  as string || ''
 const utmTerm     = route.query.utm_term     as string || ''
 
-const { data: formDataRes, pending: loading } = await useFetch(useApiUrl(`/api/forms/${slug}`))
-const form = computed(() => (formDataRes.value as any)?.form || null)
-
-const { data: campData } = await useFetch(useApiUrl(`/api/marketing/public/${slug}`))
-const campaign = computed(() => (campData.value as any)?.campaign || null)
+const { data: publicData, pending: loading } = await useFetch(useApiUrl(`/api/marketing/public/${slug}`))
+const campaign = computed(() => (publicData.value as any)?.campaign || null)
+const form     = computed(() => (publicData.value as any)?.form || null)
 
 const { branding, loadBranding } = useBranding()
 const brandFirst = computed(() => branding.value.brandName.slice(0, -2))
