@@ -1,77 +1,123 @@
 <template>
-  <div class="page">
+  <div class="mkt-page">
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <i class="ti ti-speakerphone stat-icon"></i>
-        <div class="stat-label">{{ t.marketing.campaigns }}</div>
-        <div class="stat-value">{{ campaigns.length }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ campaigns.filter((c:any) => c.active).length }} {{ t.common.active }}</div>
+    <!-- STATS -->
+    <div class="mkt-stats">
+      <div class="mkt-stat-card">
+        <div class="mkt-stat-glow"></div>
+        <div class="mkt-stat-icon"><i class="ti ti-speakerphone"></i></div>
+        <div class="mkt-stat-body">
+          <div class="mkt-stat-label">{{ t.marketing.campaigns }}</div>
+          <div class="mkt-stat-value">{{ campaigns.length }}</div>
+          <div class="mkt-stat-sub">{{ campaigns.filter((c:any) => c.active).length }} {{ t.common.active }}</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <i class="ti ti-users stat-icon"></i>
-        <div class="stat-label">{{ t.marketing.totalLeads }}</div>
-        <div class="stat-value">{{ totalLeads }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.marketing.viaLandingpages }}</div>
+      <div class="mkt-stat-card">
+        <div class="mkt-stat-glow"></div>
+        <div class="mkt-stat-icon"><i class="ti ti-users"></i></div>
+        <div class="mkt-stat-body">
+          <div class="mkt-stat-label">{{ t.marketing.totalLeads }}</div>
+          <div class="mkt-stat-value">{{ totalLeads }}</div>
+          <div class="mkt-stat-sub">{{ t.marketing.viaLandingpages }}</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <i class="ti ti-chart-bar stat-icon"></i>
-        <div class="stat-label">{{ t.marketing.bestCampaign }}</div>
-        <div class="stat-value" style="font-size:16px">{{ bestCampaign }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ t.marketing.mostLeads }}</div>
+      <div class="mkt-stat-card">
+        <div class="mkt-stat-glow"></div>
+        <div class="mkt-stat-icon"><i class="ti ti-trophy"></i></div>
+        <div class="mkt-stat-body">
+          <div class="mkt-stat-label">{{ t.marketing.bestCampaign }}</div>
+          <div class="mkt-stat-value" style="font-size:15px;line-height:1.3">{{ bestCampaign }}</div>
+          <div class="mkt-stat-sub">{{ t.marketing.mostLeads }}</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <i class="ti ti-link stat-icon"></i>
-        <div class="stat-label">{{ t.marketing.baseUrl }}</div>
-        <div class="stat-value" style="font-size:13px">app.plexora.eu</div>
-        <div class="stat-delta up">/lead/[formId]</div>
+      <div class="mkt-stat-card">
+        <div class="mkt-stat-glow"></div>
+        <div class="mkt-stat-icon"><i class="ti ti-world"></i></div>
+        <div class="mkt-stat-body">
+          <div class="mkt-stat-label">{{ t.marketing.baseUrl }}</div>
+          <div class="mkt-stat-value" style="font-size:13px">app.plexora.eu</div>
+          <div class="mkt-stat-sub">/lead/[formId]</div>
+        </div>
       </div>
     </div>
 
-    <!-- KAMPAGNEN-LISTE -->
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-header">
-        <span class="card-title">{{ t.marketing.campaigns }}</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAdd">
-          <i class="ti ti-plus"></i> {{ t.marketing.newCampaign }}
-        </button>
+    <!-- HEADER -->
+    <div class="mkt-header">
+      <div class="mkt-header-left">
+        <h2 class="mkt-title">{{ t.marketing.campaigns }}</h2>
+        <span class="mkt-count">{{ campaigns.length }}</span>
       </div>
-      <table class="data-table">
-        <thead>
-          <tr><th>{{ t.common.name }}</th><th>{{ t.marketing.form }}</th><th>{{ t.marketing.slug }}</th><th>{{ t.marketing.leads }}</th><th>{{ t.marketing.utm }}</th><th style="width:120px"></th></tr>
-        </thead>
-        <tbody>
-          <tr v-if="!campaigns.length">
-            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.marketing.noCampaigns }}</td>
-          </tr>
-          <tr v-for="c in campaigns" :key="c.campaignId">
-            <td class="td-name">
-              {{ c.name }}
-              <span v-if="!c.active" class="badge badge-warning" style="margin-left:6px">{{ t.marketing.inactive }}</span>
-            </td>
-            <td style="font-size:12px">{{ formTitle(c.formId) }}</td>
-            <td style="font-size:12px">
-              <span v-if="c.slug" style="color:var(--accent)">/{{ c.slug }}</span>
-              <span v-else style="color:var(--text-muted)">/lead/{{ c.formId?.slice(0,8) }}...</span>
-            </td>
-            <td>
-              <span class="badge badge-info">{{ leadStats[c.utmCampaign || c.name] || 0 }}</span>
-            </td>
-            <td style="font-size:11px;color:var(--text-muted)">{{ c.utmSource || '—' }} / {{ c.utmCampaign || '—' }}</td>
-            <td>
-              <div style="display:flex;gap:4px">
-                <button class="icon-btn" :title="t.marketing.copyLink" @click="copyLink(c)"><i class="ti ti-copy"></i></button>
-                <button class="icon-btn" :title="t.marketing.qrCode" @click="showQr(c)"><i class="ti ti-qrcode"></i></button>
-                <button class="icon-btn" @click="openEdit(c)"><i class="ti ti-pencil"></i></button>
-                <button class="icon-btn" style="color:var(--danger)" @click="deleteCampaign(c)"><i class="ti ti-trash"></i></button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <button class="mkt-new-btn" @click="openAdd">
+        <i class="ti ti-plus"></i> {{ t.marketing.newCampaign }}
+      </button>
     </div>
 
-    <!-- KAMPAGNEN MODAL (Erstellen/Bearbeiten) -->
+    <!-- EMPTY -->
+    <div v-if="!campaigns.length" class="mkt-empty">
+      <div class="mkt-empty-icon"><i class="ti ti-speakerphone"></i></div>
+      <div class="mkt-empty-title">{{ t.marketing.noCampaigns }}</div>
+      <button class="mkt-new-btn" @click="openAdd"><i class="ti ti-plus"></i> Erste Kampagne erstellen</button>
+    </div>
+
+    <!-- KAMPAGNEN GRID -->
+    <div v-else class="mkt-grid">
+      <div v-for="c in campaigns" :key="c.campaignId" class="mkt-campaign-card">
+        <div class="mkt-campaign-glow" :style="`background: radial-gradient(circle at 30% 50%, ${c.accentColor || 'var(--accent)'}22, transparent 70%)`"></div>
+
+        <!-- Banner -->
+        <div v-if="c.headerImageUrl" class="mkt-campaign-banner">
+          <img :src="c.headerImageUrl" />
+          <div class="mkt-campaign-banner-overlay"></div>
+        </div>
+        <div v-else class="mkt-campaign-banner-placeholder" :style="`background: linear-gradient(135deg, ${c.accentColor || 'var(--accent)'}33, transparent)`">
+          <i class="ti ti-speakerphone" :style="`color: ${c.accentColor || 'var(--accent)'}`"></i>
+        </div>
+
+        <!-- Status badge -->
+        <div class="mkt-campaign-status-row">
+          <span class="mkt-status-badge" :class="c.active ? 'active' : 'inactive'">
+            <span class="mkt-status-dot"></span>
+            {{ c.active ? t.common.active : t.marketing.inactive }}
+          </span>
+          <span v-if="c.utmSource" class="mkt-utm-badge">{{ c.utmSource }}</span>
+        </div>
+
+        <!-- Content -->
+        <div class="mkt-campaign-content">
+          <div class="mkt-campaign-name">{{ c.name || '—' }}</div>
+          <div class="mkt-campaign-headline">{{ c.headline || c.subtext || '' }}</div>
+
+          <div class="mkt-campaign-meta">
+            <div class="mkt-meta-item">
+              <i class="ti ti-users"></i>
+              <span>{{ leadStats[c.utmCampaign || c.name] || 0 }} Leads</span>
+            </div>
+            <div class="mkt-meta-item">
+              <i class="ti ti-link"></i>
+              <span class="mkt-slug">/{{ c.slug || 'lead/' + (c.formId?.slice(0,8) || '...') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mkt-campaign-actions">
+          <button class="mkt-action-btn" :title="t.marketing.copyLink" @click="copyLink(c)">
+            <i class="ti ti-copy"></i>
+          </button>
+          <button class="mkt-action-btn" :title="t.marketing.qrCode" @click="showQr(c)">
+            <i class="ti ti-qrcode"></i>
+          </button>
+          <button class="mkt-action-btn" @click="openEdit(c)">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="mkt-action-btn danger" @click="deleteCampaign(c)">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ERSTELLEN/BEARBEITEN -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
       <div class="modal-card" style="max-width:720px;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
@@ -80,7 +126,6 @@
         </div>
         <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
-          <!-- LINKE SPALTE: Einstellungen -->
           <div style="display:flex;flex-direction:column;gap:14px">
             <div class="auth-field"><label>{{ t.marketing.campaignName }}</label><input v-model="form.name" placeholder="Kostenlose Beratung" /></div>
             <div class="auth-field">
@@ -107,53 +152,36 @@
               <div class="auth-field"><label>{{ t.marketing.subtext }}</label><input v-model="form.subtext" placeholder="Jetzt unverbindlich anfragen" /></div>
               <div class="auth-field">
                 <label>{{ t.marketing.headerBanner }}</label>
-
-                <!-- CROP nach Dateiauswahl -->
                 <div v-if="cropSrc" style="margin-bottom:10px">
                   <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
                   <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
-                    <img ref="cropImgRef" :src="cropSrc"
-                      style="width:100%;max-height:180px;object-fit:contain;display:block" />
-                    <div v-if="cropRect"
-                      :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${cropRect.x}px;top:${cropRect.y}px;width:${cropRect.w}px;height:${cropRect.h}px`">
-                    </div>
+                    <img ref="cropImgRef" :src="cropSrc" style="width:100%;max-height:180px;object-fit:contain;display:block" />
+                    <div v-if="cropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${cropRect.x}px;top:${cropRect.y}px;width:${cropRect.w}px;height:${cropRect.h}px`"></div>
                   </div>
                   <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(16,9)">16:9</button>
-                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(3,1)">3:1 Panorama</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(3,1)">3:1</button>
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">Original</button>
-                    <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto"
-                      :disabled="headerUploading" @click="confirmCropAndUpload">
+                    <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="headerUploading" @click="confirmCropAndUpload">
                       <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
-                      {{ headerUploading ? t.common.loading : 'Übernehmen & hochladen' }}
+                      {{ headerUploading ? t.common.loading : 'Übernehmen' }}
                     </button>
                     <button class="icon-btn" style="color:var(--danger)" @click="cropSrc=null;cropRect=null"><i class="ti ti-x"></i></button>
                   </div>
                 </div>
-
-                <!-- Vorschau nach Upload -->
-                <div v-if="form.headerImageUrl && !cropSrc"
-                  style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border);position:relative">
+                <div v-if="form.headerImageUrl && !cropSrc" style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border);position:relative">
                   <img :src="form.headerImageUrl" style="width:100%;max-height:120px;object-fit:cover;display:block" />
                   <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
                     <label style="cursor:pointer">
                       <input type="file" accept="image/*" style="display:none" @change="selectBannerFile" />
-                      <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none">
-                        <i class="ti ti-pencil"></i>
-                      </span>
+                      <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none"><i class="ti ti-pencil"></i></span>
                     </label>
-                    <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.headerImageUrl=''">
-                      <i class="ti ti-trash"></i>
-                    </button>
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.headerImageUrl=''"><i class="ti ti-trash"></i></button>
                   </div>
                 </div>
-
-                <!-- Upload-Button (nur wenn noch kein Bild) -->
                 <label v-if="!form.headerImageUrl && !cropSrc" style="cursor:pointer;display:block">
                   <input type="file" accept="image/*" style="display:none" @change="selectBannerFile" />
-                  <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
-                    <i class="ti ti-photo-up"></i> {{ t.common.upload }}
-                  </span>
+                  <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none"><i class="ti ti-photo-up"></i> {{ t.common.upload }}</span>
                 </label>
               </div>
               <div class="auth-field">
@@ -175,46 +203,30 @@
             </div>
           </div>
 
-          <!-- RECHTE SPALTE: Live-Vorschau -->
+          <!-- Live-Vorschau -->
           <div>
             <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.livePreview }}</div>
             <div :style="`background:#0a0e1a;border-radius:12px;overflow:hidden;border:0.5px solid var(--border);min-height:300px`">
               <div v-if="form.headerImageUrl" style="height:150px;overflow:hidden;position:relative">
                 <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover;display:block" />
-                <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%)"></div>
-                <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#fff;font-size:13px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.6)">
-                  {{ form.headline || 'Deine Headline' }}
-                </div>
+                <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.55))"></div>
+                <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#fff;font-size:13px;font-weight:700">{{ form.headline || 'Deine Headline' }}</div>
               </div>
               <div style="padding:20px;text-align:center">
-                <div style="font-size:18px;font-weight:800;color:#f0eef9;margin-bottom:6px">
-                  {{ form.headline || 'Deine Headline hier' }}
-                </div>
-                <div style="font-size:13px;color:#8b8fa8;margin-bottom:16px">
-                  {{ form.subtext || 'Dein Subtext hier' }}
-                </div>
-                <button :style="`background:${form.accentColor};color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600`">
-                  {{ selectedForm?.submitLabel || 'Jetzt anfragen' }}
-                </button>
+                <div style="font-size:18px;font-weight:800;color:#f0eef9;margin-bottom:6px">{{ form.headline || 'Deine Headline hier' }}</div>
+                <div style="font-size:13px;color:#8b8fa8;margin-bottom:16px">{{ form.subtext || 'Dein Subtext hier' }}</div>
+                <button :style="`background:${form.accentColor};color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600`">{{ selectedForm?.submitLabel || 'Jetzt anfragen' }}</button>
               </div>
               <div style="padding:0 20px 16px;display:flex;flex-direction:column;gap:6px">
-                <div v-for="field in (selectedForm?.fields || []).slice(0,3)" :key="field.id"
-                  style="background:#13182a;border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;padding:8px 12px;font-size:12px;color:#545870">
-                  {{ field.label }}{{ field.required ? ' *' : '' }}
-                </div>
-                <div v-if="(selectedForm?.fields || []).length > 3" style="font-size:11px;color:#545870;text-align:center">
-                  + {{ (selectedForm?.fields || []).length - 3 }} weitere Felder...
-                </div>
+                <div v-for="field in (selectedForm?.fields || []).slice(0,3)" :key="field.id" style="background:#13182a;border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;padding:8px 12px;font-size:12px;color:#545870">{{ field.label }}{{ field.required ? ' *' : '' }}</div>
+                <div v-if="(selectedForm?.fields || []).length > 3" style="font-size:11px;color:#545870;text-align:center">+ {{ (selectedForm?.fields || []).length - 3 }} weitere Felder...</div>
               </div>
             </div>
-
-            <!-- Kampagnen-Link -->
             <div v-if="form.formId" style="margin-top:12px;background:var(--bg-elevated);border-radius:8px;padding:12px;font-size:12px">
               <div style="color:var(--text-muted);margin-bottom:4px">{{ t.marketing.link }}</div>
               <div style="color:var(--accent);word-break:break-all">{{ campaignUrl }}</div>
             </div>
           </div>
-
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" :disabled="!form.name || !form.formId || saving" @click="save">
@@ -225,7 +237,7 @@
       </div>
     </div>
 
-    <!-- QR-CODE MODAL -->
+    <!-- QR MODAL -->
     <div v-if="qrCampaign" class="modal-overlay" @click.self="qrCampaign=null">
       <div class="modal-card" style="max-width:360px;text-align:center">
         <div class="modal-header">
@@ -235,9 +247,7 @@
         <div class="modal-body" style="align-items:center">
           <div id="qr-container" style="background:#fff;padding:16px;border-radius:8px;display:inline-block"></div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:8px;word-break:break-all">{{ qrUrl }}</div>
-          <button class="auth-btn" @click="copyQrUrl">
-            <i class="ti ti-copy"></i> {{ t.marketing.copyLink }}
-          </button>
+          <button class="auth-btn" @click="copyQrUrl"><i class="ti ti-copy"></i> {{ t.marketing.copyLink }}</button>
         </div>
       </div>
     </div>
@@ -285,7 +295,7 @@ const campaigns = computed(() => (campaignsData.value as any)?.campaigns || [])
 const forms     = computed(() => (formsData.value as any)?.forms || [])
 const leadStats = computed(() => (statsData.value as any)?.stats || {})
 
-const totalLeads  = computed(() => Object.values(leadStats.value).reduce((s: any, v: any) => s + v, 0) as number)
+const totalLeads   = computed(() => Object.values(leadStats.value).reduce((s: any, v: any) => s + v, 0) as number)
 const bestCampaign = computed(() => {
   const entries = Object.entries(leadStats.value) as [string, number][]
   if (!entries.length) return '—'
@@ -313,7 +323,6 @@ async function copyLink(c: any) {
   showToast('Link kopiert!')
 }
 
-// ── QR-Code ─────────────────────────────────────────
 const qrCampaign = ref<any>(null)
 const qrUrl = computed(() => qrCampaign.value ? getCampaignUrl(qrCampaign.value) : '')
 
@@ -329,7 +338,7 @@ async function showQr(c: any) {
     const canvas = document.createElement('canvas')
     await QRCode.toCanvas(canvas, qrUrl.value, { width: 220, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
     container.appendChild(canvas)
-  } catch (err) {
+  } catch {
     const img = document.createElement('img')
     img.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrUrl.value)}`
     img.style.cssText = 'width:220px;height:220px;border-radius:4px'
@@ -342,12 +351,11 @@ function copyQrUrl() {
   showToast('Link kopiert!')
 }
 
-// ── Modal ────────────────────────────────────────────
 const route = useRoute()
 const showModal = ref(false)
 onMounted(() => { if (route.query.new) showModal.value = true })
-const editing   = ref<any>(null)
-const saving    = ref(false)
+const editing = ref<any>(null)
+const saving  = ref(false)
 const form = reactive({
   name: '', slug: '', formId: '', headline: '', subtext: '',
   headerImageUrl: '', accentColor: '#6C3FE8',
@@ -355,8 +363,7 @@ const form = reactive({
 })
 
 const selectedForm = computed(() => forms.value.find((f: any) => f.formId === form.formId) || null)
-
-const campaignUrl = computed(() => {
+const campaignUrl  = computed(() => {
   if (!form.formId) return ''
   const base = form.slug ? `${BASE_URL}/${form.slug}` : `${BASE_URL}/lead/${form.formId}`
   const params = new URLSearchParams()
@@ -368,18 +375,10 @@ const campaignUrl = computed(() => {
 })
 
 function resetForm() {
-  Object.assign(form, {
-    name: '', slug: '', formId: '', headline: '', subtext: '',
-    headerImageUrl: '', accentColor: '#6C3FE8',
-    utmSource: '', utmMedium: 'social', utmCampaign: '',
-  })
+  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', utmSource: '', utmMedium: 'social', utmCampaign: '' })
 }
 
-function openAdd() {
-  editing.value = null
-  resetForm()
-  showModal.value = true
-}
+function openAdd() { editing.value = null; resetForm(); showModal.value = true }
 
 function openEdit(c: any) {
   editing.value = c
@@ -396,13 +395,9 @@ async function save() {
   saving.value = true
   try {
     if (editing.value) {
-      await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), {
-        method: 'PATCH', body: { ...form, userId: userId.value }
-      })
+      await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', body: { ...form, userId: userId.value } })
     } else {
-      await $fetch(useApiUrl('/api/marketing'), {
-        method: 'POST', body: { ...form, userId: userId.value }
-      })
+      await $fetch(useApiUrl('/api/marketing'), { method: 'POST', body: { ...form, userId: userId.value } })
     }
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
@@ -414,7 +409,8 @@ async function save() {
 }
 
 async function deleteCampaign(c: any) {
-  const msg = lang.value === 'en' ? `Really delete campaign "${c.name}"?` : `Kampagne "${c.name}" wirklich löschen?`
+  const name = c.name || 'diese Kampagne'
+  const msg = lang.value === 'en' ? `Really delete campaign "${name}"?` : `Kampagne "${name}" wirklich löschen?`
   if (!confirm(msg)) return
   try {
     await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
@@ -422,11 +418,11 @@ async function deleteCampaign(c: any) {
     await Promise.all([refresh(), refreshStats()])
     showToast(lang.value === 'en' ? 'Campaign deleted!' : 'Kampagne gelöscht!')
   } catch (e: any) {
-    alert('Fehler beim Löschen: ' + (e?.message || e))
+    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'))
   }
 }
 
-// ── Header-Upload mit Crop ───────────────────────────────────────────────────
+// ── Header-Upload mit Crop ──
 const headerUploading = ref(false)
 const cropSrc    = ref<string | null>(null)
 const cropRect   = ref<{ x: number; y: number; w: number; h: number } | null>(null)
@@ -482,15 +478,225 @@ async function confirmCropAndUpload() {
     else if (res?.key) form.headerImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
     cropSrc.value = null; cropRect.value = null; _cropFile = null
   } catch (err) {
-    console.error('Upload fehlgeschlagen:', err)
     alert('Upload fehlgeschlagen — bitte erneut versuchen.')
   } finally { headerUploading.value = false }
 }
 
-// ── Toast ────────────────────────────────────────────
 const toast = ref('')
 function showToast(msg: string) {
   toast.value = msg
   setTimeout(() => toast.value = '', 2500)
 }
 </script>
+
+<style scoped>
+.mkt-page { display: flex; flex-direction: column; gap: 24px; }
+
+/* STATS */
+.mkt-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) { .mkt-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .mkt-stats { grid-template-columns: 1fr; } }
+
+.mkt-stat-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.mkt-stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+.mkt-stat-glow {
+  position: absolute;
+  top: -30px; left: -30px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.15), transparent 70%);
+  pointer-events: none;
+}
+
+.mkt-stat-icon {
+  width: 44px; height: 44px;
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.mkt-stat-body { flex: 1; min-width: 0; }
+.mkt-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.mkt-stat-value { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.mkt-stat-sub { font-size: 11px; color: var(--accent); }
+
+/* HEADER */
+.mkt-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mkt-header-left { display: flex; align-items: center; gap: 10px; }
+.mkt-title { font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+.mkt-count {
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  padding: 2px 10px;
+}
+
+.mkt-new-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+}
+.mkt-new-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* EMPTY */
+.mkt-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 60px 20px;
+  background: var(--surface); border: 1px dashed var(--border); border-radius: 16px;
+  text-align: center;
+}
+.mkt-empty-icon { font-size: 40px; color: var(--text-muted); opacity: 0.4; }
+.mkt-empty-title { font-size: 15px; color: var(--text-muted); }
+
+/* KAMPAGNEN GRID */
+.mkt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.mkt-campaign-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.mkt-campaign-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.mkt-campaign-glow {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mkt-campaign-banner {
+  height: 120px; overflow: hidden; position: relative;
+}
+.mkt-campaign-banner img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.mkt-campaign-banner-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.5));
+}
+
+.mkt-campaign-banner-placeholder {
+  height: 100px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mkt-campaign-status-row {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px 0;
+}
+
+.mkt-status-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+}
+.mkt-status-badge.active { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+.mkt-status-badge.inactive { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+
+.mkt-status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 2s infinite;
+}
+.mkt-status-badge.inactive .mkt-status-dot { animation: none; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.mkt-utm-badge {
+  font-size: 10px; color: var(--text-muted);
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 20px;
+}
+
+.mkt-campaign-content {
+  position: relative; z-index: 1;
+  padding: 10px 14px 12px;
+}
+
+.mkt-campaign-name {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.mkt-campaign-headline {
+  font-size: 12px; color: var(--text-muted);
+  margin-bottom: 12px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-height: 16px;
+}
+
+.mkt-campaign-meta {
+  display: flex; gap: 14px; align-items: center;
+}
+
+.mkt-meta-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-muted);
+}
+.mkt-meta-item i { color: var(--accent); font-size: 13px; }
+.mkt-slug { color: var(--accent); }
+
+.mkt-campaign-actions {
+  position: relative; z-index: 1;
+  display: flex; gap: 4px;
+  padding: 8px 14px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.mkt-action-btn {
+  width: 32px; height: 32px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+  flex-shrink: 0;
+}
+.mkt-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
+.mkt-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(220,38,38,0.08); }
+
+.mkt-action-btn:last-child { margin-left: auto; }
+</style>
