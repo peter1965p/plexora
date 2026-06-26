@@ -399,7 +399,8 @@ async function save() {
         method: 'POST', body: { ...form, userId: userId.value }
       })
     }
-    await refresh()
+    await new Promise(r => setTimeout(r, 300))
+    await Promise.all([refresh(), refreshStats()])
     showModal.value = false
     showToast(editing.value ? 'Kampagne aktualisiert!' : 'Kampagne erstellt!')
   } finally {
