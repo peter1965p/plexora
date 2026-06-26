@@ -17,17 +17,20 @@ export default defineEventHandler(async (event) => {
   const fileData = await fileRes.json() as any
   const currentContent = Buffer.from(fileData.content, 'base64').toString('utf-8')
 
-  if (currentContent.includes(`/${slug} `)) {
-    return { success: true, message: 'Slug bereits vorhanden' }
-  }
-
   const params = new URLSearchParams()
   if (utmSource)   params.set('utm_source', utmSource)
   if (utmMedium)   params.set('utm_medium', utmMedium)
   if (utmCampaign) params.set('utm_campaign', utmCampaign)
   const query  = params.toString()
   const target = `https://app.plexora.eu/lead/${formId}${query ? '?' + query : ''}`
-  const newContent = currentContent.trimEnd() + `\n/${slug} ${target} 302\n`
+
+  let newContent: string
+  const slugRegex = new RegExp(`^/${slug} .*$`, 'm')
+  if (slugRegex.test(currentContent)) {
+    newContent = currentContent.replace(slugRegex, `/${slug} ${target} 302`)
+  } else {
+    newContent = currentContent.trimEnd() + `\n/${slug} ${target} 302\n`
+  }
   const encoded    = Buffer.from(newContent).toString('base64')
 
   const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/public/_redirects`, {

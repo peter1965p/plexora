@@ -482,10 +482,20 @@ async function save() {
   saving.value = true
   try {
     const payload = { ...form, contentItems: form.contentItems.filter(Boolean), userId: userId.value }
+    let savedFormId = form.formId
     if (editing.value) {
       await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', body: payload })
+      savedFormId = editing.value.formId || form.formId
     } else {
-      await $fetch(useApiUrl('/api/marketing'), { method: 'POST', body: payload })
+      const res: any = await $fetch(useApiUrl('/api/marketing'), { method: 'POST', body: payload })
+      savedFormId = res?.campaign?.formId || form.formId
+    }
+    // Vanity-Slug in _redirects aktualisieren
+    if (form.slug && savedFormId) {
+      $fetch(useApiUrl('/api/marketing/update-redirects'), {
+        method: 'POST',
+        body: { slug: form.slug, formId: savedFormId, utmSource: form.utmSource, utmMedium: form.utmMedium, utmCampaign: form.utmCampaign }
+      }).catch(() => {})
     }
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
