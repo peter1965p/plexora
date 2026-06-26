@@ -20,6 +20,49 @@
 
     <template v-else-if="stats">
 
+      <!-- CORE WEB VITALS -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-speedboat" style="color:var(--accent);margin-right:6px"></i>Core Web Vitals</span>
+          <span style="font-size:11px;color:var(--text-muted)">Echte Nutzerdaten · letzte 30 Tage</span>
+        </div>
+        <div v-if="!vitals || !Object.values(vitals).some((v:any) => v.count > 0)" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
+          <i class="ti ti-clock" style="font-size:20px;display:block;margin-bottom:8px"></i>
+          Noch keine Daten — werden beim nächsten Seitenbesuch gesammelt
+        </div>
+        <div v-else style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+          <div v-for="m in vitalsList" :key="m.key" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-muted)">{{ m.label }}</div>
+                <div style="font-size:22px;font-weight:800;color:var(--text)" :style="m.count > 0 ? `color:${ratingColor(m.key)}` : ''">
+                  {{ m.count > 0 ? formatVital(m.key, m.avg) : '–' }}
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div :style="`font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;${ratingBadge(m.key)}`">
+                  {{ m.count > 0 ? ratingLabel(m.key) : '–' }}
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:4px">{{ m.count }} Messungen</div>
+              </div>
+            </div>
+            <!-- Good/Needs/Poor bar -->
+            <div v-if="m.count > 0">
+              <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px;margin-bottom:6px">
+                <div :style="`flex:${m.goodPct};background:#22c55e;min-width:${m.goodPct > 0 ? 2 : 0}px`"></div>
+                <div :style="`flex:${m.needsPct};background:#f59e0b;min-width:${m.needsPct > 0 ? 2 : 0}px`"></div>
+                <div :style="`flex:${m.poorPct};background:#ef4444;min-width:${m.poorPct > 0 ? 2 : 0}px`"></div>
+              </div>
+              <div style="display:flex;gap:10px;font-size:10px;color:var(--text-muted)">
+                <span><span style="color:#22c55e;font-weight:700">{{ m.goodPct }}%</span> Gut</span>
+                <span><span style="color:#f59e0b;font-weight:700">{{ m.needsPct }}%</span> OK</span>
+                <span><span style="color:#ef4444;font-weight:700">{{ m.poorPct }}%</span> Schlecht</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- STAT CARDS -->
       <div class="stats-grid" style="margin-bottom:16px">
         <div class="stat-card">
@@ -250,8 +293,60 @@
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const stats   = ref<any>(null)
+const vitals  = ref<any>(null)
 const loading = ref(true)
 const error   = ref<string>('')
+
+// ── Vitals helpers ─────────────────────────────────────────────────────────────
+const VITALS_META: Record<string, { label: string; good: number; poor: number; unit: string }> = {
+  lcp:  { label: 'LCP',  good: 2500,  poor: 4000,  unit: 'ms' },
+  inp:  { label: 'INP',  good: 200,   poor: 500,   unit: 'ms' },
+  cls:  { label: 'CLS',  good: 0.1,   poor: 0.25,  unit: ''   },
+  fcp:  { label: 'FCP',  good: 1800,  poor: 3000,  unit: 'ms' },
+  ttfb: { label: 'TTFB', good: 800,   poor: 1800,  unit: 'ms' },
+}
+
+const vitalsList = computed(() => {
+  if (!vitals.value) return []
+  return Object.entries(VITALS_META).map(([key, meta]) => ({
+    key,
+    ...meta,
+    ...(vitals.value[key] || { avg: 0, count: 0, goodPct: 0, needsPct: 0, poorPct: 0 }),
+  }))
+})
+
+function formatVital(key: string, avg: number): string {
+  if (key === 'cls') return avg.toFixed(3)
+  if (avg >= 1000) return `${(avg / 1000).toFixed(1)}s`
+  return `${Math.round(avg)}ms`
+}
+
+function ratingColor(key: string): string {
+  const v = vitals.value?.[key]
+  if (!v || !v.count) return 'var(--text-muted)'
+  const meta = VITALS_META[key]
+  if (v.avg <= meta.good) return '#22c55e'
+  if (v.avg <= meta.poor) return '#f59e0b'
+  return '#ef4444'
+}
+
+function ratingLabel(key: string): string {
+  const v = vitals.value?.[key]
+  if (!v || !v.count) return '–'
+  const meta = VITALS_META[key]
+  if (v.avg <= meta.good) return 'Gut'
+  if (v.avg <= meta.poor) return 'OK'
+  return 'Schlecht'
+}
+
+function ratingBadge(key: string): string {
+  const v = vitals.value?.[key]
+  if (!v || !v.count) return 'background:var(--bg-elevated);color:var(--text-muted)'
+  const meta = VITALS_META[key]
+  if (v.avg <= meta.good) return 'background:#dcfce7;color:#15803d'
+  if (v.avg <= meta.poor) return 'background:#fef3c7;color:#b45309'
+  return 'background:#fee2e2;color:#dc2626'
+}
 
 function flag(code: string): string {
   if (!code || code.length !== 2) return '🌍'
@@ -293,8 +388,12 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
-    const data = await $fetch(useApiUrl('/api/admin/seo-stats')) as any
-    stats.value = data
+    const [data, vData] = await Promise.all([
+      $fetch(useApiUrl('/api/admin/seo-stats')) as any,
+      $fetch(useApiUrl('/api/analytics/vitals-stats')).catch(() => null),
+    ])
+    stats.value  = data
+    vitals.value = vData
   } catch (e: any) {
     error.value = `${e?.statusCode || e?.status || '?'} — ${e?.message || e?.data?.message || 'API nicht erreichbar'}`
   } finally {
