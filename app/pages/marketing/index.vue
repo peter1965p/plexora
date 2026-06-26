@@ -410,8 +410,14 @@ async function save() {
 async function deleteCampaign(c: any) {
   const msg = lang.value === 'en' ? `Really delete campaign "${c.name}"?` : `Kampagne "${c.name}" wirklich löschen?`
   if (!confirm(msg)) return
-  await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
-  await refresh()
+  try {
+    await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
+    await new Promise(r => setTimeout(r, 300))
+    await Promise.all([refresh(), refreshStats()])
+    showToast(lang.value === 'en' ? 'Campaign deleted!' : 'Kampagne gelöscht!')
+  } catch (e: any) {
+    alert('Fehler beim Löschen: ' + (e?.message || e))
+  }
 }
 
 // ── Header-Upload mit Crop ───────────────────────────────────────────────────
