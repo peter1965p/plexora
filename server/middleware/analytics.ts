@@ -9,6 +9,11 @@ export default defineEventHandler((event) => {
   if (method !== 'GET') return
   if (!PUBLIC_PAGES.includes(path)) return
 
+  // Nuxt prefetch-Requests ignorieren (sec-purpose: prefetch oder purpose: prefetch)
+  const purpose = getHeader(event, 'sec-purpose') || getHeader(event, 'purpose') || ''
+  const secFetchDest = getHeader(event, 'sec-fetch-dest') || ''
+  if (purpose.includes('prefetch') || secFetchDest === 'empty') return
+
   const ua      = getHeader(event, 'user-agent') || ''
   const referrer = getHeader(event, 'referer') || ''
   const ip      = getHeader(event, 'cf-connecting-ip')
