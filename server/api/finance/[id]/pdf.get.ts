@@ -4,85 +4,215 @@ import PDFDocument from 'pdfkit'
 
 async function generatePDF(invoice: any, branding: any, company: any = {}, invoiceSettings: any = {}): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: 'A4', autoFirstPage: true, bufferPages: true })
+    const doc = new PDFDocument({ margin: 0, size: 'A4', autoFirstPage: true, bufferPages: true })
     const chunks: Buffer[] = []
-    doc.on('data', (chunk: Buffer) => chunks.push(chunk))
-    doc.on('end', () => resolve(Buffer.concat(chunks)))
+    doc.on('data', (c: Buffer) => chunks.push(c))
+    doc.on('end',  () => resolve(Buffer.concat(chunks)))
     doc.on('error', reject)
 
-    const brand  = branding?.brandName || 'Plexora'
-    const accent = [234, 88, 12]
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    const W     = 595.28
+    const ML    = 70   // left margin (25mm)
+    const MR    = 525  // right margin
+    const brand = branding?.brandName || company.legalName || 'Plexora'
 
-    doc.fontSize(28).fillColor(accent).font('Helvetica-Bold').text(brand, 50, 50)
-    doc.fontSize(10).fillColor([150,150,150]).font('Helvetica').text(branding?.brandTagline || 'Business Platform', 50, 85)
-    doc.fontSize(22).fillColor([30,30,30]).font('Helvetica-Bold').text('RECHNUNG', 350, 50, { align: 'right', width: 200 })
-    doc.fontSize(11).fillColor([80,80,80]).font('Helvetica')
-      .text(`Nr: ${invoice.number || invoice.invoiceId?.slice(0,8).toUpperCase()}`, 350, 80, { align: 'right', width: 200 })
-      .text(`Datum: ${new Date(invoice.created || Date.now()).toLocaleDateString('de-DE')}`, 350, 96, { align: 'right', width: 200 })
-      .text(`Fälligkeit: ${invoice.dueDate || '–'}`, 350, 112, { align: 'right', width: 200 })
+    // Accent color from branding or orange fallback
+    const accentHex = branding?.accentColor || '#EA580C'
+    const hex2rgb = (h: string): [number,number,number] => {
+      const c = h.replace('#','')
+      return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)]
+    }
+    const accent = hex2rgb(accentHex)
+    const GRAY   = '#888888'
+    const DARK   = '#1a1a1a'
+    const MID    = '#555555'
 
-    doc.moveTo(50, 140).lineTo(545, 140).strokeColor(accent).lineWidth(2).stroke()
+    // ── LOGO / BRAND ───────────────────────────────────────────────────────────
+    doc.fontSize(26).fillColor(accentHex).font('Helvetica-Bold').text(brand, ML, 52)
+    if (branding?.brandTagline) {
+      doc.fontSize(9).fillColor(GRAY).font('Helvetica').text(branding.brandTagline, ML, 82)
+    }
 
-    // Absender (Briefkopf-Stil klein)
-    const senderLine = [company.legalName || brand, company.street, company.zipCity, company.phone, company.email].filter(Boolean).join(' · ')
-    doc.fontSize(8).fillColor([150,150,150]).font('Helvetica').text(senderLine, 50, 152, { width: 300 })
+    // RECHNUNG right
+    doc.fontSize(20).fillColor(DARK).font('Helvetica-Bold').text('RECHNUNG', 0, 52, { align: 'right', width: MR })
+    const invNum = invoice.number || `INV-${invoice.invoiceId?.slice(0,8).toUpperCase()}`
+    doc.fontSize(9).fillColor(MID).font('Helvetica').text(`Nr: ${invNum}`, 0, 78, { align: 'right', width: MR })
 
-    // Empfänger
-    doc.fontSize(10).fillColor([120,120,120]).font('Helvetica').text('RECHNUNGSEMPFÄNGER', 50, 170)
-    doc.fontSize(13).fillColor([20,20,20]).font('Helvetica-Bold').text(invoice.client || '–', 50, 186)
-    let ry = 204
-    if (invoice.clientAddress) { doc.fontSize(10).fillColor([80,80,80]).font('Helvetica').text(invoice.clientAddress, 50, ry); ry += 16 }
-    if (invoice.clientEmail) doc.fontSize(10).fillColor([80,80,80]).font('Helvetica').text(invoice.clientEmail, 50, ry)
+    // ── ACCENT LINE ────────────────────────────────────────────────────────────
+    doc.rect(ML, 105, MR - ML, 2).fill(accent)
 
-    doc.rect(50, 240, 495, 28).fill([245,245,250])
-    doc.fontSize(10).fillColor([80,80,80]).font('Helvetica-Bold')
-      .text('BESCHREIBUNG', 60, 250).text('MENGE', 320, 250).text('EINZELPREIS', 390, 250).text('GESAMT', 470, 250)
+    // ── ABSENDER-ZEILE (Fensterbrief-Stil) ────────────────────────────────────
+    const senderParts = [company.legalName || brand, company.street, company.zipCity, company.phone, company.email].filter(Boolean)
+    doc.fontSize(7.5).fillColor(GRAY).font('Helvetica').text(senderParts.join(' · '), ML, 118, { width: 280 })
+
+    // ── EMPFÄNGER BLOCK ───────────────────────────────────────────────────────
+    let ry = 136
+    doc.fontSize(11).fillColor(DARK).font('Helvetica-Bold').text(invoice.client || '–', ML, ry)
+    ry += 17
+    if (invoice.clientAddress) {
+      invoice.clientAddress.split('\n').forEach((line: string) => {
+        doc.fontSize(10).fillColor(MID).font('Helvetica').text(line.trim(), ML, ry)
+        ry += 14
+      })
+    }
+    if (invoice.clientEmail) {
+      doc.fontSize(10).fillColor(MID).font('Helvetica').text(invoice.clientEmail, ML, ry)
+      ry += 14
+    }
+
+    // ── INFO BOX (rechts) ─────────────────────────────────────────────────────
+    const infoX  = 360
+    const infoW  = MR - infoX
+    const boxY   = 118
+    doc.rect(infoX, boxY, infoW, 14).fill('#f0f0f5')
+    doc.fontSize(7).fillColor(GRAY).font('Helvetica-Bold')
+      .text('RECHNUNGSNUMMER', infoX + 4, boxY + 3, { width: infoW/2 - 4 })
+      .text('DATUM', infoX + infoW/2, boxY + 3, { width: infoW/2 - 4, align: 'center' })
+
+    const invDate = new Date(invoice.created || Date.now()).toLocaleDateString('de-DE')
+    doc.fontSize(8.5).fillColor(DARK).font('Helvetica-Bold')
+      .text(invNum, infoX + 4, boxY + 17, { width: infoW/2 - 4 })
+      .text(invDate, infoX + infoW/2, boxY + 17, { width: infoW/2 - 4, align: 'center' })
+
+    // second row
+    const row2Y = boxY + 35
+    doc.rect(infoX, row2Y, infoW, 14).fill('#f0f0f5')
+    doc.fontSize(7).fillColor(GRAY).font('Helvetica-Bold')
+      .text('FÄLLIGKEIT', infoX + 4, row2Y + 3, { width: infoW/2 - 4 })
+      .text('KUNDEN-NR', infoX + infoW/2, row2Y + 3, { width: infoW/2 - 4, align: 'center' })
+    const dueDate = invoice.dueDate || '–'
+    const clientNum = invoice.clientId?.slice(0, 8).toUpperCase() || '–'
+    doc.fontSize(8.5).fillColor(DARK).font('Helvetica-Bold')
+      .text(dueDate, infoX + 4, row2Y + 17, { width: infoW/2 - 4 })
+      .text(clientNum, infoX + infoW/2, row2Y + 17, { width: infoW/2 - 4, align: 'center' })
+
+    // ── BETREFF ───────────────────────────────────────────────────────────────
+    const subjY = Math.max(ry + 12, 230)
+    doc.fontSize(11).fillColor(DARK).font('Helvetica-Bold')
+      .text(`Rechnung ${invNum}`, ML, subjY)
+
+    // ── ITEMS TABLE ───────────────────────────────────────────────────────────
+    const tY = subjY + 22
+    // Header
+    doc.rect(ML, tY, MR - ML, 18).fill('#f0f0f5')
+    doc.fontSize(8).fillColor(MID).font('Helvetica-Bold')
+      .text('POS', ML + 4,  tY + 5)
+      .text('BESCHREIBUNG',  ML + 28, tY + 5, { width: 240 })
+      .text('MENGE',  ML + 278, tY + 5, { width: 50, align: 'right' })
+      .text('EINZELPREIS', ML + 330, tY + 5, { width: 80, align: 'right' })
+      .text('GESAMT',  ML + 415, tY + 5, { width: 40, align: 'right' })
 
     const items = invoice.items || [{ description: invoice.description || 'Dienstleistung', qty: 1, price: invoice.amount }]
-    let y = 290
-    items.forEach((item: any) => {
-      const total = (item.qty || 1) * (item.price || invoice.amount || 0)
-      doc.fontSize(11).fillColor([30,30,30]).font('Helvetica')
-        .text(item.description || 'Dienstleistung', 60, y, { width: 250 })
-        .text(String(item.qty || 1), 320, y)
-        .text(`€ ${Number(item.price || invoice.amount).toLocaleString('de-DE')}`, 390, y)
-        .text(`€ ${total.toLocaleString('de-DE')}`, 470, y)
-      doc.moveTo(50, y+22).lineTo(545, y+22).strokeColor([230,230,230]).lineWidth(0.5).stroke()
-      y += 30
+    let ty = tY + 22
+    items.forEach((item: any, idx: number) => {
+      const qty   = item.qty   || 1
+      const price = item.price || invoice.amount || 0
+      const total = qty * price
+      if (idx % 2 === 1) doc.rect(ML, ty - 3, MR - ML, 20).fill('#fafafa')
+      doc.fontSize(9).fillColor(DARK).font('Helvetica')
+        .text(String(idx + 1), ML + 4, ty, { width: 20 })
+        .text(item.description || 'Dienstleistung', ML + 28, ty, { width: 240 })
+        .text(String(qty), ML + 278, ty, { width: 50, align: 'right' })
+        .text(`€ ${price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`, ML + 330, ty, { width: 80, align: 'right' })
+        .text(`€ ${total.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`, ML + 415, ty, { width: 40, align: 'right' })
+      doc.moveTo(ML, ty + 16).lineTo(MR, ty + 16).strokeColor('#e0e0e0').lineWidth(0.4).stroke()
+      ty += 22
     })
 
-    const netto  = Number(invoice.amount) || 0
-    const vatRate = (invoice.vatRate ?? invoiceSettings?.vatRate ?? 19) / 100
-    const mwst   = invoiceSettings?.smallBusiness ? 0 : Math.round(netto * vatRate * 100) / 100
-    const brutto = netto + mwst
+    doc.moveTo(ML, ty).lineTo(MR, ty).strokeColor(accent).lineWidth(1).stroke()
+    ty += 14
 
-    doc.moveTo(350, y+10).lineTo(545, y+10).strokeColor(accent).lineWidth(1).stroke()
-    doc.fontSize(10).fillColor([80,80,80]).font('Helvetica')
-      .text('Nettobetrag:', 350, y+20).text(`€ ${netto.toLocaleString('de-DE')}`, 470, y+20)
-      .text(invoiceSettings?.smallBusiness ? 'Kein MwSt. §19 UStG' : `MwSt. ${invoiceSettings?.vatRate ?? 19}%:`, 350, y+36).text(invoiceSettings?.smallBusiness ? '—' : `€ ${mwst.toLocaleString('de-DE')}`, 470, y+36)
-    doc.rect(350, y+54, 195, 28).fill(accent)
-    doc.fontSize(12).fillColor([255,255,255]).font('Helvetica-Bold')
-      .text('GESAMT:', 360, y+62).text(`€ ${brutto.toLocaleString('de-DE')}`, 470, y+62)
+    // ── MwSt TABELLE ──────────────────────────────────────────────────────────
+    const netto   = Number(invoice.amount) || 0
+    const vatRate = (invoiceSettings?.vatRate ?? 19)
+    const mwst    = invoiceSettings?.smallBusiness ? 0 : Math.round(netto * (vatRate / 100) * 100) / 100
+    const brutto  = netto + mwst
 
-    doc.moveTo(50, y+80).lineTo(545, y+80).strokeColor([220,220,220]).lineWidth(0.5).stroke()
+    // Tax breakdown table (Tchibo-Stil)
+    const txX = 280
+    const txW = MR - txX
+    doc.rect(txX, ty, txW, 14).fill('#f0f0f5')
+    doc.fontSize(7).fillColor(GRAY).font('Helvetica-Bold')
+      .text('NETTO (€)',    txX + 4,  ty + 3, { width: txW/4 - 4, align: 'right' })
+      .text('MwSt. (€)',    txX + txW/4, ty + 3, { width: txW/4, align: 'right' })
+      .text('MwSt. %',      txX + txW/2, ty + 3, { width: txW/4, align: 'right' })
+      .text('GESAMT (€)',   txX + txW*3/4, ty + 3, { width: txW/4 - 4, align: 'right' })
+    ty += 16
+    doc.fontSize(9).fillColor(DARK).font('Helvetica')
+      .text(`€ ${netto.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`, txX + 4, ty, { width: txW/4 - 4, align: 'right' })
+      .text(invoiceSettings?.smallBusiness ? '–' : `€ ${mwst.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`, txX + txW/4, ty, { width: txW/4, align: 'right' })
+      .text(invoiceSettings?.smallBusiness ? '§19 UStG' : `${vatRate}%`, txX + txW/2, ty, { width: txW/4, align: 'right' })
+      .text(`€ ${brutto.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`, txX + txW*3/4, ty, { width: txW/4 - 4, align: 'right' })
+    ty += 18
+
+    // GESAMT Box
+    doc.rect(txX, ty, txW, 26).fill(accent)
+    doc.fontSize(11).fillColor('#ffffff').font('Helvetica-Bold')
+      .text('RECHNUNGSBETRAG', txX + 8, ty + 7, { width: txW * 0.55 })
+      .text(`€ ${brutto.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`, txX, ty + 7, { width: txW - 6, align: 'right' })
+    ty += 38
+
+    if (invoiceSettings?.smallBusiness) {
+      doc.fontSize(7.5).fillColor(GRAY).font('Helvetica').text('Gemäß §19 UStG wird keine Umsatzsteuer berechnet und ausgewiesen.', txX, ty, { width: txW })
+      ty += 14
+    }
+
+    // ── ZAHLUNGSINFO ──────────────────────────────────────────────────────────
+    ty += 10
+    doc.moveTo(ML, ty).lineTo(MR, ty).strokeColor('#e0e0e0').lineWidth(0.5).stroke()
+    ty += 12
 
     const payUrl = `https://app.plexora.eu/pay/${invoice.invoiceId}`
-    doc.fontSize(9).fillColor([150,150,150]).font('Helvetica').text('Online bezahlen:', 50, y+92)
-    doc.fontSize(9).fillColor([124,58,237]).font('Helvetica').text(payUrl, 50, y+105, { link: payUrl, underline: true })
+    const hasBank = company.iban
 
+    if (hasBank) {
+      doc.fontSize(8.5).fillColor(MID).font('Helvetica-Bold').text('Bankverbindung:', ML, ty)
+      ty += 14
+      const bankLine = [company.bankName, `IBAN: ${company.iban}`, company.bic ? `BIC: ${company.bic}` : ''].filter(Boolean).join('  |  ')
+      doc.fontSize(9).fillColor(DARK).font('Helvetica').text(bankLine, ML, ty)
+      ty += 14
+      const refLine = `Verwendungszweck: ${invNum}`
+      doc.fontSize(9).fillColor(DARK).font('Helvetica').text(refLine, ML, ty)
+      ty += 14
+      if (company.paymentNote) {
+        doc.fontSize(8).fillColor(GRAY).font('Helvetica').text(company.paymentNote, ML, ty, { width: 260 })
+        ty += 14
+      }
+      // Also show online link
+      doc.fontSize(8).fillColor(GRAY).font('Helvetica').text('Oder online bezahlen: ', ML, ty)
+      doc.fontSize(8).fillColor('#7C3AED').font('Helvetica').text(payUrl, ML + 110, ty, { link: payUrl, underline: true })
+    } else {
+      doc.fontSize(8.5).fillColor(MID).font('Helvetica-Bold').text('Online bezahlen:', ML, ty)
+      ty += 14
+      doc.fontSize(9).fillColor('#7C3AED').font('Helvetica').text(payUrl, ML, ty, { link: payUrl, underline: true })
+    }
+
+    // QR Code
     try {
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(payUrl)}&margin=2`
-      const qrRes = await fetch(qrUrl)
+      const qrRes = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=72x72&data=${encodeURIComponent(payUrl)}&margin=2`)
       const qrBuf = Buffer.from(await qrRes.arrayBuffer())
-      doc.image(qrBuf, 460, y+82, { width: 72, height: 72 })
-      doc.fontSize(8).fillColor([150,150,150]).font('Helvetica')
-        .text('QR-Code scannen', 460, y+156, { width: 72, align: 'center' })
-        .text('zum Bezahlen', 460, y+166, { width: 72, align: 'center' })
+      const qrY   = ty - (hasBank ? 28 : 2)
+      doc.image(qrBuf, MR - 72, qrY, { width: 72, height: 72 })
+      doc.fontSize(7).fillColor(GRAY).font('Helvetica')
+        .text('QR-Code scannen', MR - 72, qrY + 74, { width: 72, align: 'center' })
+        .text('zum Bezahlen',    MR - 72, qrY + 83, { width: 72, align: 'center' })
     } catch {}
 
-    doc.moveTo(50, y+178).lineTo(545, y+178).strokeColor([220,220,220]).lineWidth(0.5).stroke()
-    doc.fontSize(9).fillColor([150,150,150]).font('Helvetica')
-      .text(`${brand} — Vielen Dank für Ihr Vertrauen!`, 50, y+184, { align: 'center', width: 495 })
+    // ── FOOTER ────────────────────────────────────────────────────────────────
+    doc.rect(0, 810, W, 32).fill('#f5f5f7')
+    const footerParts: string[] = []
+    if (company.legalName || brand) footerParts.push(company.legalName || brand)
+    if (company.street)         footerParts.push(company.street)
+    if (company.zipCity)        footerParts.push(company.zipCity)
+    if (company.vatId)          footerParts.push(`USt-ID: ${company.vatId}`)
+    if (company.register)       footerParts.push(`${company.registerCourt || 'HRB'}: ${company.register}`)
+    if (company.email)          footerParts.push(company.email)
+    if (company.phone)          footerParts.push(company.phone)
+
+    doc.fontSize(7.5).fillColor(GRAY).font('Helvetica')
+      .text(footerParts.join('  ·  '), ML, 818, { width: MR - ML, align: 'center' })
+    doc.fontSize(7.5).fillColor(GRAY).font('Helvetica')
+      .text(`${brand} — Vielen Dank für Ihr Vertrauen!`, ML, 828, { width: MR - ML, align: 'center' })
 
     doc.end()
   })
@@ -100,19 +230,16 @@ export default defineEventHandler(async (event) => {
   const invoice = scan.Item
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
 
-  let branding = { brandName: 'Plexora', brandTagline: 'Business Platform' }
+  let branding = { brandName: 'Plexora', brandTagline: 'Business Platform', accentColor: '#EA580C' }
   try {
-    const bs = await dynamo.send(new GetCommand({
-      TableName: 'plexora-settings',
-      Key: { settingId: 'branding', scope: 'global' }
-    }))
-    if (bs.Item) branding = bs.Item as any
+    const bs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'branding', scope: 'global' } }))
+    if (bs.Item) branding = { ...branding, ...bs.Item }
   } catch {}
 
-  let company = { legalName: '', street: '', zipCity: '', email: '' }
+  let company: any = {}
   try {
     const cs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'company', scope: 'global' } }))
-    if (cs.Item) company = cs.Item as any
+    if (cs.Item) company = cs.Item
   } catch {}
 
   let invoiceSettings = { vatRate: 19, smallBusiness: false, priceDisplay: 'netto' }

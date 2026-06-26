@@ -124,6 +124,22 @@
             <label>Registergericht (optional)</label>
             <input v-model="company.registerCourt" placeholder="Amtsgericht Wittlich" />
           </div>
+          <div class="auth-field">
+            <label>IBAN (für Rechnung)</label>
+            <input v-model="company.iban" placeholder="DE12 3456 7890 1234 5678 90" />
+          </div>
+          <div class="auth-field">
+            <label>BIC</label>
+            <input v-model="company.bic" placeholder="DEUTDEDB" />
+          </div>
+          <div class="auth-field">
+            <label>Bank</label>
+            <input v-model="company.bankName" placeholder="Deutsche Bank" />
+          </div>
+          <div class="auth-field">
+            <label>Zahlungshinweis (optional)</label>
+            <input v-model="company.paymentNote" placeholder="Bitte geben Sie die Rechnungsnummer als Verwendungszweck an." />
+          </div>
         </div>
       </div>
     </div>
@@ -1232,7 +1248,8 @@ const brandLast  = computed(() => brand.brandName.slice(-1))
 const companySaving = ref(false)
 const company = reactive({
   legalName: '', representedBy: '', street: '', zipCity: '', country: 'Deutschland',
-  email: '', phone: '', vatId: '', register: '', registerCourt: ''
+  email: '', phone: '', vatId: '', register: '', registerCourt: '',
+  iban: '', bic: '', bankName: '', paymentNote: ''
 })
 
 // ── AGB ─────────────────────────────────────────────
