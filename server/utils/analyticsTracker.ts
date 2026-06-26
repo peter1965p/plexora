@@ -57,14 +57,15 @@ export function trackVisit(opts: {
   const isBot = !!botName
   const client = getDynamoClient()
 
-  const typeKey = isBot ? 'bot' : 'human'
+  const typeKey  = isBot ? 'bot' : 'human'
   const botLabel = botName ? botName.replace(/[^a-zA-Z0-9 ()]/g, '') : ''
   const refLabel = referrer
     ? referrer.replace(/^https?:\/\//, '').split('/')[0].slice(0, 50)
     : 'direct'
   const pageLabel = path.split('?')[0].slice(0, 80) || '/'
+  const dayKey    = `analytics-day-${today}`
 
-  // ── Total counters ──────────────────────────────────────────────────────────
+  // ── Total counters (top-level ADD — always safe) ────────────────────────────
   client.send(new UpdateCommand({
     TableName: TABLE,
     Key: { pk: 'analytics-total' },
@@ -73,32 +74,33 @@ export function trackVisit(opts: {
     ExpressionAttributeValues: { ':v': 1 },
   })).catch(() => {})
 
-  // ── Daily counters + page/bot/ref breakdown ─────────────────────────────────
-  const dayUpdate: any = {
-    TableName: TABLE,
-    Key: { pk: `analytics-day-${today}` },
-    UpdateExpression: `ADD #t :one, #p.#pg :one, #r.#rf :one SET #d = :d`,
-    ExpressionAttributeNames: {
-      '#t': typeKey,
-      '#p': 'pages',
-      '#pg': pageLabel,
-      '#r': 'refs',
-      '#rf': refLabel,
-      '#d': 'date',
-    },
-    ExpressionAttributeValues: { ':one': 1, ':d': today },
-  }
-
-  client.send(new UpdateCommand(dayUpdate)).catch(() => {
-    // Map may not exist yet — init it
-    client.send(new UpdateCommand({
+  // ── Daily counters — two-step to avoid nested-ADD-on-missing-map failure ────
+  // DynamoDB's ADD on a nested path (pages./) fails when the parent map doesn't
+  // exist yet. Step 1 ensures the maps are initialised; step 2 then atomically
+  // increments the nested counters (ADD on existing map keys is safe & atomic).
+  const trackDay = async () => {
+    await client.send(new UpdateCommand({
       TableName: TABLE,
-      Key: { pk: `analytics-day-${today}` },
-      UpdateExpression: 'SET #t = if_not_exists(#t, :zero) + :one, #p = if_not_exists(#p, :em), #r = if_not_exists(#r, :em), #d = :d',
-      ExpressionAttributeNames: { '#t': typeKey, '#p': 'pages', '#r': 'refs', '#d': 'date' },
-      ExpressionAttributeValues: { ':one': 1, ':zero': 0, ':em': {}, ':d': today },
-    })).catch(() => {})
-  })
+      Key: { pk: dayKey },
+      UpdateExpression: 'SET #p = if_not_exists(#p, :em), #r = if_not_exists(#r, :em), #d = if_not_exists(#d, :d)',
+      ExpressionAttributeNames: { '#p': 'pages', '#r': 'refs', '#d': 'date' },
+      ExpressionAttributeValues: { ':em': {}, ':d': today },
+    }))
+    await client.send(new UpdateCommand({
+      TableName: TABLE,
+      Key: { pk: dayKey },
+      UpdateExpression: 'ADD #t :one, #p.#pg :one, #r.#rf :one',
+      ExpressionAttributeNames: {
+        '#t':  typeKey,
+        '#p':  'pages',
+        '#pg': pageLabel,
+        '#r':  'refs',
+        '#rf': refLabel,
+      },
+      ExpressionAttributeValues: { ':one': 1 },
+    }))
+  }
+  trackDay().catch(() => {})
 
   // ── Bot breakdown ───────────────────────────────────────────────────────────
   if (isBot && botLabel) {
