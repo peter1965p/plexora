@@ -272,6 +272,11 @@ onMounted(async () => {
   const u = await useAuthUser()
   if (u.userId && u.userId !== 'demo-user') {
     userId.value = u.userId
+  }
+})
+
+watch(userId, async (newId) => {
+  if (newId && newId !== 'demo-user') {
     await Promise.all([refresh(), refreshForms(), refreshStats()])
   }
 })
