@@ -119,7 +119,7 @@
 
     <!-- MODAL ERSTELLEN/BEARBEITEN -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
-      <div class="modal-card" style="max-width:720px;max-height:90vh;overflow-y:auto">
+      <div class="modal-card" style="max-width:960px;width:95vw;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
           <span class="card-title">{{ editing ? t.marketing.editCampaign : t.marketing.newCampaignTitle }}</span>
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
