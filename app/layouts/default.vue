@@ -1,3 +1,4 @@
 <template>
   <slot />
+  <CookieBanner />
 </template>
