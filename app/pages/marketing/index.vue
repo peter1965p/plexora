@@ -99,6 +99,13 @@
           </div>
         </div>
 
+        <!-- Email Stats -->
+        <div v-if="emailStats[c.campaignId]" class="mkt-email-stats">
+          <div class="mkt-estat-item" title="Gesendet"><i class="ti ti-send"></i> {{ emailStats[c.campaignId].sent }}</div>
+          <div class="mkt-estat-item" title="Geöffnet"><i class="ti ti-mail-opened"></i> {{ emailStats[c.campaignId].opened }} ({{ emailStats[c.campaignId].openRate }}%)</div>
+          <div class="mkt-estat-item" title="Geklickt"><i class="ti ti-cursor-text"></i> {{ emailStats[c.campaignId].clicked }}</div>
+        </div>
+
         <!-- Actions -->
         <div class="mkt-campaign-actions">
           <button class="mkt-action-btn" :title="t.marketing.copyLink" @click="copyLink(c)">
@@ -106,6 +113,9 @@
           </button>
           <button class="mkt-action-btn" :title="t.marketing.qrCode" @click="showQr(c)">
             <i class="ti ti-qrcode"></i>
+          </button>
+          <button class="mkt-action-btn" title="E-Mail Kampagne senden" @click="openSendEmail(c)">
+            <i class="ti ti-mail-forward"></i>
           </button>
           <button class="mkt-action-btn" @click="openEdit(c)">
             <i class="ti ti-pencil"></i>
@@ -315,6 +325,60 @@
       </div>
     </div>
 
+    <!-- EMAIL SEND MODAL -->
+    <div v-if="sendEmailCampaign" class="modal-overlay" @click.self="sendEmailCampaign=null">
+      <div class="modal-card" style="max-width:480px;width:95vw">
+        <div class="modal-header">
+          <span class="card-title"><i class="ti ti-mail-forward"></i> E-Mail Kampagne — {{ sendEmailCampaign.name }}</span>
+          <button class="icon-btn" @click="sendEmailCampaign=null"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+          <div class="auth-field">
+            <label>Betreff</label>
+            <input v-model="sendEmailForm.subject" :placeholder="`${sendEmailCampaign.name} — ${sendEmailCampaign.headline || 'Unser Angebot'}`" />
+          </div>
+          <div class="auth-field">
+            <label>Ton der KI-E-Mail</label>
+            <select v-model="sendEmailForm.tone" class="form-select">
+              <option value="freundlich">Freundlich</option>
+              <option value="sachlich">Sachlich</option>
+              <option value="direkt">Direkt</option>
+              <option value="motivierend">Motivierend</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Empfänger</label>
+            <select v-model="sendEmailForm.contactStatus" class="form-select">
+              <option value="">Alle Kontakte mit E-Mail</option>
+              <option value="lead">Nur Leads</option>
+              <option value="kunde">Nur Kunden</option>
+            </select>
+          </div>
+
+          <div v-if="sendEmailResult" class="mkt-send-result" :class="sendEmailResult.sent > 0 ? 'success' : 'warn'">
+            <i class="ti" :class="sendEmailResult.sent > 0 ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
+            <span>{{ sendEmailResult.sent }} von {{ sendEmailResult.total }} E-Mails gesendet</span>
+          </div>
+
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text-muted)">
+            <i class="ti ti-sparkles" style="color:var(--accent)"></i>
+            Claude generiert für jeden Kontakt eine personalisierte E-Mail.
+            Ohne API-Key wird eine Standard-E-Mail verwendet.
+          </div>
+
+          <button class="auth-btn" :disabled="sending" @click="sendEmailBlast">
+            <i class="ti" :class="sending ? 'ti-loader-2 spin' : 'ti-send'"></i>
+            {{ sending ? 'Wird gesendet...' : 'Kampagne jetzt senden' }}
+          </button>
+
+          <button class="icon-btn" style="font-size:12px;color:var(--text-muted)" @click="runFollowups" :disabled="followupRunning">
+            <i class="ti" :class="followupRunning ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
+            Follow-ups prüfen & senden
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- QR MODAL -->
     <div v-if="qrCampaign" class="modal-overlay" @click.self="qrCampaign=null">
       <div class="modal-card" style="max-width:360px;text-align:center">
@@ -518,6 +582,66 @@ async function deleteCampaign(c: any) {
     showToast(lang.value === 'en' ? 'Campaign deleted!' : 'Kampagne gelöscht!')
   } catch (e: any) {
     showToast('Fehler: ' + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'))
+  }
+}
+
+// ── Email Blast ──
+const emailStats      = ref<Record<string, any>>({})
+const sendEmailCampaign = ref<any>(null)
+const sendEmailForm   = reactive({ subject: '', tone: 'freundlich', contactStatus: '' })
+const sendEmailResult = ref<any>(null)
+const followupRunning = ref(false)
+
+async function loadEmailStats(campaignId: string) {
+  if (emailStats.value[campaignId]) return
+  const res = await $fetch(useApiUrl(`/api/marketing/email-stats?campaignId=${campaignId}`)) as any
+  if (res?.stats) emailStats.value[campaignId] = res.stats
+}
+
+function openSendEmail(c: any) {
+  sendEmailCampaign.value = c
+  sendEmailResult.value = null
+  sendEmailForm.subject = ''
+  sendEmailForm.tone = 'freundlich'
+  sendEmailForm.contactStatus = ''
+  loadEmailStats(c.campaignId)
+}
+
+async function sendEmailBlast() {
+  if (!sendEmailCampaign.value) return
+  sending.value = true
+  sendEmailResult.value = null
+  try {
+    const res = await $fetch(useApiUrl(`/api/marketing/${sendEmailCampaign.value.campaignId}/send-email`), {
+      method: 'POST',
+      body: {
+        userId: userId.value,
+        subject: sendEmailForm.subject || undefined,
+        tone: sendEmailForm.tone,
+        contactFilter: sendEmailForm.contactStatus ? { status: sendEmailForm.contactStatus } : {},
+      },
+    }) as any
+    sendEmailResult.value = res
+    // Refresh stats
+    delete emailStats.value[sendEmailCampaign.value.campaignId]
+    await loadEmailStats(sendEmailCampaign.value.campaignId)
+  } catch (e: any) {
+    sendEmailResult.value = { sent: 0, total: 0 }
+    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Senden fehlgeschlagen'))
+  } finally {
+    sending.value = false
+  }
+}
+
+async function runFollowups() {
+  followupRunning.value = true
+  try {
+    const res = await $fetch(useApiUrl('/api/marketing/run-followups'), { method: 'POST' }) as any
+    showToast(`${res.followupsSent} Follow-up${res.followupsSent !== 1 ? 's' : ''} gesendet`)
+  } catch {
+    showToast('Follow-up Fehler')
+  } finally {
+    followupRunning.value = false
   }
 }
 
@@ -858,4 +982,25 @@ function showToast(msg: string) {
 .mkt-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(220,38,38,0.08); }
 
 .mkt-action-btn:last-child { margin-left: auto; }
+
+/* EMAIL STATS */
+.mkt-email-stats {
+  display: flex; gap: 14px;
+  padding: 6px 14px 8px;
+  border-top: 1px solid var(--border);
+}
+.mkt-estat-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-muted);
+}
+.mkt-estat-item i { color: var(--accent); font-size: 13px; }
+
+/* SEND RESULT */
+.mkt-send-result {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+}
+.mkt-send-result.success { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+.mkt-send-result.warn    { background: rgba(245,158,11,0.1);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
 </style>

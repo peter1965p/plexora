@@ -39,6 +39,7 @@ export default defineNuxtConfig({
     awsRegion: "",
     resendApiKey: "",
     adminEmail: "",
+    anthropicApiKey: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",
