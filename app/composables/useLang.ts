@@ -36,7 +36,7 @@ const translations = {
     moduleNames: {
       crm: 'CRM', projects: 'Projekte', contracts: 'Verträge', finance: 'Finanzen',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
-      pagebuilder: 'Pagebuilder', forms: 'Formulare', marketing: 'Marketing',
+      pagebuilder: 'Pagebuilder', forms: 'Formulare', marketing: 'Marketing', nexora: 'Website',
     } as Record<string, string>,
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ const translations = {
       '/lead':       'Lead-Landingpage', '/finance': 'Finanzen', '/contracts':  'Verträge',
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/pagebuilder':'Pagebuilder','/forms':      'Formulare',
-      '/analytics':  'Analytics',  '/settings':   'Einstellungen',
+      '/analytics':  'Analytics',  '/settings':   'Einstellungen', '/website': 'Website',
     } as Record<string, string>,
 
     // ── Topbar user menu ───────────────────────────────────────────────────────
@@ -341,7 +341,7 @@ const translations = {
     moduleNames: {
       crm: 'CRM', projects: 'Projects', contracts: 'Contracts', finance: 'Finance',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
-      pagebuilder: 'Page Builder', forms: 'Forms', marketing: 'Marketing',
+      pagebuilder: 'Page Builder', forms: 'Forms', marketing: 'Marketing', nexora: 'Website',
     } as Record<string, string>,
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
@@ -350,7 +350,7 @@ const translations = {
       '/lead':       'Lead Page',  '/finance':    'Finance',    '/contracts':  'Contracts',
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/pagebuilder':'Page Builder','/forms':     'Forms',
-      '/analytics':  'Analytics',  '/settings':   'Settings',
+      '/analytics':  'Analytics',  '/settings':   'Settings',   '/website':   'Website',
     } as Record<string, string>,
 
     // ── Topbar user menu ───────────────────────────────────────────────────────

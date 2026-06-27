@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGroupCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { generateLicenseKey, TIER_MODULES, TIER_LABELS } from '../../utils/license'
+import { provisionModule } from '../../utils/moduleProvisioner'
 import { randomUUID, randomBytes } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -154,6 +155,9 @@ export default defineEventHandler(async (event) => {
             }
           }))
           console.log(`✅ Modul ${metadata.moduleKey} zu Lizenz ${license.licenseKey} hinzugefügt`)
+
+          // Modul-spezifisches Provisioning + Bestätigungsmail
+          await provisionModule(metadata.moduleKey, license.licenseKey, metadata.email, dynamo, resend)
         }
       } catch (err) { console.error('Modul-Update fehlgeschlagen:', err) }
     }

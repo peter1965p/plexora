@@ -41,6 +41,7 @@ export const useAppStore = defineStore("app", {
       { key: "marketing",   name: "Marketing",     icon: "ti-speakerphone",   on: true,  locked: false, plan: "enterprise", desc: "Lead-Kampagnen, Landing-Page-Builder, UTM-Tracking, QR-Codes, Stats" },
       { key: "shop",        name: "Shop",          icon: "ti-shopping-cart",  on: false, locked: false, plan: "pro",        desc: "Produkt-Verwaltung, Stripe-Checkout, Bestellungen, Webhooks" },
       { key: "forms",       name: "Formulare",     icon: "ti-forms",          on: false, locked: false, plan: "pro",        desc: "Formular-Builder, Einbettung, Submissions-Übersicht" },
+      { key: "nexora",      name: "Website",       icon: "ti-world",          on: false, locked: false, plan: "pro",        desc: "Unternehmens-Webseite via Nexora, API-gesteuert, aus Plexora verwaltet" },
     ],
   }),
   actions: {

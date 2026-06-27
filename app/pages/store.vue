@@ -228,6 +228,12 @@ const addons = computed(() => [
     desc: 'Formular-Builder zum Einbetten in jede Website.',
     features: ['Drag & Drop', 'Einbettbar', 'Submissions-Übersicht', 'E-Mail-Benachrichtigung'],
   },
+  {
+    key: 'nexora', name: 'Unternehmens-Webseite', icon: 'ti-world', price: '€19', badge: 'NEU',
+    owned: store.modules.find(m => m.key === 'nexora')?.on,
+    desc: 'Professionelle Firmenwebseite, komplett aus Plexora verwaltet. Auto-Provisioning via API.',
+    features: ['Auto-Provisioning', 'API-gesteuert', 'Inhalts-Editor', 'DSGVO-konform', 'Nexora-Frontend'],
+  },
 ])
 
 const branchenPakete = [
