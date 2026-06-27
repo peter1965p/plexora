@@ -1,6 +1,9 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals'
 
 export default defineNuxtPlugin(() => {
+  // Nur auf app.plexora.eu tracken, nicht auf der Marketing-Landing-Page
+  if (!window.location.hostname.includes('plexora.eu') && !window.location.hostname.includes('localhost')) return
+
   const send = (metric: { name: string; value: number; rating: string }) => {
     const apiUrl = useApiUrl('/api/analytics/vitals')
     const data = JSON.stringify({
