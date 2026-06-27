@@ -165,7 +165,8 @@ const successMsg = ref('Vielen Dank!')
 async function submit() {
   sending.value = true
   try {
-    const res = await $fetch(useApiUrl(`/api/forms/${slug}/submit`), {
+    const formId = form.value?.formId || slug
+    const res = await $fetch(useApiUrl(`/api/forms/${formId}/submit`), {
       method: 'POST',
       body: { data: { ...formData }, utmSource, utmMedium, utmCampaign, utmContent, utmTerm }
     }) as any
@@ -206,8 +207,16 @@ async function submit() {
 @media (max-width: 900px) {
   .lp-layout {
     grid-template-columns: 1fr;
-    padding: 32px 20px 60px;
-    gap: 32px;
+    padding: 24px 16px 48px;
+    gap: 28px;
+    align-items: start;
+  }
+}
+
+@media (max-width: 480px) {
+  .lp-layout {
+    padding: 20px 12px 40px;
+    gap: 20px;
   }
 }
 
@@ -220,17 +229,17 @@ async function submit() {
 }
 
 @media (max-width: 900px) {
-  .lp-hero { padding: 0; text-align: center; align-items: center; }
+  .lp-hero { padding: 0; text-align: center; align-items: center; order: 2; }
 }
 
 .lp-logo { margin-bottom: 8px; }
 .lp-logo-text { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
 
 .lp-headline {
-  font-size: clamp(28px, 3.5vw, 52px);
+  font-size: clamp(24px, 5vw, 52px);
   font-weight: 900;
   color: #fff;
-  line-height: 1.12;
+  line-height: 1.15;
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -307,6 +316,7 @@ async function submit() {
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 16px 48px rgba(0,0,0,0.4);
   max-width: 420px;
+  width: 100%;
 }
 .lp-banner-card img {
   width: 100%;
@@ -320,7 +330,7 @@ async function submit() {
 }
 
 @media (max-width: 900px) {
-  .lp-form-col { padding: 0; }
+  .lp-form-col { padding: 0; order: 1; }
 }
 
 .lp-form-card {
@@ -330,6 +340,10 @@ async function submit() {
   border-radius: 24px;
   padding: 36px;
   box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 480px) {
+  .lp-form-card { padding: 24px 20px; border-radius: 18px; }
 }
 
 .lp-form-title {
