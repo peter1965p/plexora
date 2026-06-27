@@ -1048,6 +1048,78 @@
       </div>
     </div>
 
+  <!-- ── WEBSITE / NEXORA ── -->
+    <div v-if="tab === 'nexora'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>Website Domain</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px" :disabled="nexoraSaving" @click="saveNexora(userEmail)">
+          <i class="ti" :class="nexoraSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
+          {{ nexoraSaving ? 'Speichern...' : 'Speichern' }}
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
+
+        <div v-if="!nexora" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">
+          <i class="ti ti-loader-2 spin" style="font-size:20px;margin-bottom:8px;display:block"></i>
+          Lade Nexora-Konfiguration...
+        </div>
+
+        <template v-else>
+
+          <!-- Subdomain -->
+          <div>
+            <div class="settings-label">Subdomain</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Deine kostenlose Adresse auf nexora.de</div>
+            <div style="display:flex;align-items:center;gap:0">
+              <input v-model="nexoraForm.subdomain" class="auth-input" placeholder="meinefirma" style="border-radius:8px 0 0 8px;flex:1" />
+              <div style="padding:0 12px;height:36px;background:var(--bg-elevated);border:0.5px solid var(--border);border-left:none;border-radius:0 8px 8px 0;display:flex;align-items:center;font-size:12px;color:var(--text-muted);white-space:nowrap">.nexora.de</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Nur Kleinbuchstaben, Zahlen und Bindestriche</div>
+          </div>
+
+          <!-- Custom Domain -->
+          <div style="padding-top:16px;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <div class="settings-label" style="margin:0">Eigene Domain</div>
+              <span style="font-size:10px;font-weight:700;color:var(--accent);background:var(--accent)18;border-radius:20px;padding:2px 8px">PREMIUM</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Optional — eigene Domain statt Subdomain auf nexora.de</div>
+            <input v-model="nexoraForm.customDomain" class="auth-input" placeholder="meine-firma.de (optional)" />
+
+            <!-- DNS Anleitung -->
+            <div v-if="nexoraForm.customDomain" style="margin-top:12px;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
+              <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">DNS-Einrichtung bei deinem Domain-Anbieter</div>
+              <div style="display:flex;gap:10px;align-items:center;padding:8px 10px;background:var(--bg);border-radius:6px;font-size:12px">
+                <span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;flex-shrink:0">CNAME</span>
+                <code style="color:var(--text);flex:1">{{ nexoraForm.customDomain }}</code>
+                <span style="color:var(--text-muted)">→</span>
+                <code style="color:var(--accent)">nexora.de</code>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:8px">
+                <i class="ti ti-clock" style="margin-right:4px"></i>DNS-Propagation kann bis zu 24h dauern. Danach ist deine Domain aktiv.
+              </div>
+            </div>
+          </div>
+
+          <!-- API Key (read-only info) -->
+          <div style="padding-top:16px;border-top:1px solid var(--border)">
+            <div class="settings-label">API-Key</div>
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px">
+              <code style="font-size:12px;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ nexora.apiKey }}</code>
+              <button class="icon-btn" @click="copyNexoraKey" :title="nexoraCopied ? 'Kopiert!' : 'Kopieren'">
+                <i class="ti" :class="nexoraCopied ? 'ti-check' : 'ti-copy'" :style="nexoraCopied ? 'color:#22c55e' : ''"></i>
+              </button>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+              Für vollständige Website-Einstellungen →
+              <NuxtLink to="/website" style="color:var(--accent);text-decoration:none">Website verwalten</NuxtLink>
+            </div>
+          </div>
+
+        </template>
+      </div>
+    </div>
+
   <!-- Settings Toast -->
   <div v-if="settingsToast"
     :style="settingsToastErr ? 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#E05C5C;color:#fff' : 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#00C853;color:#fff'">
@@ -1175,7 +1247,7 @@ async function saveSecurity() {
   }
 }
 
-const tabs = [
+const BASE_TABS = [
   { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
   { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
   { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
@@ -1192,6 +1264,60 @@ const tabs = [
   { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
   { key: 'team',        label: 'Team',             icon: 'ti-users'           },
 ]
+
+const tabs = computed(() => {
+  const extra = store.licenseModules?.includes('nexora')
+    ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
+    : []
+  return [...BASE_TABS, ...extra]
+})
+
+// ── Nexora / Website Domain ───────────────────────────
+const nexora       = ref<any>(null)
+const nexoraSaving = ref(false)
+const nexoraCopied = ref(false)
+const nexoraForm   = reactive({ subdomain: '', customDomain: '' })
+
+async function loadNexora(email: string) {
+  try {
+    const res = await $fetch<any>(useApiUrl('/api/nexora/my'), {
+      headers: { 'x-user-email': email },
+    })
+    if (res?.nexora) {
+      nexora.value = res.nexora
+      nexoraForm.subdomain    = res.nexora.subdomain    || ''
+      nexoraForm.customDomain = res.nexora.customDomain || ''
+    }
+  } catch {}
+}
+
+async function saveNexora(email: string) {
+  nexoraSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/nexora/my'), {
+      method:  'PUT',
+      headers: { 'x-user-email': email },
+      body: {
+        subdomain:    nexoraForm.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, ''),
+        customDomain: nexoraForm.customDomain.toLowerCase().replace(/\s/g, ''),
+      },
+    })
+    if (nexora.value) {
+      nexora.value.subdomain    = nexoraForm.subdomain
+      nexora.value.customDomain = nexoraForm.customDomain
+    }
+  } catch (e: any) {
+    alert('Fehler: ' + (e?.message || ''))
+  }
+  nexoraSaving.value = false
+}
+
+function copyNexoraKey() {
+  if (!nexora.value?.apiKey) return
+  navigator.clipboard.writeText(nexora.value.apiKey)
+  nexoraCopied.value = true
+  setTimeout(() => { nexoraCopied.value = false }, 2000)
+}
 
 // ── Auth ──────────────────────────────────────────────
 const userName  = ref('–')
@@ -1277,6 +1403,9 @@ onMounted(async () => {
     userEmail.value = user.signInDetails?.loginId || '–'
     userName.value  = user.username || '–'
     userId.value    = user.userId || 'demo-user'
+    if (store.licenseModules?.includes('nexora')) {
+      await loadNexora(userEmail.value)
+    }
   } catch {}
 
   try {
