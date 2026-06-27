@@ -5,6 +5,11 @@ const TABLE   = 'plexora-meta'
 const METRICS = ['LCP', 'INP', 'CLS', 'FCP', 'TTFB']
 
 export default defineEventHandler(async (event) => {
+  setHeader(event, 'Access-Control-Allow-Origin', '*')
+  setHeader(event, 'Access-Control-Allow-Methods', 'POST, OPTIONS')
+  setHeader(event, 'Access-Control-Allow-Headers', 'Content-Type')
+  if (getMethod(event) === 'OPTIONS') return null
+
   const body = await readBody(event)
   const { name, value, rating } = body || {}
 
