@@ -20,10 +20,11 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, config = :cfg, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, updatedAt = :u',
     ExpressionAttributeValues: {
-      ':cn':  body.companyName ?? item.companyName ?? '',
-      ':sd':  body.subdomain   ?? item.subdomain   ?? '',
+      ':cn':  body.companyName  ?? item.companyName  ?? '',
+      ':sd':  body.subdomain    ?? item.subdomain    ?? '',
+      ':cd':  body.customDomain ?? item.customDomain ?? '',
       ':cfg': { ...(item.config || {}), ...(body.config || {}) },
       ':u':   new Date().toISOString(),
     }

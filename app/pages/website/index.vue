@@ -96,6 +96,28 @@
                 </div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Nur Kleinbuchstaben, Zahlen und Bindestriche</div>
               </div>
+
+              <!-- Custom Domain -->
+              <div style="padding-top:14px;border-top:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                  <label class="field-label" style="margin:0">Eigene Domain</label>
+                  <span style="font-size:10px;font-weight:700;color:var(--accent);background:var(--accent)18;border-radius:20px;padding:2px 8px">PREMIUM</span>
+                </div>
+                <input v-model="form.customDomain" class="field-input" placeholder="meine-firma.de (optional)" />
+                <div v-if="form.customDomain" style="margin-top:10px;padding:12px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
+                  <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">DNS-Einrichtung</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="display:flex;gap:8px;align-items:center;font-size:12px">
+                      <span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:4px;padding:1px 6px">CNAME</span>
+                      <code style="color:var(--text)">{{ form.customDomain }}</code>
+                      <span style="color:var(--text-muted)">→</span>
+                      <code style="color:var(--accent)">nexora.de</code>
+                    </div>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Trage diesen CNAME-Eintrag bei deinem Domain-Anbieter ein. Aktivierung dauert bis zu 24h.</div>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Optional — ohne Eintrag ist deine Seite unter der Subdomain erreichbar.</div>
+              </div>
             </div>
           </div>
 
@@ -179,6 +201,7 @@ const copied  = ref(false)
 const form = reactive({
   companyName:    '',
   subdomain:      '',
+  customDomain:   '',
   primaryColor:   '#6C3FE8',
   secondaryColor: '#0a0e1a',
 })
@@ -190,8 +213,9 @@ onMounted(async () => {
     })
     if (res?.nexora) {
       nexora.value = res.nexora
-      form.companyName    = res.nexora.companyName || ''
-      form.subdomain      = res.nexora.subdomain   || ''
+      form.companyName    = res.nexora.companyName  || ''
+      form.subdomain      = res.nexora.subdomain    || ''
+      form.customDomain   = res.nexora.customDomain || ''
       form.primaryColor   = res.nexora.config?.primaryColor   || '#6C3FE8'
       form.secondaryColor = res.nexora.config?.secondaryColor || '#0a0e1a'
     }
@@ -206,8 +230,9 @@ async function save() {
       method: 'PUT',
       headers: { 'x-user-email': u.email || '' },
       body: {
-        companyName: form.companyName,
-        subdomain:   form.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, ''),
+        companyName:  form.companyName,
+        subdomain:    form.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, ''),
+        customDomain: form.customDomain.toLowerCase().replace(/\s/g, ''),
         config: {
           primaryColor:   form.primaryColor,
           secondaryColor: form.secondaryColor,

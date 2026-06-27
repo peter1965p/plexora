@@ -17,13 +17,14 @@ export default defineEventHandler(async (event) => {
 
   return {
     nexora: {
-      tenantId:    item.tenantId,
-      apiKey:      item.apiKey,
-      companyName: item.companyName || '',
-      subdomain:   item.subdomain   || '',
-      status:      item.status,
-      config:      item.config      || {},
-      createdAt:   item.createdAt,
+      tenantId:     item.tenantId,
+      apiKey:       item.apiKey,
+      companyName:  item.companyName  || '',
+      subdomain:    item.subdomain    || '',
+      customDomain: item.customDomain || '',
+      status:       item.status,
+      config:       item.config       || {},
+      createdAt:    item.createdAt,
     }
   }
 })
