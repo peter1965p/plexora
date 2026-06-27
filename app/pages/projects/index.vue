@@ -360,9 +360,10 @@ async function save() {
     await refresh(); showModal.value=false
   } finally { saving.value=false }
 }
+const { openConfirm } = useConfirm()
+
 async function deleteProject(p: any) {
-  const msg = lang.value === 'en' ? `Really delete project "${p.name}"?` : `Projekt "${p.name}" wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Projekt löschen?', name: p.name })) return
   await $fetch(useApiUrl(`/api/projects/${p.projectId}`), { method:'DELETE' })
   await refresh()
 }

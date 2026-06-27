@@ -491,11 +491,10 @@ function downloadXRechnung(invoice: any) {
   window.location.href = useApiUrl(`/api/finance/${invoice.invoiceId}/xrechnung?userId=${invoice.userId || userId}`)
 }
 
+const { openConfirm } = useConfirm()
+
 async function finalizeInvoice(invoice: any) {
-  const msg = lang.value === 'en'
-    ? `Archive invoice ${invoice.number} GoBD-compliant? It can no longer be deleted afterwards.`
-    : `Rechnung ${invoice.number} GoBD-konform archivieren? Sie kann danach nicht mehr gelöscht werden.`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'GoBD-Archivierung?', name: `Rechnung ${invoice.number}`, sub: 'Nach der Archivierung kann die Rechnung nicht mehr gelöscht werden.', icon: 'ti-lock' })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/finalize`), {
     method: 'POST', body: { userId: invoice.userId || userId }
   })
@@ -517,10 +516,7 @@ function dunningLevel(invoice: any): number {
 }
 
 async function sendDunning(invoice: any) {
-  const msg = lang.value === 'en'
-    ? `${dunningTitle(invoice)} to ${invoice.clientEmail}?`
-    : `${dunningTitle(invoice)} an ${invoice.clientEmail}?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: dunningTitle(invoice), name: invoice.clientEmail, sub: 'Die Mahnung wird per E-Mail versendet.', icon: 'ti-mail' })) return
   dunning.value = invoice.invoiceId
   try {
     const res = await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/dunning`), {
@@ -533,10 +529,7 @@ async function sendDunning(invoice: any) {
 }
 
 async function deleteInvoice(invoice: any) {
-  const msg = lang.value === 'en'
-    ? `Really delete invoice ${invoice.number}?`
-    : `Rechnung ${invoice.number} wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Rechnung löschen?', name: `Rechnung ${invoice.number}` })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}`), {
     method: 'DELETE', body: { userId: invoice.userId || userId }
   })
@@ -556,8 +549,7 @@ async function addCash() {
 }
 
 async function deleteCash(entry: any) {
-  const msg = lang.value === 'en' ? 'Delete cash book entry?' : 'Kassenbucheintrag löschen?'
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Buchung löschen?', name: entry.description || 'Kassenbucheintrag' })) return
   await $fetch(useApiUrl('/api/finance/cashbook'), { method: 'DELETE', body: { cashId: entry.cashId, userId } })
   await refreshCash()
 }

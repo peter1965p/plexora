@@ -571,15 +571,15 @@ async function save() {
   }
 }
 
+const { openConfirm } = useConfirm()
+
 async function deleteCampaign(c: any) {
-  const name = c.name || 'diese Kampagne'
-  const msg = lang.value === 'en' ? `Really delete campaign "${name}"?` : `Kampagne "${name}" wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Kampagne löschen?', name: c.name, accentColor: c.accentColor })) return
   try {
     await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
-    showToast(lang.value === 'en' ? 'Campaign deleted!' : 'Kampagne gelöscht!')
+    showToast('Kampagne gelöscht!')
   } catch (e: any) {
     showToast('Fehler: ' + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'))
   }
@@ -1003,4 +1003,5 @@ function showToast(msg: string) {
 }
 .mkt-send-result.success { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
 .mkt-send-result.warn    { background: rgba(245,158,11,0.1);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+
 </style>

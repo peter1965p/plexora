@@ -199,11 +199,10 @@ const chartRef = ref<HTMLCanvasElement | null>(null)
 const { userId, email, role } = await useAuthUser()
 const isCustomer = role === 'customers'
 
+const { openConfirm } = useConfirm()
+
 async function cancelSubscription() {
-  const msg = lang.value === 'en'
-    ? 'Cancel subscription? It will remain active until the end of the billing period.'
-    : 'Abonnement wirklich kündigen? Es läuft bis Ende des Abrechnungszeitraums weiter.'
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Abonnement kündigen?', sub: 'Es läuft bis Ende des Abrechnungszeitraums weiter.', icon: 'ti-brand-stripe' })) return
   try {
     const res = await $fetch(useApiUrl('/api/licenses/portal'), { method: 'POST', body: { email } }) as any
     if (res.url) window.location.href = res.url

@@ -5,5 +5,6 @@
       <AppTopbar />
       <slot />
     </div>
+    <ConfirmDialog />
   </div>
 </template>

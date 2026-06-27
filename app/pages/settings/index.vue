@@ -1118,8 +1118,10 @@ async function toggleLicStatus(lic: any) {
   } catch { showSettingsToast('Fehler beim Aktualisieren!', true) }
 }
 
+const { openConfirm } = useConfirm()
+
 async function deleteLic(lic: any) {
-  if (!confirm(`Lizenz ${lic.licenseKey} (${lic.customerEmail}) wirklich löschen?`)) return
+  if (!await openConfirm({ title: 'Lizenz löschen?', name: `${lic.licenseKey} · ${lic.customerEmail}` })) return
   try {
     await $fetch(useApiUrl(`/api/licenses/${lic.licenseKey}`), { method: 'DELETE' })
     licenses.value = licenses.value.filter(l => l.licenseKey !== lic.licenseKey)
@@ -1512,7 +1514,7 @@ async function onS3FileChange(e: Event) {
 }
 
 async function deleteS3Object(key: string) {
-  if (!confirm(`${key} wirklich löschen?`)) return
+  if (!await openConfirm({ title: 'Datei löschen?', name: key, icon: 'ti-file-off' })) return
   await $fetch(useApiUrl('/api/aws/s3-delete'), { method: 'POST', body: { key } })
   await loadS3()
 }
@@ -1601,7 +1603,7 @@ async function inviteTeamMember() {
 }
 
 async function removeTeamMember(email: string) {
-  if (!confirm(`${email} wirklich entfernen?`)) return
+  if (!await openConfirm({ title: 'Mitglied entfernen?', name: email, icon: 'ti-user-off' })) return
   try {
     await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}?userId=${encodeURIComponent(userEmail.value)}`), { method: 'DELETE' })
     await loadTeamMembers()

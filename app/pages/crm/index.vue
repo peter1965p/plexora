@@ -438,9 +438,10 @@ async function saveContact() {
   }
 }
 
+const { openConfirm } = useConfirm()
+
 async function deleteContact(c: Contact) {
-  const msg = lang.value === 'en' ? `Really delete ${c.firstName} ${c.lastName}?` : `${c.firstName} ${c.lastName} wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Kontakt löschen?', name: `${c.firstName} ${c.lastName}` })) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}`), {
     method: 'DELETE',
     body: { userId: userId }
@@ -449,8 +450,7 @@ async function deleteContact(c: Contact) {
 }
 
 async function convertContact(c: Contact) {
-  const msg = lang.value === 'en' ? `Convert ${c.firstName} ${c.lastName} to customer?` : `${c.firstName} ${c.lastName} zu Kunde konvertieren?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Zu Kunde konvertieren?', name: `${c.firstName} ${c.lastName}`, sub: 'Der Kontakt-Status wird auf "Kunde" gesetzt.', icon: 'ti-user-check' })) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}/convert`), { method: 'POST' })
   await refreshContacts()
 }
@@ -494,8 +494,7 @@ async function saveDeal() {
 }
 
 async function deleteDeal(d: Deal) {
-  const msg = lang.value === 'en' ? `Really delete deal "${d.name}"?` : `Deal "${d.name}" wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Deal löschen?', name: d.name })) return
   await $fetch(useApiUrl(`/api/deals/${d.dealId}`), {
     method: 'DELETE',
     body: { userId: userId }
@@ -552,8 +551,7 @@ async function saveCompany() {
 }
 
 async function deleteCompany(co: Company) {
-  const msg = lang.value === 'en' ? `Really delete ${co.name}?` : `${co.name} wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Unternehmen löschen?', name: co.name })) return
   await $fetch(useApiUrl(`/api/companies/${co.companyId}`), { method: 'DELETE' })
   await refreshCompanies()
 }

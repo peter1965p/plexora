@@ -249,9 +249,10 @@ async function save() {
   }
 }
 
+const { openConfirm } = useConfirm()
+
 async function deleteContract(c: Contract) {
-  const msg = lang.value === 'en' ? `Really delete contract "${c.title}"?` : `Vertrag "${c.title}" wirklich löschen?`
-  if (!confirm(msg)) return
+  if (!await openConfirm({ title: 'Vertrag löschen?', name: c.title })) return
   await $fetch(useApiUrl(`/api/contracts/${c.contractId}`), { method: 'DELETE' })
   await refreshContracts()
 }
