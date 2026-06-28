@@ -239,32 +239,32 @@ const addons = computed(() => [
 
 const branchenPakete = [
   {
-    key: 'automotive', name: 'Automotive', icon: 'ti-car', price: '€29',
+    key: 'automotive', name: 'Automotive', icon: 'ti-car', price: '€59',
     desc: 'Fahrzeugverwaltung, Probefahrten, KFZ-Dokumente und Werkstatt-Aufträge.',
     features: ['Fahrzeug-DB', 'Probefahrten', 'Werkstatt-Aufträge', 'TÜV-Erinnerungen', 'Verkaufs-Tracking'],
   },
   {
-    key: 'einzelhandel', name: 'Einzelhandel', icon: 'ti-building-store', price: '€24',
+    key: 'einzelhandel', name: 'Einzelhandel', icon: 'ti-building-store', price: '€49',
     desc: 'Kassensystem, Lager-Tracking, Lieferanten-Verwaltung und Retouren.',
     features: ['Kassensystem', 'Lagerverwaltung', 'Lieferanten', 'Retouren', 'Tagesabschluss'],
   },
   {
-    key: 'gastro', name: 'Gastronomie', icon: 'ti-tools-kitchen-2', price: '€22',
+    key: 'gastro', name: 'Gastronomie', icon: 'ti-tools-kitchen-2', price: '€45',
     desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',
     features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'],
   },
   {
-    key: 'handwerk', name: 'Handwerk', icon: 'ti-hammer', price: '€19',
+    key: 'handwerk', name: 'Handwerk', icon: 'ti-hammer', price: '€39',
     desc: 'Aufmaß-Erfassung, Materialplanung, Stundenzettel und Baustellenverwaltung.',
     features: ['Aufmaß-Erfassung', 'Materialplanung', 'Stundenzettel', 'Baustellen', 'Auftragszettel-PDF'],
   },
   {
-    key: 'immobilien', name: 'Immobilien', icon: 'ti-home', price: '€27',
+    key: 'immobilien', name: 'Immobilien', icon: 'ti-home', price: '€59',
     desc: 'Objekt-Verwaltung, Besichtigungen, Mieter-Daten und Nebenkostenabrechnungen.',
     features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM', 'Nebenkostenabrechnung', 'Dokumente'],
   },
   {
-    key: 'gesundheit', name: 'Gesundheit / Praxis', icon: 'ti-stethoscope', price: '€32',
+    key: 'gesundheit', name: 'Gesundheit / Praxis', icon: 'ti-stethoscope', price: '€79',
     desc: 'Patientenverwaltung, Terminplanung, Rezepte und DSGVO-konforme Dokumentation.',
     features: ['Patienten-Verwaltung', 'Terminplanung', 'Rezepte', 'DSGVO-konform', 'Karteikartenansicht'],
   },
