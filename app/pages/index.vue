@@ -240,6 +240,7 @@
     </footer>
 
   </div>
+  <CookieBanner />
 </template>
 
 <script setup lang="ts">
