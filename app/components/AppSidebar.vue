@@ -48,7 +48,7 @@ const openTickets = computed(() => {
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
   hr: '/hr', support: '/support', analytics: '/analytics', shop: '/shop-admin',
-  forms: '/forms', marketing: '/marketing', nexora: '/website',
+  forms: '/forms', marketing: '/marketing',
 }
 
 const navSections = computed(() => [
@@ -73,9 +73,12 @@ const navSections = computed(() => [
   {
     label: t.value.navSystem,
     items: [
-      { to: '/settings', label: t.value.settings, icon: 'ti-settings', key: 'settings' },
-      { to: '/seo', label: 'SEO / GEO', icon: 'ti-chart-line', key: 'seo' },
-      { to: '/store', label: 'Modul-Store', icon: 'ti-building-store', key: 'store' },
+      { to: '/settings', label: t.value.settings,  icon: 'ti-settings',       key: 'settings' },
+      { to: '/seo',      label: 'SEO / GEO',        icon: 'ti-chart-line',     key: 'seo'      },
+      { to: '/store',    label: 'Modul-Store',       icon: 'ti-building-store', key: 'store'    },
+      ...(store.licenseModules?.includes('nexora')
+        ? [{ to: '/website', label: 'Website', icon: 'ti-world', key: 'nexora' }]
+        : []),
     ]
   }
 ])
