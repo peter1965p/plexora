@@ -180,58 +180,62 @@ const tabs = [
   { key: 'branchen', label: 'Branchen-Pakete', icon: 'ti-building-factory-2' },
 ]
 
+// licenseModules = Quelle der Wahrheit ob ein Modul gekauft/freigeschaltet ist
+const owned = (key: string) =>
+  store.licenseModules ? store.licenseModules.includes(key) : !!store.modules.find(m => m.key === key)?.on
+
 const addons = computed(() => [
   {
     key: 'crm', name: 'CRM', icon: 'ti-users', price: '€9', badge: null,
-    owned: store.modules.find(m => m.key === 'crm')?.on,
+    owned: owned('crm'),
     desc: 'Kontakte, Deals & Lead-Tracking für dein Vertriebsteam.',
     features: ['Kontakte & Deals', 'Pipeline-View', 'CSV Import/Export', 'Firmen-Verwaltung'],
   },
   {
     key: 'finance', name: 'Finanzen', icon: 'ti-receipt', price: '€12', badge: null,
-    owned: store.modules.find(m => m.key === 'finance')?.on,
+    owned: owned('finance'),
     desc: 'Rechnungen, Angebote, Mahnwesen und Cashflow-Übersicht.',
     features: ['PDF-Rechnungen', 'Angebote', 'Mahnwesen', 'DATEV-Export'],
   },
   {
     key: 'projects', name: 'Projekte', icon: 'ti-layout-kanban', price: '€10', badge: null,
-    owned: store.modules.find(m => m.key === 'projects')?.on,
+    owned: owned('projects'),
     desc: 'Kanban-Board, Deadlines und Team-Zuordnung für Kundenprojekte.',
     features: ['Kanban-Board', 'Deadlines', 'Team-Zuordnung', 'Fortschritts-Tracking'],
   },
   {
     key: 'hr', name: 'HR', icon: 'ti-id-badge', price: '€10', badge: 'NEU',
-    owned: store.modules.find(m => m.key === 'hr')?.on,
+    owned: owned('hr'),
     desc: 'Mitarbeiterverwaltung, Urlaubsplanung und Onboarding.',
     features: ['Mitarbeiter-Daten', 'Urlaub & Abwesenheit', 'Recruiting', 'Onboarding-Checklisten'],
   },
   {
     key: 'support', name: 'Support', icon: 'ti-headset', price: '€8', badge: null,
-    owned: store.modules.find(m => m.key === 'support')?.on,
+    owned: owned('support'),
     desc: 'Ticket-System mit SLA-Tracking und Kunden-Portal.',
     features: ['Ticket-System', 'SLA-Tracking', 'Kunden-Portal', 'Prioritäten'],
   },
   {
     key: 'marketing', name: 'Marketing', icon: 'ti-speakerphone', price: '€14', badge: 'PRO',
-    owned: store.modules.find(m => m.key === 'marketing')?.on,
+    owned: owned('marketing'),
     desc: 'Lead-Kampagnen, UTM-Tracking, QR-Codes und Auswertungen.',
     features: ['Kampagnen', 'UTM-Tracking', 'QR-Codes', 'Conversion-Stats'],
   },
   {
     key: 'shop', name: 'Shop', icon: 'ti-shopping-cart', price: '€15', badge: null,
-    owned: store.modules.find(m => m.key === 'shop')?.on,
+    owned: owned('shop'),
     desc: 'Produkt-Verwaltung mit Stripe-Checkout und Bestellverfolgung.',
     features: ['Produktkatalog', 'Stripe-Checkout', 'Bestellungen', 'Lieferanten'],
   },
   {
     key: 'forms', name: 'Formulare', icon: 'ti-forms', price: '€7', badge: null,
-    owned: store.modules.find(m => m.key === 'forms')?.on,
+    owned: owned('forms'),
     desc: 'Formular-Builder zum Einbetten in jede Website.',
     features: ['Drag & Drop', 'Einbettbar', 'Submissions-Übersicht', 'E-Mail-Benachrichtigung'],
   },
   {
     key: 'nexora', name: 'Unternehmens-Webseite', icon: 'ti-world', price: '€19', badge: 'NEU',
-    owned: store.modules.find(m => m.key === 'nexora')?.on,
+    owned: owned('nexora'),
     desc: 'Professionelle Firmenwebseite, komplett aus Plexora verwaltet. Auto-Provisioning via API.',
     features: ['Auto-Provisioning', 'API-gesteuert', 'Inhalts-Editor', 'DSGVO-konform', 'Nexora-Frontend'],
   },
