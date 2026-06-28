@@ -1,6 +1,5 @@
 import { demoGuard } from '../../utils/demoGuard'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
-import { demoGuard } from '../../utils/demoGuard'
 import { getDynamoClient } from '../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +12,7 @@ export default defineEventHandler(async (event) => {
     Item: {
       settingId: 'theme',
       scope:     'global',
-      theme:     body.theme === 'light' ? 'light' : 'dark',
+      theme:     body.theme || 'dark',
       accent:    body.accent    || '#6C3FE8',
       accentRgb: body.accentRgb || '234, 88, 12',
       updated:   new Date().toISOString(),
