@@ -74,6 +74,7 @@
               </template>
             </div>
             <button v-if="!mod.owned" class="btn-buy" @click="openBuy(mod)">Hinzufügen</button>
+            <NuxtLink v-else-if="mod.key === 'nexora'" to="/website" class="btn-manage">Verwalten</NuxtLink>
             <button v-else class="btn-manage" disabled>Verwalten</button>
           </div>
         </div>
