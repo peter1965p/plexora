@@ -152,6 +152,14 @@ const router = useRouter();
 const route  = useRoute();
 const idleLogout = computed(() => route.query.reason === 'idle');
 
+onMounted(async () => {
+  try {
+    const { fetchAuthSession } = await import('aws-amplify/auth')
+    const session = await fetchAuthSession({ forceRefresh: false })
+    if (session.tokens?.idToken) router.replace('/dashboard')
+  } catch {}
+})
+
 const isRegister = ref(false);
 const isForgot = ref(false);
 const forgotSent = ref(false);

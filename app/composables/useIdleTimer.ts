@@ -32,7 +32,7 @@ export function useIdleTimer() {
     let isRealUser = false
     try { await signOut(); isRealUser = true } catch {}
     if (typeof window !== 'undefined') {
-      window.location.href = isRealUser ? '/login?reason=idle' : '/'
+      window.location.href = '/'
     }
   }
 
