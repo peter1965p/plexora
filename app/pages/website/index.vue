@@ -244,10 +244,42 @@
             </button>
           </div>
           <div style="display:flex;flex-direction:column;gap:12px">
+            <!-- Backdrop closes picker -->
+            <div v-if="openPickerIndex !== null" style="position:fixed;inset:0;z-index:40" @click="openPickerIndex = null"></div>
+
             <div v-for="(svc, i) in form.services" :key="i" style="padding:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px">
-              <div style="display:flex;gap:10px;margin-bottom:10px">
-                <input v-model="svc.icon" class="field-input" placeholder="☁" style="width:60px;text-align:center;font-size:18px;flex-shrink:0" />
+              <!-- Row 1: Icon picker + Title + Color + Delete -->
+              <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
+
+                <!-- Icon picker button -->
+                <div style="position:relative;flex-shrink:0">
+                  <button @click.stop="openPickerIndex = openPickerIndex === i ? null : i"
+                    :style="`width:48px;height:36px;background:var(--bg);border:1px solid ${svc.color || 'var(--border)'};border-radius:8px;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;transition:border-color .15s`">
+                    {{ svc.icon || '⭐' }}
+                  </button>
+                  <!-- Picker dropdown -->
+                  <div v-if="openPickerIndex === i"
+                    style="position:absolute;top:42px;left:0;z-index:50;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:10px;display:grid;grid-template-columns:repeat(8,1fr);gap:3px;width:272px;box-shadow:0 8px 24px rgba(0,0,0,.6)"
+                    @click.stop>
+                    <button v-for="ic in SERVICE_ICONS" :key="ic"
+                      @click="svc.icon = ic; openPickerIndex = null"
+                      :style="`width:30px;height:30px;font-size:16px;border:none;border-radius:6px;cursor:pointer;transition:background .1s;background:${svc.icon === ic ? (svc.color || 'var(--accent)') + '33' : 'transparent'}`"
+                      @mouseenter="($event.target as HTMLElement).style.background='var(--border)'"
+                      @mouseleave="($event.target as HTMLElement).style.background= svc.icon === ic ? (svc.color || 'var(--accent)') + '33' : 'transparent'">
+                      {{ ic }}
+                    </button>
+                  </div>
+                </div>
+
                 <input v-model="svc.title" class="field-input" placeholder="Leistungstitel" style="flex:1" />
+
+                <!-- Color picker -->
+                <div style="flex-shrink:0;display:flex;align-items:center;gap:6px">
+                  <input type="color" v-model="svc.color"
+                    :title="svc.color || '#f97316'"
+                    style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:3px;background:var(--bg);cursor:pointer;flex-shrink:0" />
+                </div>
+
                 <button class="icon-btn" @click="removeService(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
               </div>
               <textarea v-model="svc.description" class="field-input" rows="2" placeholder="Kurzbeschreibung..." style="resize:vertical;margin-bottom:8px"></textarea>
@@ -458,7 +490,7 @@ const form = reactive({
   heroCtaLabel:        'Kontakt aufnehmen',
   aboutText:           '',
   stats:               [] as { value: string; label: string }[],
-  services:            [] as { icon: string; title: string; description: string; featuresRaw: string }[],
+  services:            [] as { icon: string; color: string; title: string; description: string; featuresRaw: string }[],
   contactAddress:      '',
   contactEmail:        '',
   contactPhone:        '',
@@ -491,7 +523,9 @@ onMounted(async () => {
       form.aboutText      = n.about?.text     || ''
       form.stats          = n.about?.stats    || []
       form.services       = (n.services || []).map((s: any) => ({
-        ...s, featuresRaw: (s.features || []).join(', ')
+        ...s,
+        color:       s.color || n.config?.primaryColor || '#f97316',
+        featuresRaw: (s.features || []).join(', ')
       }))
       form.contactAddress      = n.contactInfo?.address      || ''
       form.contactEmail        = n.contactInfo?.email        || ''
@@ -534,6 +568,7 @@ async function save() {
         },
         services: form.services.map(s => ({
           icon:        s.icon,
+          color:       s.color || '',
           title:       s.title,
           description: s.description,
           features:    s.featuresRaw.split(',').map((f: string) => f.trim()).filter(Boolean),
@@ -560,7 +595,14 @@ async function save() {
   saving.value = false
 }
 
-function addService()   { form.services.push({ icon: '⭐', title: '', description: '', featuresRaw: '' }) }
+const openPickerIndex = ref<number | null>(null)
+const SERVICE_ICONS = [
+  '💻','☁️','🚀','✅','🌐','📱','🔧','🛡️','📊','💡',
+  '⚡','🎨','🔗','🏗️','📦','🤖','💬','📧','🔒','📈',
+  '🎯','⭐','🔥','💎','🌟','⚙️','🔍','🖥️','📋','🏆',
+  '🤝','🧩','🧠','🗂️','🗺️','🖱️','🔔','🎓','🏢','🌍',
+]
+function addService()   { form.services.push({ icon: '⭐', color: form.primaryColor || '#f97316', title: '', description: '', featuresRaw: '' }) }
 function removeService(i: number) { form.services.splice(i, 1) }
 function addStat()      { form.stats.push({ value: '', label: '' }) }
 function removeStat(i: number)    { form.stats.splice(i, 1) }
