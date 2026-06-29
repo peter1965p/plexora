@@ -2,7 +2,7 @@
   <div class="page">
 
     <!-- Header -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;position:sticky;top:0;z-index:50;background:var(--bg);padding:16px 0 14px;margin-top:-16px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;position:sticky;top:0;z-index:10;background:var(--bg);padding:16px 0 14px;margin-top:-16px;border-bottom:1px solid var(--border)">
       <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center">
         <i class="ti ti-world" style="font-size:18px;color:#fff"></i>
       </div>
