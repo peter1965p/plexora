@@ -106,7 +106,8 @@ onMounted(async () => {
 
 async function logout() {
   try { await signOut() } catch {}
-  router.push('/')
+  await router.push('/login')
+  router.go(0)
 }
 
 // ── Notifications ─────────────────────────────────────────────────────────────
