@@ -21,5 +21,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     pages: res.Item.pages || [],
+    theme: res.Item.theme || 'midnight',
   }
 })

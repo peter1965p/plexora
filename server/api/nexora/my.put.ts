@@ -20,13 +20,19 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, updatedAt = :u',
     ExpressionAttributeValues: {
-      ':cn':  body.companyName  ?? item.companyName  ?? '',
-      ':sd':  body.subdomain    ?? item.subdomain    ?? '',
-      ':cd':  body.customDomain ?? item.customDomain ?? '',
-      ':cfg': { ...(item.config || {}), ...(body.config || {}) },
-      ':u':   new Date().toISOString(),
+      ':cn':   body.companyName  ?? item.companyName  ?? '',
+      ':sd':   body.subdomain    ?? item.subdomain    ?? '',
+      ':cd':   body.customDomain ?? item.customDomain ?? '',
+      ':cfg':  { ...(item.config  || {}), ...(body.config  || {}) },
+      ':svc':  body.services    ?? item.services    ?? [],
+      ':hero': body.hero        ?? item.hero        ?? {},
+      ':about':body.about       ?? item.about       ?? {},
+      ':ci':   body.contactInfo ?? item.contactInfo ?? {},
+      ':pg':   body.pages       ?? item.pages       ?? [],
+      ':th':   body.theme       ?? item.theme       ?? 'midnight',
+      ':u':    new Date().toISOString(),
     }
   }))
 
