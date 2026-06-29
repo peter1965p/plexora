@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName  ?? item.companyName  ?? '',
       ':sd':   body.subdomain    ?? item.subdomain    ?? '',
@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
       ':ci':   body.contactInfo ?? item.contactInfo ?? {},
       ':pg':   body.pages       ?? item.pages       ?? [],
       ':th':   body.theme       ?? item.theme       ?? 'midnight',
+      ':ft':   body.footer      ?? item.footer      ?? {},
       ':u':    new Date().toISOString(),
     }
   }))

@@ -207,6 +207,31 @@
             <div v-if="!form.stats.length" style="font-size:12px;color:var(--text-muted)">Noch keine Fakten — klick auf +</div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-layout-bottombar" style="margin-right:8px;color:var(--accent)"></i>Footer</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label class="field-label">Tagline (unter Copyright)</label>
+              <input v-model="form.footerTagline" class="field-input" placeholder="Ihr Partner für digitale Lösungen" />
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="flex:1">
+                <label class="field-label">Status-Label</label>
+                <input v-model="form.footerStatusLabel" class="field-input" placeholder="System Online" />
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;padding-top:2px">
+                <label class="field-label">Anzeigen</label>
+                <button @click="form.footerShowStatus = !form.footerShowStatus"
+                  style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                  :style="form.footerShowStatus ? 'background:var(--accent)' : 'background:var(--border)'">
+                  <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                    :style="form.footerShowStatus ? 'left:21px' : 'left:3px'"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ── TAB: SERVICES ── -->
@@ -440,6 +465,9 @@ const form = reactive({
   contactAvailability: 'Mo – Fr, 9:00 – 18:00 Uhr',
   pages: [] as { slug: string; title: string; content: string; contentType: 'html' | 'markdown' }[],
   theme: 'midnight' as string,
+  footerTagline:     '',
+  footerStatusLabel: 'System Online',
+  footerShowStatus:  true,
 })
 
 onMounted(async () => {
@@ -471,6 +499,9 @@ onMounted(async () => {
       form.contactAvailability = n.contactInfo?.availability || 'Mo – Fr, 9:00 – 18:00 Uhr'
       form.pages               = n.pages  || defaultPages()
       form.theme               = n.theme  || 'midnight'
+      form.footerTagline       = n.footer?.tagline     || ''
+      form.footerStatusLabel   = n.footer?.statusLabel || 'System Online'
+      form.footerShowStatus    = n.footer?.showStatus  ?? true
     }
   } catch {}
   loading.value = false
@@ -515,6 +546,11 @@ async function save() {
         },
         pages: form.pages,
         theme: form.theme,
+        footer: {
+          tagline:     form.footerTagline,
+          statusLabel: form.footerStatusLabel,
+          showStatus:  form.footerShowStatus,
+        },
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
