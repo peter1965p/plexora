@@ -60,49 +60,56 @@
       <div v-if="activeTab === 'connection'" class="ws-grid">
         <div style="display:flex;flex-direction:column;gap:16px">
 
+          <!-- Unternehmensname -->
           <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-key" style="margin-right:8px;color:var(--accent)"></i>API-Key</span></div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-              Für das Nexora-Frontend als <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">PLEXORA_TENANT_ID</code> verwenden.
-            </div>
-            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px">
-              <div style="flex:1;font-family:monospace;font-size:12px;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                {{ showKey ? nexora.apiKey : nexora.apiKey.slice(0,12) + '••••••••••••••••••••' }}
-              </div>
-              <button class="icon-btn" @click="showKey = !showKey"><i class="ti" :class="showKey ? 'ti-eye-off' : 'ti-eye'"></i></button>
-              <button class="icon-btn" @click="copyKey"><i class="ti" :class="copied ? 'ti-check' : 'ti-copy'" :style="copied ? 'color:#22c55e' : ''"></i></button>
-            </div>
-            <div style="font-size:11px;color:var(--text-muted)">Tenant-ID: <code style="font-size:11px">{{ nexora.tenantId }}</code></div>
-          </div>
-
-          <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>Domain</span></div>
+            <div class="card-header"><span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>Dein Unternehmen</span></div>
             <div style="display:flex;flex-direction:column;gap:14px">
               <div>
                 <label class="field-label">Unternehmensname</label>
                 <input v-model="form.companyName" class="field-input" placeholder="Muster GmbH" />
               </div>
+            </div>
+          </div>
+
+          <!-- Domain -->
+          <div class="card">
+            <div class="card-header"><span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>Deine Domain</span></div>
+            <div style="display:flex;flex-direction:column;gap:16px">
               <div>
-                <label class="field-label">Subdomain</label>
-                <div style="display:flex;align-items:center">
-                  <input v-model="form.subdomain" class="field-input" placeholder="meinefirma" style="border-radius:8px 0 0 8px;flex:1" />
-                  <div style="padding:0 12px;height:36px;background:var(--bg-elevated);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;display:flex;align-items:center;font-size:12px;color:var(--text-muted)">.nexora.de</div>
+                <label class="field-label">Domain (z.B. meinefirma.de)</label>
+                <input v-model="form.customDomain" class="field-input" placeholder="meinefirma.de" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Trag hier die Domain ein, auf der deine Website erreichbar sein soll.</div>
+              </div>
+
+              <!-- CNAME Anweisung -->
+              <div v-if="form.customDomain" style="border:1px solid var(--accent);border-radius:10px;overflow:hidden">
+                <div style="padding:10px 14px;background:var(--accent)11;display:flex;align-items:center;gap:8px">
+                  <i class="ti ti-info-circle" style="color:var(--accent)"></i>
+                  <span style="font-size:12px;font-weight:600;color:var(--accent)">Einmalig in deinem DNS eintragen</span>
+                </div>
+                <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+                  <div style="font-size:12px;color:var(--text-muted)">Gehe zu deinem Domain-Anbieter (z.B. Namecheap, IONOS, Strato, Cloudflare) und erstelle folgenden DNS-Eintrag:</div>
+                  <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="color:var(--text-muted)">Typ:</span>
+                    <span style="font-weight:700;color:var(--accent)">CNAME</span>
+                    <span style="color:var(--border)">|</span>
+                    <span style="color:var(--text-muted)">Name:</span>
+                    <span style="color:var(--text)">{{ form.customDomain }}</span>
+                    <span style="color:var(--border)">|</span>
+                    <span style="color:var(--text-muted)">Ziel:</span>
+                    <span style="color:var(--accent)">nexora-nuxt.pages.dev</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-muted)">Das war's! Nach 5–10 Minuten ist deine Website unter <strong style="color:var(--text)">{{ form.customDomain }}</strong> erreichbar.</div>
                 </div>
               </div>
-              <div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                  <label class="field-label" style="margin:0">Eigene Domain</label>
-                  <span style="font-size:10px;font-weight:700;color:var(--accent);background:var(--accent)18;border-radius:20px;padding:2px 8px">PREMIUM</span>
-                </div>
-                <input v-model="form.customDomain" class="field-input" placeholder="meine-firma.de (optional)" />
-                <div v-if="form.customDomain" style="margin-top:10px;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px">
-                  <span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:4px;padding:1px 6px;margin-right:8px">CNAME</span>
-                  <code>{{ form.customDomain }}</code> <span style="color:var(--text-muted)">→</span> <code style="color:var(--accent)">nexora.de</code>
-                </div>
+
+              <div v-else style="padding:14px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);text-align:center">
+                <i class="ti ti-arrow-up" style="margin-right:6px"></i>Trag deine Domain ein — dann zeigen wir dir den DNS-Eintrag
               </div>
             </div>
           </div>
 
+          <!-- Design -->
           <div class="card">
             <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Design</span></div>
             <div style="display:flex;flex-direction:column;gap:14px">
@@ -124,34 +131,48 @@
           </div>
         </div>
 
+        <!-- Rechte Spalte -->
         <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- So einfach geht's -->
           <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-rocket" style="margin-right:8px;color:var(--accent)"></i>Quick Start</span></div>
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <div v-for="(step, i) in steps" :key="i" style="display:flex;gap:12px;align-items:flex-start">
-                <div style="width:22px;height:22px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px">{{ i + 1 }}</div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;margin-bottom:2px">{{ step.title }}</div>
-                  <div style="font-size:12px;color:var(--text-muted)">{{ step.desc }}</div>
+            <div class="card-header"><span class="card-title"><i class="ti ti-rocket" style="margin-right:8px;color:var(--accent)"></i>So einfach geht's</span></div>
+            <div style="display:flex;flex-direction:column;gap:0">
+              <div v-for="(step, i) in customerSteps" :key="i"
+                style="display:flex;gap:14px;align-items:flex-start;padding:14px 0"
+                :style="i < customerSteps.length - 1 ? 'border-bottom:1px solid var(--border)' : ''">
+                <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0"
+                  :style="step.done ? 'background:#22c55e22;color:#22c55e' : 'background:var(--accent)22;color:var(--accent)'">
+                  <i class="ti" :class="step.done ? 'ti-check' : `ti-${i+1}-circle-filled`" v-if="step.done || i > 3"></i>
+                  <span v-else>{{ i + 1 }}</span>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600;margin-bottom:3px">{{ step.title }}</div>
+                  <div style="font-size:12px;color:var(--text-muted);line-height:1.5">{{ step.desc }}</div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Für Entwickler (aufklappbar) -->
           <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-api" style="margin-right:8px;color:var(--accent)"></i>Public API</span></div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <div v-for="ep in apiEndpoints" :key="ep.path" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px">
-                <span style="font-size:10px;font-weight:700;color:#22c55e;background:#22c55e18;border-radius:4px;padding:2px 6px">GET</span>
-                <code style="font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ep.path }}</code>
-                <span style="font-size:11px;color:var(--text-muted);flex-shrink:0">{{ ep.desc }}</span>
+            <div class="card-header" style="cursor:pointer" @click="showDevSection = !showDevSection">
+              <span class="card-title"><i class="ti ti-code" style="margin-right:8px;color:var(--text-muted)"></i><span style="color:var(--text-muted)">Für Entwickler</span></span>
+              <i class="ti" :class="showDevSection ? 'ti-chevron-up' : 'ti-chevron-down'" style="color:var(--text-muted)"></i>
+            </div>
+            <div v-if="showDevSection" style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Self-Hosting: Tenant-ID als <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">PLEXORA_TENANT_ID</code> Env-Variable setzen.</div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+                <div style="flex:1;font-family:monospace;font-size:11px;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                  {{ showKey ? nexora.apiKey : nexora.apiKey.slice(0,12) + '••••••••••' }}
+                </div>
+                <button class="icon-btn" @click="showKey = !showKey"><i class="ti" :class="showKey ? 'ti-eye-off' : 'ti-eye'"></i></button>
+                <button class="icon-btn" @click="copyKey"><i class="ti" :class="copied ? 'ti-check' : 'ti-copy'" :style="copied ? 'color:#22c55e' : ''"></i></button>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px">
-                <span style="font-size:10px;font-weight:700;color:#f97316;background:#f9731618;border-radius:4px;padding:2px 6px">POST</span>
-                <code style="font-size:11px;flex:1">/api/public/{{ nexora.tenantId }}/contact</code>
-                <span style="font-size:11px;color:var(--text-muted)">→ CRM Lead</span>
-              </div>
+              <div style="font-size:11px;color:var(--text-muted)">Tenant-ID: <code style="font-size:11px">{{ nexora.tenantId }}</code></div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -467,6 +488,7 @@ const nexora  = ref<any>(null)
 const showKey = ref(false)
 const copied  = ref(false)
 const activeTab = ref('connection')
+const showDevSection = ref(false)
 
 const tabs = [
   { key: 'connection', label: 'Verbindung', icon: 'ti-plug' },
@@ -668,17 +690,27 @@ function copyKey() {
   setTimeout(() => { copied.value = false }, 2000)
 }
 
-const steps = [
-  { title: 'Tenant-ID kopieren',    desc: 'Aus der API-Key Karte oben.' },
-  { title: 'Nexora clonen & .env',  desc: `PLEXORA_TENANT_ID=${nexora.value?.tenantId || '...'}\nPLEXORA_API_URL=https://app.plexora.eu` },
-  { title: 'Inhalte befüllen',      desc: 'Tabs Inhalte, Leistungen & Kontakt ausfüllen → Speichern.' },
-  { title: 'Nexora deployen',       desc: 'Cloudflare Pages / Vercel → fertig!' },
-]
-
-const apiEndpoints = computed(() => [
-  { path: `/api/public/${nexora.value?.tenantId || '...'}/branding`,  desc: 'Design & Config' },
-  { path: `/api/public/${nexora.value?.tenantId || '...'}/content`,   desc: 'Hero, About, Stats' },
-  { path: `/api/public/${nexora.value?.tenantId || '...'}/services`,  desc: 'Leistungen' },
+const customerSteps = computed(() => [
+  {
+    title: 'Unternehmensname & Domain eintragen',
+    desc:  'Tab "Verbindung" → Firmenname + deine Domain eintragen → Speichern.',
+    done:  !!(form.companyName && form.customDomain),
+  },
+  {
+    title: 'Inhalte befüllen',
+    desc:  'Tabs "Inhalte", "Leistungen" und "Kontakt" ausfüllen → Speichern.',
+    done:  !!(form.heroHeadline && form.aboutText),
+  },
+  {
+    title: 'Einen DNS-Eintrag setzen',
+    desc:  'Bei deinem Domain-Anbieter: CNAME deinedomain.de → nexora-nuxt.pages.dev. Der genaue Eintrag wird oben angezeigt sobald du deine Domain einträgst.',
+    done:  false,
+  },
+  {
+    title: 'Fertig — Website ist live!',
+    desc:  'Nach 5–10 Minuten ist deine Website auf deiner Domain erreichbar. Kein Code, kein Deploy, kein Stress.',
+    done:  false,
+  },
 ])
 </script>
 
