@@ -48,7 +48,7 @@
       </div>
 
       <!-- Tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0">
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;position:sticky;top:67px;z-index:9;background:var(--bg)">
         <button v-for="t in tabs" :key="t.key" @click="activeTab = t.key"
           style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .15s;margin-bottom:-1px;font-family:inherit"
           :style="activeTab === t.key ? 'color:var(--accent);border-bottom-color:var(--accent)' : ''">
