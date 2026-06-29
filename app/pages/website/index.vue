@@ -566,7 +566,7 @@ function addStat()      { form.stats.push({ value: '', label: '' }) }
 function removeStat(i: number)    { form.stats.splice(i, 1) }
 
 // ── Pages / Monaco ────────────────────────────────────────────────────────────
-const monacoTheme   = ref(localStorage.getItem('plx_editor_theme') || 'vs-dark')
+const monacoTheme   = ref(import.meta.client ? (localStorage.getItem('plx_editor_theme') || 'vs-dark') : 'vs-dark')
 const editingPage   = ref<number | null>(null)
 const monacoThemes  = [
   { value: 'vs-dark',  label: 'VS Dark' },
