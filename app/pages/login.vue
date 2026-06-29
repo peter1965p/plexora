@@ -156,8 +156,12 @@ const idleLogout = computed(() => route.query.reason === 'idle');
 onMounted(async () => {
   try {
     const { fetchAuthSession } = await import('aws-amplify/auth')
-    const session = await fetchAuthSession({ forceRefresh: false })
-    if (session.tokens?.idToken) router.replace('/dashboard')
+    const session = await fetchAuthSession({ forceRefresh: true })
+    const payload = session.tokens?.idToken?.payload
+    const groups  = (payload?.['cognito:groups'] as string[]) || []
+    if (groups.includes('admins') || groups.includes('customers')) {
+      router.replace('/dashboard')
+    }
   } catch {}
 })
 
@@ -181,6 +185,9 @@ async function login() {
   try {
     try { await signOut() } catch {}
     await signIn({ username: email.value, password: password.value });
+    // forceRefresh stellt sicher dass die Middleware den frischen Token sieht
+    const { fetchAuthSession } = await import('aws-amplify/auth')
+    await fetchAuthSession({ forceRefresh: true })
     router.push("/dashboard");
   } catch (e: any) {
     error.value = e.message || "Anmeldung fehlgeschlagen";
