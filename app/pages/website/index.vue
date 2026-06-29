@@ -427,6 +427,93 @@
         </div>
       </div>
 
+      <!-- ── TAB: STACK ── -->
+      <div v-else-if="activeTab === 'stack'" style="max-width:800px;display:flex;flex-direction:column;gap:16px">
+
+        <!-- Items Card -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-stack-2" style="margin-right:8px;color:var(--accent)"></i>Tech-Stack Ticker</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.stackEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.stackEnabled = !form.stackEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.stackEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.stackEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Endloser Ticker mit deinen Technologien und Tools. Pausiert beim Hover.</div>
+
+          <!-- Section title -->
+          <div style="margin-bottom:14px">
+            <label class="field-label">Abschnittstitel</label>
+            <input v-model="form.stackTitle" class="field-input" placeholder="TECH STACK" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
+          </div>
+
+          <!-- Items list -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+            <div v-for="(item, i) in form.stackItems" :key="i"
+              style="display:flex;gap:8px;align-items:center;padding:8px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
+              <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 12px;border-radius:9999px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em;border:1px solid;min-width:80px;text-align:center"
+                :style="stackChipStyle(item.color)">{{ item.label || '…' }}</span>
+              <input v-model="item.label" class="field-input" placeholder="Label" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
+              <select v-model="item.color" class="field-input" style="width:148px;padding:5px 8px;height:32px;font-size:12px;cursor:pointer">
+                <option v-for="col in STACK_COLORS" :key="col.value" :value="col.value">{{ col.label }}</option>
+              </select>
+              <button class="icon-btn" @click="removeStackItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
+            </div>
+            <div v-if="!form.stackItems.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
+              Noch keine Items — nutze die Schnellauswahl oder trag manuell ein
+            </div>
+          </div>
+
+          <!-- Add new item -->
+          <div style="display:flex;gap:8px;align-items:center;padding:10px;background:var(--bg);border:1px dashed var(--border);border-radius:8px">
+            <input v-model="form.stackNewLabel" class="field-input" placeholder="z.B. Vue.js" style="flex:1;padding:5px 10px;height:32px;font-size:12px"
+              @keydown.enter="addStackItem" />
+            <select v-model="form.stackNewColor" class="field-input" style="width:148px;padding:5px 8px;height:32px;font-size:12px;cursor:pointer">
+              <option v-for="col in STACK_COLORS" :key="col.value" :value="col.value">{{ col.label }}</option>
+            </select>
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;flex-shrink:0" @click="addStackItem">
+              <i class="ti ti-plus" style="margin-right:4px"></i> Hinzufügen
+            </button>
+          </div>
+        </div>
+
+        <!-- Schnellauswahl -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Schnellauswahl</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Klick auf einen Chip um ihn zur Liste hinzuzufügen (bereits hinzugefügte sind gedimmt):</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <button v-for="preset in STACK_PRESETS" :key="preset.label"
+              @click="addPreset(preset)"
+              :disabled="form.stackItems.some(x => x.label === preset.label)"
+              style="font-size:10px;font-weight:700;padding:4px 14px;border-radius:9999px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;border:1px solid;transition:opacity .15s;background:none"
+              :style="[stackChipStyle(preset.color), form.stackItems.some(x => x.label === preset.label) ? 'opacity:.35;cursor:default' : 'opacity:1']">
+              {{ preset.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Legende -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-tag" style="margin-right:8px;color:var(--accent)"></i>Legende — Kategorienamen</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Benenne die Farbkategorien wie du möchtest — erscheint als Legende neben dem Ticker.</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div v-for="col in STACK_COLORS" :key="col.value" style="display:flex;gap:10px;align-items:center">
+              <span style="font-size:10px;font-weight:700;padding:4px 14px;border-radius:9999px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em;border:1px solid;flex-shrink:0;min-width:110px;text-align:center"
+                :style="stackChipStyle(col.value)">
+                {{ form.stackLegend[col.value] || col.label }}
+              </span>
+              <input v-model="form.stackLegend[col.value]" class="field-input" :placeholder="col.label" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- ── TAB: SEITEN ── -->
       <div v-else-if="activeTab === 'pages'" style="display:flex;gap:16px;min-height:600px">
         <!-- Sidebar: page list -->
@@ -642,6 +729,7 @@ const tabs = [
   { key: 'connection', label: 'Verbindung', icon: 'ti-plug' },
   { key: 'content',    label: 'Inhalte',    icon: 'ti-text-size' },
   { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
+  { key: 'stack',      label: 'Stack',      icon: 'ti-stack-2' },
   { key: 'contact',    label: 'Kontakt',    icon: 'ti-map-pin' },
   { key: 'pages',      label: 'Seiten',     icon: 'ti-file-text' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
@@ -678,6 +766,19 @@ const form = reactive({
   footerTagline:     '',
   footerStatusLabel: 'System Online',
   footerShowStatus:  true,
+  stackEnabled:  true,
+  stackTitle:    'TECH STACK',
+  stackItems:    [] as { label: string; color: string }[],
+  stackLegend: {
+    blue:   'Frontend',
+    green:  'Backend',
+    red:    'Database',
+    orange: 'Systems',
+    yellow: 'Cloud',
+    violet: 'Microsoft Stack',
+  } as Record<string, string>,
+  stackNewLabel: '',
+  stackNewColor: 'blue' as string,
 })
 
 onMounted(async () => {
@@ -722,6 +823,10 @@ onMounted(async () => {
       form.heroGradientVia     = n.heroGradient?.via   || '#ea580c'
       form.heroGradientTo      = n.heroGradient?.to    || '#431407'
       form.servicesLayout      = n.servicesLayout      || 'auto'
+      form.stackEnabled        = n.stackEnabled        ?? true
+      form.stackTitle          = n.stackTitle          || 'TECH STACK'
+      form.stackItems          = n.stackItems          || []
+      form.stackLegend         = { ...form.stackLegend, ...(n.stackLegend || {}) }
     }
   } catch {}
   loading.value = false
@@ -778,6 +883,10 @@ async function save() {
           statusLabel: form.footerStatusLabel,
           showStatus:  form.footerShowStatus,
         },
+        stackEnabled: form.stackEnabled,
+        stackTitle:   form.stackTitle,
+        stackItems:   form.stackItems,
+        stackLegend:  form.stackLegend,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
@@ -838,6 +947,62 @@ function addPage() {
   editingPage.value = form.pages.length - 1
 }
 function removePage(i: number) { form.pages.splice(i, 1); if (editingPage.value === i) editingPage.value = null }
+
+// ── Stack ─────────────────────────────────────────────────────────────────────
+function addStackItem() {
+  if (!form.stackNewLabel.trim()) return
+  form.stackItems.push({ label: form.stackNewLabel.trim(), color: form.stackNewColor })
+  form.stackNewLabel = ''
+}
+function removeStackItem(i: number) { form.stackItems.splice(i, 1) }
+function addPreset(preset: { label: string; color: string }) {
+  if (!form.stackItems.some(x => x.label === preset.label))
+    form.stackItems.push({ ...preset })
+}
+
+const STACK_COLORS = [
+  { value: 'blue',   label: 'Frontend'       },
+  { value: 'green',  label: 'Backend'        },
+  { value: 'red',    label: 'Database'       },
+  { value: 'orange', label: 'Systems'        },
+  { value: 'yellow', label: 'Cloud'          },
+  { value: 'violet', label: 'Microsoft Stack'},
+]
+
+const STACK_PRESETS = [
+  { label: 'Vue.js',      color: 'green'  }, { label: 'React',       color: 'blue'   },
+  { label: 'Angular',     color: 'red'    }, { label: 'Nuxt',        color: 'green'  },
+  { label: 'Next.js',     color: 'blue'   }, { label: 'TypeScript',  color: 'blue'   },
+  { label: 'JavaScript',  color: 'yellow' }, { label: 'Tailwind',    color: 'blue'   },
+  { label: 'Node.js',     color: 'green'  }, { label: 'Python',      color: 'yellow' },
+  { label: 'Go',          color: 'green'  }, { label: 'Rust',        color: 'orange' },
+  { label: 'PHP',         color: 'violet' }, { label: 'Java',        color: 'orange' },
+  { label: 'C#',          color: 'violet' }, { label: '.NET',        color: 'violet' },
+  { label: 'ASP.NET',     color: 'violet' }, { label: 'Docker',      color: 'orange' },
+  { label: 'Linux',       color: 'orange' }, { label: 'Nginx',       color: 'orange' },
+  { label: 'Kubernetes',  color: 'orange' }, { label: 'PostgreSQL',  color: 'red'    },
+  { label: 'MySQL',       color: 'red'    }, { label: 'MongoDB',     color: 'green'  },
+  { label: 'Redis',       color: 'red'    }, { label: 'DynamoDB',    color: 'yellow' },
+  { label: 'LibSQL',      color: 'red'    }, { label: 'AWS',         color: 'yellow' },
+  { label: 'AWS S3',      color: 'yellow' }, { label: 'AWS Lambda',  color: 'yellow' },
+  { label: 'AWS DynamoDB',color: 'yellow' }, { label: 'AWS IAM',     color: 'yellow' },
+  { label: 'Azure',       color: 'violet' }, { label: 'GCP',         color: 'blue'   },
+  { label: 'Vercel',      color: 'blue'   }, { label: 'Cloudflare',  color: 'orange' },
+  { label: 'GitHub CI/CD',color: 'orange' },
+]
+
+const CHIP_COLOR: Record<string, { bg: string; text: string; bd: string }> = {
+  blue:   { bg: '#3b82f618', text: '#93c5fd', bd: '#3b82f640' },
+  green:  { bg: '#10b98118', text: '#6ee7b7', bd: '#10b98140' },
+  red:    { bg: '#ef444418', text: '#fca5a5', bd: '#ef444440' },
+  orange: { bg: '#f9731618', text: '#fdba74', bd: '#f9731640' },
+  yellow: { bg: '#eab30818', text: '#fde047', bd: '#eab30840' },
+  violet: { bg: '#8b5cf618', text: '#c4b5fd', bd: '#8b5cf640' },
+}
+function stackChipStyle(color: string) {
+  const c = CHIP_COLOR[color] || CHIP_COLOR.blue
+  return `background:${c.bg};color:${c.text};border:1px solid ${c.bd}`
+}
 
 // ── Themes ────────────────────────────────────────────────────────────────────
 const nexoraThemes = [
