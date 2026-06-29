@@ -141,6 +141,7 @@
 <script setup lang="ts">
 import {
   signIn,
+  signOut,
   signUp,
   confirmSignUp as amplifyConfirmSignUp,
   resetPassword,
@@ -178,6 +179,7 @@ async function login() {
   loading.value = true;
   error.value = "";
   try {
+    try { await signOut() } catch {}
     await signIn({ username: email.value, password: password.value });
     router.push("/dashboard");
   } catch (e: any) {
