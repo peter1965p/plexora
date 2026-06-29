@@ -67,6 +67,30 @@ export function detectOS(ua: string): string {
   return 'Other'
 }
 
+// ── IP Geolocation (fallback when no Cloudflare headers) ──────────────────────
+function isPublicIp(ip: string): boolean {
+  if (!ip) return false
+  if (ip.startsWith('127.') || ip.startsWith('::1')) return false
+  if (ip.startsWith('10.')) return false
+  if (ip.startsWith('192.168.')) return false
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return false
+  return true
+}
+
+async function geoLookup(ip: string): Promise<{ country: string; city: string }> {
+  try {
+    const ctrl  = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 3000)
+    const res   = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode,city`, { signal: ctrl.signal })
+    clearTimeout(timer)
+    if (!res.ok) return { country: '', city: '' }
+    const data = await res.json() as any
+    return { country: data.countryCode || '', city: data.city || '' }
+  } catch {
+    return { country: '', city: '' }
+  }
+}
+
 // ── Track a visit ──────────────────────────────────────────────────────────────
 export function trackVisit(opts: {
   path: string
@@ -76,6 +100,26 @@ export function trackVisit(opts: {
   country?: string
   city?: string
 }): void {
+  const { path, ua, referrer, ip } = opts
+
+  const run = async () => {
+    // Use Cloudflare headers if available; otherwise geo-lookup
+    let country = opts.country || ''
+    let city    = opts.city    || ''
+    if (!country && isPublicIp(ip)) {
+      const geo = await geoLookup(ip)
+      country   = geo.country
+      city      = geo.city
+    }
+
+    await doTrack({ path, ua, referrer, ip, country, city })
+  }
+  run().catch(() => {})
+}
+
+async function doTrack(opts: {
+  path: string; ua: string; referrer: string; ip: string; country: string; city: string
+}): Promise<void> {
   const { path, ua, referrer, ip, country, city } = opts
   const today = new Date().toISOString().slice(0, 10)
   const botName = detectBot(ua)
