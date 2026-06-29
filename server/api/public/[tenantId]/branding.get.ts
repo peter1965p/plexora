@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
     logoUrl:        res.Item.logoUrl        || '',
     faviconUrl:     res.Item.faviconUrl     || '',
     heroBackground: res.Item.heroBackground || 'grid',
+    heroTitleSize:  res.Item.heroTitleSize  || 'lg',
     heroGradient:   res.Item.heroGradient   || { from: '#fb923c', via: '#ea580c', to: '#431407' },
     servicesLayout: res.Item.servicesLayout || 'auto',
   }

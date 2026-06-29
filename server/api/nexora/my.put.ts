@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroGradient = :hgr, servicesLayout = :sl, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
       ':logo': body.logoUrl         ?? item.logoUrl         ?? '',
       ':fav':  body.faviconUrl      ?? item.faviconUrl      ?? '',
       ':hbg':  body.heroBackground  ?? item.heroBackground  ?? 'grid',
+      ':hts':  body.heroTitleSize   ?? item.heroTitleSize   ?? 'lg',
       ':hgr':  body.heroGradient    ?? item.heroGradient    ?? { from: '#fb923c', via: '#ea580c', to: '#431407' },
       ':sl':   body.servicesLayout  ?? item.servicesLayout  ?? 'auto',
       ':u':    new Date().toISOString(),

@@ -2,7 +2,7 @@
   <div class="page">
 
     <!-- Header -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;position:sticky;top:0;z-index:10;background:var(--bg);padding:16px 0 14px;margin-top:-16px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;position:sticky;top:0;z-index:10;background:#0a0e1a;padding:16px 0 14px;margin-top:-16px;border-bottom:1px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,0.8)">
       <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center">
         <i class="ti ti-world" style="font-size:18px;color:#fff"></i>
       </div>
@@ -48,7 +48,7 @@
       </div>
 
       <!-- Tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;position:sticky;top:67px;z-index:9;background:var(--bg)">
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;position:sticky;top:67px;z-index:9;background:#0a0e1a;box-shadow:0 4px 16px rgba(0,0,0,0.6)">
         <button v-for="t in tabs" :key="t.key" @click="activeTab = t.key"
           style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .15s;margin-bottom:-1px;font-family:inherit"
           :style="activeTab === t.key ? 'color:var(--accent);border-bottom-color:var(--accent)' : ''">
@@ -112,27 +112,54 @@
           <!-- Logo & Favicon -->
           <div class="card">
             <div class="card-header"><span class="card-title"><i class="ti ti-photo" style="margin-right:8px;color:var(--accent)"></i>Logo & Favicon</span></div>
-            <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;flex-direction:column;gap:16px">
+
+              <!-- Logo -->
               <div>
-                <label class="field-label">Logo URL</label>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <div v-if="form.logoUrl" style="width:36px;height:36px;border-radius:8px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--bg);display:flex;align-items:center;justify-content:center">
-                    <img :src="form.logoUrl" style="width:100%;height:100%;object-fit:contain" @error="form.logoUrl=''" />
+                <label class="field-label">Logo</label>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:56px;height:56px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+                    <img v-if="form.logoUrl" :src="form.logoUrl" style="width:100%;height:100%;object-fit:contain" @error="form.logoUrl=''" />
+                    <i v-else class="ti ti-photo" style="font-size:22px;color:var(--text-muted)"></i>
                   </div>
-                  <input v-model="form.logoUrl" class="field-input" placeholder="https://deinefirma.de/logo.png" style="flex:1" />
+                  <div style="flex:1">
+                    <button @click="($refs.logoInput as HTMLInputElement).click()" :disabled="logoUploading"
+                      class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
+                      <i class="ti" :class="logoUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                      {{ logoUploading ? 'Lädt hoch...' : 'Datei wählen' }}
+                    </button>
+                    <div style="font-size:11px" :style="form.logoUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
+                      {{ form.logoUrl ? '✓ Logo gesetzt' : 'PNG/SVG empfohlen · Leer = Firmenname als Text' }}
+                    </div>
+                  </div>
+                  <button v-if="form.logoUrl" @click="form.logoUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
                 </div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">PNG/SVG mit transparentem Hintergrund empfohlen. Leer lassen = Firmenname als Text.</div>
+                <input ref="logoInput" type="file" accept="image/*" style="display:none" @change="uploadLogo" />
               </div>
+
+              <!-- Favicon -->
               <div>
-                <label class="field-label">Favicon URL</label>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <div v-if="form.faviconUrl" style="width:32px;height:32px;border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--bg);display:flex;align-items:center;justify-content:center">
-                    <img :src="form.faviconUrl" style="width:20px;height:20px;object-fit:contain" @error="form.faviconUrl=''" />
+                <label class="field-label">Favicon (Browser-Tab Icon)</label>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+                    <img v-if="form.faviconUrl" :src="form.faviconUrl" style="width:24px;height:24px;object-fit:contain" @error="form.faviconUrl=''" />
+                    <i v-else class="ti ti-bookmark" style="font-size:18px;color:var(--text-muted)"></i>
                   </div>
-                  <input v-model="form.faviconUrl" class="field-input" placeholder="https://deinefirma.de/favicon.ico" style="flex:1" />
+                  <div style="flex:1">
+                    <button @click="($refs.faviconInput as HTMLInputElement).click()" :disabled="faviconUploading"
+                      class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
+                      <i class="ti" :class="faviconUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                      {{ faviconUploading ? 'Lädt hoch...' : 'Datei wählen' }}
+                    </button>
+                    <div style="font-size:11px" :style="form.faviconUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
+                      {{ form.faviconUrl ? '✓ Favicon gesetzt' : 'ICO/PNG · 32×32 oder 64×64 px' }}
+                    </div>
+                  </div>
+                  <button v-if="form.faviconUrl" @click="form.faviconUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
                 </div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Browser-Tab Icon. 32×32 oder 64×64 px ICO/PNG.</div>
+                <input ref="faviconInput" type="file" accept="image/*,.ico" style="display:none" @change="uploadFavicon" />
               </div>
+
             </div>
           </div>
 
@@ -227,6 +254,18 @@
             <div>
               <label class="field-label">CTA-Button Text</label>
               <input v-model="form.heroCtaLabel" class="field-input" placeholder="Kontakt aufnehmen" />
+            </div>
+
+            <!-- Title font size -->
+            <div>
+              <label class="field-label">Schriftgröße Firmenname</label>
+              <select v-model="form.heroTitleSize" class="field-input" style="cursor:pointer">
+                <option value="sm">Klein (36pt)</option>
+                <option value="md">Mittel (48pt)</option>
+                <option value="lg">Groß (64pt) — Standard</option>
+                <option value="xl">Sehr groß (80pt)</option>
+                <option value="xxl">Riesig (96pt)</option>
+              </select>
             </div>
 
             <!-- Background type -->
@@ -556,8 +595,43 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { useAuthUser } = await import('~/composables/useAuth')
 const u = await useAuthUser()
 
-const loading = ref(true)
-const saving  = ref(false)
+const loading         = ref(true)
+const saving          = ref(false)
+const logoUploading   = ref(false)
+const faviconUploading = ref(false)
+
+async function uploadFile(file: File, prefix: string): Promise<string> {
+  const b64 = await new Promise<string>((res, rej) => {
+    const r = new FileReader()
+    r.onload  = e => res(e.target?.result as string)
+    r.onerror = rej
+    r.readAsDataURL(file)
+  })
+  const result = await $fetch<{ url: string }>(useApiUrl('/api/aws/s3-upload'), {
+    method: 'POST',
+    headers: { 'x-user-email': u.email || '' },
+    body: { fileBase64: b64, fileName: `${Date.now()}-${file.name}`, prefix },
+  })
+  return result.url
+}
+
+async function uploadLogo(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  logoUploading.value = true
+  try { form.logoUrl = await uploadFile(file, 'nexora/logos/') }
+  catch { alert('Logo-Upload fehlgeschlagen') }
+  finally { logoUploading.value = false; (e.target as HTMLInputElement).value = '' }
+}
+
+async function uploadFavicon(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  faviconUploading.value = true
+  try { form.faviconUrl = await uploadFile(file, 'nexora/favicons/') }
+  catch { alert('Favicon-Upload fehlgeschlagen') }
+  finally { faviconUploading.value = false; (e.target as HTMLInputElement).value = '' }
+}
 const nexora  = ref<any>(null)
 const showKey = ref(false)
 const copied  = ref(false)
@@ -590,6 +664,7 @@ const form = reactive({
   logoUrl:             '',
   faviconUrl:          '',
   heroBackground:      'grid' as string,
+  heroTitleSize:       'lg' as string,
   heroGradientFrom:    '#fb923c',
   heroGradientVia:     '#ea580c',
   heroGradientTo:      '#431407',
@@ -642,6 +717,7 @@ onMounted(async () => {
       form.logoUrl             = n.logoUrl             || ''
       form.faviconUrl          = n.faviconUrl          || ''
       form.heroBackground      = n.heroBackground      || 'grid'
+      form.heroTitleSize       = n.heroTitleSize       || 'lg'
       form.heroGradientFrom    = n.heroGradient?.from  || '#fb923c'
       form.heroGradientVia     = n.heroGradient?.via   || '#ea580c'
       form.heroGradientTo      = n.heroGradient?.to    || '#431407'
@@ -694,6 +770,7 @@ async function save() {
         logoUrl:        form.logoUrl,
         faviconUrl:     form.faviconUrl,
         heroBackground: form.heroBackground,
+        heroTitleSize:  form.heroTitleSize,
         heroGradient:   { from: form.heroGradientFrom, via: form.heroGradientVia, to: form.heroGradientTo },
         servicesLayout: form.servicesLayout,
         footer: {
