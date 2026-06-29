@@ -24,7 +24,7 @@ Disallow: /pay
 Disallow: /lead
 Disallow: /api
 
-Sitemap: https://app.plexora.eu/sitemap.xml
+Sitemap: https://www.plexora.eu/sitemap.xml
 
 # AI Crawlers
 User-agent: GPTBot

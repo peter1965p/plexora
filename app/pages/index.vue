@@ -423,19 +423,19 @@ useSeoMeta({
   description: 'Plexora ist die All-in-One Business Plattform für Teams: CRM, Projekte, Finanzen, HR, Support, Marketing und Shop — alles in einer Lizenz.',
   ogTitle: 'Plexora — Eine Lizenz. Alles drin.',
   ogDescription: 'Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt? CRM, Finanzen, HR, Projekte und mehr — ab 49 € / Monat.',
-  ogImage: 'https://app.plexora.eu/og-image.png',
-  ogUrl: 'https://app.plexora.eu',
+  ogImage: 'https://www.plexora.eu/og-image.png',
+  ogUrl: 'https://www.plexora.eu',
   ogType: 'website',
   ogSiteName: 'Plexora',
   twitterCard: 'summary_large_image',
   twitterTitle: 'Plexora — Eine Lizenz. Alles drin.',
   twitterDescription: 'CRM, Finanzen, HR, Projekte und mehr — alles in einer Business-Lizenz. Demo sofort verfügbar.',
-  twitterImage: 'https://app.plexora.eu/og-image.png',
+  twitterImage: 'https://www.plexora.eu/og-image.png',
   robots: 'index, follow',
 })
 
 useHead({
-  link: [{ rel: 'canonical', href: 'https://app.plexora.eu' }],
+  link: [{ rel: 'canonical', href: 'https://www.plexora.eu' }],
   script: [
     {
       type: 'application/ld+json',
@@ -445,10 +445,10 @@ useHead({
         name: 'Plexora',
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web',
-        url: 'https://app.plexora.eu',
+        url: 'https://www.plexora.eu',
         description: 'All-in-One Business Plattform: CRM, Projekte, Finanzen, HR, Support, Marketing und Shop in einer Lizenz.',
         offers: { '@type': 'Offer', price: '49', priceCurrency: 'EUR' },
-        provider: { '@type': 'Organization', name: 'Plexora', url: 'https://app.plexora.eu' },
+        provider: { '@type': 'Organization', name: 'Plexora', url: 'https://www.plexora.eu' },
       }),
     },
     {

@@ -13,8 +13,27 @@ export default defineNuxtConfig({
   app: {
     head: {
       titleTemplate: '%s — Plexora',
+      title: 'Plexora — Eine Lizenz. Alles drin.',
       meta: [
-        { name: 'theme-color', content: '#6C3FE8' },
+        { name: 'theme-color',   content: '#6C3FE8' },
+        { name: 'description',   content: 'Plexora ist die All-in-One Business Platform für kleine und mittlere Unternehmen. CRM, Projekte, Finanzen, HR, Support und mehr — eine Lizenz, alles drin.' },
+        { name: 'keywords',      content: 'Business Software, CRM, Projektverwaltung, Finanzen, HR Software, KMU Software, SaaS, Deutschland, All-in-One' },
+        { name: 'author',        content: 'Plexora' },
+        { name: 'robots',        content: 'index, follow' },
+        // Open Graph
+        { property: 'og:type',        content: 'website' },
+        { property: 'og:url',         content: 'https://www.plexora.eu/' },
+        { property: 'og:title',       content: 'Plexora — Eine Lizenz. Alles drin.' },
+        { property: 'og:description', content: 'All-in-One Business Platform für KMU. CRM, Projekte, Finanzen, HR, Support — eine Lizenz, alles drin.' },
+        { property: 'og:site_name',   content: 'Plexora' },
+        { property: 'og:locale',      content: 'de_DE' },
+        // Twitter Card
+        { name: 'twitter:card',        content: 'summary_large_image' },
+        { name: 'twitter:title',       content: 'Plexora — Eine Lizenz. Alles drin.' },
+        { name: 'twitter:description', content: 'All-in-One Business Platform für KMU. CRM, Projekte, Finanzen, HR, Support — eine Lizenz, alles drin.' },
+      ],
+      link: [
+        { rel: 'canonical', href: 'https://www.plexora.eu/' },
       ],
       link: [
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
