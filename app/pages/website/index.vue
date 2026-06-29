@@ -109,6 +109,33 @@
             </div>
           </div>
 
+          <!-- Logo & Favicon -->
+          <div class="card">
+            <div class="card-header"><span class="card-title"><i class="ti ti-photo" style="margin-right:8px;color:var(--accent)"></i>Logo & Favicon</span></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div>
+                <label class="field-label">Logo URL</label>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div v-if="form.logoUrl" style="width:36px;height:36px;border-radius:8px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--bg);display:flex;align-items:center;justify-content:center">
+                    <img :src="form.logoUrl" style="width:100%;height:100%;object-fit:contain" @error="form.logoUrl=''" />
+                  </div>
+                  <input v-model="form.logoUrl" class="field-input" placeholder="https://deinefirma.de/logo.png" style="flex:1" />
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">PNG/SVG mit transparentem Hintergrund empfohlen. Leer lassen = Firmenname als Text.</div>
+              </div>
+              <div>
+                <label class="field-label">Favicon URL</label>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div v-if="form.faviconUrl" style="width:32px;height:32px;border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--bg);display:flex;align-items:center;justify-content:center">
+                    <img :src="form.faviconUrl" style="width:20px;height:20px;object-fit:contain" @error="form.faviconUrl=''" />
+                  </div>
+                  <input v-model="form.faviconUrl" class="field-input" placeholder="https://deinefirma.de/favicon.ico" style="flex:1" />
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Browser-Tab Icon. 32×32 oder 64×64 px ICO/PNG.</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Design -->
           <div class="card">
             <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Design</span></div>
@@ -201,6 +228,40 @@
               <label class="field-label">CTA-Button Text</label>
               <input v-model="form.heroCtaLabel" class="field-input" placeholder="Kontakt aufnehmen" />
             </div>
+
+            <!-- Background type -->
+            <div>
+              <label class="field-label">Hintergrund-Stil</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button v-for="bg in heroBgOptions" :key="bg.value" @click="form.heroBackground = bg.value"
+                  style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .15s"
+                  :style="form.heroBackground === bg.value ? `border-color:var(--accent);background:var(--accent)22;color:var(--accent)` : `border-color:var(--border);background:var(--bg-elevated);color:var(--text-muted)`">
+                  <i class="ti" :class="bg.icon"></i> {{ bg.label }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Gradient colors -->
+            <div>
+              <label class="field-label">Logo-Farbverlauf (Firmenname)</label>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div style="flex:1;text-align:center">
+                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Von</div>
+                  <input type="color" v-model="form.heroGradientFrom" style="width:100%;height:32px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
+                </div>
+                <div style="flex:1;text-align:center">
+                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Über</div>
+                  <input type="color" v-model="form.heroGradientVia" style="width:100%;height:32px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
+                </div>
+                <div style="flex:1;text-align:center">
+                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Bis</div>
+                  <input type="color" v-model="form.heroGradientTo" style="width:100%;height:32px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
+                </div>
+                <!-- Preview -->
+                <div style="flex:2;height:32px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"
+                  :style="`background:linear-gradient(to right, ${form.heroGradientFrom}, ${form.heroGradientVia}, ${form.heroGradientTo})`"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -257,6 +318,19 @@
 
       <!-- ── TAB: SERVICES ── -->
       <div v-else-if="activeTab === 'services'" style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Grid Layout selector -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-layout-grid" style="margin-right:8px;color:var(--accent)"></i>Grid-Layout</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button v-for="layout in serviceLayoutOptions" :key="layout.value" @click="form.servicesLayout = layout.value"
+              style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .15s"
+              :style="form.servicesLayout === layout.value ? `border-color:var(--accent);background:var(--accent)22;color:var(--accent)` : `border-color:var(--border);background:var(--bg-elevated);color:var(--text-muted)`">
+              <i class="ti" :class="layout.icon"></i> {{ layout.label }}
+            </button>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header">
             <span class="card-title"><i class="ti ti-briefcase" style="margin-right:8px;color:var(--accent)"></i>Leistungen</span>
@@ -513,6 +587,13 @@ const form = reactive({
   aboutText:           '',
   stats:               [] as { value: string; label: string }[],
   services:            [] as { icon: string; color: string; title: string; description: string; featuresRaw: string }[],
+  logoUrl:             '',
+  faviconUrl:          '',
+  heroBackground:      'grid' as string,
+  heroGradientFrom:    '#fb923c',
+  heroGradientVia:     '#ea580c',
+  heroGradientTo:      '#431407',
+  servicesLayout:      'auto' as string,
   contactAddress:      '',
   contactEmail:        '',
   contactPhone:        '',
@@ -558,6 +639,13 @@ onMounted(async () => {
       form.footerTagline       = n.footer?.tagline     || ''
       form.footerStatusLabel   = n.footer?.statusLabel || 'System Online'
       form.footerShowStatus    = n.footer?.showStatus  ?? true
+      form.logoUrl             = n.logoUrl             || ''
+      form.faviconUrl          = n.faviconUrl          || ''
+      form.heroBackground      = n.heroBackground      || 'grid'
+      form.heroGradientFrom    = n.heroGradient?.from  || '#fb923c'
+      form.heroGradientVia     = n.heroGradient?.via   || '#ea580c'
+      form.heroGradientTo      = n.heroGradient?.to    || '#431407'
+      form.servicesLayout      = n.servicesLayout      || 'auto'
     }
   } catch {}
   loading.value = false
@@ -603,6 +691,11 @@ async function save() {
         },
         pages: form.pages,
         theme: form.theme,
+        logoUrl:        form.logoUrl,
+        faviconUrl:     form.faviconUrl,
+        heroBackground: form.heroBackground,
+        heroGradient:   { from: form.heroGradientFrom, via: form.heroGradientVia, to: form.heroGradientTo },
+        servicesLayout: form.servicesLayout,
         footer: {
           tagline:     form.footerTagline,
           statusLabel: form.footerStatusLabel,
@@ -617,6 +710,20 @@ async function save() {
   saving.value = false
 }
 
+const heroBgOptions = [
+  { value: 'grid',   label: 'Gitter',   icon: 'ti-grid-dots' },
+  { value: 'dots',   label: 'Punkte',   icon: 'ti-dots' },
+  { value: 'neural', label: 'Neural',   icon: 'ti-vector-triangle' },
+  { value: 'waves',  label: 'Wellen',   icon: 'ti-wave-sine' },
+  { value: 'solid',  label: 'Einfarbig',icon: 'ti-square-filled' },
+]
+const serviceLayoutOptions = [
+  { value: 'auto', label: 'Auto',     icon: 'ti-layout-grid' },
+  { value: '2',    label: '2 Spalten',icon: 'ti-columns-2' },
+  { value: '3',    label: '3 Spalten',icon: 'ti-columns-3' },
+  { value: '4',    label: '4 Spalten',icon: 'ti-layout-grid' },
+  { value: '2x2',  label: '2×2',      icon: 'ti-grid-4x4' },
+]
 const openPickerIndex = ref<number | null>(null)
 const SERVICE_ICONS = [
   '💻','☁️','🚀','✅','🌐','📱','🔧','🛡️','📊','💡',

@@ -20,9 +20,14 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    tenantId:    res.Item.tenantId,
-    companyName: res.Item.companyName || '',
-    subdomain:   res.Item.subdomain   || '',
-    config:      res.Item.config      || {},
+    tenantId:       res.Item.tenantId,
+    companyName:    res.Item.companyName    || '',
+    subdomain:      res.Item.subdomain      || '',
+    config:         res.Item.config         || {},
+    logoUrl:        res.Item.logoUrl        || '',
+    faviconUrl:     res.Item.faviconUrl     || '',
+    heroBackground: res.Item.heroBackground || 'grid',
+    heroGradient:   res.Item.heroGradient   || { from: '#fb923c', via: '#ea580c', to: '#431407' },
+    servicesLayout: res.Item.servicesLayout || 'auto',
   }
 })
