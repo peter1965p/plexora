@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPat = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, sectionOrder = :so, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPat = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, sectionOrder = :so, heroMediaType = :hmt, heroImageUrl = :hiu, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -52,6 +52,8 @@ export default defineEventHandler(async (event) => {
       ':ght':  body.githubTitle     ?? item.githubTitle     ?? 'PROJEKTE',
       ':ghf':  body.githubShowForks ?? item.githubShowForks ?? false,
       ':so':   body.sectionOrder    ?? item.sectionOrder    ?? ['stack', 'clients', 'github', 'services', 'contact'],
+      ':hmt':  body.heroMediaType   ?? item.heroMediaType   ?? 'code',
+      ':hiu':  body.heroImageUrl    ?? item.heroImageUrl    ?? '',
       ':u':    new Date().toISOString(),
     }
   }))

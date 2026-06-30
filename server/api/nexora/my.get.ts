@@ -51,6 +51,8 @@ export default defineEventHandler(async (event) => {
       githubTitle:    item.githubTitle    || 'PROJEKTE',
       githubShowForks: item.githubShowForks ?? false,
       sectionOrder:   item.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact'],
+      heroMediaType:  item.heroMediaType  || 'code',
+      heroImageUrl:   item.heroImageUrl   || '',
     }
   }
 })

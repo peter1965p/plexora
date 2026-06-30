@@ -30,5 +30,7 @@ export default defineEventHandler(async (event) => {
     heroTitleSize:  res.Item.heroTitleSize  || 'lg',
     heroGradient:   res.Item.heroGradient   || { from: '#fb923c', via: '#ea580c', to: '#431407' },
     servicesLayout: res.Item.servicesLayout || 'auto',
+    heroMediaType:  res.Item.heroMediaType  || 'code',
+    heroImageUrl:   res.Item.heroImageUrl   || '',
   }
 })

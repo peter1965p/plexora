@@ -360,6 +360,70 @@
       </div>
 
       <!-- ── TAB: SERVICES ── -->
+      <!-- ── TAB: MEDIEN ── -->
+      <div v-else-if="activeTab === 'media'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-layout-sidebar-right" style="margin-right:8px;color:var(--accent)"></i>Hero-Bereich rechts</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Was soll auf der Startseite rechts neben dem Text angezeigt werden?</div>
+
+          <!-- Toggle: Code vs Bild -->
+          <div style="display:flex;gap:10px;margin-bottom:20px">
+            <button @click="form.heroMediaType = 'code'"
+              style="flex:1;padding:14px;border-radius:10px;border:2px solid;cursor:pointer;font-family:inherit;transition:all .15s;text-align:left"
+              :style="form.heroMediaType === 'code' ? 'border-color:var(--accent);background:var(--accent)11;color:var(--accent)' : 'border-color:var(--border);background:var(--bg-elevated);color:var(--text-muted)'">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <i class="ti ti-code" style="font-size:16px"></i>
+                <span style="font-size:13px;font-weight:700">Code-Animation</span>
+              </div>
+              <div style="font-size:11px;opacity:.7">Animierter TypeScript-Code wird live getippt und wiederholt.</div>
+            </button>
+            <button @click="form.heroMediaType = 'image'"
+              style="flex:1;padding:14px;border-radius:10px;border:2px solid;cursor:pointer;font-family:inherit;transition:all .15s;text-align:left"
+              :style="form.heroMediaType === 'image' ? 'border-color:var(--accent);background:var(--accent)11;color:var(--accent)' : 'border-color:var(--border);background:var(--bg-elevated);color:var(--text-muted)'">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <i class="ti ti-photo" style="font-size:16px"></i>
+                <span style="font-size:13px;font-weight:700">Eigenes Bild</span>
+              </div>
+              <div style="font-size:11px;opacity:.7">Lade ein eigenes Bild hoch — z.B. dein Team, ein Produkt-Screenshot oder Mockup.</div>
+            </button>
+          </div>
+
+          <!-- Image upload (only when 'image' is selected) -->
+          <div v-if="form.heroMediaType === 'image'" style="border-top:1px solid var(--border);padding-top:18px">
+            <label class="field-label">Hero-Bild</label>
+            <div style="display:flex;align-items:flex-start;gap:14px">
+              <!-- Preview -->
+              <div style="width:120px;height:80px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">
+                <img v-if="form.heroImageUrl" :src="form.heroImageUrl"
+                  style="width:100%;height:100%;object-fit:cover" @error="form.heroImageUrl=''" />
+                <i v-else class="ti ti-photo" style="font-size:28px;color:var(--text-muted)"></i>
+              </div>
+              <!-- Upload button -->
+              <div style="flex:1">
+                <button @click="($refs.heroImageInput as HTMLInputElement).click()" :disabled="heroImageUploading"
+                  class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px">
+                  <i class="ti" :class="heroImageUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                  {{ heroImageUploading ? 'Lädt hoch...' : 'Bild vom Computer wählen' }}
+                </button>
+                <div style="font-size:11px;margin-bottom:8px" :style="form.heroImageUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
+                  {{ form.heroImageUrl ? '✓ Bild gesetzt' : 'JPG/PNG/WebP empfohlen · optimal: 480×360 px' }}
+                </div>
+                <button v-if="form.heroImageUrl" @click="form.heroImageUrl=''" class="icon-btn" style="font-size:11px;gap:4px;padding:4px 8px;display:inline-flex;align-items:center">
+                  <i class="ti ti-x"></i> Bild entfernen
+                </button>
+              </div>
+            </div>
+            <input ref="heroImageInput" type="file" accept="image/*" style="display:none" @change="uploadHeroImage" />
+          </div>
+
+          <!-- Code animation info (when 'code' is selected) -->
+          <div v-else style="padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);display:flex;align-items:flex-start;gap:10px">
+            <i class="ti ti-info-circle" style="color:var(--accent);flex-shrink:0;margin-top:1px"></i>
+            <span>Die Code-Animation tippt automatisch TypeScript-Code und wiederholt sich in einer Endlosschleife. Der angezeigte Cloud-Provider kommt aus deinem <strong style="color:var(--text)">Stack-Tab</strong> (gelbe Items = Cloud).</span>
+          </div>
+        </div>
+      </div>
+
       <div v-else-if="activeTab === 'services'" style="display:flex;flex-direction:column;gap:16px">
 
         <!-- Grid Layout selector -->
@@ -858,6 +922,22 @@
             </div>
           </div>
         </div>
+
+        <!-- Impressum-Felder -->
+        <div class="card" style="margin-top:14px">
+          <div class="card-header"><span class="card-title"><i class="ti ti-gavel" style="margin-right:8px;color:var(--accent)"></i>Impressum (§ 5 TMG)</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label class="field-label">Inhaber / Verantwortliche Person</label>
+              <input v-model="form.contactLegalName" class="field-input" placeholder="Max Mustermann" />
+            </div>
+            <div>
+              <label class="field-label">Umsatzsteuer-ID (optional)</label>
+              <input v-model="form.contactVatId" class="field-input" placeholder="DE123456789" />
+            </div>
+          </div>
+        </div>
+
         <div style="margin-top:14px;padding:12px 16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted)">
           <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
           Kontaktformular-Submissions landen automatisch als Leads in deinem <NuxtLink to="/crm" style="color:var(--accent);text-decoration:none">CRM</NuxtLink>.
@@ -941,8 +1021,9 @@ const u = await useAuthUser()
 
 const loading         = ref(true)
 const saving          = ref(false)
-const logoUploading   = ref(false)
-const faviconUploading = ref(false)
+const logoUploading      = ref(false)
+const faviconUploading   = ref(false)
+const heroImageUploading = ref(false)
 
 async function uploadFile(file: File, prefix: string): Promise<string> {
   const b64 = await new Promise<string>((res, rej) => {
@@ -976,6 +1057,15 @@ async function uploadFavicon(e: Event) {
   catch { alert('Favicon-Upload fehlgeschlagen') }
   finally { faviconUploading.value = false; (e.target as HTMLInputElement).value = '' }
 }
+
+async function uploadHeroImage(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  heroImageUploading.value = true
+  try { form.heroImageUrl = await uploadFile(file, 'nexora/hero/') }
+  catch { alert('Bild-Upload fehlgeschlagen') }
+  finally { heroImageUploading.value = false; (e.target as HTMLInputElement).value = '' }
+}
 const nexora  = ref<any>(null)
 const showKey = ref(false)
 const copied  = ref(false)
@@ -985,6 +1075,7 @@ const showDevSection = ref(false)
 const tabs = [
   { key: 'connection', label: 'Verbindung', icon: 'ti-plug' },
   { key: 'content',    label: 'Inhalte',    icon: 'ti-text-size' },
+  { key: 'media',      label: 'Medien',     icon: 'ti-photo' },
   { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
   { key: 'stack',      label: 'Stack',      icon: 'ti-stack-2' },
   { key: 'clients',    label: 'Kunden',     icon: 'ti-building-community' },
@@ -1021,6 +1112,8 @@ const form = reactive({
   contactEmail:        '',
   contactPhone:        '',
   contactAvailability: 'Mo – Fr, 9:00 – 18:00 Uhr',
+  contactLegalName:    '',
+  contactVatId:        '',
   pages: [] as { slug: string; title: string; content: string; contentType: 'html' | 'markdown' }[],
   theme: 'midnight' as string,
   footerTagline:     '',
@@ -1051,7 +1144,9 @@ const form = reactive({
   githubAvailable: [] as { name: string; description: string; language: string; stars: number }[],
   githubLoading:   false,
   githubPatVisible: false,
-  sectionOrder: ['stack', 'clients', 'github', 'services', 'contact'] as string[],
+  sectionOrder:    ['stack', 'clients', 'github', 'services', 'contact'] as string[],
+  heroMediaType:   'code' as 'code' | 'image',
+  heroImageUrl:    '',
 })
 
 onMounted(async () => {
@@ -1083,6 +1178,8 @@ onMounted(async () => {
       form.contactEmail        = n.contactInfo?.email        || ''
       form.contactPhone        = n.contactInfo?.phone        || ''
       form.contactAvailability = n.contactInfo?.availability || 'Mo – Fr, 9:00 – 18:00 Uhr'
+      form.contactLegalName    = n.contactInfo?.legalName    || ''
+      form.contactVatId        = n.contactInfo?.vatId        || ''
       form.pages               = n.pages  || defaultPages()
       form.theme               = n.theme  || 'midnight'
       form.footerTagline       = n.footer?.tagline     || ''
@@ -1109,6 +1206,8 @@ onMounted(async () => {
       form.githubShowForks     = n.githubShowForks ?? false
       form.githubRepos         = n.githubRepos    || []
       form.sectionOrder        = n.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact']
+      form.heroMediaType       = n.heroMediaType  || 'code'
+      form.heroImageUrl        = n.heroImageUrl   || ''
     }
   } catch {}
   loading.value = false
@@ -1151,6 +1250,8 @@ async function save() {
           email:        form.contactEmail,
           phone:        form.contactPhone,
           availability: form.contactAvailability,
+          legalName:    form.contactLegalName,
+          vatId:        form.contactVatId,
         },
         pages: form.pages,
         theme: form.theme,
@@ -1178,6 +1279,8 @@ async function save() {
         githubShowForks: form.githubShowForks,
         githubRepos:    form.githubRepos,
         sectionOrder:   form.sectionOrder,
+        heroMediaType:  form.heroMediaType,
+        heroImageUrl:   form.heroImageUrl,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
