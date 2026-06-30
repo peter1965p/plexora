@@ -244,12 +244,12 @@
               <input v-model="form.heroLocation" class="field-input" placeholder="Frankfurt · Remote · Worldwide" />
             </div>
             <div>
-              <label class="field-label">Headline (Zeile 1)</label>
-              <input v-model="form.heroHeadline" class="field-input" placeholder="Software, die" />
-            </div>
-            <div>
-              <label class="field-label">Headline Akzent (Zeile 2, farbig)</label>
-              <input v-model="form.heroSubline" class="field-input" placeholder="wirklich skaliert." />
+              <label class="field-label">Headline</label>
+              <input v-model="form.heroHeadline" class="field-input" placeholder='Software, die **wirklich** skaliert.' />
+              <div style="margin-top:5px;font-size:11px;color:var(--text-muted);padding:6px 10px;background:var(--bg-elevated);border-radius:6px;border:1px solid var(--border)">
+                <i class="ti ti-info-circle" style="margin-right:4px;color:var(--accent)"></i>
+                Tipp: <code style="font-family:monospace;background:var(--bg-hover);padding:1px 5px;border-radius:3px">**Wort**</code> markiert ein Wort mit rotem Oval und Akzentfarbe
+              </div>
             </div>
             <div>
               <label class="field-label">Beschreibungstext</label>
