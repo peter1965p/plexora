@@ -42,6 +42,9 @@ export default defineEventHandler(async (event) => {
       stackItems:     item.stackItems     || [],
       stackTitle:     item.stackTitle     || 'TECH STACK',
       stackLegend:    item.stackLegend    || {},
+      clientsEnabled: item.clientsEnabled ?? false,
+      clientsItems:   item.clientsItems   || [],
+      clientsTitle:   item.clientsTitle   || 'REFERENZEN',
     }
   }
 })

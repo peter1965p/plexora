@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -43,6 +43,9 @@ export default defineEventHandler(async (event) => {
       ':si':   body.stackItems      ?? item.stackItems      ?? [],
       ':st':   body.stackTitle      ?? item.stackTitle      ?? 'TECH STACK',
       ':slg':  body.stackLegend     ?? item.stackLegend     ?? {},
+      ':ce':   body.clientsEnabled  ?? item.clientsEnabled  ?? false,
+      ':cit':  body.clientsItems    ?? item.clientsItems    ?? [],
+      ':ct':   body.clientsTitle    ?? item.clientsTitle    ?? 'REFERENZEN',
       ':u':    new Date().toISOString(),
     }
   }))

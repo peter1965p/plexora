@@ -456,6 +456,11 @@
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
             <div v-for="(item, i) in form.stackItems" :key="i"
               style="display:flex;gap:8px;align-items:center;padding:8px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
+              <!-- Reorder -->
+              <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">
+                <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveStackItem(i, -1)" :disabled="i === 0"><i class="ti ti-chevron-up"></i></button>
+                <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveStackItem(i, 1)" :disabled="i === form.stackItems.length - 1"><i class="ti ti-chevron-down"></i></button>
+              </div>
               <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 12px;border-radius:9999px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em;border:1px solid;min-width:80px;text-align:center"
                 :style="stackChipStyle(item.color)">{{ item.label || '…' }}</span>
               <input v-model="item.label" class="field-input" placeholder="Label" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
@@ -512,6 +517,58 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- ── TAB: KUNDEN ── -->
+      <div v-else-if="activeTab === 'clients'" style="max-width:700px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-building-community" style="margin-right:8px;color:var(--accent)"></i>Referenz-Ticker</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.clientsEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.clientsEnabled = !form.clientsEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.clientsEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.clientsEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Endloser Ticker mit deinen Kunden, Referenzen oder Projektnamen. Trenner "/" zwischen den Einträgen.</div>
+
+          <!-- Section title -->
+          <div style="margin-bottom:16px">
+            <label class="field-label">Abschnittstitel</label>
+            <input v-model="form.clientsTitle" class="field-input" placeholder="REFERENZEN" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
+          </div>
+
+          <!-- Items list -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+            <div v-for="(item, i) in form.clientsItems" :key="i"
+              style="display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
+              <!-- Reorder -->
+              <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">
+                <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, -1)" :disabled="i === 0"><i class="ti ti-chevron-up"></i></button>
+                <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, 1)" :disabled="i === form.clientsItems.length - 1"><i class="ti ti-chevron-down"></i></button>
+              </div>
+              <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);flex-shrink:0;min-width:8px">/</span>
+              <input v-model="item.name" class="field-input" placeholder="Firmenname" style="flex:1;padding:5px 10px;height:32px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-family:monospace" />
+              <button class="icon-btn" @click="removeClientItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
+            </div>
+            <div v-if="!form.clientsItems.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
+              Noch keine Einträge — füge deine Kunden oder Referenzen hinzu
+            </div>
+          </div>
+
+          <!-- Add new -->
+          <div style="display:flex;gap:8px;align-items:center;padding:10px;background:var(--bg);border:1px dashed var(--border);border-radius:8px">
+            <input v-model="form.clientsNewName" class="field-input" placeholder="z.B. Dell Technologies" style="flex:1;padding:5px 10px;height:32px;font-size:12px"
+              @keydown.enter="addClientItem" />
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;flex-shrink:0" @click="addClientItem">
+              <i class="ti ti-plus" style="margin-right:4px"></i> Hinzufügen
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- ── TAB: SEITEN ── -->
@@ -730,6 +787,7 @@ const tabs = [
   { key: 'content',    label: 'Inhalte',    icon: 'ti-text-size' },
   { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
   { key: 'stack',      label: 'Stack',      icon: 'ti-stack-2' },
+  { key: 'clients',    label: 'Kunden',     icon: 'ti-building-community' },
   { key: 'contact',    label: 'Kontakt',    icon: 'ti-map-pin' },
   { key: 'pages',      label: 'Seiten',     icon: 'ti-file-text' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
@@ -779,6 +837,10 @@ const form = reactive({
   } as Record<string, string>,
   stackNewLabel: '',
   stackNewColor: 'blue' as string,
+  clientsEnabled:  false,
+  clientsTitle:    'REFERENZEN',
+  clientsItems:    [] as { name: string }[],
+  clientsNewName:  '',
 })
 
 onMounted(async () => {
@@ -827,6 +889,9 @@ onMounted(async () => {
       form.stackTitle          = n.stackTitle          || 'TECH STACK'
       form.stackItems          = n.stackItems          || []
       form.stackLegend         = { ...form.stackLegend, ...(n.stackLegend || {}) }
+      form.clientsEnabled      = n.clientsEnabled ?? false
+      form.clientsTitle        = n.clientsTitle   || 'REFERENZEN'
+      form.clientsItems        = n.clientsItems   || []
     }
   } catch {}
   loading.value = false
@@ -887,6 +952,9 @@ async function save() {
         stackTitle:   form.stackTitle,
         stackItems:   form.stackItems,
         stackLegend:  form.stackLegend,
+        clientsEnabled: form.clientsEnabled,
+        clientsTitle:   form.clientsTitle,
+        clientsItems:   form.clientsItems,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
@@ -955,6 +1023,11 @@ function addStackItem() {
   form.stackNewLabel = ''
 }
 function removeStackItem(i: number) { form.stackItems.splice(i, 1) }
+function moveStackItem(i: number, dir: -1 | 1) {
+  const j = i + dir
+  if (j < 0 || j >= form.stackItems.length) return
+  const tmp = form.stackItems[i]; form.stackItems[i] = form.stackItems[j]; form.stackItems[j] = tmp
+}
 function addPreset(preset: { label: string; color: string }) {
   if (!form.stackItems.some(x => x.label === preset.label))
     form.stackItems.push({ ...preset })
@@ -999,6 +1072,19 @@ const CHIP_COLOR: Record<string, { bg: string; text: string; bd: string }> = {
   yellow: { bg: '#eab30818', text: '#fde047', bd: '#eab30840' },
   violet: { bg: '#8b5cf618', text: '#c4b5fd', bd: '#8b5cf640' },
 }
+// ── Clients ───────────────────────────────────────────────────────────────────
+function addClientItem() {
+  if (!form.clientsNewName.trim()) return
+  form.clientsItems.push({ name: form.clientsNewName.trim() })
+  form.clientsNewName = ''
+}
+function removeClientItem(i: number) { form.clientsItems.splice(i, 1) }
+function moveClientItem(i: number, dir: -1 | 1) {
+  const j = i + dir
+  if (j < 0 || j >= form.clientsItems.length) return
+  ;[form.clientsItems[i], form.clientsItems[j]] = [form.clientsItems[j], form.clientsItems[i]]
+}
+
 function stackChipStyle(color: string) {
   const c = CHIP_COLOR[color] || CHIP_COLOR.blue
   return `background:${c.bg};color:${c.text};border:1px solid ${c.bd}`
