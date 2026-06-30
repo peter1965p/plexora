@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPat = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -46,6 +46,11 @@ export default defineEventHandler(async (event) => {
       ':ce':   body.clientsEnabled  ?? item.clientsEnabled  ?? false,
       ':cit':  body.clientsItems    ?? item.clientsItems    ?? [],
       ':ct':   body.clientsTitle    ?? item.clientsTitle    ?? 'REFERENZEN',
+      ':ghe':  body.githubEnabled   ?? item.githubEnabled   ?? false,
+      ':ghp':  body.githubPat       ?? item.githubPat       ?? '',
+      ':ghr':  body.githubRepos     ?? item.githubRepos     ?? [],
+      ':ght':  body.githubTitle     ?? item.githubTitle     ?? 'PROJEKTE',
+      ':ghf':  body.githubShowForks ?? item.githubShowForks ?? false,
       ':u':    new Date().toISOString(),
     }
   }))

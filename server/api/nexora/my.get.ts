@@ -45,6 +45,11 @@ export default defineEventHandler(async (event) => {
       clientsEnabled: item.clientsEnabled ?? false,
       clientsItems:   item.clientsItems   || [],
       clientsTitle:   item.clientsTitle   || 'REFERENZEN',
+      githubEnabled:  item.githubEnabled  ?? false,
+      githubPat:      item.githubPat      || '',
+      githubRepos:    item.githubRepos    || [],
+      githubTitle:    item.githubTitle    || 'PROJEKTE',
+      githubShowForks: item.githubShowForks ?? false,
     }
   }
 })

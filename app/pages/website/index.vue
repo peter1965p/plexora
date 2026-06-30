@@ -699,6 +699,99 @@
         </div>
       </div>
 
+      <!-- ── TAB: GITHUB ── -->
+      <div v-else-if="activeTab === 'github'" style="max-width:760px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-brand-github" style="margin-right:8px;color:var(--accent)"></i>GitHub Projekte</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.githubEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.githubEnabled = !form.githubEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.githubEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.githubEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Zeige deine öffentlichen GitHub-Repos als Projekt-Cards auf der Website. Der PAT wird niemals an den Browser weitergegeben.</div>
+
+          <!-- Section title -->
+          <div style="margin-bottom:16px">
+            <label class="field-label">Abschnittstitel</label>
+            <input v-model="form.githubTitle" class="field-input" placeholder="PROJEKTE" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
+          </div>
+
+          <!-- PAT -->
+          <div style="margin-bottom:12px">
+            <label class="field-label">GitHub Personal Access Token (PAT)</label>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;position:relative">
+                <input v-model="form.githubPat" class="field-input" placeholder="github_pat_..." style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
+                  :type="form.githubPatVisible ? 'text' : 'password'" />
+                <button @click="form.githubPatVisible = !form.githubPatVisible"
+                  style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+                  <i class="ti" :class="form.githubPatVisible ? 'ti-eye-off' : 'ti-eye'"></i>
+                </button>
+              </div>
+              <button class="accent-btn" style="height:36px;padding:0 16px;font-size:12px;flex-shrink:0;white-space:nowrap"
+                :disabled="!form.githubPat.trim() || form.githubLoading" @click="loadGithubRepos">
+                <i class="ti" :class="form.githubLoading ? 'ti-loader-2' : 'ti-refresh'" style="margin-right:4px"></i>
+                {{ form.githubLoading ? 'Laden...' : 'Repos laden' }}
+              </button>
+            </div>
+            <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">
+              <i class="ti ti-info-circle" style="margin-right:4px"></i>
+              Nur "Read-only" auf Public Repositories nötig — kein Schreibzugriff.
+            </div>
+          </div>
+
+          <!-- Show forks toggle -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <button @click="form.githubShowForks = !form.githubShowForks"
+              style="width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s"
+              :style="form.githubShowForks ? 'background:var(--accent)' : 'background:var(--border)'">
+              <span style="position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+                :style="form.githubShowForks ? 'left:18px' : 'left:2px'"></span>
+            </button>
+            <span style="font-size:12px;color:var(--text-muted)">Forks anzeigen</span>
+          </div>
+
+          <!-- Repo selection -->
+          <div v-if="form.githubAvailable.length > 0">
+            <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">
+              Repos auswählen <span style="font-weight:400;color:var(--text-muted)">(leer = alle anzeigen)</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto">
+              <div v-for="repo in form.githubAvailable" :key="repo.name"
+                @click="toggleGithubRepo(repo.name)"
+                style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all .15s"
+                :style="form.githubRepos.includes(repo.name)
+                  ? 'background:rgba(var(--accent-rgb),.12);border:1px solid var(--accent)'
+                  : 'background:var(--bg-elevated);border:1px solid var(--border)'">
+                <i class="ti ti-brand-github" style="font-size:16px;flex-shrink:0" :style="form.githubRepos.includes(repo.name) ? 'color:var(--accent)' : 'color:var(--text-muted)'"></i>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:700;font-family:monospace">{{ repo.name }}</div>
+                  <div v-if="repo.description" style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ repo.description }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <span v-if="repo.language" style="font-size:10px;padding:2px 8px;border-radius:9999px;background:var(--bg-hover);color:var(--text-muted);font-family:monospace">{{ repo.language }}</span>
+                  <span style="font-size:11px;color:var(--text-muted)"><i class="ti ti-star" style="margin-right:2px"></i>{{ repo.stars }}</span>
+                  <i class="ti" :class="form.githubRepos.includes(repo.name) ? 'ti-check' : 'ti-circle'" :style="form.githubRepos.includes(repo.name) ? 'color:var(--accent)' : 'color:var(--border)'"></i>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">
+              {{ form.githubRepos.length === 0 ? 'Alle öffentlichen Repos werden angezeigt' : `${form.githubRepos.length} Repo(s) ausgewählt` }}
+            </div>
+          </div>
+          <div v-else-if="!form.githubPat.trim()" style="text-align:center;padding:32px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
+            <i class="ti ti-brand-github" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i>
+            PAT eingeben und "Repos laden" klicken
+          </div>
+        </div>
+      </div>
+
       <!-- ── TAB: KONTAKT ── -->
       <div v-else-if="activeTab === 'contact'" style="max-width:560px">
         <div class="card">
@@ -788,6 +881,7 @@ const tabs = [
   { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
   { key: 'stack',      label: 'Stack',      icon: 'ti-stack-2' },
   { key: 'clients',    label: 'Kunden',     icon: 'ti-building-community' },
+  { key: 'github',     label: 'GitHub',     icon: 'ti-brand-github' },
   { key: 'contact',    label: 'Kontakt',    icon: 'ti-map-pin' },
   { key: 'pages',      label: 'Seiten',     icon: 'ti-file-text' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
@@ -841,6 +935,14 @@ const form = reactive({
   clientsTitle:    'REFERENZEN',
   clientsItems:    [] as { name: string }[],
   clientsNewName:  '',
+  githubEnabled:   false,
+  githubPat:       '',
+  githubTitle:     'PROJEKTE',
+  githubShowForks: false,
+  githubRepos:     [] as string[],
+  githubAvailable: [] as { name: string; description: string; language: string; stars: number }[],
+  githubLoading:   false,
+  githubPatVisible: false,
 })
 
 onMounted(async () => {
@@ -892,6 +994,11 @@ onMounted(async () => {
       form.clientsEnabled      = n.clientsEnabled ?? false
       form.clientsTitle        = n.clientsTitle   || 'REFERENZEN'
       form.clientsItems        = n.clientsItems   || []
+      form.githubEnabled       = n.githubEnabled  ?? false
+      form.githubPat           = n.githubPat      || ''
+      form.githubTitle         = n.githubTitle    || 'PROJEKTE'
+      form.githubShowForks     = n.githubShowForks ?? false
+      form.githubRepos         = n.githubRepos    || []
     }
   } catch {}
   loading.value = false
@@ -955,6 +1062,11 @@ async function save() {
         clientsEnabled: form.clientsEnabled,
         clientsTitle:   form.clientsTitle,
         clientsItems:   form.clientsItems,
+        githubEnabled:  form.githubEnabled,
+        githubPat:      form.githubPat,
+        githubTitle:    form.githubTitle,
+        githubShowForks: form.githubShowForks,
+        githubRepos:    form.githubRepos,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
@@ -1088,6 +1200,32 @@ function moveClientItem(i: number, dir: -1 | 1) {
 function stackChipStyle(color: string) {
   const c = CHIP_COLOR[color] || CHIP_COLOR.blue
   return `background:${c.bg};color:${c.text};border:1px solid ${c.bd}`
+}
+
+// ── GitHub ────────────────────────────────────────────────────────────────────
+async function loadGithubRepos() {
+  if (!form.githubPat.trim()) return
+  form.githubLoading = true
+  try {
+    const repos = await $fetch<any[]>('https://api.github.com/user/repos?per_page=100&sort=updated&type=owner', {
+      headers: {
+        Authorization: `Bearer ${form.githubPat.trim()}`,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    })
+    form.githubAvailable = repos
+      .filter((r: any) => !r.private)
+      .map((r: any) => ({ name: r.name, description: r.description || '', language: r.language || '', stars: r.stargazers_count }))
+  } catch {
+    alert('GitHub PAT ungültig oder Fehler beim Laden der Repos.')
+  }
+  form.githubLoading = false
+}
+function toggleGithubRepo(name: string) {
+  const idx = form.githubRepos.indexOf(name)
+  if (idx >= 0) form.githubRepos.splice(idx, 1)
+  else form.githubRepos.push(name)
 }
 
 // ── Themes ────────────────────────────────────────────────────────────────────
