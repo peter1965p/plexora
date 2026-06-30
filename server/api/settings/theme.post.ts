@@ -1,10 +1,8 @@
-import { demoGuard } from '../../utils/demoGuard'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  demoGuard(body?.userId)
   const client = getDynamoClient()
 
   await client.send(new PutCommand({

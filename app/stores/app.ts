@@ -74,7 +74,7 @@ export const useAppStore = defineStore("app", {
         const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"));
         const t = res?.theme || {};
         if (t.theme && t.theme in THEMES) this.setTheme(t.theme as ThemeKey);
-        else if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
+        if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
       } catch {
         // Defaults bleiben aktiv
       } finally {
