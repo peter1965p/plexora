@@ -14,7 +14,7 @@ export async function useAuthUser() {
                   : 'customers'
     return {
       userId: user.userId,
-      email:  user.signInDetails?.loginId || '',
+      email:  (payload?.email as string) || user.signInDetails?.loginId || '',
       role,
       groups,
     }

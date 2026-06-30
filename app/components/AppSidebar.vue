@@ -76,7 +76,7 @@ const navSections = computed(() => [
       { to: '/settings', label: t.value.settings,  icon: 'ti-settings',       key: 'settings' },
       { to: '/seo',      label: 'SEO / GEO',        icon: 'ti-chart-line',     key: 'seo'      },
       { to: '/store',    label: 'Modul-Store',       icon: 'ti-building-store', key: 'store'    },
-      ...(store.licenseModules?.includes('nexora')
+      ...((store.licenseModules ? store.licenseModules.includes('nexora') : !!store.modules.find(m => m.key === 'nexora')?.on)
         ? [{ to: '/website', label: 'Website', icon: 'ti-world', key: 'nexora' }]
         : []),
     ]
