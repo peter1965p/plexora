@@ -48,6 +48,7 @@
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Projekte & Aufgaben</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Marketing & Formulare</li>
             <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Support-Tickets</li>
+            <li style="font-size:13px;color:#c4c2d4;display:flex;gap:8px;align-items:center"><i class="ti ti-check" style="color:#00d4b4"></i>Unternehmens-Webseite</li>
           </ul>
           <div class="select-indicator">{{ selected === 'starter' ? '✓ Ausgewählt' : 'Auswählen' }}</div>
         </div>
