@@ -39,10 +39,12 @@ onMounted(() => loadBranding())
 const route = useRoute()
 const { t } = useLang()
 
-const { data } = await useFetch(useApiUrl('/api/support'))
-const openTickets = computed(() => {
-  const tickets = (data.value as any)?.tickets || []
-  return tickets.filter((tk: any) => tk.status === 'open' || tk.status === 'in_progress').length
+const openTickets = ref(0)
+onMounted(async () => {
+  const url = await useUserApiUrl('/api/support')
+  const res = await $fetch<any>(url).catch(() => null)
+  const tickets = res?.tickets || []
+  openTickets.value = tickets.filter((tk: any) => tk.status === 'open' || tk.status === 'in_progress').length
 })
 
 const moduleRoutes: Record<string, string> = {
