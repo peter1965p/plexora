@@ -56,6 +56,10 @@
         </button>
       </div>
 
+      <!-- ── Two-Column Layout ── -->
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start">
+      <div style="min-width:0">
+
       <!-- ── TAB: VERBINDUNG ── -->
       <div v-if="activeTab === 'connection'" class="ws-grid">
         <div style="display:flex;flex-direction:column;gap:16px">
@@ -792,6 +796,45 @@
         </div>
       </div>
 
+      <!-- ── TAB: POSITIONEN ── -->
+      <div v-else-if="activeTab === 'position'" style="max-width:600px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-layout-rows" style="margin-right:8px;color:var(--accent)"></i>Sektions-Reihenfolge</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Bestimme die Reihenfolge der Sektionen auf der Website. Hero und Footer sind immer fest.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div v-for="(key, idx) in form.sectionOrder" :key="key" v-if="SECTION_META[key]"
+              style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid;transition:all .15s"
+              :style="{ borderColor: SECTION_META[key].color + '55', background: SECTION_META[key].color + '0d' }">
+              <!-- Position number -->
+              <div style="width:22px;height:22px;border-radius:50%;border:1px solid;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0"
+                :style="{ borderColor: SECTION_META[key].color + '80', color: SECTION_META[key].color }">{{ idx + 1 }}</div>
+              <!-- Icon + label -->
+              <i class="ti" :class="SECTION_META[key].icon" style="font-size:16px;flex-shrink:0" :style="{ color: SECTION_META[key].color }"></i>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;font-family:monospace;text-transform:uppercase;letter-spacing:.08em" :style="{ color: SECTION_META[key].color }">{{ SECTION_META[key].label }}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">{{ SECTION_META[key].desc }}</div>
+              </div>
+              <!-- Enabled indicator -->
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                <div style="width:6px;height:6px;border-radius:50%" :style="sectionEnabled(key) ? 'background:#22c55e;box-shadow:0 0 4px #22c55e88' : 'background:var(--border)'"></div>
+                <span style="font-size:10px;color:var(--text-muted)">{{ sectionEnabled(key) ? 'Aktiv' : 'Aus' }}</span>
+              </div>
+              <!-- Reorder arrows -->
+              <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+                <button class="icon-btn" style="height:18px;width:24px;font-size:11px;padding:0" @click="moveSectionItem(idx, -1)" :disabled="idx === 0"><i class="ti ti-chevron-up"></i></button>
+                <button class="icon-btn" style="height:18px;width:24px;font-size:11px;padding:0" @click="moveSectionItem(idx, 1)" :disabled="idx === form.sectionOrder.length - 1"><i class="ti ti-chevron-down"></i></button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
+            <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
+            Die Vorschau rechts aktualisiert sich sofort. Zum Übernehmen oben auf <strong>Speichern</strong> klicken.
+          </div>
+        </div>
+      </div>
+
       <!-- ── TAB: KONTAKT ── -->
       <div v-else-if="activeTab === 'contact'" style="max-width:560px">
         <div class="card">
@@ -820,6 +863,70 @@
           Kontaktformular-Submissions landen automatisch als Leads in deinem <NuxtLink to="/crm" style="color:var(--accent);text-decoration:none">CRM</NuxtLink>.
         </div>
       </div>
+
+      </div><!-- /left column -->
+
+      <!-- ── WIREFRAME PREVIEW PANEL ── -->
+      <div style="position:sticky;top:120px;display:flex;flex-direction:column;gap:0">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <i class="ti ti-device-desktop" style="font-size:13px"></i> Vorschau
+        </div>
+        <!-- Browser chrome -->
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg-elevated)">
+          <div style="background:var(--bg-hover);padding:8px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)">
+            <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0"></div>
+            <div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:16px;margin-left:6px;display:flex;align-items:center;padding:0 8px">
+              <span style="font-size:9px;color:var(--text-muted);font-family:monospace">{{ nexora?.subdomain }}.nexora.de</span>
+            </div>
+          </div>
+          <!-- Site sections wireframe -->
+          <div style="padding:8px;display:flex;flex-direction:column;gap:4px">
+            <!-- Navbar (fixed) -->
+            <div style="height:22px;border-radius:4px;background:var(--bg-hover);border:1px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:6px">
+              <div style="width:30px;height:4px;border-radius:2px;background:var(--accent);opacity:.7"></div>
+              <div style="flex:1"></div>
+              <div v-for="n in 3" :key="n" style="width:20px;height:3px;border-radius:2px;background:var(--border)"></div>
+            </div>
+            <!-- Hero (fixed first) -->
+            <div style="height:64px;border-radius:4px;border:1px solid var(--accent);background:rgba(var(--accent-rgb),.06);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+              <div style="width:80px;height:4px;border-radius:2px;background:var(--accent);opacity:.8"></div>
+              <div style="width:110px;height:3px;border-radius:2px;background:var(--accent);opacity:.4"></div>
+              <div style="width:50px;height:10px;border-radius:4px;background:var(--accent);opacity:.5;margin-top:2px"></div>
+            </div>
+            <!-- Moveable sections -->
+            <template v-for="(key, idx) in form.sectionOrder" :key="key">
+              <div v-if="SECTION_META[key]"
+                style="border-radius:4px;border:1px solid;display:flex;align-items:center;gap:6px;padding:0 8px;position:relative;cursor:default;transition:all .15s"
+                :style="{
+                  height: SECTION_META[key].height + 'px',
+                  borderColor: SECTION_META[key].color + '55',
+                  background: SECTION_META[key].color + '0d',
+                  opacity: sectionEnabled(key) ? 1 : .3,
+                }">
+                <i class="ti" :class="SECTION_META[key].icon" style="font-size:11px;flex-shrink:0" :style="{ color: SECTION_META[key].color }"></i>
+                <span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-family:monospace" :style="{ color: SECTION_META[key].color }">{{ SECTION_META[key].label }}</span>
+                <div style="margin-left:auto;display:flex;flex-direction:column;gap:1px">
+                  <button @click="moveSectionItem(idx, -1)" :disabled="idx === 0"
+                    style="width:14px;height:10px;border-radius:2px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0"
+                    :style="idx === 0 ? 'background:transparent;color:var(--border)' : 'background:var(--bg-hover);color:var(--text-muted)'">▲</button>
+                  <button @click="moveSectionItem(idx, 1)" :disabled="idx === form.sectionOrder.length - 1"
+                    style="width:14px;height:10px;border-radius:2px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0"
+                    :style="idx === form.sectionOrder.length - 1 ? 'background:transparent;color:var(--border)' : 'background:var(--bg-hover);color:var(--text-muted)'">▼</button>
+                </div>
+              </div>
+            </template>
+            <!-- Footer (fixed) -->
+            <div style="height:20px;border-radius:4px;background:var(--bg-hover);border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+              <div style="width:60px;height:2px;border-radius:2px;background:var(--border)"></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">▲▼ zum Verschieben — Speichern nicht vergessen</div>
+      </div>
+
+      </div><!-- /grid -->
 
     </template>
   </div>
@@ -881,7 +988,8 @@ const tabs = [
   { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
   { key: 'stack',      label: 'Stack',      icon: 'ti-stack-2' },
   { key: 'clients',    label: 'Kunden',     icon: 'ti-building-community' },
-  { key: 'github',     label: 'GitHub',     icon: 'ti-brand-github' },
+  { key: 'github',     label: 'GitHub',      icon: 'ti-brand-github' },
+  { key: 'position',   label: 'Positionen', icon: 'ti-layout-rows' },
   { key: 'contact',    label: 'Kontakt',    icon: 'ti-map-pin' },
   { key: 'pages',      label: 'Seiten',     icon: 'ti-file-text' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
@@ -943,6 +1051,7 @@ const form = reactive({
   githubAvailable: [] as { name: string; description: string; language: string; stars: number }[],
   githubLoading:   false,
   githubPatVisible: false,
+  sectionOrder: ['stack', 'clients', 'github', 'services', 'contact'] as string[],
 })
 
 onMounted(async () => {
@@ -999,6 +1108,7 @@ onMounted(async () => {
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
       form.githubRepos         = n.githubRepos    || []
+      form.sectionOrder        = n.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact']
     }
   } catch {}
   loading.value = false
@@ -1067,6 +1177,7 @@ async function save() {
         githubTitle:    form.githubTitle,
         githubShowForks: form.githubShowForks,
         githubRepos:    form.githubRepos,
+        sectionOrder:   form.sectionOrder,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
@@ -1200,6 +1311,28 @@ function moveClientItem(i: number, dir: -1 | 1) {
 function stackChipStyle(color: string) {
   const c = CHIP_COLOR[color] || CHIP_COLOR.blue
   return `background:${c.bg};color:${c.text};border:1px solid ${c.bd}`
+}
+
+// ── Section Positioning ───────────────────────────────────────────────────────
+const SECTION_META: Record<string, { label: string; icon: string; color: string; height: number; desc: string }> = {
+  stack:    { label: 'Tech Stack',  icon: 'ti-stack-2',            color: '#10b981', height: 28, desc: 'Endlos-Ticker mit deinen Technologien' },
+  clients:  { label: 'Referenzen', icon: 'ti-building-community',  color: '#f97316', height: 28, desc: 'Ticker mit Kunden & Partnernamen' },
+  github:   { label: 'Projekte',   icon: 'ti-brand-github',        color: '#8b5cf6', height: 52, desc: 'GitHub Projekt-Cards' },
+  services: { label: 'Leistungen', icon: 'ti-briefcase',           color: '#3b82f6', height: 52, desc: 'Deine Dienstleistungen als Cards' },
+  contact:  { label: 'Kontakt',    icon: 'ti-map-pin',             color: '#06b6d4', height: 44, desc: 'Kontaktformular & Infos' },
+}
+
+function sectionEnabled(key: string): boolean {
+  if (key === 'stack')    return form.stackEnabled
+  if (key === 'clients')  return form.clientsEnabled
+  if (key === 'github')   return form.githubEnabled
+  return true
+}
+
+function moveSectionItem(i: number, dir: -1 | 1) {
+  const j = i + dir
+  if (j < 0 || j >= form.sectionOrder.length) return
+  ;[form.sectionOrder[i], form.sectionOrder[j]] = [form.sectionOrder[j], form.sectionOrder[i]]
 }
 
 // ── GitHub ────────────────────────────────────────────────────────────────────

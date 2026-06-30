@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
       githubRepos:    item.githubRepos    || [],
       githubTitle:    item.githubTitle    || 'PROJEKTE',
       githubShowForks: item.githubShowForks ?? false,
+      sectionOrder:   item.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact'],
     }
   }
 })
