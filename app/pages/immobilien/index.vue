@@ -392,6 +392,7 @@
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
+const userId = ref('demo-user')
 const activeTab = ref('objekte')
 
 const tabs = [
@@ -578,7 +579,7 @@ async function saveRenter() {
     if (editingRenterId.value) {
       await $fetch(useApiUrl(`/api/renters/${editingRenterId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...rForm } })
     } else {
-      await $fetch(useApiUrl('/api/renters'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...rForm } })
+      await $fetch(useApiUrl('/api/renters'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...rForm, userId: userId.value } })
     }
     showRenterModal.value = false
     await loadRenters()
@@ -600,6 +601,7 @@ onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
+  userId.value = u.userId || 'demo-user'
   await Promise.all([loadProperties(), loadViewings(), loadRenters()])
 })
 </script>
