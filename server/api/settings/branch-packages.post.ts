@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 export default defineEventHandler(async (event) => {
   const email = getHeader(event, 'x-user-email') || ''
   if (!email) throw createError({ statusCode: 401 })
+  if (email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine neuen Pakete freischalten' })
 
   const body = await readBody(event)
   const packageKey = body?.packageKey as string

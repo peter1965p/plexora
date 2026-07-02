@@ -249,7 +249,7 @@ const addons = computed(() => [
 const branchenPakete = [
   { key: 'automotive',   name: 'Automotive',          icon: 'ti-car',              price: '€59', desc: 'Fahrzeugverwaltung, Probefahrten, KFZ-Dokumente und Werkstatt-Aufträge.',      features: ['Fahrzeug-DB', 'Probefahrten', 'Werkstatt-Aufträge', 'TÜV-Erinnerungen', 'Verkaufs-Tracking'] },
   { key: 'einzelhandel', name: 'Einzelhandel',         icon: 'ti-building-store',   price: '€49', desc: 'Kassensystem, Lager-Tracking, Lieferanten-Verwaltung und Retouren.',           features: ['Kassensystem', 'Lagerverwaltung', 'Lieferanten', 'Retouren', 'Tagesabschluss'] },
-  { key: 'gastro',       name: 'Gastronomie',          icon: 'ti-tools-kitchen-2',  price: '€45', desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',          features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'] },
+  { key: 'gastro',       name: 'Gastronomie',          icon: 'ti-tools-kitchen-2',  price: '€59', desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',          features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'] },
   { key: 'handwerk',     name: 'Handwerk',             icon: 'ti-hammer',           price: '€39', desc: 'Aufmaß-Erfassung, Materialplanung, Stundenzettel und Baustellenverwaltung.',   features: ['Aufmaß-Erfassung', 'Materialplanung', 'Stundenzettel', 'Baustellen', 'Auftragszettel-PDF'] },
   { key: 'immobilien',   name: 'Immobilien',           icon: 'ti-home',             price: '€59', desc: 'Objekt-Verwaltung, Besichtigungen, Mieter-Daten und Nebenkostenabrechnungen.', features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM', 'Nebenkostenabrechnung', 'Dokumente'] },
   { key: 'gesundheit',   name: 'Gesundheit / Praxis',  icon: 'ti-stethoscope',      price: '€79', desc: 'Patientenverwaltung, Terminplanung, Rezepte und DSGVO-konforme Dokumentation.', features: ['Patienten-Verwaltung', 'Terminplanung', 'Rezepte', 'DSGVO-konform', 'Karteikartenansicht'] },
@@ -257,7 +257,9 @@ const branchenPakete = [
 
 const activeBranchPackages = ref<string[]>([])
 const userEmail = ref('')
+const userId = ref('demo-user')
 const isAdmin = ref(false)
+const isDemo = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
 const branchApiUrl = useApiUrl('/api/settings/branch-packages')
 const checkoutApiUrl = useApiUrl('/api/store/checkout')
 
@@ -266,6 +268,7 @@ onMounted(async () => {
     const { useAuthUser } = await import('~/composables/useAuth')
     const u = await useAuthUser()
     userEmail.value = u.email || ''
+    userId.value = u.userId || 'demo-user'
     isAdmin.value = u.role === 'admins'
     if (!u.email) return
     const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
@@ -290,7 +293,7 @@ async function checkout() {
   checkoutLoading.value = true
   const isBranchPackage = branchenPakete.some(p => p.key === buyItem.value.key)
   try {
-    if (isAdmin.value && isBranchPackage) {
+    if (isAdmin.value && isBranchPackage && !isDemo.value) {
       const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
         method: 'POST',
         body: { packageKey: buyItem.value.key },
