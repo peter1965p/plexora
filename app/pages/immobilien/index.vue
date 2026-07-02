@@ -238,7 +238,8 @@
     <div v-else-if="activeTab === 'nebenkosten'">
       <div v-if="!renters.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-file-invoice" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p>Keine Mieter vorhanden.</p>
+        <p style="font-size:14px;margin-bottom:16px">Noch keine Nebenkosten-Daten — lege zuerst einen Mieter mit Nebenkosten-Vorauszahlung an.</p>
+        <button class="accent-btn" @click="openNewRenter"><i class="ti ti-plus" style="margin-right:6px"></i>Mieter anlegen</button>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:8px">
         <div v-for="r in rentersSortedByUtility" :key="r.renterId"
