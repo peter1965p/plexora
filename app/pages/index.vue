@@ -37,9 +37,31 @@
       <div class="lp-wrap lp-hero-inner">
         <div class="lp-eyebrow">Business Platform</div>
         <h1 class="lp-h1">
-          {{ t.hero.h1a }}<br /><span class="lp-hl">{{ t.hero.h1b }}</span>
+          <span class="lp-h1-line">
+            <span
+              v-for="(ch, i) in h1aChars" :key="`${lang}-a-${i}`"
+              class="lp-letter lp-letter-white lp-letter-up"
+              :style="{ animationDelay: (i * 0.045) + 's' }"
+            >{{ ch === ' ' ? ' ' : ch }}</span>
+          </span>
+          <br />
+          <span class="lp-h1-line">
+            <span
+              v-for="(ch, i) in h1bChars" :key="`${lang}-b-${i}`"
+              class="lp-letter lp-letter-orange lp-letter-down"
+              :style="{ animationDelay: (0.35 + i * 0.045) + 's' }"
+            >{{ ch === ' ' ? ' ' : ch }}</span>
+          </span>
         </h1>
-        <p class="lp-sub" v-html="t.hero.sub"></p>
+        <p class="lp-sub">
+          <span class="lp-sub-line">
+            <span class="lp-sub-half lp-fly-left">{{ t.hero.subL1a }}</span>{{ ' ' }}<span class="lp-sub-half lp-fly-right">{{ t.hero.subL1b }}</span>
+          </span>
+          <br />
+          <span class="lp-sub-line">
+            <span class="lp-sub-half lp-fly-left">{{ t.hero.subL2a }}</span>{{ ' ' }}<span class="lp-sub-half lp-fly-right">{{ t.hero.subL2b }}</span>
+          </span>
+        </p>
         <div class="lp-ctas">
           <button class="lp-btn lp-btn-lg" @click="startDemo" :disabled="demoLoading">
             {{ demoLoading ? t.hero.ctaLoading : t.hero.ctaDemo }}
@@ -228,12 +250,12 @@
             <button :class="['lang-btn', { active: lang === 'en' }]" @click="setLang('en')">🇬🇧</button>
           </div>
           <!-- Made In -->
-          <a href="https://www.paeffgen-it.de" target="_blank" rel="noopener" class="lp-made-by">
-            <span>Made in Germany</span>
-            <span class="lp-heart">♥</span>
-            <span>from Manderscheid | Vulkaneifel</span>
-          </a>
-          <div class="lp-footer-copy">© {{ new Date().getFullYear() }} Plexora · paeffgen-it.de</div>
+          <div class="lp-made-by" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span>Plexora | Idee und Entwicklung mit</span>
+            <span class="lp-heart">❤️</span>
+            <span>aus der Vulkaneifel</span>
+          </div>
+          <div class="lp-footer-copy">© {{ new Date().getFullYear() }} by Peter Päffgen</div>
         </div>
 
       </div>
@@ -265,7 +287,8 @@ const i18n = {
     hero: {
       h1a: 'Eine Lizenz.',
       h1b: 'Alles drin.',
-      sub: 'Warum 100+ Lizenzen zahlen,<br />wenn es die eine für alles gibt?',
+      subL1a: 'Warum 100+', subL1b: 'Lizenzen zahlen,',
+      subL2a: 'wenn es die', subL2b: 'eine für alles gibt?',
       ctaDemo: 'Demo ausprobieren ↗',
       ctaLoading: 'Wird geladen...',
       ctaPricing: 'Preise ansehen',
@@ -331,7 +354,8 @@ const i18n = {
     hero: {
       h1a: 'One License.',
       h1b: 'Everything Included.',
-      sub: 'Why pay for 100+ tools<br />when one covers everything?',
+      subL1a: 'Why pay for', subL1b: '100+ tools',
+      subL2a: 'when one', subL2b: 'covers everything?',
       ctaDemo: 'Try the Demo ↗',
       ctaLoading: 'Loading...',
       ctaPricing: 'View Pricing',
@@ -395,6 +419,8 @@ const i18n = {
 }
 
 const t = computed(() => i18n[lang.value])
+const h1aChars = computed(() => t.value.hero.h1a.split(''))
+const h1bChars = computed(() => t.value.hero.h1b.split(''))
 
 const moduleData = {
   de: [
@@ -512,12 +538,16 @@ onMounted(() => {
   resize()
   window.addEventListener('resize', resize)
 
+  const ORANGE: [number, number, number] = [234, 88, 12]
+  const BLUE:   [number, number, number] = [56, 189, 248]
+
   const nodes = Array.from({ length: 55 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
     vx: (Math.random() - 0.5) * 0.4,
     vy: (Math.random() - 0.5) * 0.4,
     r: Math.random() * 1.5 + 0.5,
+    c: Math.random() < 0.6 ? ORANGE : BLUE,
   }))
 
   const MAX_DIST = 160
@@ -535,7 +565,9 @@ onMounted(() => {
         const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y
         const d = Math.sqrt(dx*dx + dy*dy)
         if (d < MAX_DIST) {
-          ctx.strokeStyle = `rgba(234,88,12,${(1 - d/MAX_DIST) * 0.25})`
+          const [r1,g1,b1] = nodes[i].c, [r2,g2,b2] = nodes[j].c
+          const r = Math.round((r1+r2)/2), g = Math.round((g1+g2)/2), b = Math.round((b1+b2)/2)
+          ctx.strokeStyle = `rgba(${r},${g},${b},${(1 - d/MAX_DIST) * 0.25})`
           ctx.lineWidth = 0.6
           ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke()
         }
@@ -543,7 +575,7 @@ onMounted(() => {
     }
     for (const n of nodes) {
       ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2)
-      ctx.fillStyle = 'rgba(234,88,12,0.55)'; ctx.fill()
+      ctx.fillStyle = `rgba(${n.c[0]},${n.c[1]},${n.c[2]},0.55)`; ctx.fill()
     }
     raf = requestAnimationFrame(draw)
   }
@@ -568,12 +600,14 @@ onUnmounted(() => clearInterval(testiTimer))
 @import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css");
 
 .lp {
-  background: #0a0e1a;
+  background: #0b0f1d;
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(234,88,12,0.13) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(234,88,12,0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 92% 10%, rgba(56,189,248,0.11) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 5% 60%, rgba(56,189,248,0.06) 0%, transparent 70%),
     linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 100% 100%, 52px 52px, 52px 52px;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 52px 52px, 52px 52px;
   color: #f0eef9;
   font-family: "Exo 2", sans-serif;
   min-height: 100vh;
@@ -581,7 +615,7 @@ onUnmounted(() => clearInterval(testiTimer))
 
 /* NETWORK CANVAS */
 .lp-network { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-.lp-wrap { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+.lp-wrap { max-width: 1440px; margin: 0 auto; padding: 0 48px; }
 
 /* NAV */
 .lp-nav {
@@ -631,31 +665,60 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-btn-ghost:hover { background: rgba(240,238,249,0.06); }
 .lp-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
 .lp-btn-demo {
-  background: rgba(0,212,180,0.12); color: #00d4b4; font-size: 14px; font-weight: 500;
-  padding: 10px 22px; border-radius: 40px; border: 0.5px solid rgba(0,212,180,0.35);
+  background: rgba(56,189,248,0.12); color: #38bdf8; font-size: 14px; font-weight: 500;
+  padding: 10px 22px; border-radius: 40px; border: 0.5px solid rgba(56,189,248,0.35);
   cursor: pointer; font-family: "Exo 2", sans-serif; transition: background 0.2s;
 }
-.lp-btn-demo:hover { background: rgba(0,212,180,0.2); }
+.lp-btn-demo:hover { background: rgba(56,189,248,0.2); }
 .lp-btn-demo:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* HERO */
-.lp-hero { padding: 80px 0 64px; position: relative; overflow: hidden; }
+.lp-hero { padding: 96px 0 72px; position: relative; overflow: hidden; }
 .lp-hero-inner { text-align: center; position: relative; z-index: 1; }
 .lp-eyebrow {
-  display: inline-block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-  color: #00d4b4; margin-bottom: 20px; font-weight: 500;
+  display: inline-block; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: #38bdf8; margin-bottom: 24px; font-weight: 500;
 }
 .lp-h1 {
-  font-family: "Roboto", sans-serif; font-size: 64px; font-weight: 900;
-  line-height: 1.08; letter-spacing: -2px; margin-bottom: 16px;
+  font-family: "Roboto", sans-serif; font-size: clamp(48px, 7.5vw, 128px); font-weight: 900;
+  line-height: 1.05; letter-spacing: -3px; margin-bottom: 20px;
+}
+.lp-h1-line { display: inline-block; }
+.lp-letter {
+  display: inline-block;
+  opacity: 0;
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+.lp-letter-white {
   background: linear-gradient(160deg, #ffffff 0%, #e0e0e0 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.lp-hl {
+.lp-letter-orange {
   background: linear-gradient(160deg, #ffb347 0%, #ea580c 45%, #c2390a 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.lp-sub { font-size: 18px; color: #8b8fa8; margin-bottom: 36px; line-height: 1.5; }
+.lp-letter-up   { animation-name: lp-fly-up; }
+.lp-letter-down { animation-name: lp-fly-down; }
+@keyframes lp-fly-up   { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes lp-fly-down { from { opacity: 0; transform: translateY(-46px); } to { opacity: 1; transform: translateY(0); } }
+
+.lp-sub { font-size: clamp(15px, 1.4vw, 19px); color: #9a9db8; margin-bottom: 36px; line-height: 1.55; }
+.lp-sub-line { display: block; }
+.lp-sub-half {
+  display: inline-block;
+  opacity: 0;
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+  animation-delay: 0.9s;
+}
+.lp-fly-left  { animation-name: lp-fly-in-left; }
+.lp-fly-right { animation-name: lp-fly-in-right; }
+@keyframes lp-fly-in-left  { from { opacity: 0; transform: translateX(-70px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes lp-fly-in-right { from { opacity: 0; transform: translateX(70px); } to { opacity: 1; transform: translateX(0); } }
+
 .lp-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
 .lp-demo-hint {
   display: inline-flex; align-items: center; gap: 8px;
@@ -664,36 +727,36 @@ onUnmounted(() => clearInterval(testiTimer))
   border-radius: 20px; padding: 6px 16px;
 }
 .lp-demo-hint strong { color: #f0eef9; }
-.lp-demo-hint .ti { color: #00d4b4; }
+.lp-demo-hint .ti { color: #38bdf8; }
 
 /* MODULES */
 .lp-modules-section { padding: 48px 0; }
 .lp-section-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8b8fa8; text-align: center; margin-bottom: 24px; }
-.lp-modules-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.lp-modules-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
 .lp-mod {
-  background: #13182a; border: 0.5px solid rgba(255,255,255,0.07); border-radius: 12px;
-  padding: 20px 18px; cursor: pointer; transition: border-color 0.25s, transform 0.18s; position: relative;
+  background: #13182a; border: 0.5px solid rgba(56,189,248,0.3); border-radius: 16px;
+  padding: 22px 20px; cursor: pointer; transition: border-color 0.25s, transform 0.18s, box-shadow 0.25s; position: relative;
 }
-.lp-mod:hover { border-color: #ea580c; transform: translateY(-2px); }
-.lp-mod.active { border-color: #00d4b4; background: rgba(0,212,180,0.05); }
+.lp-mod:hover { border-color: #ea580c; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(234,88,12,0.12); }
+.lp-mod.active { border-color: #38bdf8; border-width: 1px; background: rgba(56,189,248,0.05); }
 .lp-mod-icon { font-size: 22px; color: #ea580c; margin-bottom: 10px; display: block; }
-.lp-mod.active .lp-mod-icon { color: #00d4b4; }
+.lp-mod.active .lp-mod-icon { color: #38bdf8; }
 .lp-mod-name { font-family: "Space Grotesk", sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
 .lp-mod-desc { font-size: 12px; color: #8b8fa8; line-height: 1.5; }
 .lp-mod-badge {
   position: absolute; top: 12px; right: 12px; font-size: 9px; letter-spacing: 1px;
-  text-transform: uppercase; background: rgba(0,212,180,0.15); color: #00d4b4;
+  text-transform: uppercase; background: rgba(56,189,248,0.15); color: #38bdf8;
   padding: 2px 8px; border-radius: 20px;
 }
 
 /* SAVINGS */
 .lp-savings {
-  background: #13182a; border: 0.5px solid rgba(108,63,232,0.25);
-  border-radius: 16px; padding: 32px; margin: 0 0 48px; text-align: center;
+  background: linear-gradient(160deg, rgba(56,189,248,0.06), #13182a); border: 0.5px solid rgba(56,189,248,0.25);
+  border-radius: 20px; padding: 36px; margin: 0 0 48px; text-align: center;
 }
 .lp-savings-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8b8fa8; margin-bottom: 16px; }
 .lp-savings-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
-.lp-savings-num { font-family: "Space Grotesk", sans-serif; font-size: 48px; font-weight: 800; color: #00d4b4; line-height: 1; }
+.lp-savings-num { font-family: "Space Grotesk", sans-serif; font-size: 48px; font-weight: 800; color: #38bdf8; line-height: 1; }
 .lp-savings-unit { font-size: 13px; color: #8b8fa8; text-align: left; line-height: 1.6; }
 .lp-savings-sub { font-size: 13px; color: #8b8fa8; margin-bottom: 20px; }
 .lp-savings-sub strong { color: #f0eef9; }
@@ -705,11 +768,11 @@ onUnmounted(() => clearInterval(testiTimer))
 /* COMPARE */
 .lp-compare-section { padding: 0 0 48px; }
 .lp-section-title { font-family: "Space Grotesk", sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
-.lp-compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.lp-ccard { background: #13182a; border: 0.5px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px; }
-.lp-ccard-featured { border-color: #ea580c; border-width: 1.5px; }
+.lp-compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.lp-ccard { background: #13182a; border: 0.5px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 28px; }
+.lp-ccard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(56,189,248,0.05), #13182a); }
 .lp-ccard-tag { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #8b8fa8; margin-bottom: 8px; }
-.lp-ccard-featured .lp-ccard-tag { color: #00d4b4; }
+.lp-ccard-featured .lp-ccard-tag { color: #38bdf8; }
 .lp-ccard-name { font-family: "Space Grotesk", sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
 .lp-ccard-price { font-family: "Space Grotesk", sans-serif; font-size: 32px; font-weight: 800; margin-bottom: 4px; color: #8b8fa8; }
 .lp-ccard-price span { font-size: 16px; font-weight: 400; }
@@ -721,8 +784,8 @@ onUnmounted(() => clearInterval(testiTimer))
 /* TESTIMONIALS */
 .lp-testi-section { padding: 0 0 56px; }
 .lp-testi-slider {
-  position: relative; overflow: hidden; border-radius: 16px;
-  background: linear-gradient(135deg, rgba(108,63,232,0.08), rgba(234,88,12,0.04));
+  position: relative; overflow: hidden; border-radius: 20px;
+  background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(234,88,12,0.04));
   border: 0.5px solid rgba(255,255,255,0.07);
 }
 .lp-testi-track { display: flex; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change: transform; }
@@ -730,26 +793,26 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-testi-stars { font-size: 18px; color: #ea580c; margin-bottom: 16px; letter-spacing: 2px; }
 .lp-testi-quote { font-size: 17px; color: #f0eef9; line-height: 1.75; margin-bottom: 20px; font-style: italic; }
 .lp-testi-author { font-size: 13px; color: #8b8fa8; }
-.lp-testi-author strong { color: #c4b5fd; }
+.lp-testi-author strong { color: #7dd3fc; }
 .lp-testi-dots { display: flex; justify-content: center; gap: 8px; padding: 0 0 20px; }
 .lp-testi-dot { width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.15); transition: background 0.3s, transform 0.3s; }
 .lp-testi-dot.active { background: #ea580c; transform: scale(1.3); }
 
 /* PRICING */
 .lp-pricing-section { padding: 0 0 64px; }
-.lp-pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.lp-pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
 .lp-pcard {
   background: #13182a; border: 0.5px solid rgba(255,255,255,0.07);
-  border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; position: relative;
+  border-radius: 20px; padding: 32px 26px; display: flex; flex-direction: column; position: relative;
 }
-.lp-pcard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(108,63,232,0.1), #13182a); }
+.lp-pcard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(56,189,248,0.1), #13182a); }
 .lp-pcard-popular {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
   background: #ea580c; color: #fff; font-size: 10px; font-weight: 700;
   letter-spacing: 1px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; white-space: nowrap;
 }
 .lp-pcard-tier { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8b8fa8; margin-bottom: 12px; }
-.lp-pcard-featured .lp-pcard-tier { color: #a78bfa; }
+.lp-pcard-featured .lp-pcard-tier { color: #7dd3fc; }
 .lp-pcard-price { font-family: "Space Grotesk", sans-serif; font-size: 38px; font-weight: 800; margin-bottom: 4px; line-height: 1; }
 .lp-pcard-featured .lp-pcard-price { color: #ea580c; }
 .lp-pcard-price span { font-family: "Exo 2", sans-serif; font-size: 14px; font-weight: 400; color: #8b8fa8; }
@@ -782,7 +845,7 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-pcard-btn-ghost:hover::before { opacity: 1; }
 .lp-pcard-btn-ghost:hover { border-color: rgba(234,88,12,0.5); box-shadow: 0 0 14px rgba(234,88,12,0.2); transform: translateY(-1px); }
 
-.lp-tick { color: #00d4b4; font-size: 15px; }
+.lp-tick { color: #38bdf8; font-size: 15px; }
 .lp-cross { color: #545870; font-size: 15px; }
 
 /* FOOTER CTA */
@@ -854,7 +917,12 @@ onUnmounted(() => clearInterval(testiTimer))
   color: #333a55;
 }
 
+@media (max-width: 900px) {
+  .lp-wrap { padding: 0 24px; }
+}
+
 @media (max-width: 640px) {
+  .lp-wrap { padding: 0 20px; }
   .lp-testi-slide { padding: 28px 24px 24px; }
   .lp-testi-quote { font-size: 14px; }
   .lp-footer-inner { grid-template-columns: 1fr; }

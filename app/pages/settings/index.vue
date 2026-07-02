@@ -464,6 +464,41 @@
       </div>
     </div>
 
+    <!-- KATEGORIEN -->
+    <div v-if="tab === 'categories'">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+        <div v-for="area in categoryAreas" :key="area.key" class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti" :class="area.icon" style="margin-right:8px;color:var(--accent)"></i>{{ area.label }}-Kategorien</span>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px">
+              <div class="auth-field" style="flex:1;margin:0">
+                <label>Neue Kategorie</label>
+                <input v-model="newCategoryInput[area.key]" placeholder="z.B. Ratgeber" @keyup.enter="addCategory(area.key)" />
+              </div>
+              <button class="accent-btn" :disabled="isDemo || !newCategoryInput[area.key]?.trim() || categoriesSaving" @click="addCategory(area.key)">
+                <i class="ti ti-plus"></i> Hinzufügen
+              </button>
+            </div>
+            <div v-if="!categories[area.key]?.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">
+              Noch keine Kategorien angelegt.
+            </div>
+            <div v-for="cat in categories[area.key]" :key="cat"
+              style="padding:10px 4px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:10px">
+                <i class="ti ti-tag" style="color:var(--accent)"></i>
+                <span style="font-weight:600;font-size:13px">{{ cat }}</span>
+              </div>
+              <button class="icon-btn" style="color:var(--danger)" :disabled="isDemo || categoriesSaving" @click="removeCategory(area.key, cat)">
+                <i class="ti ti-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- LIZENZEN -->
     <div v-if="tab === 'licenses'">
 
@@ -1256,6 +1291,7 @@ const BASE_TABS = [
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
+  { key: 'categories',  label: 'Kategorien',       icon: 'ti-tags'            },
   { key: 'licenses',    label: 'Lizenzen',         icon: 'ti-key'             },
   { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
@@ -1389,6 +1425,49 @@ const agbPreview = computed(() => marked.parse(agb.content || ''))
 const invoiceSaving = ref(false)
 const invoiceSettings = reactive({ dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false })
 
+// ── Kategorien ────────────────────────────────────────
+const categoryAreas = [
+  { key: 'blog', label: 'Blog', icon: 'ti-news' },
+  { key: 'shop', label: 'Shop', icon: 'ti-shopping-cart' },
+]
+const categories = reactive<Record<string, string[]>>({ blog: [], shop: [] })
+const newCategoryInput = reactive<Record<string, string>>({})
+const categoriesSaving = ref(false)
+
+async function loadCategories() {
+  try {
+    const d = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'))
+    if (d?.categories) Object.assign(categories, d.categories)
+  } catch {}
+}
+
+async function saveCategories(area: string) {
+  categoriesSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/settings/categories'), {
+      method: 'POST',
+      body: { area, categories: categories[area], userId: userId.value },
+    })
+  } finally {
+    categoriesSaving.value = false
+  }
+}
+
+async function addCategory(area: string) {
+  const v = newCategoryInput[area]?.trim()
+  if (!v || categories[area]?.includes(v)) return
+  categories[area] = [...(categories[area] || []), v]
+  newCategoryInput[area] = ''
+  await saveCategories(area)
+  showSettingsToast('Kategorie hinzugefügt!')
+}
+
+async function removeCategory(area: string, cat: string) {
+  categories[area] = (categories[area] || []).filter(c => c !== cat)
+  await saveCategories(area)
+  showSettingsToast('Kategorie entfernt!')
+}
+
 // ── Mahnwesen ─────────────────────────────────────────
 const dunningSaving = ref(false)
 const dunning = reactive({
@@ -1422,6 +1501,8 @@ onMounted(async () => {
     const d = await $fetch(useApiUrl('/api/settings/dunning') as any)
     if (d?.settings) Object.assign(dunning, d.settings)
   } catch {}
+
+  await loadCategories()
 })
 
 const logoUploading = ref(false)

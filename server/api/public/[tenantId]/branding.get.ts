@@ -4,7 +4,7 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
     'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'public, max-age=60',
+    'Cache-Control': 'no-store',
   })
 
   const tenantId = getRouterParam(event, 'tenantId') || ''
@@ -32,5 +32,16 @@ export default defineEventHandler(async (event) => {
     servicesLayout: res.Item.servicesLayout || 'auto',
     heroMediaType:  res.Item.heroMediaType  || 'code',
     heroImageUrl:   res.Item.heroImageUrl   || '',
+    blogEnabled:    res.Item.blogEnabled    ?? false,
+    blogTitle:      res.Item.blogTitle      || 'Blog',
+    shopEnabled:    res.Item.shopEnabled    ?? false,
+    shopTitle:      res.Item.shopTitle      || 'Shop',
+    vehiclesEnabled: res.Item.vehiclesEnabled ?? false,
+    vehiclesTitle:   res.Item.vehiclesTitle   || 'Fahrzeuge',
+    menuEnabled:     res.Item.menuEnabled      ?? false,
+    menuTitle:       res.Item.menuTitle        || 'Speisekarte',
+    orderingEnabled: res.Item.orderingEnabled  ?? false,
+    propertiesEnabled: res.Item.propertiesEnabled ?? false,
+    propertiesTitle:   res.Item.propertiesTitle   || 'Immobilien',
   }
 })

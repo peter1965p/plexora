@@ -46,6 +46,7 @@ const translations = {
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/pagebuilder':'Pagebuilder','/forms':      'Formulare',
       '/analytics':  'Analytics',  '/settings':   'Einstellungen', '/website': 'Website',
+      '/blog':       'Blog',      '/automotive': 'Automotive',
     } as Record<string, string>,
 
     // ── Topbar user menu ───────────────────────────────────────────────────────
@@ -351,6 +352,7 @@ const translations = {
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/pagebuilder':'Page Builder','/forms':     'Forms',
       '/analytics':  'Analytics',  '/settings':   'Settings',   '/website':   'Website',
+      '/blog':       'Blog',      '/automotive': 'Automotive',
     } as Record<string, string>,
 
     // ── Topbar user menu ───────────────────────────────────────────────────────

@@ -39,13 +39,37 @@ onMounted(() => loadBranding())
 const route = useRoute()
 const { t } = useLang()
 
-const openTickets = ref(0)
+const openTickets    = ref(0)
+const branchPackages = ref<string[]>([])
+
 onMounted(async () => {
   const url = await useUserApiUrl('/api/support')
   const res = await $fetch<any>(url).catch(() => null)
   const tickets = res?.tickets || []
   openTickets.value = tickets.filter((tk: any) => tk.status === 'open' || tk.status === 'in_progress').length
 })
+
+onMounted(async () => {
+  try {
+    const { useAuthUser } = await import('~/composables/useAuth')
+    const u = await useAuthUser()
+    if (!u.email) return
+    const res = await $fetch<{ branchPackages: string[] }>(
+      useApiUrl('/api/settings/branch-packages'),
+      { headers: { 'x-user-email': u.email } }
+    )
+    branchPackages.value = res.branchPackages || []
+  } catch {}
+})
+
+const BRANCH_MODULES: Record<string, { label: string; icon: string; to: string }> = {
+  automotive:   { label: 'Automotive',   icon: 'ti-car',                to: '/automotive' },
+  einzelhandel: { label: 'Einzelhandel', icon: 'ti-shopping-bag',       to: '/retail'     },
+  gastro:       { label: 'Gastronomie',  icon: 'ti-tools-kitchen-2',    to: '/gastro'     },
+  handwerk:     { label: 'Handwerk',     icon: 'ti-hammer',             to: '/handwerk'   },
+  immobilien:   { label: 'Immobilien',   icon: 'ti-building-estate',    to: '/immobilien' },
+  gesundheit:   { label: 'Gesundheit',   icon: 'ti-stethoscope',        to: '/praxis'     },
+}
 
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
@@ -63,15 +87,26 @@ const navSections = computed(() => [
   },
   {
     label: t.value.navModules,
-    items: store.modules
-      .filter(m => m.on && !m.locked && moduleRoutes[m.key] && m.key !== 'analytics')
-      .map(m => ({
-        to: moduleRoutes[m.key],
-        label: t.value.moduleNames[m.key] || m.name,
-        icon: m.icon,
-        key: m.key,
-      }))
+    items: [
+      ...store.modules
+        .filter(m => m.on && !m.locked && moduleRoutes[m.key] && m.key !== 'analytics')
+        .map(m => ({
+          to: moduleRoutes[m.key],
+          label: t.value.moduleNames[m.key] || m.name,
+          icon: m.icon,
+          key: m.key,
+        })),
+      ...((store.licenseModules ? store.licenseModules.includes('nexora') : !!store.modules.find(m => m.key === 'nexora')?.on)
+        ? [{ to: '/blog', label: 'Blog', icon: 'ti-news', key: 'blog' }]
+        : []),
+    ]
   },
+  ...(branchPackages.value.length ? [{
+    label: 'BRANCHE',
+    items: branchPackages.value
+      .filter(key => BRANCH_MODULES[key])
+      .map(key => ({ ...BRANCH_MODULES[key], key })),
+  }] : []),
   {
     label: t.value.navSystem,
     items: [

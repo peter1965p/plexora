@@ -1,6 +1,5 @@
 import { demoGuard } from '../../utils/demoGuard'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
-import { demoGuard } from '../../utils/demoGuard'
 import { getDynamoClient } from '../../utils/dynamodb'
 
 export default defineEventHandler(async (event) => {

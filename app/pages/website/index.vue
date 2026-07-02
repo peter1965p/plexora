@@ -113,80 +113,6 @@
             </div>
           </div>
 
-          <!-- Logo & Favicon -->
-          <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-photo" style="margin-right:8px;color:var(--accent)"></i>Logo & Favicon</span></div>
-            <div style="display:flex;flex-direction:column;gap:16px">
-
-              <!-- Logo -->
-              <div>
-                <label class="field-label">Logo</label>
-                <div style="display:flex;align-items:center;gap:12px">
-                  <div style="width:56px;height:56px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
-                    <img v-if="form.logoUrl" :src="form.logoUrl" style="width:100%;height:100%;object-fit:contain" @error="form.logoUrl=''" />
-                    <i v-else class="ti ti-photo" style="font-size:22px;color:var(--text-muted)"></i>
-                  </div>
-                  <div style="flex:1">
-                    <button @click="($refs.logoInput as HTMLInputElement).click()" :disabled="logoUploading"
-                      class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
-                      <i class="ti" :class="logoUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                      {{ logoUploading ? 'Lädt hoch...' : 'Datei wählen' }}
-                    </button>
-                    <div style="font-size:11px" :style="form.logoUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
-                      {{ form.logoUrl ? '✓ Logo gesetzt' : 'PNG/SVG empfohlen · Leer = Firmenname als Text' }}
-                    </div>
-                  </div>
-                  <button v-if="form.logoUrl" @click="form.logoUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
-                </div>
-                <input ref="logoInput" type="file" accept="image/*" style="display:none" @change="uploadLogo" />
-              </div>
-
-              <!-- Favicon -->
-              <div>
-                <label class="field-label">Favicon (Browser-Tab Icon)</label>
-                <div style="display:flex;align-items:center;gap:12px">
-                  <div style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
-                    <img v-if="form.faviconUrl" :src="form.faviconUrl" style="width:24px;height:24px;object-fit:contain" @error="form.faviconUrl=''" />
-                    <i v-else class="ti ti-bookmark" style="font-size:18px;color:var(--text-muted)"></i>
-                  </div>
-                  <div style="flex:1">
-                    <button @click="($refs.faviconInput as HTMLInputElement).click()" :disabled="faviconUploading"
-                      class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
-                      <i class="ti" :class="faviconUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                      {{ faviconUploading ? 'Lädt hoch...' : 'Datei wählen' }}
-                    </button>
-                    <div style="font-size:11px" :style="form.faviconUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
-                      {{ form.faviconUrl ? '✓ Favicon gesetzt' : 'ICO/PNG · 32×32 oder 64×64 px' }}
-                    </div>
-                  </div>
-                  <button v-if="form.faviconUrl" @click="form.faviconUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
-                </div>
-                <input ref="faviconInput" type="file" accept="image/*,.ico" style="display:none" @change="uploadFavicon" />
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Design -->
-          <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Design</span></div>
-            <div style="display:flex;flex-direction:column;gap:14px">
-              <div>
-                <label class="field-label">Primärfarbe (Akzent)</label>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <input type="color" v-model="form.primaryColor" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
-                  <input v-model="form.primaryColor" class="field-input" style="flex:1;font-family:monospace" />
-                </div>
-              </div>
-              <div>
-                <label class="field-label">Hintergrundfarbe</label>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <input type="color" v-model="form.secondaryColor" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
-                  <input v-model="form.secondaryColor" class="field-input" style="flex:1;font-family:monospace" />
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Rechte Spalte -->
@@ -352,6 +278,27 @@
                   :style="form.footerShowStatus ? 'background:var(--accent)' : 'background:var(--border)'">
                   <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
                     :style="form.footerShowStatus ? 'left:21px' : 'left:3px'"></span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Copyright-Text (leer = automatisch)</label>
+              <input v-model="form.footerCopyrightText" class="field-input" :placeholder="`© ${new Date().getFullYear()} ${form.companyName || 'Dein Unternehmen'} — Alle Rechte vorbehalten`" />
+            </div>
+            <div>
+              <label class="field-label">Credit-Text (z.B. "Programmiert mit Herz aus der Vulkaneifel")</label>
+              <input v-model="form.footerCreditText" class="field-input" placeholder="Programmiert mit Herz aus der Vulkaneifel" />
+            </div>
+            <div v-if="form.footerCreditText">
+              <label class="field-label">Credit-Icon</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+                <button v-for="ic in ['ti-heart','ti-heart-filled','ti-flame','ti-bolt','ti-coffee','ti-rocket','ti-mountain','ti-bulb','ti-code','ti-star','ti-moon','ti-sun','ti-music','ti-leaf','ti-diamond','ti-award']"
+                  :key="ic"
+                  @click="form.footerCreditIcon = ic"
+                  style="width:36px;height:36px;border-radius:8px;border:1px solid;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;background:var(--surface)"
+                  :style="form.footerCreditIcon === ic ? 'border-color:var(--accent)' : 'border-color:var(--border)'">
+                  <i :class="['ti', ic]" style="font-size:17px"
+                    :style="form.footerCreditIcon === ic ? 'color:var(--accent)' : 'color:var(--text-muted)'"></i>
                 </button>
               </div>
             </div>
@@ -716,6 +663,114 @@
         </div>
       </div>
 
+      <!-- ── TAB: BLOG SETTINGS ── -->
+      <div v-else-if="activeTab === 'blog-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-news" style="margin-right:8px;color:var(--accent)"></i>Blog</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.blogEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.blogEnabled = !form.blogEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.blogEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.blogEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Blog-Sektion auf der Website aktivieren. Beiträge verwaltest du im Sidebar-Menü unter <strong>Blog</strong>.</div>
+          <div>
+            <label class="field-label">Blog-Titel (Navigation & Überschrift)</label>
+            <input v-model="form.blogTitle" class="field-input" placeholder="Blog" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: SHOP SETTINGS ── -->
+      <div v-else-if="activeTab === 'shop-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>Shop</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.shopEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.shopEnabled = !form.shopEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.shopEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.shopEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Shop-Link in der Navigation der Website aktivieren. Shop-Produkte verwaltest du im Sidebar-Menü unter <strong>Shop</strong>.</div>
+          <div>
+            <label class="field-label">Shop-Titel (Navigation & Überschrift)</label>
+            <input v-model="form.shopTitle" class="field-input" placeholder="Shop" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: AGB ── -->
+      <div v-else-if="activeTab === 'agb'" style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0">
+          <i class="ti ti-license" style="color:var(--accent)"></i>
+          <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">Allgemeine Geschäftsbedingungen</span>
+          <code style="font-size:11px;color:var(--text-muted)">/agb</code>
+          <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+            <button v-for="ct in ['html','markdown']" :key="ct"
+              @click="legalPage('agb').contentType = ct"
+              style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-transform:uppercase;letter-spacing:.05em"
+              :style="legalPage('agb').contentType === ct ? 'background:var(--accent);color:#fff' : 'background:transparent;color:var(--text-muted)'">
+              {{ ct }}
+            </button>
+          </div>
+          <select v-model="monacoTheme" @change="setMonacoTheme(monacoTheme)"
+            style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer">
+            <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+        <ClientOnly>
+          <VueMonacoEditor
+            v-model:value="legalPage('agb').content"
+            :language="legalPage('agb').contentType === 'markdown' ? 'markdown' : 'html'"
+            :theme="monacoTheme"
+            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
+            style="flex:1"
+          />
+          <template #fallback><div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div></template>
+        </ClientOnly>
+      </div>
+
+      <!-- ── TAB: DATENSCHUTZ ── -->
+      <div v-else-if="activeTab === 'datenschutz'" style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0">
+          <i class="ti ti-shield-lock" style="color:var(--accent)"></i>
+          <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">Datenschutzerklärung</span>
+          <code style="font-size:11px;color:var(--text-muted)">/datenschutz</code>
+          <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+            <button v-for="ct in ['html','markdown']" :key="ct"
+              @click="legalPage('datenschutz').contentType = ct"
+              style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-transform:uppercase;letter-spacing:.05em"
+              :style="legalPage('datenschutz').contentType === ct ? 'background:var(--accent);color:#fff' : 'background:transparent;color:var(--text-muted)'">
+              {{ ct }}
+            </button>
+          </div>
+          <select v-model="monacoTheme" @change="setMonacoTheme(monacoTheme)"
+            style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer">
+            <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+        <ClientOnly>
+          <VueMonacoEditor
+            v-model:value="legalPage('datenschutz').content"
+            :language="legalPage('datenschutz').contentType === 'markdown' ? 'markdown' : 'html'"
+            :theme="monacoTheme"
+            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
+            style="flex:1"
+          />
+          <template #fallback><div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div></template>
+        </ClientOnly>
+      </div>
+
       <!-- ── TAB: THEME ── -->
       <div v-else-if="activeTab === 'theme'" style="max-width:760px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
@@ -723,7 +778,7 @@
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Das Theme bestimmt das visuelle Erscheinungsbild deiner Nexora-Webseite. Weitere Premium-Themes folgen im Theme Shop.</div>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
             <div v-for="t in nexoraThemes" :key="t.key"
-              @click="form.theme = t.key"
+              @click="form.theme = t.key; form.primaryColor = t.preview.accent"
               style="border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s"
               :style="form.theme === t.key ? 'border-color:var(--accent);box-shadow:0 0 0 3px var(--accent)22' : 'border-color:var(--border)'">
               <!-- Theme Preview -->
@@ -748,6 +803,81 @@
               <div style="padding:10px 14px;background:var(--bg-elevated);border-top:1px solid var(--border)">
                 <div style="font-size:13px;font-weight:600">{{ t.label }}</div>
                 <div style="font-size:11px;color:var(--text-muted)">{{ t.desc }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo & Favicon -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-photo" style="margin-right:8px;color:var(--accent)"></i>Logo & Favicon</span></div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+
+            <!-- Logo -->
+            <div>
+              <label class="field-label">Logo</label>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:56px;height:56px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+                  <img v-if="form.logoUrl" :src="form.logoUrl" style="width:100%;height:100%;object-fit:contain" @error="form.logoUrl=''" />
+                  <i v-else class="ti ti-photo" style="font-size:22px;color:var(--text-muted)"></i>
+                </div>
+                <div style="flex:1">
+                  <button @click="($refs.logoInput as HTMLInputElement).click()" :disabled="logoUploading"
+                    class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
+                    <i class="ti" :class="logoUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                    {{ logoUploading ? 'Lädt hoch...' : 'Datei wählen' }}
+                  </button>
+                  <div style="font-size:11px" :style="form.logoUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
+                    {{ form.logoUrl ? '✓ Logo gesetzt' : 'PNG/SVG empfohlen · Leer = Firmenname als Text' }}
+                  </div>
+                </div>
+                <button v-if="form.logoUrl" @click="form.logoUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
+              </div>
+              <input ref="logoInput" type="file" accept="image/*" style="display:none" @change="uploadLogo" />
+            </div>
+
+            <!-- Favicon -->
+            <div>
+              <label class="field-label">Favicon (Browser-Tab Icon)</label>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+                  <img v-if="form.faviconUrl" :src="form.faviconUrl" style="width:24px;height:24px;object-fit:contain" @error="form.faviconUrl=''" />
+                  <i v-else class="ti ti-bookmark" style="font-size:18px;color:var(--text-muted)"></i>
+                </div>
+                <div style="flex:1">
+                  <button @click="($refs.faviconInput as HTMLInputElement).click()" :disabled="faviconUploading"
+                    class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
+                    <i class="ti" :class="faviconUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
+                    {{ faviconUploading ? 'Lädt hoch...' : 'Datei wählen' }}
+                  </button>
+                  <div style="font-size:11px" :style="form.faviconUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
+                    {{ form.faviconUrl ? '✓ Favicon gesetzt' : 'ICO/PNG · 32×32 oder 64×64 px' }}
+                  </div>
+                </div>
+                <button v-if="form.faviconUrl" @click="form.faviconUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
+              </div>
+              <input ref="faviconInput" type="file" accept="image/*,.ico" style="display:none" @change="uploadFavicon" />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Design -->
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Design</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label class="field-label">Primärfarbe (Akzent)</label>
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="color" v-model="form.primaryColor" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
+                <input v-model="form.primaryColor" class="field-input" style="flex:1;font-family:monospace" />
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Hintergrundfarbe</label>
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="color" v-model="form.secondaryColor" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
+                <input v-model="form.secondaryColor" class="field-input" style="flex:1;font-family:monospace" />
               </div>
             </div>
           </div>
@@ -1082,7 +1212,11 @@ const tabs = [
   { key: 'github',     label: 'GitHub',      icon: 'ti-brand-github' },
   { key: 'position',   label: 'Positionen', icon: 'ti-layout-rows' },
   { key: 'contact',    label: 'Kontakt',    icon: 'ti-map-pin' },
-  { key: 'pages',      label: 'Seiten',     icon: 'ti-file-text' },
+  { key: 'pages',         label: 'Seiten',     icon: 'ti-file-text' },
+  { key: 'blog-settings',  label: 'Blog',       icon: 'ti-news' },
+  { key: 'shop-settings',  label: 'Shop',       icon: 'ti-shopping-cart' },
+  { key: 'agb',           label: 'AGB',        icon: 'ti-license' },
+  { key: 'datenschutz',label: 'Datenschutz',icon: 'ti-shield-lock' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
 ]
 
@@ -1116,9 +1250,12 @@ const form = reactive({
   contactVatId:        '',
   pages: [] as { slug: string; title: string; content: string; contentType: 'html' | 'markdown' }[],
   theme: 'midnight' as string,
-  footerTagline:     '',
-  footerStatusLabel: 'System Online',
-  footerShowStatus:  true,
+  footerTagline:       '',
+  footerStatusLabel:   'System Online',
+  footerShowStatus:    true,
+  footerCopyrightText: '',
+  footerCreditText:    '',
+  footerCreditIcon:    'ti-heart',
   stackEnabled:  true,
   stackTitle:    'TECH STACK',
   stackItems:    [] as { label: string; color: string }[],
@@ -1137,6 +1274,10 @@ const form = reactive({
   clientsItems:    [] as { name: string }[],
   clientsNewName:  '',
   githubEnabled:   false,
+  blogEnabled:     false,
+  blogTitle:       'Blog',
+  shopEnabled:     false,
+  shopTitle:       'Shop',
   githubPat:       '',
   githubTitle:     'PROJEKTE',
   githubShowForks: false,
@@ -1182,9 +1323,12 @@ onMounted(async () => {
       form.contactVatId        = n.contactInfo?.vatId        || ''
       form.pages               = n.pages  || defaultPages()
       form.theme               = n.theme  || 'midnight'
-      form.footerTagline       = n.footer?.tagline     || ''
-      form.footerStatusLabel   = n.footer?.statusLabel || 'System Online'
-      form.footerShowStatus    = n.footer?.showStatus  ?? true
+      form.footerTagline       = n.footer?.tagline       || ''
+      form.footerStatusLabel   = n.footer?.statusLabel   || 'System Online'
+      form.footerShowStatus    = n.footer?.showStatus    ?? true
+      form.footerCopyrightText = n.footer?.copyrightText || ''
+      form.footerCreditText    = n.footer?.creditText    || ''
+      form.footerCreditIcon    = n.footer?.creditIcon    || 'ti-heart'
       form.logoUrl             = n.logoUrl             || ''
       form.faviconUrl          = n.faviconUrl          || ''
       form.heroBackground      = n.heroBackground      || 'grid'
@@ -1201,6 +1345,10 @@ onMounted(async () => {
       form.clientsTitle        = n.clientsTitle   || 'REFERENZEN'
       form.clientsItems        = n.clientsItems   || []
       form.githubEnabled       = n.githubEnabled  ?? false
+      form.blogEnabled         = n.blogEnabled    ?? false
+      form.blogTitle           = n.blogTitle      || 'Blog'
+      form.shopEnabled         = n.shopEnabled    ?? false
+      form.shopTitle           = n.shopTitle      || 'Shop'
       form.githubPat           = n.githubPat      || ''
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
@@ -1262,9 +1410,12 @@ async function save() {
         heroGradient:   { from: form.heroGradientFrom, via: form.heroGradientVia, to: form.heroGradientTo },
         servicesLayout: form.servicesLayout,
         footer: {
-          tagline:     form.footerTagline,
-          statusLabel: form.footerStatusLabel,
-          showStatus:  form.footerShowStatus,
+          tagline:       form.footerTagline,
+          statusLabel:   form.footerStatusLabel,
+          showStatus:    form.footerShowStatus,
+          copyrightText: form.footerCopyrightText,
+          creditText:    form.footerCreditText,
+          creditIcon:    form.footerCreditIcon,
         },
         stackEnabled: form.stackEnabled,
         stackTitle:   form.stackTitle,
@@ -1276,6 +1427,10 @@ async function save() {
         githubEnabled:  form.githubEnabled,
         githubPat:      form.githubPat,
         githubTitle:    form.githubTitle,
+        blogEnabled:    form.blogEnabled,
+        blogTitle:      form.blogTitle,
+        shopEnabled:    form.shopEnabled,
+        shopTitle:      form.shopTitle,
         githubShowForks: form.githubShowForks,
         githubRepos:    form.githubRepos,
         sectionOrder:   form.sectionOrder,
@@ -1328,6 +1483,19 @@ const monacoThemes  = [
 function setMonacoTheme(v: string) {
   monacoTheme.value = v
   localStorage.setItem('plx_editor_theme', v)
+}
+function legalPage(slug: string) {
+  let pg = form.pages.find(p => p.slug === slug)
+  if (!pg) {
+    const defaults: Record<string, { title: string; content: string }> = {
+      agb:         { title: 'AGB',               content: '<h1>Allgemeine Geschäftsbedingungen</h1>\n<p>§ 1 Geltungsbereich</p>' },
+      datenschutz: { title: 'Datenschutzerklärung', content: '<h1>Datenschutzerklärung</h1>\n<p>Der Schutz deiner persönlichen Daten ist uns wichtig.</p>' },
+    }
+    const d = defaults[slug] || { title: slug, content: '' }
+    form.pages.push({ slug, title: d.title, content: d.content, contentType: 'html' as const })
+    pg = form.pages[form.pages.length - 1]
+  }
+  return pg
 }
 function defaultPages() {
   return [

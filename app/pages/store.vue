@@ -88,12 +88,13 @@
         Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.
       </div>
       <div class="store-grid">
-        <div v-for="pkg in branchenPakete" :key="pkg.key" class="store-card">
+        <div v-for="pkg in branchenPakete" :key="pkg.key" class="store-card" :class="{ owned: activeBranchPackages.includes(pkg.key) }">
           <div class="store-card-header">
-            <div class="store-icon">
-              <i class="ti" :class="pkg.icon" style="color:var(--accent)"></i>
+            <div class="store-icon" :style="activeBranchPackages.includes(pkg.key) ? 'background:var(--success-bg)' : ''">
+              <i class="ti" :class="pkg.icon" :style="activeBranchPackages.includes(pkg.key) ? 'color:#22c55e' : 'color:var(--accent)'"></i>
             </div>
-            <div class="badge-new">Branchen-Paket</div>
+            <div v-if="activeBranchPackages.includes(pkg.key)" class="badge-owned"><i class="ti ti-check"></i> Aktiv</div>
+            <div v-else class="badge-new">Branchen-Paket</div>
           </div>
           <div class="store-card-name">{{ pkg.name }}</div>
           <div class="store-card-desc">{{ pkg.desc }}</div>
@@ -102,10 +103,14 @@
           </div>
           <div class="store-card-footer">
             <div class="store-price">
-              <span style="font-size:18px;font-weight:700;color:var(--text)">{{ pkg.price }}</span>
-              <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
+              <span v-if="activeBranchPackages.includes(pkg.key)" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
+              <template v-else>
+                <span style="font-size:18px;font-weight:700;color:var(--text)">{{ pkg.price }}</span>
+                <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
+              </template>
             </div>
-            <button class="btn-buy" @click="openBuy(pkg)">Hinzufügen</button>
+            <button v-if="!activeBranchPackages.includes(pkg.key)" class="btn-buy" @click="openBuy(pkg)">Hinzufügen</button>
+            <NuxtLink v-else :to="`/${pkg.key}`" class="btn-manage">Verwalten</NuxtLink>
           </div>
         </div>
       </div>
@@ -242,38 +247,33 @@ const addons = computed(() => [
 ])
 
 const branchenPakete = [
-  {
-    key: 'automotive', name: 'Automotive', icon: 'ti-car', price: '€59',
-    desc: 'Fahrzeugverwaltung, Probefahrten, KFZ-Dokumente und Werkstatt-Aufträge.',
-    features: ['Fahrzeug-DB', 'Probefahrten', 'Werkstatt-Aufträge', 'TÜV-Erinnerungen', 'Verkaufs-Tracking'],
-  },
-  {
-    key: 'einzelhandel', name: 'Einzelhandel', icon: 'ti-building-store', price: '€49',
-    desc: 'Kassensystem, Lager-Tracking, Lieferanten-Verwaltung und Retouren.',
-    features: ['Kassensystem', 'Lagerverwaltung', 'Lieferanten', 'Retouren', 'Tagesabschluss'],
-  },
-  {
-    key: 'gastro', name: 'Gastronomie', icon: 'ti-tools-kitchen-2', price: '€45',
-    desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',
-    features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'],
-  },
-  {
-    key: 'handwerk', name: 'Handwerk', icon: 'ti-hammer', price: '€39',
-    desc: 'Aufmaß-Erfassung, Materialplanung, Stundenzettel und Baustellenverwaltung.',
-    features: ['Aufmaß-Erfassung', 'Materialplanung', 'Stundenzettel', 'Baustellen', 'Auftragszettel-PDF'],
-  },
-  {
-    key: 'immobilien', name: 'Immobilien', icon: 'ti-home', price: '€59',
-    desc: 'Objekt-Verwaltung, Besichtigungen, Mieter-Daten und Nebenkostenabrechnungen.',
-    features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM', 'Nebenkostenabrechnung', 'Dokumente'],
-  },
-  {
-    key: 'gesundheit', name: 'Gesundheit / Praxis', icon: 'ti-stethoscope', price: '€79',
-    desc: 'Patientenverwaltung, Terminplanung, Rezepte und DSGVO-konforme Dokumentation.',
-    features: ['Patienten-Verwaltung', 'Terminplanung', 'Rezepte', 'DSGVO-konform', 'Karteikartenansicht'],
-  },
+  { key: 'automotive',   name: 'Automotive',          icon: 'ti-car',              price: '€59', desc: 'Fahrzeugverwaltung, Probefahrten, KFZ-Dokumente und Werkstatt-Aufträge.',      features: ['Fahrzeug-DB', 'Probefahrten', 'Werkstatt-Aufträge', 'TÜV-Erinnerungen', 'Verkaufs-Tracking'] },
+  { key: 'einzelhandel', name: 'Einzelhandel',         icon: 'ti-building-store',   price: '€49', desc: 'Kassensystem, Lager-Tracking, Lieferanten-Verwaltung und Retouren.',           features: ['Kassensystem', 'Lagerverwaltung', 'Lieferanten', 'Retouren', 'Tagesabschluss'] },
+  { key: 'gastro',       name: 'Gastronomie',          icon: 'ti-tools-kitchen-2',  price: '€45', desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',          features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'] },
+  { key: 'handwerk',     name: 'Handwerk',             icon: 'ti-hammer',           price: '€39', desc: 'Aufmaß-Erfassung, Materialplanung, Stundenzettel und Baustellenverwaltung.',   features: ['Aufmaß-Erfassung', 'Materialplanung', 'Stundenzettel', 'Baustellen', 'Auftragszettel-PDF'] },
+  { key: 'immobilien',   name: 'Immobilien',           icon: 'ti-home',             price: '€59', desc: 'Objekt-Verwaltung, Besichtigungen, Mieter-Daten und Nebenkostenabrechnungen.', features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM', 'Nebenkostenabrechnung', 'Dokumente'] },
+  { key: 'gesundheit',   name: 'Gesundheit / Praxis',  icon: 'ti-stethoscope',      price: '€79', desc: 'Patientenverwaltung, Terminplanung, Rezepte und DSGVO-konforme Dokumentation.', features: ['Patienten-Verwaltung', 'Terminplanung', 'Rezepte', 'DSGVO-konform', 'Karteikartenansicht'] },
 ]
 
+const activeBranchPackages = ref<string[]>([])
+const userEmail = ref('')
+const isAdmin = ref(false)
+const branchApiUrl = useApiUrl('/api/settings/branch-packages')
+const checkoutApiUrl = useApiUrl('/api/store/checkout')
+
+onMounted(async () => {
+  try {
+    const { useAuthUser } = await import('~/composables/useAuth')
+    const u = await useAuthUser()
+    userEmail.value = u.email || ''
+    isAdmin.value = u.role === 'admins'
+    if (!u.email) return
+    const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
+      headers: { 'x-user-email': u.email },
+    })
+    activeBranchPackages.value = res.branchPackages || []
+  } catch {}
+})
 
 const buyItem    = ref<any>(null)
 const notifyItem = ref<any>(null)
@@ -288,10 +288,21 @@ function notify(item: any)  { notifyItem.value = item }
 async function checkout() {
   if (!buyItem.value) return
   checkoutLoading.value = true
+  const isBranchPackage = branchenPakete.some(p => p.key === buyItem.value.key)
   try {
+    if (isAdmin.value && isBranchPackage) {
+      const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
+        method: 'POST',
+        body: { packageKey: buyItem.value.key },
+        headers: { 'x-user-email': userEmail.value },
+      })
+      activeBranchPackages.value = res.branchPackages || []
+      buyItem.value = null
+      return
+    }
     const { useAuthUser } = await import('~/composables/useAuth')
     const u = await useAuthUser()
-    const data = await $fetch<{ url: string }>(useApiUrl('/api/store/checkout'), {
+    const data = await $fetch<{ url: string }>(checkoutApiUrl, {
       method: 'POST',
       body: {
         moduleKey: buyItem.value.key,

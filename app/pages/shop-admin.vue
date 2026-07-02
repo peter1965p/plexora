@@ -388,6 +388,14 @@ const supplierForm = reactive({ name: '', contact: '', email: '', phone: '', web
 const categories = ref(['SOFTWARE', 'SERVICE'])
 const suppliers  = ref<any[]>([])
 
+async function loadCategories() {
+  try {
+    const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'))
+    if (res.categories?.shop?.length) categories.value = res.categories.shop
+  } catch {}
+}
+onMounted(loadCategories)
+
 const { data, refresh } = await useFetch(() => useApiUrl(`/api/shop/products?userId=${encodeURIComponent(userId)}`))
 const products = computed(() => (data.value as any)?.products || [])
 
@@ -485,15 +493,25 @@ async function deleteSupplier(id: string) {
   showToast('Lieferant gelöscht!')
 }
 
-function addCategory() {
+async function saveCategories() {
+  await $fetch(useApiUrl('/api/settings/categories'), {
+    method: 'POST',
+    body: { area: 'shop', categories: categories.value, userId },
+  })
+}
+
+async function addCategory() {
   const v = newCat.value.trim().toUpperCase()
   if (v && !categories.value.includes(v)) categories.value.push(v)
   newCat.value = ''
+  await saveCategories()
   showToast('Kategorie hinzugefügt!')
 }
 
-function removeCategory(k: string) {
+async function removeCategory(k: string) {
   categories.value = categories.value.filter(c => c !== k)
+  await saveCategories()
+  showToast('Kategorie entfernt!')
 }
 
 function showToast(msg: string) {
