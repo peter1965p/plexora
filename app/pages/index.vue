@@ -213,6 +213,30 @@
       </div>
     </section>
 
+    <!-- BRANCHEN-PAKETE -->
+    <section class="lp-wrap lp-branchen-section" id="branchen">
+      <div class="lp-branchen-panel">
+        <div class="lp-section-label">{{ t.branchen.label }}</div>
+        <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.branchen.heading }}</h2>
+        <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto">{{ t.branchen.sub }}</p>
+        <div class="lp-branchen-grid">
+          <div class="lp-bcard" v-for="pkg in t.branchen.items" :key="pkg.key">
+            <div class="lp-bcard-icon"><i class="ti" :class="pkg.icon"></i></div>
+            <div class="lp-bcard-name">{{ pkg.name }}</div>
+            <div class="lp-bcard-desc">{{ pkg.desc }}</div>
+            <div class="lp-bcard-features">
+              <span v-for="f in pkg.features" :key="f" class="lp-bcard-chip">{{ f }}</span>
+            </div>
+            <div class="lp-bcard-footer">
+              <div class="lp-bcard-price">{{ pkg.price }} <span>€ / {{ t.pricing.month }}</span></div>
+              <button class="lp-bcard-btn" @click="navigateTo('/kaufen')">{{ t.branchen.cta }}</button>
+            </div>
+          </div>
+        </div>
+        <div class="lp-branchen-note"><i class="ti ti-info-circle"></i> {{ t.branchen.note }}</div>
+      </div>
+    </section>
+
     <!-- FOOTER CTA -->
     <section class="lp-wrap lp-footer-cta">
       <h2 class="lp-h2">{{ t.footerCta.heading }}</h2>
@@ -338,6 +362,18 @@ const i18n = {
       pro:     { note: 'Für wachsende Teams',               items: ['Alles aus Starter','HR, Zeiterfassung & Urlaub','Verträge & Kunden-Portal','Shop & Bestellungen','Analytics & Lead-Kampagnen'] },
       enterprise: { note: 'Für größere Unternehmen',        items: ['Alles aus Pro','White-Label & eigenes Branding','UTM-Tracking & QR-Codes','API-Zugang & Integrationen','Prioritäts-Support & SLA'] },
     },
+    branchen: {
+      label: 'Für deine Branche',
+      heading: 'Branchen-Pakete als Erweiterung',
+      sub: 'Zusätzliche Module für Automotive, Gastronomie und Immobilien — buchbar zu jedem Plan.',
+      cta: 'Paket wählen',
+      note: 'Verfügbar im Modul-Store nach dem Kauf einer Lizenz — kein Extra-Vertrag nötig.',
+      items: [
+        { key: 'automotive', name: 'Automotive', icon: 'ti-car', price: 59, desc: 'Fahrzeugverwaltung, Probefahrten und Werkstatt-Aufträge — alles in einem Modul.', features: ['Fahrzeug-DB', 'Probefahrten', 'TÜV-Erinnerungen'] },
+        { key: 'gastro', name: 'Gastronomie', icon: 'ti-tools-kitchen-2', price: 59, desc: 'Tischreservierung, Speisekarte und Bestellmanagement für dein Restaurant.', features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement'] },
+        { key: 'immobilien', name: 'Immobilien', icon: 'ti-home', price: 59, desc: 'Objekt-Verwaltung, Besichtigungen und Mieter-CRM für deine Hausverwaltung.', features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM'] },
+      ],
+    },
     footerCta: {
       heading: 'Überzeugen Sie sich selbst.',
       sub: 'Demo-Zugang sofort verfügbar — kein Account nötig.',
@@ -404,6 +440,18 @@ const i18n = {
       starter: { note: 'For freelancers & solo businesses', items: ['CRM & Contact Management','Finance & Invoicing','Projects & Tasks','Marketing & Campaigns','Forms & Support Tickets','Company Website'] },
       pro:     { note: 'For growing teams',                items: ['Everything in Starter','HR, Time Tracking & Leave','Contracts & Client Portal','Shop & Page Builder','Analytics & Lead Campaigns'] },
       enterprise: { note: 'For larger organizations',     items: ['Everything in Pro','White-Label & Custom Branding','UTM Tracking & QR Codes','API Access & Integrations','Priority Support & SLA'] },
+    },
+    branchen: {
+      label: 'For Your Industry',
+      heading: 'Industry Packages as Add-ons',
+      sub: 'Extra modules for Automotive, Restaurants and Real Estate — available with any plan.',
+      cta: 'Choose Package',
+      note: 'Available in the Module Store after purchasing a license — no extra contract needed.',
+      items: [
+        { key: 'automotive', name: 'Automotive', icon: 'ti-car', price: 59, desc: 'Vehicle inventory, test drives and workshop orders — all in one module.', features: ['Vehicle DB', 'Test Drives', 'Inspection Reminders'] },
+        { key: 'gastro', name: 'Restaurants', icon: 'ti-tools-kitchen-2', price: 59, desc: 'Table reservations, menu management and order handling for your restaurant.', features: ['Table Booking', 'Menu', 'Order Management'] },
+        { key: 'immobilien', name: 'Real Estate', icon: 'ti-home', price: 59, desc: 'Property management, viewings and tenant CRM for your portfolio.', features: ['Property Mgmt', 'Viewings', 'Tenant CRM'] },
+      ],
     },
     footerCta: {
       heading: 'See it for yourself.',
@@ -848,6 +896,47 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-tick { color: #38bdf8; font-size: 15px; }
 .lp-cross { color: #545870; font-size: 15px; }
 
+/* BRANCHEN-PAKETE */
+.lp-branchen-section { padding: 0 0 64px; }
+.lp-branchen-panel {
+  max-width: 1120px; margin: 0 auto; position: relative; overflow: hidden;
+  background: linear-gradient(160deg, rgba(234,88,12,0.06), #10141f 55%);
+  border: 0.5px solid rgba(255,255,255,0.08);
+  border-radius: 28px;
+  padding: 48px 40px;
+}
+.lp-branchen-panel::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 50% at 15% 0%, rgba(56,189,248,0.10), transparent 70%);
+}
+.lp-branchen-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; position: relative; z-index: 1; }
+.lp-bcard {
+  background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 26px 22px; display: flex; flex-direction: column;
+  transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+}
+.lp-bcard:hover { border-color: rgba(234,88,12,0.45); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.35); }
+.lp-bcard-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(234,88,12,0.12); border: 0.5px solid rgba(234,88,12,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #ea580c; margin-bottom: 16px;
+}
+.lp-bcard-name { font-family: "Space Grotesk", sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.lp-bcard-desc { font-size: 12.5px; color: #8b8fa8; line-height: 1.5; margin-bottom: 16px; }
+.lp-bcard-features { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; flex: 1; align-content: flex-start; }
+.lp-bcard-chip { font-size: 11px; color: #9a9db8; background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 3px 9px; }
+.lp-bcard-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; border-top: 0.5px solid rgba(255,255,255,0.07); }
+.lp-bcard-price { font-family: "Space Grotesk", sans-serif; font-size: 20px; font-weight: 800; color: #f0eef9; }
+.lp-bcard-price span { font-family: "Exo 2", sans-serif; font-size: 12px; font-weight: 400; color: #8b8fa8; }
+.lp-bcard-btn {
+  background: transparent; color: #f0eef9; border: 0.5px solid rgba(240,238,249,0.25);
+  border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: "Exo 2", sans-serif; transition: all 0.2s; white-space: nowrap;
+}
+.lp-bcard-btn:hover { background: #ea580c; border-color: #ea580c; }
+.lp-branchen-note { text-align: center; font-size: 12px; color: #666b85; margin-top: 28px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
 /* FOOTER CTA */
 .lp-footer-cta { text-align: center; padding: 64px 0; border-top: 0.5px solid rgba(255,255,255,0.07); }
 .lp-h2 { font-family: "Space Grotesk", sans-serif; font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
@@ -919,6 +1008,8 @@ onUnmounted(() => clearInterval(testiTimer))
 
 @media (max-width: 900px) {
   .lp-wrap { padding: 0 24px; }
+  .lp-branchen-grid { grid-template-columns: 1fr; }
+  .lp-branchen-panel { padding: 36px 24px; }
 }
 
 @media (max-width: 640px) {
@@ -930,5 +1021,6 @@ onUnmounted(() => clearInterval(testiTimer))
   .lp-modules-grid { grid-template-columns: repeat(2,1fr); }
   .lp-pricing-grid { grid-template-columns: 1fr; }
   .lp-compare-grid { grid-template-columns: 1fr; }
+  .lp-branchen-panel { padding: 28px 18px; border-radius: 20px; }
 }
 </style>
