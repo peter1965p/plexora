@@ -37,6 +37,7 @@ const translations = {
       crm: 'CRM', projects: 'Projekte', contracts: 'Verträge', finance: 'Finanzen',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
       pagebuilder: 'Pagebuilder', forms: 'Formulare', marketing: 'Marketing', nexora: 'Website',
+      termine: 'Termine',
     } as Record<string, string>,
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ const translations = {
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/pagebuilder':'Pagebuilder','/forms':      'Formulare',
       '/analytics':  'Analytics',  '/settings':   'Einstellungen', '/website': 'Website',
-      '/blog':       'Blog',      '/automotive': 'Automotive',
+      '/blog':       'Blog',      '/automotive': 'Automotive', '/termine':    'Termine',
     } as Record<string, string>,
 
     // ── Topbar user menu ───────────────────────────────────────────────────────
@@ -343,6 +344,7 @@ const translations = {
       crm: 'CRM', projects: 'Projects', contracts: 'Contracts', finance: 'Finance',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
       pagebuilder: 'Page Builder', forms: 'Forms', marketing: 'Marketing', nexora: 'Website',
+      termine: 'Appointments',
     } as Record<string, string>,
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
@@ -352,7 +354,7 @@ const translations = {
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/pagebuilder':'Page Builder','/forms':     'Forms',
       '/analytics':  'Analytics',  '/settings':   'Settings',   '/website':   'Website',
-      '/blog':       'Blog',      '/automotive': 'Automotive',
+      '/blog':       'Blog',      '/automotive': 'Automotive', '/termine':   'Appointments',
     } as Record<string, string>,
 
     // ── Topbar user menu ───────────────────────────────────────────────────────

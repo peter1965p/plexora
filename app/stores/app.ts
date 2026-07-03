@@ -42,6 +42,7 @@ export const useAppStore = defineStore("app", {
       { key: "shop",        name: "Shop",          icon: "ti-shopping-cart",  on: false, locked: false, plan: "pro",        desc: "Produkt-Verwaltung, Stripe-Checkout, Bestellungen, Webhooks" },
       { key: "forms",       name: "Formulare",     icon: "ti-forms",          on: false, locked: false, plan: "pro",        desc: "Formular-Builder, Einbettung, Submissions-Übersicht" },
       { key: "nexora",      name: "Website",       icon: "ti-world",          on: false, locked: false, plan: "pro",        desc: "Unternehmens-Webseite via Nexora, API-gesteuert, aus Plexora verwaltet" },
+      { key: "termine",     name: "Termine",       icon: "ti-calendar-event", on: false, locked: false, plan: "pro",        desc: "Terminplaner mit öffentlicher Buchungsseite und Google-Calendar/Meet-Anbindung" },
     ],
   }),
   actions: {

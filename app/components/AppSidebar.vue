@@ -74,7 +74,7 @@ const BRANCH_MODULES: Record<string, { label: string; icon: string; to: string }
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
   hr: '/hr', support: '/support', analytics: '/analytics', shop: '/shop-admin',
-  forms: '/forms', marketing: '/marketing',
+  forms: '/forms', marketing: '/marketing', termine: '/termine',
 }
 
 const navSections = computed(() => [
