@@ -43,5 +43,7 @@ export default defineEventHandler(async (event) => {
     orderingEnabled: res.Item.orderingEnabled  ?? false,
     propertiesEnabled: res.Item.propertiesEnabled ?? false,
     propertiesTitle:   res.Item.propertiesTitle   || 'Immobilien',
+    termineEnabled:    res.Item.termineEnabled    ?? false,
+    termineTitle:      res.Item.termineTitle      || 'Termine',
   }
 })
