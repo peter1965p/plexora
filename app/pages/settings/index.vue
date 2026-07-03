@@ -1101,25 +1101,11 @@
 
         <template v-else>
 
-          <!-- Subdomain -->
-          <div>
-            <div class="settings-label">Subdomain</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Deine kostenlose Adresse auf nexora.de</div>
-            <div style="display:flex;align-items:center;gap:0">
-              <input v-model="nexoraForm.subdomain" class="auth-input" placeholder="meinefirma" style="border-radius:8px 0 0 8px;flex:1" />
-              <div style="padding:0 12px;height:36px;background:var(--bg-elevated);border:0.5px solid var(--border);border-left:none;border-radius:0 8px 8px 0;display:flex;align-items:center;font-size:12px;color:var(--text-muted);white-space:nowrap">.nexora.de</div>
-            </div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Nur Kleinbuchstaben, Zahlen und Bindestriche</div>
-          </div>
-
           <!-- Custom Domain -->
-          <div style="padding-top:16px;border-top:1px solid var(--border)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-              <div class="settings-label" style="margin:0">Eigene Domain</div>
-              <span style="font-size:10px;font-weight:700;color:var(--accent);background:var(--accent)18;border-radius:20px;padding:2px 8px">PREMIUM</span>
-            </div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Optional — eigene Domain statt Subdomain auf nexora.de</div>
-            <input v-model="nexoraForm.customDomain" class="auth-input" placeholder="meine-firma.de (optional)" />
+          <div>
+            <div class="settings-label">Domain deiner Webseite</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Deine Webseite läuft auf deiner eigenen Domain — keine Registrierung nötig, nur ein DNS-Eintrag.</div>
+            <input v-model="nexoraForm.customDomain" class="auth-input" placeholder="meine-firma.de" />
 
             <!-- DNS Anleitung -->
             <div v-if="nexoraForm.customDomain" style="margin-top:12px;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
@@ -1128,7 +1114,7 @@
                 <span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;flex-shrink:0">CNAME</span>
                 <code style="color:var(--text);flex:1">{{ nexoraForm.customDomain }}</code>
                 <span style="color:var(--text-muted)">→</span>
-                <code style="color:var(--accent)">nexora.de</code>
+                <code style="color:var(--accent)">nexora-nuxt.pages.dev</code>
               </div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:8px">
                 <i class="ti ti-clock" style="margin-right:4px"></i>DNS-Propagation kann bis zu 24h dauern. Danach ist deine Domain aktiv.

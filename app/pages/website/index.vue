@@ -11,7 +11,7 @@
         <div style="font-size:12px;color:var(--text-muted)">Nexora · powered by Plexora</div>
       </div>
       <div style="margin-left:auto;display:flex;gap:8px">
-        <a v-if="nexora?.subdomain" :href="`https://${nexora.subdomain}.nexora.de`" target="_blank" class="btn-secondary" style="font-size:12px;display:flex;align-items:center;gap:6px">
+        <a v-if="nexora?.customDomain" :href="`https://${nexora.customDomain}`" target="_blank" class="btn-secondary" style="font-size:12px;display:flex;align-items:center;gap:6px">
           <i class="ti ti-external-link"></i> Vorschau
         </a>
         <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" @click="save" :disabled="saving">
@@ -43,7 +43,7 @@
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px">
         <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px #22c55e88;flex-shrink:0"></div>
         <div style="font-size:13px;font-weight:600">Nexora ist aktiv</div>
-        <div style="font-size:12px;color:var(--text-muted)">{{ nexora.subdomain }}.nexora.de</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ nexora.customDomain || 'Domain noch nicht konfiguriert' }}</div>
         <div style="margin-left:auto;font-size:11px;color:var(--text-muted)">Tenant: {{ nexora.tenantId }}</div>
       </div>
 
@@ -1088,7 +1088,7 @@
             <div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0"></div>
             <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0"></div>
             <div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:16px;margin-left:6px;display:flex;align-items:center;padding:0 8px">
-              <span style="font-size:9px;color:var(--text-muted);font-family:monospace">{{ nexora?.subdomain }}.nexora.de</span>
+              <span style="font-size:9px;color:var(--text-muted);font-family:monospace">{{ nexora?.customDomain || 'deine-domain.de' }}</span>
             </div>
           </div>
           <!-- Site sections wireframe -->
