@@ -245,7 +245,7 @@ const addons = computed(() => [
     features: ['Auto-Provisioning', 'API-gesteuert', 'Inhalts-Editor', 'DSGVO-konform', 'Nexora-Frontend'],
   },
   {
-    key: 'termine', name: 'Termine', icon: 'ti-calendar-event', price: '€12', badge: 'NEU',
+    key: 'termine', name: 'Termine', icon: 'ti-calendar-event', price: '€15', badge: 'NEU',
     owned: owned('termine'),
     desc: 'Öffentliche Buchungsseite für Kunden, mit Google-Calendar- und Meet-Anbindung.',
     features: ['Öffentliche Buchungsseite', 'Terminarten & Arbeitszeiten', 'Google-Calendar-Sync', 'Automatischer Meet-Link'],
