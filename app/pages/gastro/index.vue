@@ -15,6 +15,9 @@
         <button v-else-if="activeTab === 'tische'" class="accent-btn" @click="openNewTable">
           <i class="ti ti-plus"></i> Tisch anlegen
         </button>
+        <button v-else-if="activeTab === 'service'" class="accent-btn" @click="openNewTip()">
+          <i class="ti ti-plus"></i> Trinkgeld erfassen
+        </button>
       </div>
     </div>
 
@@ -245,6 +248,64 @@
       </div>
     </div>
 
+    <!-- ── TAB: SERVICE & TRINKGELD ── -->
+    <div v-else-if="activeTab === 'service'">
+      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 18px">
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Trinkgeld heute</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">{{ formatEuro(tipsToday) }}</div>
+        </div>
+        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 18px">
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Trinkgeld diesen Monat</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">{{ formatEuro(tipsMonth) }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">Personal</div>
+        <button class="icon-btn" style="font-size:12px;padding:4px 10px" @click="openNewStaff"><i class="ti ti-plus" style="margin-right:4px"></i>Mitarbeiter anlegen</button>
+      </div>
+      <div v-if="loadingStaff" style="padding:20px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
+      <div v-else-if="!staff.length" style="text-align:center;padding:40px;color:var(--text-muted)">
+        <p style="font-size:13px">Noch kein Personal angelegt.</p>
+      </div>
+      <div v-else style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:28px">
+        <div v-for="s in staff" :key="s.staffId"
+          style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px"
+          :style="!s.active ? 'opacity:.5' : ''">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-weight:700;font-size:14px">{{ s.name }}</div>
+            <div style="display:flex;gap:2px">
+              <button @click="openEditStaff(s)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit" style="font-size:14px"></i></button>
+              <button @click="deleteStaff(s)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px" title="Löschen"><i class="ti ti-trash" style="font-size:14px"></i></button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">{{ s.role }}<span v-if="!s.active"> · inaktiv</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:12px;color:var(--text-muted)">Monat: <strong style="color:var(--text)">{{ formatEuro(staffTipsTotal(s.staffId, 'month')) }}</strong></div>
+            <button class="accent-btn" style="height:26px;font-size:11px;padding:0 10px" @click="openNewTip(s.staffId)" title="Trinkgeld erfassen"><i class="ti ti-plus"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:10px">Trinkgeld-Verlauf</div>
+      <div v-if="loadingTips" style="padding:20px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
+      <div v-else-if="!tips.length" style="text-align:center;padding:40px;color:var(--text-muted)">
+        <i class="ti ti-coin" style="font-size:40px;display:block;margin-bottom:10px;opacity:.3"></i>
+        <p style="font-size:13px">Noch kein Trinkgeld erfasst.</p>
+      </div>
+      <div v-else style="display:flex;flex-direction:column;gap:6px">
+        <div v-for="t in tipsSorted" :key="t.tipId"
+          style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:14px">
+          <div style="font-size:12px;color:var(--text-muted);width:64px;flex-shrink:0">{{ formatDate(t.date) }}</div>
+          <div style="flex:1;font-size:13px;font-weight:600">{{ t.staffName || '—' }}</div>
+          <div v-if="t.note" style="font-size:12px;color:var(--text-muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.note }}</div>
+          <div style="font-weight:800;font-size:14px;color:var(--accent);flex-shrink:0">{{ formatEuro(Number(t.amount)) }}</div>
+          <button @click="deleteTip(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px;flex-shrink:0" title="Löschen"><i class="ti ti-trash" style="font-size:13px"></i></button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL: Gericht -->
     <div v-if="showItemModal" class="modal-overlay" @click.self="showItemModal=false">
       <div class="modal-card" style="max-width:480px">
@@ -309,6 +370,60 @@
       </div>
     </div>
 
+    <!-- MODAL: Mitarbeiter -->
+    <div v-if="showStaffModal" class="modal-overlay" @click.self="showStaffModal=false">
+      <div class="modal-card" style="max-width:420px">
+        <div class="modal-header">
+          <span class="card-title">{{ editingStaffId ? 'Mitarbeiter bearbeiten' : 'Mitarbeiter anlegen' }}</span>
+          <button class="icon-btn" @click="showStaffModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-field"><label>Name *</label><input v-model="sForm.name" placeholder="Julia Hoffmann" /></div>
+          <div class="auth-field"><label>Rolle</label>
+            <select v-model="sForm.role" class="form-select">
+              <option>Kellner</option><option>Kellnerin</option><option>Koch</option><option>Küchenhilfe</option><option>Aushilfe</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" v-model="sForm.active" style="width:auto" /> Aktiv
+            </label>
+          </div>
+        </div>
+        <div style="padding:0 24px 24px">
+          <button class="auth-btn" @click="saveStaff" :disabled="!sForm.name">
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingStaffId ? 'Speichern' : 'Mitarbeiter anlegen' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Trinkgeld -->
+    <div v-if="showTipModal" class="modal-overlay" @click.self="showTipModal=false">
+      <div class="modal-card" style="max-width:420px">
+        <div class="modal-header">
+          <span class="card-title">Trinkgeld erfassen</span>
+          <button class="icon-btn" @click="showTipModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-field"><label>Mitarbeiter *</label>
+            <select v-model="tipForm.staffId" class="form-select">
+              <option value="" disabled>Bitte wählen</option>
+              <option v-for="s in staff" :key="s.staffId" :value="s.staffId">{{ s.name }}</option>
+            </select>
+          </div>
+          <div class="auth-field"><label>Betrag (€) *</label><input v-model="tipForm.amount" type="number" step="0.01" placeholder="12.50" /></div>
+          <div class="auth-field"><label>Datum</label><input v-model="tipForm.date" type="date" /></div>
+          <div class="auth-field"><label>Notiz</label><input v-model="tipForm.note" placeholder="Tisch 4, Gruppe..." /></div>
+        </div>
+        <div style="padding:0 24px 24px">
+          <button class="auth-btn" @click="saveTip" :disabled="!tipForm.staffId || !tipForm.amount">
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>Speichern
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -322,6 +437,7 @@ const tabs = [
   { key: 'speisekarte',   label: 'Speisekarte',  icon: 'ti-tools-kitchen-2' },
   { key: 'tische',        label: 'Tische',        icon: 'ti-armchair' },
   { key: 'bestellungen',  label: 'Bestellungen',  icon: 'ti-shopping-cart' },
+  { key: 'service',       label: 'Service & Trinkgeld', icon: 'ti-users' },
 ]
 
 interface MenuItem {
@@ -562,10 +678,124 @@ async function cancelOrder(o: GastroOrder) {
   await $fetch(useApiUrl(`/api/gastro-orders/${o.orderId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { status: 'storniert' } })
 }
 
+// ── Service & Trinkgeld ───────────────────────────────
+interface StaffMember { staffId: string; name: string; role: string; active: boolean }
+interface TipEntry { tipId: string; staffId: string; staffName: string; amount: number | string; date: string; note: string; createdAt?: string }
+
+const staff       = ref<StaffMember[]>([])
+const tips        = ref<TipEntry[]>([])
+const loadingStaff = ref(true)
+const loadingTips  = ref(true)
+
+function formatDate(d?: string) {
+  if (!d) return ''
+  return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' })
+}
+
+function staffTipsTotal(staffId: string, range: 'today' | 'month' | 'all' = 'all') {
+  const today = new Date().toISOString().slice(0, 10)
+  const monthPrefix = today.slice(0, 7)
+  return tips.value
+    .filter(t => t.staffId === staffId && (range === 'all' || (range === 'today' ? t.date === today : t.date.startsWith(monthPrefix))))
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+}
+
+const tipsToday = computed(() => {
+  const today = new Date().toISOString().slice(0, 10)
+  return tips.value.filter(t => t.date === today).reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+})
+const tipsMonth = computed(() => {
+  const monthPrefix = new Date().toISOString().slice(0, 7)
+  return tips.value.filter(t => t.date.startsWith(monthPrefix)).reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
+})
+const tipsSorted = computed(() =>
+  [...tips.value].sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || '').localeCompare(a.createdAt || ''))
+)
+
+const showStaffModal = ref(false)
+const editingStaffId = ref('')
+const sForm = reactive({ name: '', role: 'Kellner', active: true })
+
+function resetStaffForm() { sForm.name = ''; sForm.role = 'Kellner'; sForm.active = true; editingStaffId.value = '' }
+function openNewStaff() { resetStaffForm(); showStaffModal.value = true }
+function openEditStaff(s: StaffMember) {
+  sForm.name = s.name; sForm.role = s.role; sForm.active = s.active
+  editingStaffId.value = s.staffId
+  showStaffModal.value = true
+}
+
+async function loadStaff() {
+  loadingStaff.value = true
+  try {
+    const res = await $fetch<{ staff: StaffMember[] }>(useApiUrl('/api/gastro-staff'), { headers: { 'x-user-email': userEmail.value } })
+    staff.value = res.staff || []
+  } catch {}
+  loadingStaff.value = false
+}
+
+async function saveStaff() {
+  if (!sForm.name) return
+  try {
+    if (editingStaffId.value) {
+      await $fetch(useApiUrl(`/api/gastro-staff/${editingStaffId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...sForm } })
+    } else {
+      await $fetch(useApiUrl('/api/gastro-staff'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...sForm } })
+    }
+    showStaffModal.value = false
+    await loadStaff()
+  } catch {}
+}
+
+async function deleteStaff(s: StaffMember) {
+  if (!confirm(`"${s.name}" wirklich löschen?`)) return
+  await $fetch(useApiUrl(`/api/gastro-staff/${s.staffId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await loadStaff()
+}
+
+const showTipModal = ref(false)
+const tipForm = reactive({ staffId: '', amount: '', date: new Date().toISOString().slice(0, 10), note: '' })
+
+function openNewTip(preselectStaffId?: string) {
+  tipForm.staffId = preselectStaffId || staff.value[0]?.staffId || ''
+  tipForm.amount = ''
+  tipForm.date = new Date().toISOString().slice(0, 10)
+  tipForm.note = ''
+  showTipModal.value = true
+}
+
+async function loadTips() {
+  loadingTips.value = true
+  try {
+    const res = await $fetch<{ tips: TipEntry[] }>(useApiUrl('/api/gastro-tips'), { headers: { 'x-user-email': userEmail.value } })
+    tips.value = res.tips || []
+  } catch {}
+  loadingTips.value = false
+}
+
+async function saveTip() {
+  if (!tipForm.staffId || !tipForm.amount) return
+  const member = staff.value.find(s => s.staffId === tipForm.staffId)
+  try {
+    await $fetch(useApiUrl('/api/gastro-tips'), {
+      method: 'POST',
+      headers: { 'x-user-email': userEmail.value },
+      body: { ...tipForm, staffName: member?.name || '' },
+    })
+    showTipModal.value = false
+    await loadTips()
+  } catch {}
+}
+
+async function deleteTip(t: TipEntry) {
+  if (!confirm('Trinkgeld-Eintrag wirklich löschen?')) return
+  await $fetch(useApiUrl(`/api/gastro-tips/${t.tipId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await loadTips()
+}
+
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
-  await Promise.all([loadMenu(), loadTables(), loadOrders()])
+  await Promise.all([loadMenu(), loadTables(), loadOrders(), loadStaff(), loadTips()])
 })
 </script>

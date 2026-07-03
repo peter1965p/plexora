@@ -6,17 +6,17 @@ interface ConfirmOptions {
   accentColor?: string
 }
 
-const _state = useState('plx-confirm', () => ({
-  visible:  false,
-  title:    '',
-  name:     '',
-  sub:      'Diese Aktion kann nicht rückgängig gemacht werden.',
-  icon:     'ti-trash',
-  accentColor: '',
-  resolve:  null as ((v: boolean) => void) | null,
-}))
-
 export function useConfirm() {
+  const _state = useState('plx-confirm', () => ({
+    visible:  false,
+    title:    '',
+    name:     '',
+    sub:      'Diese Aktion kann nicht rückgängig gemacht werden.',
+    icon:     'ti-trash',
+    accentColor: '',
+    resolve:  null as ((v: boolean) => void) | null,
+  }))
+
   function openConfirm(opts: ConfirmOptions = {}): Promise<boolean> {
     return new Promise(resolve => {
       _state.value = {
