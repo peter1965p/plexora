@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPat = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, sectionOrder = :so, heroMediaType = :hmt, heroImageUrl = :hiu, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPat = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, blogEnabled = :ble, blogTitle = :blt, shopEnabled = :she, shopTitle = :sht, sectionOrder = :so, navOrder = :no, heroMediaType = :hmt, heroImageUrl = :hiu, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -51,7 +51,12 @@ export default defineEventHandler(async (event) => {
       ':ghr':  body.githubRepos     ?? item.githubRepos     ?? [],
       ':ght':  body.githubTitle     ?? item.githubTitle     ?? 'PROJEKTE',
       ':ghf':  body.githubShowForks ?? item.githubShowForks ?? false,
+      ':ble':  body.blogEnabled     ?? item.blogEnabled     ?? false,
+      ':blt':  body.blogTitle       ?? item.blogTitle       ?? 'Blog',
+      ':she':  body.shopEnabled     ?? item.shopEnabled     ?? false,
+      ':sht':  body.shopTitle       ?? item.shopTitle       ?? 'Shop',
       ':so':   body.sectionOrder    ?? item.sectionOrder    ?? ['stack', 'clients', 'github', 'services', 'contact'],
+      ':no':   body.navOrder        ?? item.navOrder        ?? ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
       ':hmt':  body.heroMediaType   ?? item.heroMediaType   ?? 'code',
       ':hiu':  body.heroImageUrl    ?? item.heroImageUrl    ?? '',
       ':u':    new Date().toISOString(),

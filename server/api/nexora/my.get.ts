@@ -50,7 +50,12 @@ export default defineEventHandler(async (event) => {
       githubRepos:    item.githubRepos    || [],
       githubTitle:    item.githubTitle    || 'PROJEKTE',
       githubShowForks: item.githubShowForks ?? false,
+      blogEnabled:    item.blogEnabled    ?? false,
+      blogTitle:      item.blogTitle      || 'Blog',
+      shopEnabled:    item.shopEnabled    ?? false,
+      shopTitle:      item.shopTitle      || 'Shop',
       sectionOrder:   item.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact'],
+      navOrder:       item.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
       heroMediaType:  item.heroMediaType  || 'code',
       heroImageUrl:   item.heroImageUrl   || '',
     }

@@ -1027,6 +1027,43 @@
             Die Vorschau rechts aktualisiert sich sofort. Zum Übernehmen oben auf <strong>Speichern</strong> klicken.
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-menu-2" style="margin-right:8px;color:var(--accent)"></i>Navigation-Reihenfolge</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Ziehe die Menüpunkte in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div v-for="(key, idx) in form.navOrder" :key="key" v-if="NAV_META[key]"
+              draggable="true"
+              @dragstart="onNavDragStart(idx)"
+              @dragover.prevent="onNavDragOver(idx)"
+              @drop="onNavDrop(idx)"
+              @dragend="onNavDragEnd"
+              style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);cursor:grab;transition:opacity .15s,border-color .15s"
+              :style="{
+                opacity: draggedNavIndex === idx ? 0.4 : 1,
+                borderColor: dragOverNavIndex === idx && draggedNavIndex !== idx ? 'var(--accent)' : 'var(--border)',
+              }">
+              <!-- Grip handle -->
+              <i class="ti ti-grip-vertical" style="font-size:16px;color:var(--text-muted);flex-shrink:0"></i>
+              <!-- Position number -->
+              <div style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted)">{{ idx + 1 }}</div>
+              <!-- Icon + label -->
+              <i class="ti" :class="NAV_META[key].icon" style="font-size:16px;flex-shrink:0;color:var(--accent)"></i>
+              <div style="flex:1;font-size:13px;font-weight:600">{{ navLabel(key) }}</div>
+              <!-- Enabled indicator -->
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                <div style="width:6px;height:6px;border-radius:50%" :style="navEnabled(key) ? 'background:#22c55e;box-shadow:0 0 4px #22c55e88' : 'background:var(--border)'"></div>
+                <span style="font-size:10px;color:var(--text-muted)">{{ navEnabled(key) ? 'Aktiv' : 'Aus' }}</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
+            <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
+            Ausgeblendete Menüpunkte (z.B. weil das Modul noch nicht aktiviert ist) erscheinen erst live, sobald sie aktiv sind — die Reihenfolge bleibt erhalten.
+          </div>
+        </div>
       </div>
 
       <!-- ── TAB: KONTAKT ── -->
@@ -1286,6 +1323,7 @@ const form = reactive({
   githubLoading:   false,
   githubPatVisible: false,
   sectionOrder:    ['stack', 'clients', 'github', 'services', 'contact'] as string[],
+  navOrder:        ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'] as string[],
   heroMediaType:   'code' as 'code' | 'image',
   heroImageUrl:    '',
 })
@@ -1354,8 +1392,25 @@ onMounted(async () => {
       form.githubShowForks     = n.githubShowForks ?? false
       form.githubRepos         = n.githubRepos    || []
       form.sectionOrder        = n.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact']
+      form.navOrder            = n.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine']
       form.heroMediaType       = n.heroMediaType  || 'code'
       form.heroImageUrl        = n.heroImageUrl   || ''
+
+      if (n.tenantId) {
+        try {
+          const pub = await $fetch<any>(useApiUrl(`/api/public/${n.tenantId}/branding`))
+          Object.assign(navStatus, {
+            vehiclesEnabled:   pub.vehiclesEnabled   ?? false,
+            vehiclesTitle:     pub.vehiclesTitle      || 'Fahrzeuge',
+            menuEnabled:       pub.menuEnabled       ?? false,
+            menuTitle:         pub.menuTitle          || 'Speisekarte',
+            propertiesEnabled: pub.propertiesEnabled  ?? false,
+            propertiesTitle:   pub.propertiesTitle     || 'Immobilien',
+            termineEnabled:    pub.termineEnabled     ?? false,
+            termineTitle:      pub.termineTitle        || 'Termine',
+          })
+        } catch {}
+      }
     }
   } catch {}
   loading.value = false
@@ -1434,6 +1489,7 @@ async function save() {
         githubShowForks: form.githubShowForks,
         githubRepos:    form.githubRepos,
         sectionOrder:   form.sectionOrder,
+        navOrder:       form.navOrder,
         heroMediaType:  form.heroMediaType,
         heroImageUrl:   form.heroImageUrl,
       },
@@ -1605,6 +1661,64 @@ function moveSectionItem(i: number, dir: -1 | 1) {
   if (j < 0 || j >= form.sectionOrder.length) return
   ;[form.sectionOrder[i], form.sectionOrder[j]] = [form.sectionOrder[j], form.sectionOrder[i]]
 }
+
+// ── Nav Positioning ─────────────────────────────────────────────────────────────
+const navStatus = reactive({
+  vehiclesEnabled: false, vehiclesTitle: 'Fahrzeuge',
+  menuEnabled: false, menuTitle: 'Speisekarte',
+  propertiesEnabled: false, propertiesTitle: 'Immobilien',
+  termineEnabled: false, termineTitle: 'Termine',
+})
+
+const NAV_META: Record<string, { label: string; icon: string }> = {
+  start:      { label: 'Start',       icon: 'ti-home' },
+  leistungen: { label: 'Leistungen',  icon: 'ti-briefcase' },
+  about:      { label: 'Über uns',    icon: 'ti-info-circle' },
+  kontakt:    { label: 'Kontakt',     icon: 'ti-map-pin' },
+  shop:       { label: 'Shop',        icon: 'ti-shopping-cart' },
+  blog:       { label: 'Blog',        icon: 'ti-news' },
+  vehicles:   { label: 'Fahrzeuge',   icon: 'ti-car' },
+  menu:       { label: 'Speisekarte', icon: 'ti-tools-kitchen-2' },
+  properties: { label: 'Immobilien',  icon: 'ti-building-estate' },
+  termine:    { label: 'Termine',     icon: 'ti-calendar-event' },
+}
+
+function navLabel(key: string): string {
+  if (key === 'shop')       return form.shopTitle || 'Shop'
+  if (key === 'blog')       return form.blogTitle || 'Blog'
+  if (key === 'vehicles')   return navStatus.vehiclesTitle
+  if (key === 'menu')       return navStatus.menuTitle
+  if (key === 'properties') return navStatus.propertiesTitle
+  if (key === 'termine')    return navStatus.termineTitle
+  return NAV_META[key]?.label || key
+}
+
+function navEnabled(key: string): boolean {
+  if (key === 'shop')       return form.shopEnabled
+  if (key === 'blog')       return form.blogEnabled
+  if (key === 'vehicles')   return navStatus.vehiclesEnabled
+  if (key === 'menu')       return navStatus.menuEnabled
+  if (key === 'properties') return navStatus.propertiesEnabled
+  if (key === 'termine')    return navStatus.termineEnabled
+  return true
+}
+
+const draggedNavIndex  = ref<number | null>(null)
+const dragOverNavIndex = ref<number | null>(null)
+
+function onNavDragStart(idx: number) { draggedNavIndex.value = idx }
+function onNavDragOver(idx: number)  { dragOverNavIndex.value = idx }
+function onNavDrop(idx: number) {
+  if (draggedNavIndex.value === null || draggedNavIndex.value === idx) {
+    draggedNavIndex.value = null; dragOverNavIndex.value = null
+    return
+  }
+  const [moved] = form.navOrder.splice(draggedNavIndex.value, 1)
+  form.navOrder.splice(idx, 0, moved)
+  draggedNavIndex.value = null
+  dragOverNavIndex.value = null
+}
+function onNavDragEnd() { draggedNavIndex.value = null; dragOverNavIndex.value = null }
 
 // ── GitHub ────────────────────────────────────────────────────────────────────
 async function loadGithubRepos() {

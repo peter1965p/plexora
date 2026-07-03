@@ -45,5 +45,6 @@ export default defineEventHandler(async (event) => {
     propertiesTitle:   res.Item.propertiesTitle   || 'Immobilien',
     termineEnabled:    res.Item.termineEnabled    ?? false,
     termineTitle:      res.Item.termineTitle      || 'Termine',
+    navOrder:          res.Item.navOrder          || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
   }
 })
