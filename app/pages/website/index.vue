@@ -998,7 +998,8 @@
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Bestimme die Reihenfolge der Sektionen auf der Website. Hero und Footer sind immer fest.</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <div v-for="(key, idx) in form.sectionOrder" :key="key" v-if="SECTION_META[key]"
+            <template v-for="(key, idx) in form.sectionOrder" :key="key">
+            <div v-if="SECTION_META[key]"
               style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid;transition:all .15s"
               :style="{ borderColor: SECTION_META[key].color + '55', background: SECTION_META[key].color + '0d' }">
               <!-- Position number -->
@@ -1021,6 +1022,7 @@
                 <button class="icon-btn" style="height:18px;width:24px;font-size:11px;padding:0" @click="moveSectionItem(idx, 1)" :disabled="idx === form.sectionOrder.length - 1"><i class="ti ti-chevron-down"></i></button>
               </div>
             </div>
+            </template>
           </div>
           <div style="margin-top:16px;padding:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
@@ -1034,7 +1036,8 @@
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Ziehe die Menüpunkte in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <div v-for="(key, idx) in form.navOrder" :key="key" v-if="NAV_META[key]"
+            <template v-for="(key, idx) in form.navOrder" :key="key">
+            <div v-if="NAV_META[key]"
               draggable="true"
               @dragstart="onNavDragStart(idx)"
               @dragover.prevent="onNavDragOver(idx)"
@@ -1058,6 +1061,7 @@
                 <span style="font-size:10px;color:var(--text-muted)">{{ navEnabled(key) ? 'Aktiv' : 'Aus' }}</span>
               </div>
             </div>
+            </template>
           </div>
           <div style="margin-top:16px;padding:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
