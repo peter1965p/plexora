@@ -327,54 +327,96 @@
 
     <!-- EMAIL SEND MODAL -->
     <div v-if="sendEmailCampaign" class="modal-overlay" @click.self="sendEmailCampaign=null">
-      <div class="modal-card" style="max-width:480px;width:95vw">
+      <div class="modal-card" style="max-width:980px;width:95vw;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
           <span class="card-title"><i class="ti ti-mail-forward"></i> E-Mail Kampagne — {{ sendEmailCampaign.name }}</span>
           <button class="icon-btn" @click="sendEmailCampaign=null"><i class="ti ti-x"></i></button>
         </div>
-        <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
-          <div class="auth-field">
-            <label>Betreff</label>
-            <input v-model="sendEmailForm.subject" :placeholder="`${sendEmailCampaign.name} — ${sendEmailCampaign.headline || 'Unser Angebot'}`" />
-          </div>
-          <div class="auth-field">
-            <label>Ton der KI-E-Mail</label>
-            <select v-model="sendEmailForm.tone" class="form-select">
-              <option value="freundlich">Freundlich</option>
-              <option value="sachlich">Sachlich</option>
-              <option value="direkt">Direkt</option>
-              <option value="motivierend">Motivierend</option>
-            </select>
-          </div>
-          <div class="auth-field">
-            <label>Empfänger</label>
-            <select v-model="sendEmailForm.contactStatus" class="form-select">
-              <option value="">Alle Kontakte mit E-Mail</option>
-              <option value="lead">Nur Leads</option>
-              <option value="kunde">Nur Kunden</option>
-            </select>
+        <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+          <!-- Left: Konfiguration -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="auth-field">
+              <label>Betreff</label>
+              <input v-model="sendEmailForm.subject" :placeholder="`${sendEmailCampaign.name} — ${sendEmailCampaign.headline || 'Unser Angebot'}`" />
+            </div>
+            <div class="auth-field">
+              <label>Ton der KI-E-Mail</label>
+              <select v-model="sendEmailForm.tone" class="form-select">
+                <option value="freundlich">Freundlich</option>
+                <option value="sachlich">Sachlich</option>
+                <option value="direkt">Direkt</option>
+                <option value="motivierend">Motivierend</option>
+              </select>
+            </div>
+            <div class="auth-field">
+              <label>Empfänger</label>
+              <select v-model="sendEmailForm.contactStatus" class="form-select">
+                <option value="">Alle Kontakte mit E-Mail ({{ segmentCounts.all }})</option>
+                <option value="lead">Nur Leads ({{ segmentCounts.lead }})</option>
+                <option value="customer">Nur Kunden ({{ segmentCounts.customer }})</option>
+                <option value="churned">Nur Verlorene ({{ segmentCounts.churned }})</option>
+              </select>
+            </div>
+
+            <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text-muted)">
+              <i class="ti ti-sparkles" style="color:var(--accent)"></i>
+              Claude generiert für jeden Kontakt eine personalisierte E-Mail.
+              Ohne API-Key wird eine Standard-E-Mail verwendet.
+            </div>
+
+            <button class="auth-btn" :disabled="sending" @click="sendEmailBlast">
+              <i class="ti" :class="sending ? 'ti-loader-2 spin' : 'ti-send'"></i>
+              {{ sending ? 'Wird gesendet...' : 'Kampagne jetzt senden' }}
+            </button>
+
+            <div v-if="sendEmailResult" class="mkt-send-result" :class="sendEmailResult.sent > 0 ? 'success' : 'warn'">
+              <i class="ti" :class="sendEmailResult.sent > 0 ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
+              <span>{{ sendEmailResult.sent }} von {{ sendEmailResult.total }} E-Mails gesendet</span>
+            </div>
+            <div v-if="sendEmailResult?.failed?.length" class="mkt-send-failed">
+              <button class="mkt-failed-toggle" @click="showFailedList = !showFailedList">
+                <i class="ti" :class="showFailedList ? 'ti-chevron-up' : 'ti-chevron-down'"></i>
+                {{ sendEmailResult.failed.length }} Fehler anzeigen
+              </button>
+              <div v-if="showFailedList" class="mkt-failed-list">
+                <div v-for="f in sendEmailResult.failed" :key="f.contactId" class="mkt-failed-item">
+                  <strong>{{ f.name || f.email }}</strong> ({{ f.email }}) — {{ f.error }}
+                </div>
+              </div>
+            </div>
+
+            <button class="mkt-secondary-btn" @click="runFollowups" :disabled="followupRunning">
+              <i class="ti" :class="followupRunning ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
+              Follow-ups prüfen & senden
+            </button>
           </div>
 
-          <div v-if="sendEmailResult" class="mkt-send-result" :class="sendEmailResult.sent > 0 ? 'success' : 'warn'">
-            <i class="ti" :class="sendEmailResult.sent > 0 ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
-            <span>{{ sendEmailResult.sent }} von {{ sendEmailResult.total }} E-Mails gesendet</span>
+          <!-- Right: Live-Vorschau -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <button class="mkt-secondary-btn" :disabled="previewLoading" @click="generatePreview">
+              <i class="ti" :class="previewLoading ? 'ti-loader-2 spin' : 'ti-eye'"></i>
+              {{ previewLoading ? 'Vorschau wird generiert...' : (emailPreview ? 'Vorschau aktualisieren' : 'Vorschau generieren') }}
+            </button>
+
+            <div v-if="!emailPreview && !previewLoading" class="mkt-preview-empty">
+              <i class="ti ti-mail-forward"></i>
+              <span>Vorschau zeigt eine KI-generierte Beispiel-E-Mail für einen Kontakt aus dem gewählten Segment — vor dem echten Versand an alle.</span>
+            </div>
+
+            <div v-else-if="emailPreview && emailPreview.available === false" class="mkt-preview-empty">
+              <i class="ti ti-alert-triangle"></i>
+              <span>{{ emailPreview.message }}</span>
+            </div>
+
+            <div v-else-if="emailPreview" class="mkt-preview-card">
+              <div class="mkt-preview-meta">
+                <div><strong>An:</strong> {{ emailPreview.contactName || emailPreview.to }} ({{ emailPreview.to }})</div>
+                <div><strong>Betreff:</strong> {{ emailPreview.subject }}</div>
+              </div>
+              <div class="mkt-preview-html" v-html="emailPreview.html"></div>
+            </div>
           </div>
-
-          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text-muted)">
-            <i class="ti ti-sparkles" style="color:var(--accent)"></i>
-            Claude generiert für jeden Kontakt eine personalisierte E-Mail.
-            Ohne API-Key wird eine Standard-E-Mail verwendet.
-          </div>
-
-          <button class="auth-btn" :disabled="sending" @click="sendEmailBlast">
-            <i class="ti" :class="sending ? 'ti-loader-2 spin' : 'ti-send'"></i>
-            {{ sending ? 'Wird gesendet...' : 'Kampagne jetzt senden' }}
-          </button>
-
-          <button class="icon-btn" style="font-size:12px;color:var(--text-muted)" @click="runFollowups" :disabled="followupRunning">
-            <i class="ti" :class="followupRunning ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
-            Follow-ups prüfen & senden
-          </button>
         </div>
       </div>
     </div>
@@ -590,7 +632,22 @@ const emailStats      = ref<Record<string, any>>({})
 const sendEmailCampaign = ref<any>(null)
 const sendEmailForm   = reactive({ subject: '', tone: 'freundlich', contactStatus: '' })
 const sendEmailResult = ref<any>(null)
+const sending          = ref(false)
 const followupRunning = ref(false)
+const showFailedList  = ref(false)
+const emailPreview    = ref<any>(null)
+const previewLoading  = ref(false)
+const segmentContacts = ref<any[]>([])
+
+const segmentCounts = computed(() => {
+  const withEmail = segmentContacts.value.filter((c: any) => c.email)
+  return {
+    all:      withEmail.length,
+    lead:     withEmail.filter((c: any) => c.status === 'lead').length,
+    customer: withEmail.filter((c: any) => c.status === 'customer').length,
+    churned:  withEmail.filter((c: any) => c.status === 'churned').length,
+  }
+})
 
 async function loadEmailStats(campaignId: string) {
   if (emailStats.value[campaignId]) return
@@ -598,19 +655,52 @@ async function loadEmailStats(campaignId: string) {
   if (res?.stats) emailStats.value[campaignId] = res.stats
 }
 
+async function loadSegmentContacts() {
+  try {
+    const res = await $fetch(useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId.value)}`)) as any
+    segmentContacts.value = res?.contacts || []
+  } catch {
+    segmentContacts.value = []
+  }
+}
+
 function openSendEmail(c: any) {
   sendEmailCampaign.value = c
   sendEmailResult.value = null
+  showFailedList.value = false
+  emailPreview.value = null
   sendEmailForm.subject = ''
   sendEmailForm.tone = 'freundlich'
   sendEmailForm.contactStatus = ''
   loadEmailStats(c.campaignId)
+  loadSegmentContacts()
+}
+
+async function generatePreview() {
+  if (!sendEmailCampaign.value) return
+  previewLoading.value = true
+  try {
+    emailPreview.value = await $fetch(useApiUrl(`/api/marketing/${sendEmailCampaign.value.campaignId}/preview-email`), {
+      method: 'POST',
+      body: {
+        userId: userId.value,
+        subject: sendEmailForm.subject || undefined,
+        tone: sendEmailForm.tone,
+        contactFilter: sendEmailForm.contactStatus ? { status: sendEmailForm.contactStatus } : {},
+      },
+    })
+  } catch (e: any) {
+    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Vorschau fehlgeschlagen'))
+  } finally {
+    previewLoading.value = false
+  }
 }
 
 async function sendEmailBlast() {
   if (!sendEmailCampaign.value) return
   sending.value = true
   sendEmailResult.value = null
+  showFailedList.value = false
   try {
     const res = await $fetch(useApiUrl(`/api/marketing/${sendEmailCampaign.value.campaignId}/send-email`), {
       method: 'POST',
@@ -626,7 +716,7 @@ async function sendEmailBlast() {
     delete emailStats.value[sendEmailCampaign.value.campaignId]
     await loadEmailStats(sendEmailCampaign.value.campaignId)
   } catch (e: any) {
-    sendEmailResult.value = { sent: 0, total: 0 }
+    sendEmailResult.value = { sent: 0, total: 0, failed: [] }
     showToast('Fehler: ' + (e?.data?.message || e?.message || 'Senden fehlgeschlagen'))
   } finally {
     sending.value = false
@@ -1003,5 +1093,52 @@ function showToast(msg: string) {
 }
 .mkt-send-result.success { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
 .mkt-send-result.warn    { background: rgba(245,158,11,0.1);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+
+/* SEND FAILED LIST */
+.mkt-send-failed { display: flex; flex-direction: column; gap: 6px; }
+.mkt-failed-toggle {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: #ef4444; padding: 0;
+}
+.mkt-failed-list {
+  display: flex; flex-direction: column; gap: 6px;
+  background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px; padding: 10px 12px;
+  max-height: 160px; overflow-y: auto;
+}
+.mkt-failed-item { font-size: 12px; color: var(--text-secondary); }
+
+/* SECONDARY BUTTON */
+.mkt-secondary-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; background: var(--bg-elevated); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; font-size: 13px; font-weight: 600;
+  font-family: "Exo 2", sans-serif; cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+.mkt-secondary-btn:hover:not(:disabled) { background: var(--border); }
+.mkt-secondary-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* PREVIEW PANEL */
+.mkt-preview-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; text-align: center; padding: 32px 20px;
+  background: var(--bg-elevated); border: 1px dashed var(--border); border-radius: 10px;
+  color: var(--text-muted); font-size: 12px; min-height: 220px;
+}
+.mkt-preview-empty i { font-size: 26px; color: var(--text-muted); }
+.mkt-preview-card {
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.mkt-preview-meta {
+  padding: 10px 14px; background: var(--bg-elevated); border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px;
+}
+.mkt-preview-html {
+  max-height: 360px; overflow-y: auto; background: #fff;
+}
 
 </style>
