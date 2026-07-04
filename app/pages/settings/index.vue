@@ -1658,7 +1658,7 @@ async function saveModules() {
   try {
     await $fetch(useApiUrl('/api/settings/modules'), {
       method: 'POST',
-      body: { modules: store.modules }
+      body: { modules: store.modules, userId: userId.value }
     })
     modulesDirty.value = false
     showSettingsToast('Einstellungen gespeichert!')
