@@ -58,6 +58,7 @@ export default defineEventHandler(async (event) => {
       navOrder:       item.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
       heroMediaType:  item.heroMediaType  || 'code',
       heroImageUrl:   item.heroImageUrl   || '',
+      anthropicApiKeyMasked: item.anthropicApiKeyMasked || '',
     }
   }
 })

@@ -336,11 +336,20 @@
 
           <!-- Left: Konfiguration -->
           <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:8px">
+              <button class="theme-opt" :class="{ active: sendEmailForm.mode === 'ai' }" @click="sendEmailForm.mode = 'ai'">
+                <i class="ti ti-sparkles"></i> Mit KI verfassen
+              </button>
+              <button class="theme-opt" :class="{ active: sendEmailForm.mode === 'manual' }" @click="sendEmailForm.mode = 'manual'">
+                <i class="ti ti-pencil"></i> Selbst schreiben
+              </button>
+            </div>
+
             <div class="auth-field">
               <label>Betreff</label>
               <input v-model="sendEmailForm.subject" :placeholder="`${sendEmailCampaign.name} — ${sendEmailCampaign.headline || 'Unser Angebot'}`" />
             </div>
-            <div class="auth-field">
+            <div v-if="sendEmailForm.mode === 'ai'" class="auth-field">
               <label>Ton der KI-E-Mail</label>
               <select v-model="sendEmailForm.tone" class="form-select">
                 <option value="freundlich">Freundlich</option>
@@ -359,7 +368,7 @@
               </select>
             </div>
 
-            <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text-muted)">
+            <div v-if="sendEmailForm.mode === 'ai'" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text-muted)">
               <i class="ti ti-sparkles" style="color:var(--accent)"></i>
               Claude generiert für jeden Kontakt eine personalisierte E-Mail.
               Ohne API-Key wird eine Standard-E-Mail verwendet.
@@ -393,7 +402,7 @@
           </div>
 
           <!-- Right: Live-Vorschau -->
-          <div style="display:flex;flex-direction:column;gap:14px">
+          <div v-if="sendEmailForm.mode === 'ai'" style="display:flex;flex-direction:column;gap:14px">
             <button class="mkt-secondary-btn" :disabled="previewLoading" @click="generatePreview">
               <i class="ti" :class="previewLoading ? 'ti-loader-2 spin' : 'ti-eye'"></i>
               {{ previewLoading ? 'Vorschau wird generiert...' : (emailPreview ? 'Vorschau aktualisieren' : 'Vorschau generieren') }}
@@ -415,6 +424,31 @@
                 <div><strong>Betreff:</strong> {{ emailPreview.subject }}</div>
               </div>
               <div class="mkt-preview-html" v-html="emailPreview.html"></div>
+            </div>
+          </div>
+
+          <!-- Right: Manueller Text-Modus -->
+          <div v-else style="display:flex;flex-direction:column;gap:14px">
+            <div class="auth-field">
+              <label>E-Mail-Text</label>
+              <textarea v-model="sendEmailForm.manualBody" rows="8"
+                placeholder="Hallo {{vorname}}, ..."
+                style="width:100%;font-family:inherit;font-size:13px;resize:vertical;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary)"></textarea>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                {{ placeholderHint }}
+              </div>
+            </div>
+
+            <div v-if="!manualPreviewContact" class="mkt-preview-empty">
+              <i class="ti ti-mail-forward"></i>
+              <span>Vorschau erscheint, sobald ein Kontakt im gewählten Segment gefunden wird.</span>
+            </div>
+            <div v-else class="mkt-preview-card">
+              <div class="mkt-preview-meta">
+                <div><strong>An:</strong> {{ manualPreviewContact.firstName }} {{ manualPreviewContact.lastName }} ({{ manualPreviewContact.email }})</div>
+                <div><strong>Betreff:</strong> {{ manualPreviewSubject }}</div>
+              </div>
+              <div class="mkt-preview-html" v-html="manualPreviewHtml"></div>
             </div>
           </div>
         </div>
@@ -630,7 +664,7 @@ async function deleteCampaign(c: any) {
 // ── Email Blast ──
 const emailStats      = ref<Record<string, any>>({})
 const sendEmailCampaign = ref<any>(null)
-const sendEmailForm   = reactive({ subject: '', tone: 'freundlich', contactStatus: '' })
+const sendEmailForm   = reactive({ subject: '', tone: 'freundlich', contactStatus: '', mode: 'ai' as 'ai' | 'manual', manualBody: '' })
 const sendEmailResult = ref<any>(null)
 const sending          = ref(false)
 const followupRunning = ref(false)
@@ -647,6 +681,44 @@ const segmentCounts = computed(() => {
     customer: withEmail.filter((c: any) => c.status === 'customer').length,
     churned:  withEmail.filter((c: any) => c.status === 'churned').length,
   }
+})
+
+const placeholderHint = 'Platzhalter: {{vorname}}, {{nachname}}, {{name}}, {{firma}} — werden pro Empfänger ersetzt.'
+
+function replacePlaceholders(text: string, contact: any): string {
+  const firstName = contact?.firstName || ''
+  const lastName  = contact?.lastName  || ''
+  const fullName  = `${firstName} ${lastName}`.trim()
+  return text
+    .replaceAll('{{vorname}}',  firstName)
+    .replaceAll('{{nachname}}', lastName)
+    .replaceAll('{{name}}',     fullName)
+    .replaceAll('{{firma}}',    contact?.company || '')
+}
+
+const manualPreviewContact = computed(() => {
+  const withEmail = segmentContacts.value.filter((c: any) => c.email)
+  const filtered = sendEmailForm.contactStatus ? withEmail.filter((c: any) => c.status === sendEmailForm.contactStatus) : withEmail
+  return filtered[0] || null
+})
+
+const manualPreviewSubject = computed(() =>
+  manualPreviewContact.value ? replacePlaceholders(sendEmailForm.subject || '', manualPreviewContact.value) : ''
+)
+
+function escapeHtml(text: string): string {
+  return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+}
+
+const manualPreviewHtml = computed(() => {
+  if (!manualPreviewContact.value) return ''
+  const replaced = replacePlaceholders(sendEmailForm.manualBody || '', manualPreviewContact.value)
+  return replaced
+    .split(/\n{2,}/)
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`)
+    .join('')
 })
 
 async function loadEmailStats(campaignId: string) {
@@ -672,6 +744,8 @@ function openSendEmail(c: any) {
   sendEmailForm.subject = ''
   sendEmailForm.tone = 'freundlich'
   sendEmailForm.contactStatus = ''
+  sendEmailForm.mode = 'ai'
+  sendEmailForm.manualBody = ''
   loadEmailStats(c.campaignId)
   loadSegmentContacts()
 }
@@ -709,6 +783,9 @@ async function sendEmailBlast() {
         subject: sendEmailForm.subject || undefined,
         tone: sendEmailForm.tone,
         contactFilter: sendEmailForm.contactStatus ? { status: sendEmailForm.contactStatus } : {},
+        mode: sendEmailForm.mode,
+        manualSubject: sendEmailForm.subject,
+        manualBody: sendEmailForm.manualBody,
       },
     }) as any
     sendEmailResult.value = res

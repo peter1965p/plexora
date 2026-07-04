@@ -1,3 +1,45 @@
+import { GetCommand } from '@aws-sdk/lib-dynamodb'
+import { getDynamoClient } from './dynamodb'
+import { decryptSecret } from './crypto'
+
+export async function resolveAnthropicApiKey(tenantId: string, fallbackKey: string): Promise<string> {
+  try {
+    const dynamo = getDynamoClient()
+    const res = await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))
+    const encrypted = res.Item?.anthropicApiKeyEncrypted
+    if (encrypted) return decryptSecret(encrypted)
+  } catch {}
+  return fallbackKey
+}
+
+export function replacePlaceholders(text: string, contact: { firstName?: string; lastName?: string; company?: string }): string {
+  const firstName = contact.firstName || ''
+  const lastName  = contact.lastName  || ''
+  const fullName  = `${firstName} ${lastName}`.trim()
+  return text
+    .replaceAll('{{vorname}}',  firstName)
+    .replaceAll('{{nachname}}', lastName)
+    .replaceAll('{{name}}',     fullName)
+    .replaceAll('{{firma}}',    contact.company || '')
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}
+
+export function textToHtmlParagraphs(text: string): string {
+  return text
+    .split(/\n{2,}/)
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => `<p>${escapeHtml(p).replaceAll('\n', '<br>')}</p>`)
+    .join('\n')
+}
+
 export async function generateEmailContent({ apiKey, campaignTopic, contactName, contactCompany, tone }: {
   apiKey: string
   campaignTopic: string

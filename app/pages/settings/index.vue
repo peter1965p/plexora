@@ -1141,6 +1141,52 @@
       </div>
     </div>
 
+    <!-- ── CLAUDE API-KEY ── -->
+    <div v-if="tab === 'claude'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Claude API-Key</span>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-width:500px">
+        <div style="font-size:12px;color:var(--text-muted)">
+          Hinterlege deinen eigenen Anthropic API-Key für die KI-generierten Marketing-E-Mails. Ohne eigenen Key wird weiterhin der Standard-Key von Plexora verwendet.
+        </div>
+
+        <div class="auth-field">
+          <label>API-Key <span v-if="nexora?.anthropicApiKeyMasked" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;position:relative">
+              <input v-model="claudeForm.apiKey" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
+                :type="claudeForm.visible ? 'text' : 'password'"
+                :placeholder="nexora?.anthropicApiKeyMasked || 'sk-ant-...'" />
+              <button @click="claudeForm.visible = !claudeForm.visible"
+                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+                <i class="ti" :class="claudeForm.visible ? 'ti-eye-off' : 'ti-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div v-if="nexora?.anthropicApiKeyMasked" style="margin-top:6px;font-size:11px;color:var(--text-muted)">
+            Aktuell hinterlegt: <code>{{ nexora.anthropicApiKeyMasked }}</code> — leer lassen, um den bestehenden Key zu behalten.
+          </div>
+        </div>
+
+        <div v-if="claudeTestResult" class="mkt-send-result" :class="claudeTestResult.ok ? 'success' : 'warn'">
+          <i class="ti" :class="claudeTestResult.ok ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
+          <span>{{ claudeTestResult.ok ? 'Verbindung erfolgreich!' : ('Fehler: ' + claudeTestResult.error) }}</span>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button class="theme-opt" :disabled="!claudeForm.apiKey.trim() || claudeTesting" @click="testClaudeKey">
+            <i class="ti" :class="claudeTesting ? 'ti-loader-2 spin' : 'ti-plug'"></i>
+            {{ claudeTesting ? 'Teste...' : 'Verbindung testen' }}
+          </button>
+          <button class="accent-btn" style="height:36px;padding:0 16px;font-size:12px" :disabled="!claudeForm.apiKey.trim() || claudeSaving" @click="saveClaudeKey">
+            <i class="ti" :class="claudeSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
+            {{ claudeSaving ? 'Speichern...' : 'Speichern' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   <!-- Settings Toast -->
   <div v-if="settingsToast"
     :style="settingsToastErr ? 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#E05C5C;color:#fff' : 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:#00C853;color:#fff'">
@@ -1291,7 +1337,10 @@ const tabs = computed(() => {
   const extra = store.licenseModules?.includes('nexora')
     ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
     : []
-  return [...BASE_TABS, ...extra]
+  const claudeExtra = store.licenseModules?.includes('marketing')
+    ? [{ key: 'claude', label: 'Claude', icon: 'ti-sparkles' }]
+    : []
+  return [...BASE_TABS, ...extra, ...claudeExtra]
 })
 
 // ── Nexora / Website Domain ───────────────────────────
@@ -1339,6 +1388,48 @@ function copyNexoraKey() {
   navigator.clipboard.writeText(nexora.value.apiKey)
   nexoraCopied.value = true
   setTimeout(() => { nexoraCopied.value = false }, 2000)
+}
+
+// ── Claude API-Key ────────────────────────────────────
+const claudeForm       = reactive({ apiKey: '', visible: false })
+const claudeSaving     = ref(false)
+const claudeTesting    = ref(false)
+const claudeTestResult = ref<{ ok: boolean; error?: string } | null>(null)
+
+async function testClaudeKey() {
+  if (!claudeForm.apiKey.trim()) return
+  claudeTesting.value = true
+  claudeTestResult.value = null
+  try {
+    claudeTestResult.value = await $fetch(useApiUrl('/api/settings/claude-test'), {
+      method: 'POST',
+      body: { apiKey: claudeForm.apiKey.trim() },
+    })
+  } catch (e: any) {
+    claudeTestResult.value = { ok: false, error: e?.message || 'Verbindung fehlgeschlagen' }
+  } finally {
+    claudeTesting.value = false
+  }
+}
+
+async function saveClaudeKey() {
+  if (!claudeForm.apiKey.trim()) return
+  claudeSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/nexora/my'), {
+      method:  'PUT',
+      headers: { 'x-user-email': userEmail.value },
+      body: { anthropicApiKey: claudeForm.apiKey.trim() },
+    })
+    claudeForm.apiKey = ''
+    claudeTestResult.value = null
+    await loadNexora(userEmail.value)
+    showSettingsToast('Claude-Key gespeichert!')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+  } finally {
+    claudeSaving.value = false
+  }
 }
 
 // ── Auth ──────────────────────────────────────────────
@@ -1468,7 +1559,7 @@ onMounted(async () => {
     userEmail.value = user.signInDetails?.loginId || '–'
     userName.value  = user.username || '–'
     userId.value    = user.userId || 'demo-user'
-    if (store.licenseModules?.includes('nexora')) {
+    if (store.licenseModules?.includes('nexora') || store.licenseModules?.includes('marketing')) {
       await loadNexora(userEmail.value)
     }
   } catch {}

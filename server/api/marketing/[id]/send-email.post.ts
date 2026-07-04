@@ -1,21 +1,23 @@
 import { Resend } from 'resend'
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
-import { generateEmailContent, buildEmailHtml } from '../../../utils/marketingEmail'
+import { resolveUserId } from '../../../utils/tenant'
+import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey, replacePlaceholders, textToHtmlParagraphs } from '../../../utils/marketingEmail'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const { userId, subject, tone = 'freundlich', contactFilter = {} } = body || {}
+  const { userId, subject, tone = 'freundlich', contactFilter = {}, mode = 'ai', manualSubject, manualBody } = body || {}
 
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
+  const tenantId = await resolveUserId(userId)
 
-  // Load campaign (userId = partition key, campaignId = sort key)
+  // Load campaign (tenantId = partition key "userId", campaignId = sort key)
   const campaignRes = await dynamo.send(new QueryCommand({
     TableName: 'plexora-marketing',
     KeyConditionExpression: 'userId = :uid AND campaignId = :cid',
-    ExpressionAttributeValues: { ':uid': userId, ':cid': campaignId },
+    ExpressionAttributeValues: { ':uid': tenantId, ':cid': campaignId },
   }))
   const campaign = campaignRes.Items?.[0]
   if (!campaign) throw createError({ statusCode: 404, message: 'Kampagne nicht gefunden' })
@@ -24,13 +26,15 @@ export default defineEventHandler(async (event) => {
   let contacts = (await dynamo.send(new QueryCommand({
     TableName: 'plexora-contacts',
     KeyConditionExpression: 'userId = :uid',
-    ExpressionAttributeValues: { ':uid': userId },
+    ExpressionAttributeValues: { ':uid': tenantId },
   }))).Items || []
 
   // Filter
   if (contactFilter.status) contacts = contacts.filter((c: any) => c.status === contactFilter.status)
   contacts = contacts.filter((c: any) => c.email)
   if (contacts.length === 0) return { sent: 0, total: 0, failed: [], message: 'Keine Kontakte mit E-Mail-Adresse gefunden' }
+
+  const anthropicApiKey = mode === 'ai' ? await resolveAnthropicApiKey(tenantId, config.anthropicApiKey as string) : ''
 
   const resend = new Resend(config.resendApiKey as string)
   let sentCount = 0
@@ -40,15 +44,23 @@ export default defineEventHandler(async (event) => {
     const firstName = contact.firstName || ''
     const contactName = `${firstName} ${contact.lastName || ''}`.trim()
     try {
-      const emailBody = await generateEmailContent({
-        apiKey: config.anthropicApiKey as string,
-        campaignTopic: campaign.headline || campaign.name,
-        contactName,
-        contactCompany: contact.company || '',
-        tone,
-      })
+      let emailSubject: string
+      let emailBody: string
 
-      const emailSubject = subject || `${campaign.name}${campaign.headline ? ' — ' + campaign.headline : ''}`
+      if (mode === 'manual') {
+        emailSubject = replacePlaceholders(manualSubject || '', contact)
+        emailBody = textToHtmlParagraphs(replacePlaceholders(manualBody || '', contact))
+      } else {
+        emailBody = await generateEmailContent({
+          apiKey: anthropicApiKey,
+          campaignTopic: campaign.headline || campaign.name,
+          contactName,
+          contactCompany: contact.company || '',
+          tone,
+        })
+        emailSubject = subject || `${campaign.name}${campaign.headline ? ' — ' + campaign.headline : ''}`
+      }
+
       const accent = campaign.accentColor || '#6C3FE8'
 
       await resend.emails.send({
@@ -67,7 +79,7 @@ export default defineEventHandler(async (event) => {
         Item: {
           campaignId,
           contactId: contact.contactId,
-          userId,
+          userId: tenantId,
           email: contact.email,
           contactName,
           status: 'sent',
@@ -88,7 +100,7 @@ export default defineEventHandler(async (event) => {
         Item: {
           campaignId,
           contactId: contact.contactId,
-          userId,
+          userId: tenantId,
           email: contact.email,
           contactName,
           status: 'failed',

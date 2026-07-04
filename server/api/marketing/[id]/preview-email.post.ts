@@ -1,6 +1,7 @@
 import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
-import { generateEmailContent, buildEmailHtml } from '../../../utils/marketingEmail'
+import { resolveUserId } from '../../../utils/tenant'
+import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey } from '../../../utils/marketingEmail'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
@@ -9,11 +10,12 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
+  const tenantId = await resolveUserId(userId)
 
   const campaignRes = await dynamo.send(new QueryCommand({
     TableName: 'plexora-marketing',
     KeyConditionExpression: 'userId = :uid AND campaignId = :cid',
-    ExpressionAttributeValues: { ':uid': userId, ':cid': campaignId },
+    ExpressionAttributeValues: { ':uid': tenantId, ':cid': campaignId },
   }))
   const campaign = campaignRes.Items?.[0]
   if (!campaign) throw createError({ statusCode: 404, message: 'Kampagne nicht gefunden' })
@@ -21,7 +23,7 @@ export default defineEventHandler(async (event) => {
   let contacts = (await dynamo.send(new QueryCommand({
     TableName: 'plexora-contacts',
     KeyConditionExpression: 'userId = :uid',
-    ExpressionAttributeValues: { ':uid': userId },
+    ExpressionAttributeValues: { ':uid': tenantId },
   }))).Items || []
 
   if (contactFilter.status) contacts = contacts.filter((c: any) => c.status === contactFilter.status)
@@ -33,8 +35,10 @@ export default defineEventHandler(async (event) => {
   const firstName = contact.firstName || ''
   const contactName = `${firstName} ${contact.lastName || ''}`.trim()
 
+  const anthropicApiKey = await resolveAnthropicApiKey(tenantId, config.anthropicApiKey as string)
+
   const emailBody = await generateEmailContent({
-    apiKey: config.anthropicApiKey as string,
+    apiKey: anthropicApiKey,
     campaignTopic: campaign.headline || campaign.name,
     contactName,
     contactCompany: contact.company || '',
