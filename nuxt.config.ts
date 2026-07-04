@@ -59,6 +59,7 @@ export default defineNuxtConfig({
     resendApiKey: "",
     adminEmail: "",
     anthropicApiKey: "",
+    encryptionKey: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",

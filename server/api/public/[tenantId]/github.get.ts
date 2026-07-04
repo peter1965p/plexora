@@ -1,5 +1,6 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { decryptSecret } from '../../../utils/crypto'
 
 interface GithubRepo {
   id: number
@@ -39,12 +40,18 @@ export default defineEventHandler(async (event) => {
     return { enabled: false, repos: [], title: 'PROJEKTE' }
   }
 
-  const pat      = res.Item.githubPat      || ''
   const selected = res.Item.githubRepos    || []   // [] = alle, sonst Array von repo-Namen
   const title    = res.Item.githubTitle    || 'PROJEKTE'
   const showForks = res.Item.githubShowForks ?? false
 
-  if (!pat) return { enabled: true, repos: [], title }
+  if (!res.Item.githubPatEncrypted) return { enabled: true, repos: [], title }
+
+  let pat: string
+  try {
+    pat = decryptSecret(res.Item.githubPatEncrypted)
+  } catch {
+    return { enabled: true, repos: [], title }
+  }
 
   try {
     const ghRes = await $fetch<GithubRepo[]>('https://api.github.com/user/repos?per_page=100&sort=updated&type=owner', {

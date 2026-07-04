@@ -922,10 +922,10 @@
 
           <!-- PAT -->
           <div style="margin-bottom:12px">
-            <label class="field-label">GitHub Personal Access Token (PAT)</label>
+            <label class="field-label">GitHub Personal Access Token (PAT) <span v-if="form.githubPatConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
             <div style="display:flex;gap:8px">
               <div style="flex:1;position:relative">
-                <input v-model="form.githubPat" class="field-input" placeholder="github_pat_..." style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
+                <input v-model="form.githubPat" class="field-input" :placeholder="form.githubPatConfigured ? 'Unverändert lassen zum Beibehalten' : 'github_pat_...'" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
                   :type="form.githubPatVisible ? 'text' : 'password'" />
                 <button @click="form.githubPatVisible = !form.githubPatVisible"
                   style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
@@ -1320,6 +1320,7 @@ const form = reactive({
   shopEnabled:     false,
   shopTitle:       'Shop',
   githubPat:       '',
+  githubPatConfigured: false,
   githubTitle:     'PROJEKTE',
   githubShowForks: false,
   githubRepos:     [] as string[],
@@ -1391,7 +1392,7 @@ onMounted(async () => {
       form.blogTitle           = n.blogTitle      || 'Blog'
       form.shopEnabled         = n.shopEnabled    ?? false
       form.shopTitle           = n.shopTitle      || 'Shop'
-      form.githubPat           = n.githubPat      || ''
+      form.githubPatConfigured = n.githubPatConfigured ?? false
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
       form.githubRepos         = n.githubRepos    || []
