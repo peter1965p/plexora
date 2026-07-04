@@ -8,7 +8,26 @@ export default defineEventHandler(async () => {
       TableName: 'plexora-settings',
       Key: { settingId: 'payment', scope: 'global' }
     }))
-    return { payment: res.Item || null }
+    const item = res.Item
+    if (!item) return { payment: null }
+
+    // Secrets are never returned in plaintext — only whether one is configured.
+    return {
+      payment: {
+        activeGateway:                 item.activeGateway        || 'stripe',
+        stripeSecretKeyConfigured:     !!item.stripeSecretKey,
+        stripePublishableKey:          item.stripePublishableKey || '',
+        stripeWebhookSecretConfigured: !!item.stripeWebhookSecret,
+        paypalClientId:                item.paypalClientId      || '',
+        paypalSecretConfigured:        !!item.paypalSecret,
+        paypalSandbox:                 item.paypalSandbox       ?? true,
+        mollieApiKeyConfigured:        !!item.mollieApiKey,
+        customName:                    item.customName          || '',
+        customApiUrl:                  item.customApiUrl        || '',
+        customApiKeyConfigured:        !!item.customApiKey,
+        updated:                       item.updated,
+      }
+    }
   } catch {
     return { payment: null }
   }

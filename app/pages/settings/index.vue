@@ -678,16 +678,16 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="auth-field">
-              <label>Secret Key</label>
-              <input v-model="payment.stripeSecretKey" type="password" placeholder="sk_live_..." />
+              <label>Secret Key <span v-if="payment.stripeSecretKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <input v-model="payment.stripeSecretKey" type="password" :placeholder="payment.stripeSecretKeyConfigured ? 'Unverändert lassen zum Beibehalten' : 'sk_live_...'" />
             </div>
             <div class="auth-field">
               <label>Publishable Key</label>
               <input v-model="payment.stripePublishableKey" placeholder="pk_live_..." />
             </div>
             <div class="auth-field">
-              <label>Webhook Secret</label>
-              <input v-model="payment.stripeWebhookSecret" type="password" placeholder="whsec_..." />
+              <label>Webhook Secret <span v-if="payment.stripeWebhookSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <input v-model="payment.stripeWebhookSecret" type="password" :placeholder="payment.stripeWebhookSecretConfigured ? 'Unverändert lassen zum Beibehalten' : 'whsec_...'" />
             </div>
           </div>
         </div>
@@ -706,8 +706,8 @@
               <input v-model="payment.paypalClientId" placeholder="AXxx..." />
             </div>
             <div class="auth-field">
-              <label>Secret</label>
-              <input v-model="payment.paypalSecret" type="password" placeholder="EXxx..." />
+              <label>Secret <span v-if="payment.paypalSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <input v-model="payment.paypalSecret" type="password" :placeholder="payment.paypalSecretConfigured ? 'Unverändert lassen zum Beibehalten' : 'EXxx...'" />
             </div>
             <div class="auth-field" style="grid-column:span 2">
               <label>Modus</label>
@@ -732,8 +732,8 @@
             <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
           </div>
           <div class="auth-field" style="max-width:400px">
-            <label>API Key</label>
-            <input v-model="payment.mollieApiKey" type="password" placeholder="live_xxx oder test_xxx" />
+            <label>API Key <span v-if="payment.mollieApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+            <input v-model="payment.mollieApiKey" type="password" :placeholder="payment.mollieApiKeyConfigured ? 'Unverändert lassen zum Beibehalten' : 'live_xxx oder test_xxx'" />
           </div>
         </div>
 
@@ -755,8 +755,8 @@
               <input v-model="payment.customApiUrl" placeholder="https://api.example.com/v1" />
             </div>
             <div class="auth-field">
-              <label>API Key</label>
-              <input v-model="payment.customApiKey" type="password" placeholder="..." />
+              <label>API Key <span v-if="payment.customApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <input v-model="payment.customApiKey" type="password" :placeholder="payment.customApiKeyConfigured ? 'Unverändert lassen zum Beibehalten' : '...'" />
             </div>
           </div>
         </div>
@@ -1592,15 +1592,20 @@ const paymentSaving = ref(false)
 const payment = reactive({
   activeGateway:        'stripe',
   stripeSecretKey:      '',
+  stripeSecretKeyConfigured: false,
   stripePublishableKey: '',
   stripeWebhookSecret:  '',
+  stripeWebhookSecretConfigured: false,
   paypalClientId:       '',
   paypalSecret:         '',
+  paypalSecretConfigured: false,
   paypalSandbox:        true,
   mollieApiKey:         '',
+  mollieApiKeyConfigured: false,
   customName:           '',
   customApiUrl:         '',
   customApiKey:         '',
+  customApiKeyConfigured: false,
 })
 
 const gateways = [
