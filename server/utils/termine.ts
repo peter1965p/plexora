@@ -1,5 +1,6 @@
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
+import { decryptSecret } from './crypto'
 
 const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
@@ -59,6 +60,52 @@ export async function computeFreeSlots(tenantId: string, tenantItem: any, typeIt
     if (!overlaps) slots.push(toHHMM(start))
   }
   return slots
+}
+
+// Push-only Google Calendar/Meet-Integration: Fehler hier dürfen eine Buchung nie blockieren —
+// der Aufrufer wraped dies in try/catch und läuft ohne Meet-Link weiter.
+export async function createGoogleCalendarEvent(tenantItem: any, opts: {
+  summary: string
+  description: string
+  date: string
+  startTime: string
+  endTime: string
+  customerEmail: string
+}): Promise<{ eventId: string; meetLink: string } | null> {
+  if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return null
+
+  const config = useRuntimeConfig()
+  const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
+
+  const tokenRes = await $fetch<any>('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    body: {
+      client_id: config.googleClientId,
+      client_secret: config.googleClientSecret,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    },
+  })
+  const accessToken = tokenRes.access_token as string
+  if (!accessToken) return null
+
+  const timeZone = tenantItem.termineTimezone || 'Europe/Berlin'
+  const event = await $fetch<any>('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: {
+      summary: opts.summary,
+      description: opts.description,
+      start: { dateTime: `${opts.date}T${opts.startTime}:00`, timeZone },
+      end:   { dateTime: `${opts.date}T${opts.endTime}:00`,   timeZone },
+      attendees: [{ email: opts.customerEmail }],
+      conferenceData: {
+        createRequest: { requestId: `${opts.date}-${opts.startTime}-${Math.random().toString(36).slice(2)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } },
+      },
+    },
+  })
+
+  return { eventId: event.id || '', meetLink: event.hangoutLink || '' }
 }
 
 export async function loadTenantAndType(tenantId: string, typeId: string) {

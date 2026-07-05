@@ -60,6 +60,8 @@ export default defineNuxtConfig({
     adminEmail: "",
     anthropicApiKey: "",
     encryptionKey: "",
+    googleClientId: "",
+    googleClientSecret: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",

@@ -166,6 +166,25 @@
         </div>
 
         <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700"><i class="ti ti-brand-google" style="margin-right:6px;color:var(--accent)"></i>Google Calendar</div>
+            <span v-if="settingsForm.googleConnected" class="badge badge-success">Verbunden</span>
+          </div>
+          <div v-if="settingsForm.googleConnected" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="font-size:12px;color:var(--text-muted)">Verbunden als <strong>{{ settingsForm.googleEmail }}</strong> — neue Buchungen werden automatisch mit Meet-Link im Kalender angelegt.</div>
+            <button class="icon-btn" :disabled="googleDisconnecting" @click="disconnectGoogle" title="Trennen">
+              <i class="ti" :class="googleDisconnecting ? 'ti-loader-2 spin' : 'ti-plug-off'"></i>
+            </button>
+          </div>
+          <div v-else style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;color:var(--text-muted)">Verbinde dein Google-Konto, damit jede Buchung automatisch als Termin mit Meet-Link in deinem Kalender erscheint.</div>
+            <button class="accent-btn" style="align-self:flex-start" @click="connectGoogle">
+              <i class="ti ti-brand-google" style="margin-right:6px"></i>Google verbinden
+            </button>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
           <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-clock-hour-4" style="margin-right:6px;color:var(--accent)"></i>Arbeitszeiten</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <div v-for="d in weekdays" :key="d.key" style="display:flex;align-items:center;gap:10px">
@@ -366,7 +385,29 @@ const settingsForm = reactive({
   termineSlotStepMinutes: 30,
   termineMinNoticeHours: 2,
   termineMaxAdvanceDays: 60,
+  googleConnected: false,
+  googleEmail: '',
 })
+
+const googleDisconnecting = ref(false)
+
+function connectGoogle() {
+  window.location.href = useApiUrl(`/api/termine/google-auth?email=${encodeURIComponent(userEmail.value)}`)
+}
+
+async function disconnectGoogle() {
+  if (!confirm('Google Calendar wirklich trennen?')) return
+  googleDisconnecting.value = true
+  try {
+    await $fetch(useApiUrl('/api/termine/google-disconnect'), { method: 'POST', headers: { 'x-user-email': userEmail.value } })
+    settingsForm.googleConnected = false
+    settingsForm.googleEmail = ''
+  } catch {
+    alert('Fehler beim Trennen.')
+  } finally {
+    googleDisconnecting.value = false
+  }
+}
 
 async function loadSettings() {
   loadingSettings.value = true
@@ -397,5 +438,8 @@ onMounted(async () => {
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   await Promise.all([loadTypes(), loadBookings(), loadSettings()])
+
+  const route = useRoute()
+  if (route.query.google === 'error') alert('Google-Verbindung fehlgeschlagen. Bitte erneut versuchen.')
 })
 </script>

@@ -1,6 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
-import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM } from '../../../../utils/termine'
+import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -35,6 +35,25 @@ export default defineEventHandler(async (event) => {
   const dynamo = getDynamoClient()
   const bookingId = randomUUID()
   const now = new Date().toISOString()
+  const notes = String(body.notes || '')
+
+  let googleEventId = ''
+  let googleMeetLink = ''
+  try {
+    const googleEvent = await createGoogleCalendarEvent(tenantItem, {
+      summary: typeItem.name,
+      description: notes,
+      date, startTime, endTime,
+      customerEmail,
+    })
+    if (googleEvent) {
+      googleEventId = googleEvent.eventId
+      googleMeetLink = googleEvent.meetLink
+    }
+  } catch (e) {
+    console.error('Google Calendar event creation failed', tenantId, e)
+  }
+
   const item = {
     tenantId,
     bookingId,
@@ -47,11 +66,11 @@ export default defineEventHandler(async (event) => {
     customerName,
     customerEmail,
     customerPhone: String(body.customerPhone || ''),
-    notes: String(body.notes || ''),
+    notes,
     status: 'confirmed',
     source: 'public',
-    googleEventId: '',
-    googleMeetLink: '',
+    googleEventId,
+    googleMeetLink,
     createdAt: now,
     updatedAt: now,
   }
