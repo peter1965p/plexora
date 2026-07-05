@@ -383,13 +383,14 @@
 import { statusLabel, statusBadge } from '~/modules/hr'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
 const tab = ref('employees')
 
 // ── Mitarbeiter ───────────────────────────────────────
-const { data, refresh } = await useFetch(() => useApiUrl(`/api/hr?userId=${encodeURIComponent(userId)}`))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/hr?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const employees = computed(() => (data.value as any)?.employees || [])
 
 const activeCount      = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
@@ -404,7 +405,7 @@ const newEmp  = reactive({ firstName: '', lastName: '', email: '', department: '
 
 async function addEmployee() {
   saving.value = true
-  await $fetch(useApiUrl('/api/hr'), { method: 'POST', body: { ...newEmp, userId: userId, status: 'active' } })
+  await $fetch(useApiUrl('/api/hr'), { method: 'POST', headers: authHeaders, body: { ...newEmp, userId: userId, status: 'active' } })
   await refresh()
   showAdd.value = false
   Object.assign(newEmp, { firstName: '', lastName: '', email: '', department: '', role: '', startDate: '' })
@@ -412,7 +413,7 @@ async function addEmployee() {
 }
 
 // ── Recruiting ────────────────────────────────────────
-const { data: campData, refresh: refreshCamps } = await useFetch(() => useApiUrl(`/api/hr/campaigns?userId=${encodeURIComponent(userId)}`))
+const { data: campData, refresh: refreshCamps } = await useFetch(() => useApiUrl(`/api/hr/campaigns?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const campaigns = computed(() => (campData.value as any)?.campaigns || [])
 
 const activeCampaigns   = computed(() => campaigns.value.filter((c: any) => c.status === 'active').length)
@@ -436,7 +437,7 @@ function applicationCount(campaignId: string) {
 
 async function viewApplications(campaign: any) {
   selectedCampaign.value = campaign
-  const data = await $fetch(`/api/hr/campaigns/${campaign.campaignId}/applications`) as any
+  const data = await $fetch(useApiUrl(`/api/hr/campaigns/${campaign.campaignId}/applications`), { headers: authHeaders }) as any
   selectedApplications.value = data.applications || []
   allApplications.value = [...allApplications.value.filter((a: any) => a.campaignId !== campaign.campaignId), ...selectedApplications.value]
 }
@@ -456,7 +457,7 @@ function showToast(msg: string) {
 async function addCampaign() {
   saving.value = true
   try {
-    await $fetch(useApiUrl('/api/hr/campaigns'), { method: 'POST', body: { ...newCamp, userId: userId } })
+    await $fetch(useApiUrl('/api/hr/campaigns'), { method: 'POST', headers: authHeaders, body: { ...newCamp, userId: userId } })
     await refreshCamps()
     showCampaign.value = false
     Object.assign(newCamp, { title: '', department: '', location: '', type: 'fulltime', description: '', requirements: '' })
@@ -467,7 +468,7 @@ async function addCampaign() {
 }
 
 // ── Urlaub ────────────────────────────────────────────
-const { data: leaveData, refresh: refreshLeave } = await useFetch(() => useApiUrl(`/api/hr/leave?userId=${encodeURIComponent(userId)}`))
+const { data: leaveData, refresh: refreshLeave } = await useFetch(() => useApiUrl(`/api/hr/leave?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const leaveRequests = computed(() => (leaveData.value as any)?.requests || [])
 const leaveTypeLabel: Record<string,string> = { vacation:'Urlaub', sick:'Krank', remote:'Home Office', other:'Sonstiges' }
 const showLeave = ref(false)
@@ -480,23 +481,23 @@ function setLeaveName() {
 async function submitLeave() {
   saving.value = true
   try {
-    await $fetch(useApiUrl('/api/hr/leave'), { method:'POST', body:{ ...newLeave, userId } })
+    await $fetch(useApiUrl('/api/hr/leave'), { method:'POST', headers:authHeaders, body:{ ...newLeave, userId } })
     await refreshLeave(); showLeave.value=false
     Object.assign(newLeave, { employeeId:'', employeeName:'', type:'vacation', startDate:'', endDate:'', reason:'' })
     showToast('Antrag eingereicht!')
   } finally { saving.value=false }
 }
 async function approveLeave(r: any) {
-  await $fetch(useApiUrl(`/api/hr/leave/${r.leaveId}/approve`), { method:'POST', body:{ userId } })
+  await $fetch(useApiUrl(`/api/hr/leave/${r.leaveId}/approve`), { method:'POST', headers:authHeaders, body:{ userId } })
   await refreshLeave(); showToast('Genehmigt!')
 }
 async function rejectLeave(r: any) {
-  await $fetch(useApiUrl(`/api/hr/leave/${r.leaveId}/reject`), { method:'POST', body:{ userId } })
+  await $fetch(useApiUrl(`/api/hr/leave/${r.leaveId}/reject`), { method:'POST', headers:authHeaders, body:{ userId } })
   await refreshLeave(); showToast('Abgelehnt!')
 }
 
 // ── Zeiterfassung ─────────────────────────────────────
-const { data: timelogData, refresh: refreshTimelog } = await useFetch(() => useApiUrl(`/api/hr/timelog?userId=${encodeURIComponent(userId)}`))
+const { data: timelogData, refresh: refreshTimelog } = await useFetch(() => useApiUrl(`/api/hr/timelog?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const timelogEntries = computed(() => (timelogData.value as any)?.entries || [])
 const showTimelog  = ref(false)
 const newTimelog   = reactive({ employeeId:'', employeeName:'', date: new Date().toISOString().slice(0,10), clockIn:'', clockOut:'', note:'' })
@@ -508,7 +509,7 @@ function setTimelogName() {
 async function submitTimelog() {
   saving.value = true
   try {
-    await $fetch(useApiUrl('/api/hr/timelog'), { method:'POST', body:{ ...newTimelog, userId } })
+    await $fetch(useApiUrl('/api/hr/timelog'), { method:'POST', headers:authHeaders, body:{ ...newTimelog, userId } })
     await refreshTimelog(); showTimelog.value=false
     Object.assign(newTimelog, { employeeId:'', employeeName:'', date: new Date().toISOString().slice(0,10), clockIn:'', clockOut:'', note:'' })
     showToast('Zeit erfasst!')

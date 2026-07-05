@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const origin = getHeader(event, 'origin') || 'https://app.plexora.eu'
 
   // Email aus Auth-Header lesen
-  const email = getHeader(event, 'x-user-email') || ''
+  const email = event.context.auth?.email || ''
 
   // Stripes Customer ID aus bestehender Lizenz holen
   let customerId: string | undefined

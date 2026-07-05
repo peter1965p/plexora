@@ -1,5 +1,6 @@
 import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
+import { assertOwner } from '../../../../utils/ownership'
 
 export default defineEventHandler(async (event) => {
   const leaveId = getRouterParam(event, 'id')
@@ -11,6 +12,7 @@ export default defineEventHandler(async (event) => {
   }))
   const item = scan.Items?.[0]
   if (!item) throw createError({ statusCode: 404 })
+  await assertOwner(event, item)
   await client.send(new UpdateCommand({
     TableName: 'plexora-leave', Key: { userId: item.userId, leaveId },
     UpdateExpression: 'SET #s = :s', ExpressionAttributeNames: { '#s': 'status' },

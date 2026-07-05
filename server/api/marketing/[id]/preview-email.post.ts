@@ -6,11 +6,11 @@ import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey } from '..
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const { userId, subject, tone = 'freundlich', contactFilter = {} } = body || {}
+  const { subject, tone = 'freundlich', contactFilter = {} } = body || {}
 
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
-  const tenantId = await resolveUserId(userId)
+  const tenantId = await resolveUserId(event.context.auth?.email || 'demo-user')
 
   const campaignRes = await dynamo.send(new QueryCommand({
     TableName: 'plexora-marketing',

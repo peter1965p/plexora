@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
   const body    = await readBody(event)
-  const userId  = await resolveUserId(body.userId || 'demo-user')
+  const userId  = await resolveUserId(event.context.auth?.email || 'demo-user')
   const request = {
     userId, leaveId: randomUUID(),
     employeeId:   body.employeeId,

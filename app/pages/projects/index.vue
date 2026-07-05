@@ -251,11 +251,12 @@ import { exportToCsv, exportToXlsx } from '~/modules/export'
 import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
-const { data: projectsData, refresh } = await useFetch(() => useApiUrl(`/api/projects?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined })
-const { data: companiesData }         = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
+const { data: projectsData, refresh } = await useFetch(() => useApiUrl(`/api/projects?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined, headers: authHeaders })
+const { data: companiesData }         = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 
 const projects  = computed(() => (projectsData.value as any)?.projects || [])
 const companies = computed(() => (companiesData.value as any)?.companies || [])
@@ -355,8 +356,8 @@ const openEdit = (p: any) => { editing.value=p; Object.assign(form, { name:p.nam
 async function save() {
   saving.value = true
   try {
-    if (editing.value) await $fetch(useApiUrl(`/api/projects/${editing.value.projectId}`), { method:'PATCH', body:{ ...form, userId } })
-    else               await $fetch(useApiUrl('/api/projects'), { method:'POST', body:{ ...form, userId } })
+    if (editing.value) await $fetch(useApiUrl(`/api/projects/${editing.value.projectId}`), { method:'PATCH', headers:authHeaders, body:{ ...form, userId } })
+    else               await $fetch(useApiUrl('/api/projects'), { method:'POST', headers:authHeaders, body:{ ...form, userId } })
     await refresh(); showModal.value=false
   } finally { saving.value=false }
 }
@@ -364,7 +365,7 @@ const { openConfirm } = useConfirm()
 
 async function deleteProject(p: any) {
   if (!await openConfirm({ title: 'Projekt löschen?', name: p.name })) return
-  await $fetch(useApiUrl(`/api/projects/${p.projectId}`), { method:'DELETE' })
+  await $fetch(useApiUrl(`/api/projects/${p.projectId}`), { method:'DELETE', headers:authHeaders })
   await refresh()
 }
 
@@ -379,7 +380,7 @@ async function addTask() {
   saving.value = true
   try {
     await $fetch(useApiUrl(`/api/projects/${taskProject.value.projectId}/tasks`), {
-      method:'POST', body:{ ...newTask, userId }
+      method:'POST', headers:authHeaders, body:{ ...newTask, userId }
     })
     await refresh(); showTaskModal.value=false
     expanded.value.add(taskProject.value.projectId)
@@ -389,7 +390,7 @@ async function addTask() {
 
 async function toggleTaskDone(p: any, tk: any) {
   await $fetch(useApiUrl(`/api/projects/${p.projectId}/tasks/${tk.taskId}`), {
-    method:'PATCH', body:{ status: tk.status==='done' ? 'todo' : 'done', userId }
+    method:'PATCH', headers:authHeaders, body:{ status: tk.status==='done' ? 'todo' : 'done', userId }
   })
   await refresh()
 }
@@ -408,9 +409,9 @@ async function submitInline() {
   saving.value=true
   const { type, project, task } = inlineModal.value
   try {
-    if (type==='subtask') await $fetch(useApiUrl(`/api/projects/${project.projectId}/tasks/${task.taskId}`), { method:'PATCH', body:{ action:'add_subtask', text:inlineText.value, userId } })
-    if (type==='comment') await $fetch(useApiUrl(`/api/projects/${project.projectId}/tasks/${task.taskId}`), { method:'PATCH', body:{ action:'add_comment', text:inlineText.value, author:'Team', userId } })
-    if (type==='time')    await $fetch(useApiUrl(`/api/projects/${project.projectId}/tasks/${task.taskId}`), { method:'PATCH', body:{ action:'log_time', hours:inlineHours.value, userId } })
+    if (type==='subtask') await $fetch(useApiUrl(`/api/projects/${project.projectId}/tasks/${task.taskId}`), { method:'PATCH', headers:authHeaders, body:{ action:'add_subtask', text:inlineText.value, userId } })
+    if (type==='comment') await $fetch(useApiUrl(`/api/projects/${project.projectId}/tasks/${task.taskId}`), { method:'PATCH', headers:authHeaders, body:{ action:'add_comment', text:inlineText.value, author:'Team', userId } })
+    if (type==='time')    await $fetch(useApiUrl(`/api/projects/${project.projectId}/tasks/${task.taskId}`), { method:'PATCH', headers:authHeaders, body:{ action:'log_time', hours:inlineHours.value, userId } })
     await refresh()
     inlineModal.value=null
   } finally { saving.value=false }
@@ -418,7 +419,7 @@ async function submitInline() {
 
 async function toggleSubtask(p: any, tk: any, s: any) {
   await $fetch(useApiUrl(`/api/projects/${p.projectId}/tasks/${tk.taskId}`), {
-    method:'PATCH', body:{ action:'toggle_subtask', subtaskId:s.id, userId }
+    method:'PATCH', headers:authHeaders, body:{ action:'toggle_subtask', subtaskId:s.id, userId }
   })
   await refresh()
 }

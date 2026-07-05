@@ -181,10 +181,11 @@
 import { priorityLabel, priorityBadge, statusLabel } from '~/modules/support'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
-const { data, refresh } = await useFetch(() => useApiUrl(`/api/support?userId=${encodeURIComponent(userId)}`))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/support?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const tickets = computed(() => (data.value as any)?.tickets || [])
 
 const openCount       = computed(() => tickets.value.filter((tk: any) => tk.status === 'open').length)
@@ -237,7 +238,7 @@ function openDetail(tk: any) {
 
 async function updateTicket(tk: any, field: string, value: string) {
   await $fetch(useApiUrl(`/api/support/${tk.ticketId}`), {
-    method: 'PATCH', body: { [field]: value, userId }
+    method: 'PATCH', headers: authHeaders, body: { [field]: value, userId }
   })
   await refresh()
   detail.value = { ...detail.value, [field]: value }
@@ -248,7 +249,7 @@ async function sendReply() {
   replying.value = true
   try {
     await $fetch(useApiUrl(`/api/support/${detail.value.ticketId}/comment`), {
-      method: 'POST', body: { text: replyText.value, author: 'Support-Team', userId }
+      method: 'POST', headers: authHeaders, body: { text: replyText.value, author: 'Support-Team', userId }
     })
     replyText.value = ''
     await refresh()
@@ -277,7 +278,7 @@ function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.valu
 
 async function addTicket() {
   saving.value = true
-  await $fetch(useApiUrl('/api/support'), { method: 'POST', body: { ...newTicket, userId, status: 'open' } })
+  await $fetch(useApiUrl('/api/support'), { method: 'POST', headers: authHeaders, body: { ...newTicket, userId, status: 'open' } })
   await refresh()
   showAdd.value = false
   Object.assign(newTicket, { title: '', client: '', clientEmail: '', priority: 'medium', assignee: '' })

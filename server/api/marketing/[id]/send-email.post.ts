@@ -7,11 +7,11 @@ import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey, replacePl
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const { userId, subject, tone = 'freundlich', contactFilter = {}, mode = 'ai', manualSubject, manualBody } = body || {}
+  const { subject, tone = 'freundlich', contactFilter = {}, mode = 'ai', manualSubject, manualBody } = body || {}
 
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
-  const tenantId = await resolveUserId(userId)
+  const tenantId = await resolveUserId(event.context.auth?.email || 'demo-user')
 
   // Load campaign (tenantId = partition key "userId", campaignId = sort key)
   const campaignRes = await dynamo.send(new QueryCommand({

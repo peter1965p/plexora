@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const dynamo = getDynamoClient()
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-notifications',
-    Key: { notificationId, userId: body.userId },
+    Key: { notificationId, userId: event.context.auth?.email || 'demo-user' },
     UpdateExpression: 'SET #r = :r',
     ExpressionAttributeNames: { '#r': 'read' },
     ExpressionAttributeValues: { ':r': true }

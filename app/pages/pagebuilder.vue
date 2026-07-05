@@ -167,16 +167,17 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 const saving  = ref(false)
 const editing = ref(false)
 const toast   = ref('')
 const isNew   = ref(false)
 
-const { data: formsData } = await useFetch(() => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId)}`))
+const { data: formsData } = await useFetch(() => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const availableForms = computed(() => (formsData.value as any)?.forms || [])
-const { data, refresh } = await useFetch(() => useApiUrl(`/api/pages?userId=${encodeURIComponent(userId)}`))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/pages?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const pages = computed(() => (data.value as any)?.pages || [])
 
 const current = reactive({
@@ -230,9 +231,9 @@ async function savePage() {
   saving.value = true
   try {
     if (isNew.value) {
-      await $fetch(useApiUrl('/api/pages'), { method: 'POST', body: { ...current, userId } })
+      await $fetch(useApiUrl('/api/pages'), { method: 'POST', headers: authHeaders, body: { ...current, userId } })
     } else {
-      await $fetch(useApiUrl(`/api/pages/${current.slug}`), { method: 'PUT', body: { ...current } })
+      await $fetch(useApiUrl(`/api/pages/${current.slug}`), { method: 'PUT', headers: authHeaders, body: { ...current } })
     }
     await refresh()
     toast.value = 'Seite gespeichert!'
@@ -242,7 +243,7 @@ async function savePage() {
 }
 
 async function deletePage(p: any) {
-  await $fetch(useApiUrl(`/api/pages/${p.slug}`), { method: 'DELETE' })
+  await $fetch(useApiUrl(`/api/pages/${p.slug}`), { method: 'DELETE', headers: authHeaders })
   await refresh()
   toast.value = 'Seite gelöscht!'
   setTimeout(() => toast.value = '', 2000)

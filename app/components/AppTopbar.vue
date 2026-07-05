@@ -119,10 +119,10 @@ const unreadCount = computed(() => notifications.value.filter(n => !n.read).leng
 
 async function loadNotifications() {
   try {
-    const { useAuthUser } = await import('~/composables/useAuth')
+    const { useAuthUser, useAuthHeader } = await import('~/composables/useAuth')
     const u = await useAuthUser()
     userId.value = u.userId
-    const res = await $fetch(useApiUrl(`/api/notifications?userId=${u.userId}`)) as any
+    const res = await $fetch(useApiUrl(`/api/notifications?userId=${u.userId}`), { headers: await useAuthHeader() }) as any
     notifications.value = res.notifications || []
   } catch {}
 }

@@ -2,8 +2,10 @@ import { ScanCommand, UpdateCommand, PutCommand, GetCommand } from '@aws-sdk/lib
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { requireAdmin } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const dynamo  = getDynamoClient()
   const resend  = new Resend(useRuntimeConfig().resendApiKey as string)
 

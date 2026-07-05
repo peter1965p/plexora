@@ -481,18 +481,20 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { t, lang } = useLang()
 
 const userId = ref('demo-user')
+const { idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 
 const { data: campaignsData, refresh } = await useFetch(
   () => useApiUrl(`/api/marketing?userId=${encodeURIComponent(userId.value)}`),
-  { getCachedData: () => undefined }
+  { getCachedData: () => undefined, headers: authHeaders }
 )
 const { data: formsData, refresh: refreshForms } = await useFetch(
   () => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId.value)}`),
-  { getCachedData: () => undefined }
+  { getCachedData: () => undefined, headers: authHeaders }
 )
 const { data: statsData, refresh: refreshStats } = await useFetch(
   () => useApiUrl(`/api/marketing/stats?userId=${encodeURIComponent(userId.value)}`),
-  { getCachedData: () => undefined }
+  { getCachedData: () => undefined, headers: authHeaders }
 )
 
 onMounted(async () => {
@@ -625,16 +627,17 @@ async function save() {
     const payload = { ...form, contentItems: form.contentItems.filter(Boolean), userId: userId.value }
     let savedFormId = form.formId
     if (editing.value) {
-      await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', body: payload })
+      await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', headers: authHeaders, body: payload })
       savedFormId = editing.value.formId || form.formId
     } else {
-      const res: any = await $fetch(useApiUrl('/api/marketing'), { method: 'POST', body: payload })
+      const res: any = await $fetch(useApiUrl('/api/marketing'), { method: 'POST', headers: authHeaders, body: payload })
       savedFormId = res?.campaign?.formId || form.formId
     }
     // Vanity-Slug in _redirects aktualisieren
     if (form.slug && savedFormId) {
       $fetch(useApiUrl('/api/marketing/update-redirects'), {
         method: 'POST',
+        headers: authHeaders,
         body: { slug: form.slug, formId: savedFormId, utmSource: form.utmSource, utmMedium: form.utmMedium, utmCampaign: form.utmCampaign }
       }).catch(() => {})
     }
@@ -652,7 +655,7 @@ const { openConfirm } = useConfirm()
 async function deleteCampaign(c: any) {
   if (!await openConfirm({ title: 'Kampagne löschen?', name: c.name, accentColor: c.accentColor })) return
   try {
-    await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE' })
+    await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE', headers: authHeaders })
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
     showToast('Kampagne gelöscht!')
@@ -723,13 +726,13 @@ const manualPreviewHtml = computed(() => {
 
 async function loadEmailStats(campaignId: string) {
   if (emailStats.value[campaignId]) return
-  const res = await $fetch(useApiUrl(`/api/marketing/email-stats?campaignId=${campaignId}`)) as any
+  const res = await $fetch(useApiUrl(`/api/marketing/email-stats?campaignId=${campaignId}`), { headers: authHeaders }) as any
   if (res?.stats) emailStats.value[campaignId] = res.stats
 }
 
 async function loadSegmentContacts() {
   try {
-    const res = await $fetch(useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId.value)}`)) as any
+    const res = await $fetch(useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId.value)}`), { headers: authHeaders }) as any
     segmentContacts.value = res?.contacts || []
   } catch {
     segmentContacts.value = []
@@ -756,8 +759,8 @@ async function generatePreview() {
   try {
     emailPreview.value = await $fetch(useApiUrl(`/api/marketing/${sendEmailCampaign.value.campaignId}/preview-email`), {
       method: 'POST',
+      headers: authHeaders,
       body: {
-        userId: userId.value,
         subject: sendEmailForm.subject || undefined,
         tone: sendEmailForm.tone,
         contactFilter: sendEmailForm.contactStatus ? { status: sendEmailForm.contactStatus } : {},
@@ -778,8 +781,8 @@ async function sendEmailBlast() {
   try {
     const res = await $fetch(useApiUrl(`/api/marketing/${sendEmailCampaign.value.campaignId}/send-email`), {
       method: 'POST',
+      headers: authHeaders,
       body: {
-        userId: userId.value,
         subject: sendEmailForm.subject || undefined,
         tone: sendEmailForm.tone,
         contactFilter: sendEmailForm.contactStatus ? { status: sendEmailForm.contactStatus } : {},
@@ -803,7 +806,7 @@ async function sendEmailBlast() {
 async function runFollowups() {
   followupRunning.value = true
   try {
-    const res = await $fetch(useApiUrl('/api/marketing/run-followups'), { method: 'POST' }) as any
+    const res = await $fetch(useApiUrl('/api/marketing/run-followups'), { method: 'POST', headers: authHeaders }) as any
     showToast(`${res.followupsSent} Follow-up${res.followupsSent !== 1 ? 's' : ''} gesendet`)
   } catch {
     showToast('Follow-up Fehler')

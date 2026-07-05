@@ -1,6 +1,7 @@
 import { ScanCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { assertOwner } from '../../../utils/ownership'
 import PDFDocument from 'pdfkit'
 
 const DUNNING_LEVELS: Record<number, { status: string, label: string, fee: number, text: string }> = {
@@ -87,6 +88,7 @@ export default defineEventHandler(async (event) => {
   }))
   const invoice = scan.Items?.[0]
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
+  await assertOwner(event, invoice)
 
   const level   = body.level || 1
   const dunning = dunningConfig[level]

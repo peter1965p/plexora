@@ -3,7 +3,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
-  const email = getQuery(event).userId as string
+  const email = event.context.auth?.email || ''
   if (!email) return { members: [] }
 
   const tenantId = await resolveUserId(email)

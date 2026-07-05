@@ -263,6 +263,7 @@ const branchenPakete = [
 
 const activeBranchPackages = ref<string[]>([])
 const userEmail = ref('')
+const authToken = ref('')
 const userId = ref('demo-user')
 const isAdmin = ref(false)
 const isDemo = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
@@ -274,11 +275,12 @@ onMounted(async () => {
     const { useAuthUser } = await import('~/composables/useAuth')
     const u = await useAuthUser()
     userEmail.value = u.email || ''
+  authToken.value = u.idToken || ''
     userId.value = u.userId || 'demo-user'
     isAdmin.value = u.role === 'admins'
     if (!u.email) return
     const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
-      headers: { 'x-user-email': u.email },
+      headers: { 'x-user-email': u.email, Authorization: `Bearer ${u.idToken}` },
     })
     activeBranchPackages.value = res.branchPackages || []
   } catch {}
@@ -303,7 +305,7 @@ async function checkout() {
       const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
         method: 'POST',
         body: { packageKey: buyItem.value.key },
-        headers: { 'x-user-email': userEmail.value },
+        headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
       })
       activeBranchPackages.value = res.branchPackages || []
       buyItem.value = null
@@ -318,7 +320,7 @@ async function checkout() {
         name:      buyItem.value.name,
         priceEur:  parseFloat(buyItem.value.price.replace('€', '')),
       },
-      headers: { 'x-user-email': u.email || '' },
+      headers: { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` },
     })
     if (data.url) window.location.href = data.url
   } catch (e: any) {

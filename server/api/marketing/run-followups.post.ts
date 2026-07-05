@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { requireAuth } from '../../utils/verifyAuth'
 
 const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string) => string }> = {
   'not-opened-3d': {
@@ -24,6 +25,7 @@ const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string)
 }
 
 export default defineEventHandler(async (event) => {
+  requireAuth(event)
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
   const resend = new Resend(config.resendApiKey as string)

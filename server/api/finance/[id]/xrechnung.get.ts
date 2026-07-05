@@ -8,14 +8,13 @@ function x(s: string | undefined): string {
 
 export default defineEventHandler(async (event) => {
   const invoiceId = getRouterParam(event, 'id')
-  const query     = getQuery(event)
-  const userId    = await resolveUserId(query.userId as string || 'demo-user')
+  const userId    = await resolveUserId(event.context.auth?.email || 'demo-user')
   const client    = getDynamoClient()
 
   const scan = await client.send(new ScanCommand({
     TableName: 'plexora-finance',
-    FilterExpression: 'invoiceId = :id',
-    ExpressionAttributeValues: { ':id': invoiceId },
+    FilterExpression: 'invoiceId = :id AND userId = :u',
+    ExpressionAttributeValues: { ':id': invoiceId, ':u': userId },
   }))
   const inv = scan.Items?.[0]
   if (!inv) throw createError({ statusCode: 404 })

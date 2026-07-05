@@ -1,5 +1,6 @@
 import { PutCommand, UpdateCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { assertOwner } from '../../../utils/ownership'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -14,6 +15,7 @@ export default defineEventHandler(async (event) => {
 
   const existing = scan.Items?.[0]
   if (!existing) throw createError({ statusCode: 404, message: 'Kontakt nicht gefunden' })
+  await assertOwner(event, existing)
 
   // Bereits konvertiert? -> idempotent zurückgeben
   if (existing.customerId) {

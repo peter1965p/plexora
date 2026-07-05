@@ -196,7 +196,8 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { t, lang } = useLang()
 const chartRef = ref<HTMLCanvasElement | null>(null)
 
-const { userId, email, role } = await useAuthUser()
+const { userId, email, role, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const isCustomer = role === 'customers'
 
 const { openConfirm } = useConfirm()
@@ -211,11 +212,11 @@ async function cancelSubscription() {
   }
 }
 
-const { data: dealsData }     = await useFetch(() => useApiUrl(`/api/deals?userId=${userId}`))
-const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?userId=${userId}`))
-const { data: employeesData } = await useFetch(() => useApiUrl(`/api/hr?userId=${userId}`))
-const { data: ticketsData }   = await useFetch(() => useApiUrl(`/api/support?userId=${userId}`))
-const { data: invoicesData }  = await useFetch(() => useApiUrl(`/api/finance?userId=${userId}`))
+const { data: dealsData }     = await useFetch(() => useApiUrl(`/api/deals?userId=${userId}`), { headers: authHeaders })
+const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?userId=${userId}`), { headers: authHeaders })
+const { data: employeesData } = await useFetch(() => useApiUrl(`/api/hr?userId=${userId}`), { headers: authHeaders })
+const { data: ticketsData }   = await useFetch(() => useApiUrl(`/api/support?userId=${userId}`), { headers: authHeaders })
+const { data: invoicesData }  = await useFetch(() => useApiUrl(`/api/finance?userId=${userId}`), { headers: authHeaders })
 
 const { data: demoStatsRaw } = await useFetch(
   () => useApiUrl(`/api/admin/demo-stats?email=${encodeURIComponent(email)}`),

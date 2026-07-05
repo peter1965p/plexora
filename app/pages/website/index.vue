@@ -1336,7 +1336,7 @@ const form = reactive({
 onMounted(async () => {
   try {
     const res = await $fetch<any>(useApiUrl('/api/nexora/my'), {
-      headers: { 'x-user-email': u.email || '' },
+      headers: { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` },
     })
     if (res?.nexora) {
       const n = res.nexora
@@ -1426,7 +1426,7 @@ async function save() {
   try {
     await $fetch(useApiUrl('/api/nexora/my'), {
       method: 'PUT',
-      headers: { 'x-user-email': u.email || '' },
+      headers: { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` },
       body: {
         companyName:  form.companyName,
         subdomain:    form.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, ''),

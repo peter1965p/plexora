@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const client = getDynamoClient()
 
   const contract = {
-    userId: await resolveUserId(body.userId || 'demo-user'),
+    userId: await resolveUserId(event.context.auth?.email || 'demo-user'),
     contractId:       randomUUID(),
     title:            body.title,
     contractNumber:   body.contractNumber || '',

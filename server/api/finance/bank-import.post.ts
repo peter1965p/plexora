@@ -30,7 +30,7 @@ function parseBankCsv(csv: string): Array<{ date: string; description: string; a
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
-  const userId = await resolveUserId(body.userId || 'demo-user')
+  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
   const client = getDynamoClient()
 
   const rows = parseBankCsv(body.csv as string)

@@ -366,10 +366,11 @@ import { calcRevenue, calcPending, calcOverdue, formatEur, statusLabel, statusBa
 import { exportToCsv, exportToXlsx } from '~/modules/export'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
-const { data, refresh } = await useFetch(() => useApiUrl(`/api/finance?userId=${encodeURIComponent(userId)}`))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/finance?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
 const revenue      = computed(() => calcRevenue(invoices.value))
@@ -381,12 +382,12 @@ const overdueCount = computed(() => invoices.value.filter((i: any) => i.status =
 const unpaidInvoices = computed(() => invoices.value.filter((i: any) => i.status !== 'paid'))
 
 // ── Kassenbuch ────────────────────────────────────────
-const { data: cashData, refresh: refreshCash } = await useFetch(() => useApiUrl(`/api/finance/cashbook?userId=${encodeURIComponent(userId)}`))
+const { data: cashData, refresh: refreshCash } = await useFetch(() => useApiUrl(`/api/finance/cashbook?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const cashEntries = computed(() => (cashData.value as any)?.entries || [])
 const cashExpenses = computed(() => cashEntries.value.reduce((s: number, e: any) => e.amount < 0 ? s + e.amount : s, 0))
 
 // ── Bank-Import ───────────────────────────────────────
-const { data: bankData, refresh: refreshBank } = await useFetch(() => useApiUrl(`/api/finance/bank-txns?userId=${encodeURIComponent(userId)}`))
+const { data: bankData, refresh: refreshBank } = await useFetch(() => useApiUrl(`/api/finance/bank-txns?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const bankTxns  = computed(() => (bankData.value as any)?.transactions || [])
 const matchMap  = reactive<Record<string, string>>({})
 const bankCsv   = ref('')
@@ -405,7 +406,7 @@ async function doImport() {
   importing.value = true
   try {
     const res = await $fetch(useApiUrl('/api/finance/bank-import'), {
-      method: 'POST', body: { csv: bankCsv.value, userId }
+      method: 'POST', headers: authHeaders, body: { csv: bankCsv.value, userId }
     }) as any
     await refreshBank()
     bankCsv.value = ''
@@ -421,7 +422,7 @@ async function doMatch(txn: any) {
   const invoiceId = matchMap[txn.txnId]
   if (!invoiceId) return
   await $fetch(useApiUrl('/api/finance/bank-match'), {
-    method: 'POST', body: { txnId: txn.txnId, invoiceId, markPaid: true, userId }
+    method: 'POST', headers: authHeaders, body: { txnId: txn.txnId, invoiceId, markPaid: true, userId }
   })
   await Promise.all([refreshBank(), refresh()])
   delete matchMap[txn.txnId]
@@ -432,7 +433,7 @@ async function doMatch(txn: any) {
 const taxYear = ref(new Date().getFullYear())
 const taxMode = ref('quarterly')
 const yearOptions = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
-const { data: _ustvaRaw } = await useFetch(() => useApiUrl(`/api/finance/ustva?userId=${encodeURIComponent(userId)}&year=${taxYear.value}&mode=${taxMode.value}`))
+const { data: _ustvaRaw } = await useFetch(() => useApiUrl(`/api/finance/ustva?userId=${encodeURIComponent(userId)}&year=${taxYear.value}&mode=${taxMode.value}`), { headers: authHeaders })
 const ustva = computed(() => _ustvaRaw.value as any)
 
 // ── UI state ──────────────────────────────────────────
@@ -456,11 +457,11 @@ function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.valu
 async function addInvoice(sendMailFlag: boolean) {
   saving.value = true
   try {
-    const inv = await $fetch(useApiUrl('/api/finance'), { method: 'POST', body: { ...newInv, userId } }) as any
+    const inv = await $fetch(useApiUrl('/api/finance'), { method: 'POST', headers: authHeaders, body: { ...newInv, userId } }) as any
     await refresh()
     if (sendMailFlag && inv.invoice?.invoiceId && newInv.clientEmail) {
       await $fetch(useApiUrl(`/api/finance/${inv.invoice.invoiceId}/send`), {
-        method: 'POST', body: { userId, toEmail: newInv.clientEmail }
+        method: 'POST', headers: authHeaders, body: { userId, toEmail: newInv.clientEmail }
       })
       showToast(`Rechnung gespeichert und an ${newInv.clientEmail} gesendet!`)
     } else {
@@ -476,19 +477,29 @@ async function sendMail(invoice: any) {
   sending.value = invoice.invoiceId
   try {
     await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/send`), {
-      method: 'POST', body: { userId: invoice.userId || userId, toEmail: invoice.clientEmail }
+      method: 'POST', headers: authHeaders, body: { userId: invoice.userId || userId, toEmail: invoice.clientEmail }
     })
     await refresh()
     showToast(`Rechnungskopie an ${invoice.client || invoice.clientEmail} gesendet!`)
   } finally { sending.value = null }
 }
 
+async function downloadBlob(url: string, filename: string) {
+  const blob = await $fetch<Blob>(url, { headers: authHeaders, responseType: 'blob' } as any)
+  const blobUrl = URL.createObjectURL(blob as any)
+  const a = document.createElement('a')
+  a.href = blobUrl
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(blobUrl)
+}
+
 function downloadPdf(invoice: any) {
-  window.location.href = useApiUrl(`/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId}`)
+  downloadBlob(useApiUrl(`/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId}`), `${invoice.number || invoice.invoiceId}.pdf`)
 }
 
 function downloadXRechnung(invoice: any) {
-  window.location.href = useApiUrl(`/api/finance/${invoice.invoiceId}/xrechnung?userId=${invoice.userId || userId}`)
+  downloadBlob(useApiUrl(`/api/finance/${invoice.invoiceId}/xrechnung?userId=${invoice.userId || userId}`), `${invoice.number || invoice.invoiceId}_XRechnung.xml`)
 }
 
 const { openConfirm } = useConfirm()
@@ -496,7 +507,7 @@ const { openConfirm } = useConfirm()
 async function finalizeInvoice(invoice: any) {
   if (!await openConfirm({ title: 'GoBD-Archivierung?', name: `Rechnung ${invoice.number}`, sub: 'Nach der Archivierung kann die Rechnung nicht mehr gelöscht werden.', icon: 'ti-lock' })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/finalize`), {
-    method: 'POST', body: { userId: invoice.userId || userId }
+    method: 'POST', headers: authHeaders, body: { userId: invoice.userId || userId }
   })
   await refresh()
   showToast(`Rechnung ${invoice.number} archiviert!`)
@@ -520,7 +531,7 @@ async function sendDunning(invoice: any) {
   dunning.value = invoice.invoiceId
   try {
     const res = await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/dunning`), {
-      method: 'POST', body: { level: dunningLevel(invoice), userId: invoice.userId || userId }
+      method: 'POST', headers: authHeaders, body: { level: dunningLevel(invoice), userId: invoice.userId || userId }
     }) as any
     await refresh()
     showToast(res.message || 'Mahnung gesendet!')
@@ -531,7 +542,7 @@ async function sendDunning(invoice: any) {
 async function deleteInvoice(invoice: any) {
   if (!await openConfirm({ title: 'Rechnung löschen?', name: `Rechnung ${invoice.number}` })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}`), {
-    method: 'DELETE', body: { userId: invoice.userId || userId }
+    method: 'DELETE', headers: authHeaders, body: { userId: invoice.userId || userId }
   })
   await refresh()
 }
@@ -540,7 +551,7 @@ async function deleteInvoice(invoice: any) {
 async function addCash() {
   saving.value = true
   try {
-    await $fetch(useApiUrl('/api/finance/cashbook'), { method: 'POST', body: { ...newCash, userId } })
+    await $fetch(useApiUrl('/api/finance/cashbook'), { method: 'POST', headers: authHeaders, body: { ...newCash, userId } })
     await refreshCash()
     showCash.value = false
     Object.assign(newCash, { date: new Date().toISOString().slice(0, 10), description: '', amount: 0, type: 'ausgabe' })
@@ -550,13 +561,13 @@ async function addCash() {
 
 async function deleteCash(entry: any) {
   if (!await openConfirm({ title: 'Buchung löschen?', name: entry.description || 'Kassenbucheintrag' })) return
-  await $fetch(useApiUrl('/api/finance/cashbook'), { method: 'DELETE', body: { cashId: entry.cashId, userId } })
+  await $fetch(useApiUrl('/api/finance/cashbook'), { method: 'DELETE', headers: authHeaders, body: { cashId: entry.cashId, userId } })
   await refreshCash()
 }
 
 // ── DATEV Export ──────────────────────────────────────
 function doDatevExport() {
-  window.location.href = useApiUrl(`/api/finance/datev?userId=${encodeURIComponent(userId)}&year=${taxYear.value}`)
+  downloadBlob(useApiUrl(`/api/finance/datev?userId=${encodeURIComponent(userId)}&year=${taxYear.value}`), `DATEV_Buchungsstapel_${taxYear.value}.csv`)
 }
 
 function exportRows() {

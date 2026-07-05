@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
-import { GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { GetCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { assertOwner } from '../../../utils/ownership'
 import PDFDocument from 'pdfkit'
 
 async function generatePDF(invoice: any, branding: any, company: any = {}, invoiceSettings: any = {}): Promise<Buffer> {
@@ -105,12 +106,14 @@ export default defineEventHandler(async (event) => {
   const config    = useRuntimeConfig()
 
   // Rechnung aus DynamoDB holen
-  const scan = await dynamo.send(new GetCommand({
+  const scan = await dynamo.send(new ScanCommand({
     TableName: 'plexora-finance',
-    Key: { userId: body.userId, invoiceId }
+    FilterExpression: 'invoiceId = :id',
+    ExpressionAttributeValues: { ':id': invoiceId },
   }))
-  const invoice = scan.Item
+  const invoice = scan.Items?.[0]
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
+  await assertOwner(event, invoice)
 
   // Branding laden
   let branding = { brandName: 'Plexora', brandTagline: 'Business Platform' }

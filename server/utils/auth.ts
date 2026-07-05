@@ -2,7 +2,7 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 
 export async function requireTenantId(event: any): Promise<string> {
-  const email = getHeader(event, 'x-user-email') || ''
+  const email = event.context.auth?.email || ''
   if (!email) throw createError({ statusCode: 401, message: 'Unauthorized' })
   const res = await getDynamoClient().send(new ScanCommand({
     TableName: 'plexora-nexora',

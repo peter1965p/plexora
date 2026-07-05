@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const client = getDynamoClient()
 
   const project = {
-    userId: await resolveUserId(body.userId || 'demo-user'),
+    userId: await resolveUserId(event.context.auth?.email || 'demo-user'),
     projectId:   randomUUID(),
     name:        body.name,
     description: body.description || '',

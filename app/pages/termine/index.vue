@@ -271,6 +271,7 @@
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
+const authToken = ref('')
 const activeTab = ref('terminarten')
 
 const tabs = [
@@ -315,7 +316,7 @@ function openEditType(t: AppointmentType) {
 async function loadTypes() {
   loadingTypes.value = true
   try {
-    const res = await $fetch<{ types: AppointmentType[] }>(useApiUrl('/api/termine/types'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ types: AppointmentType[] }>(useApiUrl('/api/termine/types'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     types.value = res.types || []
   } catch {}
   loadingTypes.value = false
@@ -325,9 +326,9 @@ async function saveType() {
   if (!typeForm.name || !typeForm.durationMinutes) return
   try {
     if (editingTypeId.value) {
-      await $fetch(useApiUrl(`/api/termine/types/${editingTypeId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...typeForm } })
+      await $fetch(useApiUrl(`/api/termine/types/${editingTypeId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...typeForm } })
     } else {
-      await $fetch(useApiUrl('/api/termine/types'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...typeForm } })
+      await $fetch(useApiUrl('/api/termine/types'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...typeForm } })
     }
     showTypeModal.value = false
     await loadTypes()
@@ -336,12 +337,12 @@ async function saveType() {
 
 async function toggleTypeActive(t: AppointmentType) {
   t.active = !t.active
-  await $fetch(useApiUrl(`/api/termine/types/${t.typeId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { active: t.active } })
+  await $fetch(useApiUrl(`/api/termine/types/${t.typeId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { active: t.active } })
 }
 
 async function deleteType(t: AppointmentType) {
   if (!confirm(`"${t.name}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/termine/types/${t.typeId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/termine/types/${t.typeId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadTypes()
 }
 
@@ -373,7 +374,7 @@ const filteredBookings = computed(() => {
 async function loadBookings() {
   loadingBookings.value = true
   try {
-    const res = await $fetch<{ bookings: Booking[] }>(useApiUrl('/api/termine/bookings'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ bookings: Booking[] }>(useApiUrl('/api/termine/bookings'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     bookings.value = res.bookings || []
   } catch {}
   loadingBookings.value = false
@@ -382,7 +383,7 @@ async function loadBookings() {
 async function cancelBooking(b: Booking) {
   if (!confirm(`Termin mit "${b.customerName}" wirklich stornieren?`)) return
   b.status = 'cancelled'
-  await $fetch(useApiUrl(`/api/termine/bookings/${b.bookingId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { status: 'cancelled' } })
+  await $fetch(useApiUrl(`/api/termine/bookings/${b.bookingId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { status: 'cancelled' } })
 }
 
 // ── Einstellungen ───────────────────────────────────────
@@ -410,7 +411,7 @@ async function disconnectGoogle() {
   if (!confirm('Google Calendar wirklich trennen?')) return
   googleDisconnecting.value = true
   try {
-    await $fetch(useApiUrl('/api/termine/google-disconnect'), { method: 'POST', headers: { 'x-user-email': userEmail.value } })
+    await $fetch(useApiUrl('/api/termine/google-disconnect'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     settingsForm.googleConnected = false
     settingsForm.googleEmail = ''
   } catch {
@@ -423,7 +424,7 @@ async function disconnectGoogle() {
 async function loadSettings() {
   loadingSettings.value = true
   try {
-    const res = await $fetch<{ tenantId: string; settings: typeof settingsForm }>(useApiUrl('/api/termine/settings'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ tenantId: string; settings: typeof settingsForm }>(useApiUrl('/api/termine/settings'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     Object.assign(settingsForm, res.settings)
   } catch {}
   loadingSettings.value = false
@@ -434,7 +435,7 @@ async function saveSettings() {
   try {
     await $fetch(useApiUrl('/api/termine/settings'), {
       method: 'PUT',
-      headers: { 'x-user-email': userEmail.value },
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
       body: { ...settingsForm },
     })
   } catch {
@@ -448,6 +449,7 @@ onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
+  authToken.value = u.idToken || ''
   await Promise.all([loadTypes(), loadBookings(), loadSettings()])
 
   const route = useRoute()

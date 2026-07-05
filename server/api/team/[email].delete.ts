@@ -4,7 +4,7 @@ import { resolveUserId, invalidateTenantCache } from '../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
   const memberEmail  = decodeURIComponent(getRouterParam(event, 'email') || '')
-  const requesterEmail = getQuery(event).userId as string
+  const requesterEmail = event.context.auth?.email || ''
 
   if (!memberEmail || !requesterEmail) throw createError({ statusCode: 400, message: 'Parameter fehlen' })
 

@@ -227,6 +227,7 @@ import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
+const authToken = ref('')
 
 interface BlogPost {
   postId:        string
@@ -423,7 +424,7 @@ async function loadPosts() {
   loading.value = true
   try {
     const res = await $fetch<{ posts: BlogPost[] }>(useApiUrl('/api/blog'), {
-      headers: { 'x-user-email': userEmail.value },
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
     })
     posts.value = res.posts || []
   } catch {}
@@ -437,13 +438,13 @@ async function savePost() {
     if (!editingId.value) {
       await $fetch(useApiUrl('/api/blog'), {
         method: 'POST',
-        headers: { 'x-user-email': userEmail.value },
+        headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
         body: { ...form },
       })
     } else {
       await $fetch(useApiUrl(`/api/blog/${editingId.value}`), {
         method: 'PUT',
-        headers: { 'x-user-email': userEmail.value },
+        headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
         body: { ...form },
       })
     }
@@ -457,7 +458,7 @@ async function deletePost(p: BlogPost) {
   if (!confirm(`"${p.title}" wirklich löschen?`)) return
   await $fetch(useApiUrl(`/api/blog/${p.postId}`), {
     method: 'DELETE',
-    headers: { 'x-user-email': userEmail.value },
+    headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
   })
   await loadPosts()
 }
@@ -466,6 +467,7 @@ onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
+  authToken.value = u.idToken || ''
   await Promise.all([loadPosts(), loadBlogCategories()])
 })
 </script>

@@ -1,4 +1,4 @@
-import { GetCommand } from '@aws-sdk/lib-dynamodb'
+import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import PDFDocument from 'pdfkit'
 
@@ -218,15 +218,20 @@ async function generatePDF(invoice: any, branding: any, company: any = {}, invoi
 }
 
 export default defineEventHandler(async (event) => {
-  const invoiceId = getRouterParam(event, 'id')
-  const userId    = getQuery(event).userId as string || 'demo-user'
-  const dynamo    = getDynamoClient()
+  const invoiceId  = getRouterParam(event, 'id')
+  const callerEmail = event.context.auth?.email || 'demo-user'
+  const dynamo     = getDynamoClient()
 
-  const scan = await dynamo.send(new GetCommand({
+  const scan = await dynamo.send(new ScanCommand({
     TableName: 'plexora-finance',
-    Key: { userId, invoiceId }
+    FilterExpression: 'invoiceId = :id',
+    ExpressionAttributeValues: { ':id': invoiceId },
   }))
-  const invoice = scan.Item
+  const invoice = scan.Items?.[0]
+  // Zugriff nur für den ausstellenden Tenant selbst oder den in der Rechnung genannten Kunden
+  if (invoice && invoice.userId !== callerEmail && invoice.clientEmail !== callerEmail) {
+    throw createError({ statusCode: 403, message: 'Kein Zugriff auf diese Rechnung' })
+  }
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
 
   let branding = { brandName: 'Plexora', brandTagline: 'Business Platform', accentColor: '#EA580C' }

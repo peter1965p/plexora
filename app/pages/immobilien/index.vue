@@ -392,6 +392,7 @@
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
+const authToken = ref('')
 const userId = ref('demo-user')
 const activeTab = ref('objekte')
 
@@ -449,7 +450,7 @@ const settingsForm = reactive({ propertiesEnabled: false, propertiesTitle: 'Immo
 async function openSettings() {
   showSettingsModal.value = true
   try {
-    const res = await $fetch<any>(useApiUrl('/api/properties/settings'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<any>(useApiUrl('/api/properties/settings'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     Object.assign(settingsForm, res.settings)
   } catch {}
 }
@@ -457,7 +458,7 @@ async function openSettings() {
 async function saveSettings() {
   savingSettings.value = true
   try {
-    await $fetch(useApiUrl('/api/properties/settings'), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...settingsForm } })
+    await $fetch(useApiUrl('/api/properties/settings'), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...settingsForm } })
     showSettingsModal.value = false
   } catch { alert('Fehler beim Speichern.') } finally { savingSettings.value = false }
 }
@@ -482,7 +483,7 @@ function openEditProperty(p: Property) {
 async function loadProperties() {
   loadingProperties.value = true
   try {
-    const res = await $fetch<{ properties: Property[] }>(useApiUrl('/api/properties'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ properties: Property[] }>(useApiUrl('/api/properties'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     properties.value = res.properties || []
   } catch {}
   loadingProperties.value = false
@@ -493,9 +494,9 @@ async function saveProperty() {
   savingProperty.value = true
   try {
     if (editingPropertyId.value) {
-      await $fetch(useApiUrl(`/api/properties/${editingPropertyId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...pForm } })
+      await $fetch(useApiUrl(`/api/properties/${editingPropertyId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...pForm } })
     } else {
-      await $fetch(useApiUrl('/api/properties'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...pForm } })
+      await $fetch(useApiUrl('/api/properties'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...pForm } })
     }
     showPropertyModal.value = false
     await loadProperties()
@@ -504,7 +505,7 @@ async function saveProperty() {
 
 async function deleteProperty(p: Property) {
   if (!confirm(`"${p.street}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/properties/${p.propertyId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/properties/${p.propertyId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadProperties()
 }
 
@@ -526,7 +527,7 @@ function openEditViewing(v: Viewing) {
 
 async function loadViewings() {
   try {
-    const res = await $fetch<{ viewings: Viewing[] }>(useApiUrl('/api/viewings'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ viewings: Viewing[] }>(useApiUrl('/api/viewings'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     viewings.value = res.viewings || []
   } catch {}
 }
@@ -535,9 +536,9 @@ async function saveViewing() {
   if (!vForm.propertyName || !vForm.customerName || !vForm.date) return
   try {
     if (editingViewingId.value) {
-      await $fetch(useApiUrl(`/api/viewings/${editingViewingId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...vForm } })
+      await $fetch(useApiUrl(`/api/viewings/${editingViewingId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...vForm } })
     } else {
-      await $fetch(useApiUrl('/api/viewings'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...vForm } })
+      await $fetch(useApiUrl('/api/viewings'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...vForm } })
     }
     showViewingModal.value = false
     await loadViewings()
@@ -546,7 +547,7 @@ async function saveViewing() {
 
 async function deleteViewing(v: Viewing) {
   if (!confirm('Besichtigung wirklich löschen?')) return
-  await $fetch(useApiUrl(`/api/viewings/${v.viewingId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/viewings/${v.viewingId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadViewings()
 }
 
@@ -568,7 +569,7 @@ function openEditRenter(r: Renter) {
 
 async function loadRenters() {
   try {
-    const res = await $fetch<{ renters: Renter[] }>(useApiUrl('/api/renters'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ renters: Renter[] }>(useApiUrl('/api/renters'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     renters.value = res.renters || []
   } catch {}
 }
@@ -577,9 +578,9 @@ async function saveRenter() {
   if (!rForm.name) return
   try {
     if (editingRenterId.value) {
-      await $fetch(useApiUrl(`/api/renters/${editingRenterId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...rForm } })
+      await $fetch(useApiUrl(`/api/renters/${editingRenterId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...rForm } })
     } else {
-      await $fetch(useApiUrl('/api/renters'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...rForm, userId: userId.value } })
+      await $fetch(useApiUrl('/api/renters'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...rForm, userId: userId.value } })
     }
     showRenterModal.value = false
     await loadRenters()
@@ -588,19 +589,20 @@ async function saveRenter() {
 
 async function deleteRenter(r: Renter) {
   if (!confirm(`"${r.name}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/renters/${r.renterId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/renters/${r.renterId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadRenters()
 }
 
 async function toggleUtilityStatus(r: Renter) {
   r.utilityStatus = r.utilityStatus === 'abgerechnet' ? 'offen' : 'abgerechnet'
-  await $fetch(useApiUrl(`/api/renters/${r.renterId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { utilityStatus: r.utilityStatus } })
+  await $fetch(useApiUrl(`/api/renters/${r.renterId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { utilityStatus: r.utilityStatus } })
 }
 
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
+  authToken.value = u.idToken || ''
   userId.value = u.userId || 'demo-user'
   await Promise.all([loadProperties(), loadViewings(), loadRenters()])
 })

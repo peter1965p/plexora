@@ -174,7 +174,8 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
 const tab      = ref('')
@@ -190,7 +191,7 @@ onMounted(() => { if (!tab.value) tab.value = t.value.forms.tabForms })
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
 
-const { data, refresh } = await useFetch(() => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId)}`))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/forms?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const forms = computed(() => (data.value as any)?.forms || [])
 
 const current = reactive({
@@ -234,9 +235,9 @@ async function saveForm() {
   saving.value = true
   try {
     if (isNew.value) {
-      await $fetch(useApiUrl('/api/forms'), { method: 'POST', body: { ...current, userId } })
+      await $fetch(useApiUrl('/api/forms'), { method: 'POST', headers: authHeaders, body: { ...current, userId } })
     } else {
-      await $fetch(useApiUrl(`/api/forms/${current.formId}`), { method: 'PUT', body: { ...current } })
+      await $fetch(useApiUrl(`/api/forms/${current.formId}`), { method: 'PUT', headers: authHeaders, body: { ...current } })
     }
     await refresh()
     toast.value = 'Formular gespeichert!'
@@ -246,7 +247,7 @@ async function saveForm() {
 }
 
 async function deleteForm(f: any) {
-  await $fetch(useApiUrl(`/api/forms/${f.formId}`), { method: 'DELETE' })
+  await $fetch(useApiUrl(`/api/forms/${f.formId}`), { method: 'DELETE', headers: authHeaders })
   await refresh()
   toast.value = 'Formular gelöscht!'
   setTimeout(() => toast.value = '', 2000)

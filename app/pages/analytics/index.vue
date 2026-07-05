@@ -123,18 +123,19 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 
 const invoiceChartRef = ref<HTMLCanvasElement | null>(null)
 const dealChartRef    = ref<HTMLCanvasElement | null>(null)
 const contactChartRef = ref<HTMLCanvasElement | null>(null)
 const projectChartRef = ref<HTMLCanvasElement | null>(null)
 
-const { data: invoicesData } = await useFetch(() => useApiUrl(`/api/finance?userId=${encodeURIComponent(userId)}`),  { getCachedData: () => undefined })
-const { data: dealsData }    = await useFetch(() => useApiUrl(`/api/deals?userId=${encodeURIComponent(userId)}`),    { getCachedData: () => undefined })
-const { data: contactsData } = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined })
-const { data: ticketsData }  = await useFetch(() => useApiUrl(`/api/support?userId=${encodeURIComponent(userId)}`),  { getCachedData: () => undefined })
-const { data: projectsData } = await useFetch(() => useApiUrl(`/api/projects?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined })
+const { data: invoicesData } = await useFetch(() => useApiUrl(`/api/finance?userId=${encodeURIComponent(userId)}`),  { getCachedData: () => undefined, headers: authHeaders })
+const { data: dealsData }    = await useFetch(() => useApiUrl(`/api/deals?userId=${encodeURIComponent(userId)}`),    { getCachedData: () => undefined, headers: authHeaders })
+const { data: contactsData } = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined, headers: authHeaders })
+const { data: ticketsData }  = await useFetch(() => useApiUrl(`/api/support?userId=${encodeURIComponent(userId)}`),  { getCachedData: () => undefined, headers: authHeaders })
+const { data: projectsData } = await useFetch(() => useApiUrl(`/api/projects?userId=${encodeURIComponent(userId)}`), { getCachedData: () => undefined, headers: authHeaders })
 
 const invoices = computed(() => (invoicesData.value as any)?.invoices || [])
 const deals    = computed(() => (dealsData.value as any)?.deals       || [])

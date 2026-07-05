@@ -298,7 +298,8 @@ import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { t, lang } = useLang()
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const route = useRoute()
 
 onMounted(() => {
@@ -311,9 +312,9 @@ onMounted(() => {
   if (route.query.new === 'deal') openAddDeal()
 })
 
-const { data: dealsData,     refresh: refreshDeals     } = await useFetch(() => useApiUrl(`/api/deals?userId=${encodeURIComponent(userId)}`))
-const { data: contactsData,  refresh: refreshContacts  } = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`))
-const { data: companiesData, refresh: refreshCompanies } = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
+const { data: dealsData,     refresh: refreshDeals     } = await useFetch(() => useApiUrl(`/api/deals?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
+const { data: contactsData,  refresh: refreshContacts  } = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
+const { data: companiesData, refresh: refreshCompanies } = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 
 const deals     = computed(() => (dealsData.value as any)?.deals    || [])
 const contacts  = computed(() => (contactsData.value as any)?.contacts || [])
@@ -414,7 +415,7 @@ function openEditContact(c: Contact) {
     status: c.status, leadSource: c.leadSource || 'manual', leadStatus: c.leadStatus || 'new',
   })
   showContactModal.value = true
-  $fetch(useApiUrl(`/api/contacts/${c.contactId}/touch`), { method: 'POST' }).catch(() => {})
+  $fetch(useApiUrl(`/api/contacts/${c.contactId}/touch`), { method: 'POST', headers: authHeaders }).catch(() => {})
 }
 
 async function saveContact() {
@@ -423,11 +424,13 @@ async function saveContact() {
     if (editingContact.value) {
       await $fetch(useApiUrl(`/api/contacts/${editingContact.value.contactId}`), {
         method: 'PATCH',
+        headers: authHeaders,
         body: { ...contactForm, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/contacts'), {
         method: 'POST',
+        headers: authHeaders,
         body: { ...contactForm, userId: userId }
       })
     }
@@ -444,6 +447,7 @@ async function deleteContact(c: Contact) {
   if (!await openConfirm({ title: 'Kontakt löschen?', name: `${c.firstName} ${c.lastName}` })) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}`), {
     method: 'DELETE',
+    headers: authHeaders,
     body: { userId: userId }
   })
   await refreshContacts()
@@ -451,7 +455,7 @@ async function deleteContact(c: Contact) {
 
 async function convertContact(c: Contact) {
   if (!await openConfirm({ title: 'Zu Kunde konvertieren?', name: `${c.firstName} ${c.lastName}`, sub: 'Der Kontakt-Status wird auf "Kunde" gesetzt.', icon: 'ti-user-check' })) return
-  await $fetch(useApiUrl(`/api/contacts/${c.contactId}/convert`), { method: 'POST' })
+  await $fetch(useApiUrl(`/api/contacts/${c.contactId}/convert`), { method: 'POST', headers: authHeaders })
   await refreshContacts()
 }
 
@@ -478,11 +482,13 @@ async function saveDeal() {
     if (editingDeal.value) {
       await $fetch(useApiUrl(`/api/deals/${editingDeal.value.dealId}`), {
         method: 'PATCH',
+        headers: authHeaders,
         body: { ...dealForm, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/deals'), {
         method: 'POST',
+        headers: authHeaders,
         body: { ...dealForm, userId: userId }
       })
     }
@@ -497,6 +503,7 @@ async function deleteDeal(d: Deal) {
   if (!await openConfirm({ title: 'Deal löschen?', name: d.name })) return
   await $fetch(useApiUrl(`/api/deals/${d.dealId}`), {
     method: 'DELETE',
+    headers: authHeaders,
     body: { userId: userId }
   })
   await refreshDeals()
@@ -535,11 +542,13 @@ async function saveCompany() {
     if (editingCompany.value) {
       await $fetch(useApiUrl(`/api/companies/${editingCompany.value.companyId}`), {
         method: 'PATCH',
+        headers: authHeaders,
         body: { ...companyForm, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/companies'), {
         method: 'POST',
+        headers: authHeaders,
         body: { ...companyForm, userId: userId }
       })
     }
@@ -552,7 +561,7 @@ async function saveCompany() {
 
 async function deleteCompany(co: Company) {
   if (!await openConfirm({ title: 'Unternehmen löschen?', name: co.name })) return
-  await $fetch(useApiUrl(`/api/companies/${co.companyId}`), { method: 'DELETE' })
+  await $fetch(useApiUrl(`/api/companies/${co.companyId}`), { method: 'DELETE', headers: authHeaders })
   await refreshCompanies()
 }
 </script>

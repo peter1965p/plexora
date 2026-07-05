@@ -1,5 +1,6 @@
 import { DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { assertOwner } from '../../utils/ownership'
 
 export default defineEventHandler(async (event) => {
   const dealId = getRouterParam(event, 'id')
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
 
   const existing = scan.Items?.[0]
   if (!existing) throw createError({ statusCode: 404, message: 'Deal nicht gefunden' })
+  await assertOwner(event, existing)
 
   await client.send(new DeleteCommand({
     TableName: 'plexora-deals',

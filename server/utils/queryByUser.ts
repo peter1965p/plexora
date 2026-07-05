@@ -26,5 +26,5 @@ export async function queryByUser(table: string, userId: string, event?: any) {
 }
 
 export function getUserId(event: any): string {
-  return getQuery(event).userId as string || 'demo-user'
+  return event.context.auth?.email || 'demo-user'
 }

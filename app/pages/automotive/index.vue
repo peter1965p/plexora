@@ -418,7 +418,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-const userEmail    = ref('')
+const userEmail = ref('')
+const authToken = ref('')
 const activeTab    = ref('fahrzeuge')
 const vehicles     = ref<any[]>([])
 const workshopOrders = ref<any[]>([])
@@ -439,7 +440,7 @@ const settingsForm = reactive({ mobileDeApiKey: '', autoscout24ApiKey: '', vehic
 async function openSettings() {
   showSettingsModal.value = true
   try {
-    const res = await $fetch<any>(useApiUrl('/api/automotive/settings'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<any>(useApiUrl('/api/automotive/settings'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     Object.assign(settingsForm, res.settings)
   } catch {}
 }
@@ -449,7 +450,7 @@ async function saveSettings() {
   try {
     await $fetch(useApiUrl('/api/automotive/settings'), {
       method: 'PUT',
-      headers: { 'x-user-email': userEmail.value },
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
       body: { ...settingsForm },
     })
     showSettingsModal.value = false
@@ -541,20 +542,20 @@ function openEditOrder(o: any) { Object.assign(oForm, { title:o.title||'', vehic
 
 async function loadVehicles() {
   loadingVehicles.value = true
-  try { const r = await $fetch<any>(useApiUrl('/api/automotive'), { headers:{ 'x-user-email': userEmail.value } }); vehicles.value = r.vehicles || [] } catch {}
+  try { const r = await $fetch<any>(useApiUrl('/api/automotive'), { headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } }); vehicles.value = r.vehicles || [] } catch {}
   loadingVehicles.value = false
 }
 async function loadWorkshop() {
-  try { const r = await $fetch<any>(useApiUrl('/api/workshop'), { headers:{ 'x-user-email': userEmail.value } }); workshopOrders.value = r.orders || [] } catch {}
+  try { const r = await $fetch<any>(useApiUrl('/api/workshop'), { headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } }); workshopOrders.value = r.orders || [] } catch {}
 }
 
 async function saveVehicle() {
   savingVehicle.value = true
   try {
     if (editingVehicleId.value) {
-      await $fetch(useApiUrl(`/api/automotive/${editingVehicleId.value}`), { method:'PUT', headers:{ 'x-user-email': userEmail.value }, body: { ...vForm } })
+      await $fetch(useApiUrl(`/api/automotive/${editingVehicleId.value}`), { method:'PUT', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...vForm } })
     } else {
-      await $fetch(useApiUrl('/api/automotive'), { method:'POST', headers:{ 'x-user-email': userEmail.value }, body: { ...vForm } })
+      await $fetch(useApiUrl('/api/automotive'), { method:'POST', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...vForm } })
     }
     showVehicleModal.value = false
     await loadVehicles()
@@ -564,7 +565,7 @@ async function saveVehicle() {
 
 async function deleteVehicle(v: any) {
   if (!confirm(`${v.make} ${v.model} wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/automotive/${v.vehicleId}`), { method:'DELETE', headers:{ 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/automotive/${v.vehicleId}`), { method:'DELETE', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadVehicles()
 }
 
@@ -579,9 +580,9 @@ async function deleteTestDrive(td: any) {
 async function saveOrder() {
   try {
     if (editingOrderId.value) {
-      await $fetch(useApiUrl(`/api/workshop/${editingOrderId.value}`), { method:'PUT', headers:{ 'x-user-email': userEmail.value }, body: { ...oForm } })
+      await $fetch(useApiUrl(`/api/workshop/${editingOrderId.value}`), { method:'PUT', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...oForm } })
     } else {
-      await $fetch(useApiUrl('/api/workshop'), { method:'POST', headers:{ 'x-user-email': userEmail.value }, body: { ...oForm } })
+      await $fetch(useApiUrl('/api/workshop'), { method:'POST', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...oForm } })
     }
     showOrderModal.value = false
     await loadWorkshop()
@@ -589,7 +590,7 @@ async function saveOrder() {
 }
 async function deleteOrder(o: any) {
   if (!confirm('Auftrag löschen?')) return
-  await $fetch(useApiUrl(`/api/workshop/${o.orderId}`), { method:'DELETE', headers:{ 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/workshop/${o.orderId}`), { method:'DELETE', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadWorkshop()
 }
 
@@ -597,6 +598,7 @@ onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
+  authToken.value = u.idToken || ''
   await Promise.all([loadVehicles(), loadWorkshop()])
 })
 </script>

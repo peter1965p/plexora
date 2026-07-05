@@ -1,5 +1,6 @@
 import { ScanCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
+import { assertOwner } from '../../../../utils/ownership'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -15,6 +16,7 @@ export default defineEventHandler(async (event) => {
   }))
   const project = scan.Items?.[0]
   if (!project) throw createError({ statusCode: 404 })
+  await assertOwner(event, project)
 
   const tasks = (project.tasks || []) as any[]
   const idx   = tasks.findIndex((t: any) => t.taskId === taskId)

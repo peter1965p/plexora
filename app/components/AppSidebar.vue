@@ -43,20 +43,20 @@ const openTickets    = ref(0)
 const branchPackages = ref<string[]>([])
 
 onMounted(async () => {
-  const url = await useUserApiUrl('/api/support')
-  const res = await $fetch<any>(url).catch(() => null)
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  const res = await $fetch<any>(useApiUrl('/api/support'), { headers: await useAuthHeader() }).catch(() => null)
   const tickets = res?.tickets || []
   openTickets.value = tickets.filter((tk: any) => tk.status === 'open' || tk.status === 'in_progress').length
 })
 
 onMounted(async () => {
   try {
-    const { useAuthUser } = await import('~/composables/useAuth')
+    const { useAuthUser, useAuthHeader } = await import('~/composables/useAuth')
     const u = await useAuthUser()
     if (!u.email) return
     const res = await $fetch<{ branchPackages: string[] }>(
       useApiUrl('/api/settings/branch-packages'),
-      { headers: { 'x-user-email': u.email } }
+      { headers: await useAuthHeader() }
     )
     branchPackages.value = res.branchPackages || []
   } catch {}

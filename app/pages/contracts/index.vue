@@ -166,12 +166,13 @@ import type { Contract } from '~/modules/contracts'
 import type { Company } from '~/modules/companies'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
-const { data: contractsData, refresh: refreshContracts } = await useFetch(() => useApiUrl(`/api/contracts?userId=${encodeURIComponent(userId)}`))
-const { data: companiesData } = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`))
-const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`))
+const { data: contractsData, refresh: refreshContracts } = await useFetch(() => useApiUrl(`/api/contracts?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
+const { data: companiesData } = await useFetch(() => useApiUrl(`/api/companies?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
+const { data: contactsData }  = await useFetch(() => useApiUrl(`/api/contacts?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 
 const contracts = computed(() => (contractsData.value as any)?.contracts || [])
 const companies = computed(() => (companiesData.value as any)?.companies || [])
@@ -234,11 +235,13 @@ async function save() {
     if (editing.value) {
       await $fetch(useApiUrl(`/api/contracts/${editing.value.contractId}`), {
         method: 'PATCH',
+        headers: authHeaders,
         body: { ...form, userId: userId }
       })
     } else {
       await $fetch(useApiUrl('/api/contracts'), {
         method: 'POST',
+        headers: authHeaders,
         body: { ...form, userId: userId }
       })
     }
@@ -253,7 +256,7 @@ const { openConfirm } = useConfirm()
 
 async function deleteContract(c: Contract) {
   if (!await openConfirm({ title: 'Vertrag löschen?', name: c.title })) return
-  await $fetch(useApiUrl(`/api/contracts/${c.contractId}`), { method: 'DELETE' })
+  await $fetch(useApiUrl(`/api/contracts/${c.contractId}`), { method: 'DELETE', headers: authHeaders })
   await refreshContracts()
 }
 </script>

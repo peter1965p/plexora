@@ -431,6 +431,7 @@
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
+const authToken = ref('')
 const activeTab = ref('speisekarte')
 
 const tabs = [
@@ -496,7 +497,7 @@ const settingsForm = reactive({ menuEnabled: false, menuTitle: 'Speisekarte', or
 async function openSettings() {
   showSettingsModal.value = true
   try {
-    const res = await $fetch<any>(useApiUrl('/api/gastro-menu/settings'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<any>(useApiUrl('/api/gastro-menu/settings'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     Object.assign(settingsForm, res.settings)
   } catch {}
 }
@@ -506,7 +507,7 @@ async function saveSettings() {
   try {
     await $fetch(useApiUrl('/api/gastro-menu/settings'), {
       method: 'PUT',
-      headers: { 'x-user-email': userEmail.value },
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
       body: { ...settingsForm },
     })
     showSettingsModal.value = false
@@ -540,7 +541,7 @@ function openEditItem(item: MenuItem) {
 async function loadMenu() {
   loadingMenu.value = true
   try {
-    const res = await $fetch<{ items: MenuItem[] }>(useApiUrl('/api/gastro-menu'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ items: MenuItem[] }>(useApiUrl('/api/gastro-menu'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     menuItems.value = res.items || []
   } catch {}
   loadingMenu.value = false
@@ -551,9 +552,9 @@ async function saveItem() {
   savingItem.value = true
   try {
     if (editingItemId.value) {
-      await $fetch(useApiUrl(`/api/gastro-menu/${editingItemId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...iForm } })
+      await $fetch(useApiUrl(`/api/gastro-menu/${editingItemId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...iForm } })
     } else {
-      await $fetch(useApiUrl('/api/gastro-menu'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...iForm } })
+      await $fetch(useApiUrl('/api/gastro-menu'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...iForm } })
     }
     showItemModal.value = false
     await loadMenu()
@@ -562,12 +563,12 @@ async function saveItem() {
 
 async function toggleAvailable(item: MenuItem) {
   item.available = !item.available
-  await $fetch(useApiUrl(`/api/gastro-menu/${item.itemId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { available: item.available } })
+  await $fetch(useApiUrl(`/api/gastro-menu/${item.itemId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { available: item.available } })
 }
 
 async function deleteItem(item: MenuItem) {
   if (!confirm(`"${item.name}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/gastro-menu/${item.itemId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/gastro-menu/${item.itemId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadMenu()
 }
 
@@ -594,7 +595,7 @@ function openEditTable(t: RestaurantTable) {
 async function loadTables() {
   loadingTables.value = true
   try {
-    const res = await $fetch<{ tables: RestaurantTable[] }>(useApiUrl('/api/gastro-tables'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ tables: RestaurantTable[] }>(useApiUrl('/api/gastro-tables'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     tables.value = res.tables || []
   } catch {}
   loadingTables.value = false
@@ -606,9 +607,9 @@ async function saveTable() {
   body.reservation = tForm.status === 'reserviert' ? { ...tForm.reservation } : null
   try {
     if (editingTableId.value) {
-      await $fetch(useApiUrl(`/api/gastro-tables/${editingTableId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body })
+      await $fetch(useApiUrl(`/api/gastro-tables/${editingTableId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body })
     } else {
-      await $fetch(useApiUrl('/api/gastro-tables'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body })
+      await $fetch(useApiUrl('/api/gastro-tables'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body })
     }
     showTableModal.value = false
     await loadTables()
@@ -617,7 +618,7 @@ async function saveTable() {
 
 async function deleteTable(t: RestaurantTable) {
   if (!confirm(`"${t.name}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/gastro-tables/${t.tableId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/gastro-tables/${t.tableId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadTables()
 }
 
@@ -659,7 +660,7 @@ function formatEuro(n: number) {
 async function loadOrders() {
   loadingOrders.value = true
   try {
-    const res = await $fetch<{ orders: GastroOrder[] }>(useApiUrl('/api/gastro-orders'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ orders: GastroOrder[] }>(useApiUrl('/api/gastro-orders'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     orders.value = res.orders || []
   } catch {}
   loadingOrders.value = false
@@ -669,13 +670,13 @@ async function advanceOrder(o: GastroOrder) {
   const next = nextOrderStatus(o.status)
   if (!next) return
   o.status = next
-  await $fetch(useApiUrl(`/api/gastro-orders/${o.orderId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { status: next } })
+  await $fetch(useApiUrl(`/api/gastro-orders/${o.orderId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { status: next } })
 }
 
 async function cancelOrder(o: GastroOrder) {
   if (!confirm('Bestellung wirklich stornieren?')) return
   o.status = 'storniert'
-  await $fetch(useApiUrl(`/api/gastro-orders/${o.orderId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { status: 'storniert' } })
+  await $fetch(useApiUrl(`/api/gastro-orders/${o.orderId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { status: 'storniert' } })
 }
 
 // ── Service & Trinkgeld ───────────────────────────────
@@ -727,7 +728,7 @@ function openEditStaff(s: StaffMember) {
 async function loadStaff() {
   loadingStaff.value = true
   try {
-    const res = await $fetch<{ staff: StaffMember[] }>(useApiUrl('/api/gastro-staff'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ staff: StaffMember[] }>(useApiUrl('/api/gastro-staff'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     staff.value = res.staff || []
   } catch {}
   loadingStaff.value = false
@@ -737,9 +738,9 @@ async function saveStaff() {
   if (!sForm.name) return
   try {
     if (editingStaffId.value) {
-      await $fetch(useApiUrl(`/api/gastro-staff/${editingStaffId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value }, body: { ...sForm } })
+      await $fetch(useApiUrl(`/api/gastro-staff/${editingStaffId.value}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...sForm } })
     } else {
-      await $fetch(useApiUrl('/api/gastro-staff'), { method: 'POST', headers: { 'x-user-email': userEmail.value }, body: { ...sForm } })
+      await $fetch(useApiUrl('/api/gastro-staff'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...sForm } })
     }
     showStaffModal.value = false
     await loadStaff()
@@ -748,7 +749,7 @@ async function saveStaff() {
 
 async function deleteStaff(s: StaffMember) {
   if (!confirm(`"${s.name}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/gastro-staff/${s.staffId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/gastro-staff/${s.staffId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadStaff()
 }
 
@@ -766,7 +767,7 @@ function openNewTip(preselectStaffId?: string) {
 async function loadTips() {
   loadingTips.value = true
   try {
-    const res = await $fetch<{ tips: TipEntry[] }>(useApiUrl('/api/gastro-tips'), { headers: { 'x-user-email': userEmail.value } })
+    const res = await $fetch<{ tips: TipEntry[] }>(useApiUrl('/api/gastro-tips'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
     tips.value = res.tips || []
   } catch {}
   loadingTips.value = false
@@ -778,7 +779,7 @@ async function saveTip() {
   try {
     await $fetch(useApiUrl('/api/gastro-tips'), {
       method: 'POST',
-      headers: { 'x-user-email': userEmail.value },
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
       body: { ...tipForm, staffName: member?.name || '' },
     })
     showTipModal.value = false
@@ -788,7 +789,7 @@ async function saveTip() {
 
 async function deleteTip(t: TipEntry) {
   if (!confirm('Trinkgeld-Eintrag wirklich löschen?')) return
-  await $fetch(useApiUrl(`/api/gastro-tips/${t.tipId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value } })
+  await $fetch(useApiUrl(`/api/gastro-tips/${t.tipId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadTips()
 }
 
@@ -796,6 +797,7 @@ onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
+  authToken.value = u.idToken || ''
   await Promise.all([loadMenu(), loadTables(), loadOrders(), loadStaff(), loadTips()])
 })
 </script>

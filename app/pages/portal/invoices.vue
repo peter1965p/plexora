@@ -41,10 +41,20 @@ onMounted(async () => {
   userEmail.value = u.email
 })
 
-const { data, refresh } = usePortalFetch('/api/portal/invoices', userEmail)
+const { data, refresh } = await usePortalFetch('/api/portal/invoices', userEmail)
 const invoices = computed(() => (data.value as any)?.invoices || [])
 
-function downloadPdf(invoice: any) {
-  window.location.href = `/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId}`
+async function downloadPdf(invoice: any) {
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  const blob = await $fetch<Blob>(useApiUrl(`/api/finance/${invoice.invoiceId}/pdf`), {
+    headers: await useAuthHeader(),
+    responseType: 'blob',
+  } as any)
+  const blobUrl = URL.createObjectURL(blob as any)
+  const a = document.createElement('a')
+  a.href = blobUrl
+  a.download = `${invoice.number || invoice.invoiceId}.pdf`
+  a.click()
+  URL.revokeObjectURL(blobUrl)
 }
 </script>

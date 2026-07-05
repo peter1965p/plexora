@@ -5,8 +5,9 @@ import { randomUUID } from 'crypto'
 import { Resend } from 'resend'
 
 export default defineEventHandler(async (event) => {
-  const { inviterEmail, inviteeEmail, role = 'member' } = await readBody(event)
-  if (!inviterEmail || !inviteeEmail) throw createError({ statusCode: 400, message: 'inviterEmail + inviteeEmail erforderlich' })
+  const { inviteeEmail, role = 'member' } = await readBody(event)
+  const inviterEmail = event.context.auth?.email || ''
+  if (!inviterEmail || !inviteeEmail) throw createError({ statusCode: 400, message: 'Anmeldung + inviteeEmail erforderlich' })
 
   const tenantId = await resolveUserId(inviterEmail)
   const dynamo   = getDynamoClient()

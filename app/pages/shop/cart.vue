@@ -96,8 +96,10 @@ async function checkout() {
   if (!cart.value.length) return
   checking.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res: any = await $fetch(useApiUrl('/api/shop/checkout'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: {
         items: cart.value.map(i => ({ productId: i.productId, quantity: i.quantity })),
       }

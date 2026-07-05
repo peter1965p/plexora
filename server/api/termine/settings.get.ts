@@ -12,7 +12,7 @@ const DEFAULT_HOURS = {
 }
 
 export default defineEventHandler(async (event) => {
-  const email = getHeader(event, 'x-user-email') || ''
+  const email = event.context.auth?.email || ''
   if (!email) throw createError({ statusCode: 401, message: 'Unauthorized' })
 
   const dynamo = getDynamoClient()

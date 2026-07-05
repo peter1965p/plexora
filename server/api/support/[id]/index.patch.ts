@@ -1,5 +1,6 @@
 import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { assertOwner } from '../../../utils/ownership'
 import { resolveUserId } from '../../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
@@ -14,6 +15,7 @@ export default defineEventHandler(async (event) => {
   }))
   const existing = scan.Items?.[0]
   if (!existing) throw createError({ statusCode: 404 })
+  await assertOwner(event, existing)
 
   const updates: string[] = []
   const names: Record<string, string>  = {}

@@ -1,13 +1,12 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { requireTenantId } from '../../utils/auth'
-import { resolveUserId } from '../../utils/tenant'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
   const tenantId = await requireTenantId(event)
   const body = await readBody(event)
-  const { userId, ...renterBody } = body || {}
+  const { userId: _ignoredUserId, ...renterBody } = body || {}
   const dynamo = getDynamoClient()
   const renterId = randomUUID()
   const now = new Date().toISOString()
@@ -26,7 +25,7 @@ export default defineEventHandler(async (event) => {
     const nebenkosten = parseFloat(renterBody.nebenkosten) || 0
     const warmmiete   = kaltmiete + nebenkosten
     const contract = {
-      userId:           await resolveUserId(userId || 'demo-user'),
+      userId:           tenantId,
       contractId:       randomUUID(),
       title:            `Mietvertrag – ${renterBody.name}`,
       contractNumber:   '',

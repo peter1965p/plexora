@@ -361,7 +361,8 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId } = await useAuthUser()
+const { userId, idToken } = await useAuthUser()
+const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
 
 const tab  = ref('produkte')
@@ -396,10 +397,10 @@ async function loadCategories() {
 }
 onMounted(loadCategories)
 
-const { data, refresh } = await useFetch(() => useApiUrl(`/api/shop/products?userId=${encodeURIComponent(userId)}`))
+const { data, refresh } = await useFetch(() => useApiUrl(`/api/shop/products?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 const products = computed(() => (data.value as any)?.products || [])
 
-const { data: suppData, refresh: refreshSuppliers } = await useFetch(() => useApiUrl(`/api/shop/suppliers?userId=${encodeURIComponent(userId)}`))
+const { data: suppData, refresh: refreshSuppliers } = await useFetch(() => useApiUrl(`/api/shop/suppliers?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 onMounted(() => {
   if ((suppData.value as any)?.suppliers) suppliers.value = (suppData.value as any).suppliers
 })
@@ -457,12 +458,14 @@ async function createProduct() {
     if (editingProduct.value) {
       await $fetch(useApiUrl(`/api/shop/products/${editingProduct.value.productId}`), {
         method: 'PATCH',
+        headers: authHeaders,
         body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), userId: editingProduct.value.userId || userId }
       })
       showToast('Produkt gespeichert!')
     } else {
       await $fetch(useApiUrl('/api/shop/products'), {
         method: 'POST',
+        headers: authHeaders,
         body: { ...form, price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), features: form.features ? form.features.split('\n').filter((f: string) => f.trim()) : [], userId }
       })
       showToast('Produkt angelegt!')
@@ -473,7 +476,7 @@ async function createProduct() {
 }
 
 async function deleteProduct(id: string) {
-  await $fetch(useApiUrl(`/api/shop/products/${id}`), { method: 'DELETE' })
+  await $fetch(useApiUrl(`/api/shop/products/${id}`), { method: 'DELETE', headers: authHeaders })
   await refresh()
   showToast('Produkt gelöscht!')
 }
@@ -482,7 +485,7 @@ async function createSupplier() {
   if (!supplierForm.name) return
   supplierSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/shop/suppliers'), { method: 'POST', body: { ...supplierForm } })
+    await $fetch(useApiUrl('/api/shop/suppliers'), { method: 'POST', headers: authHeaders, body: { ...supplierForm } })
     await refreshSuppliers()
     showSupplierModal.value = false
     showToast('Lieferant angelegt!')
@@ -490,7 +493,7 @@ async function createSupplier() {
 }
 
 async function deleteSupplier(id: string) {
-  await $fetch(useApiUrl(`/api/shop/suppliers/${id}`), { method: 'DELETE' })
+  await $fetch(useApiUrl(`/api/shop/suppliers/${id}`), { method: 'DELETE', headers: authHeaders })
   await refreshSuppliers()
   showToast('Lieferant gelöscht!')
 }
@@ -498,6 +501,7 @@ async function deleteSupplier(id: string) {
 async function saveCategories() {
   await $fetch(useApiUrl('/api/settings/categories'), {
     method: 'POST',
+    headers: authHeaders,
     body: { area: 'shop', categories: categories.value, userId },
   })
 }
@@ -528,7 +532,7 @@ const reorderProduct    = ref<any>(null)
 const reorderForm       = reactive({ quantity: 10, notes: '' })
 const reorderSaving     = ref(false)
 
-const { data: poData, refresh: refreshPO } = await useFetch(() => useApiUrl(`/api/shop/purchase-orders?userId=${encodeURIComponent(userId)}`))
+const { data: poData, refresh: refreshPO } = await useFetch(() => useApiUrl(`/api/shop/purchase-orders?userId=${encodeURIComponent(userId)}`), { headers: authHeaders })
 watch(poData, v => { if ((v as any)?.orders) purchaseOrders.value = (v as any).orders }, { immediate: true })
 
 function openReorderModal(product: any) {
@@ -544,6 +548,7 @@ async function createPurchaseOrder() {
   try {
     await $fetch(useApiUrl('/api/shop/purchase-orders'), {
       method: 'POST',
+      headers: authHeaders,
       body: {
         productId:   reorderProduct.value.productId,
         productName: reorderProduct.value.name,
@@ -561,6 +566,7 @@ async function createPurchaseOrder() {
 async function updateOrderStatus(orderId: string, status: string) {
   await $fetch(useApiUrl(`/api/shop/purchase-orders/${orderId}`), {
     method: 'PATCH',
+    headers: authHeaders,
     body: { status }
   })
   await refreshPO()

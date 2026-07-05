@@ -1351,8 +1351,9 @@ const nexoraForm   = reactive({ subdomain: '', customDomain: '' })
 
 async function loadNexora(email: string) {
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res = await $fetch<any>(useApiUrl('/api/nexora/my'), {
-      headers: { 'x-user-email': email },
+      headers: { 'x-user-email': email, ...(await useAuthHeader()) },
     })
     if (res?.nexora) {
       nexora.value = res.nexora
@@ -1365,9 +1366,10 @@ async function loadNexora(email: string) {
 async function saveNexora(email: string) {
   nexoraSaving.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/nexora/my'), {
       method:  'PUT',
-      headers: { 'x-user-email': email },
+      headers: { 'x-user-email': email, ...(await useAuthHeader()) },
       body: {
         subdomain:    nexoraForm.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, ''),
         customDomain: nexoraForm.customDomain.toLowerCase().replace(/\s/g, ''),
@@ -1416,9 +1418,10 @@ async function saveClaudeKey() {
   if (!claudeForm.apiKey.trim()) return
   claudeSaving.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/nexora/my'), {
       method:  'PUT',
-      headers: { 'x-user-email': userEmail.value },
+      headers: { 'x-user-email': userEmail.value, ...(await useAuthHeader()) },
       body: { anthropicApiKey: claudeForm.apiKey.trim() },
     })
     claudeForm.apiKey = ''
@@ -1887,7 +1890,8 @@ async function loadTeamMembers() {
   if (!userEmail.value || userEmail.value === '–') return
   teamLoading.value = true
   try {
-    const res = await $fetch<any>(useApiUrl(`/api/team/members?userId=${encodeURIComponent(userEmail.value)}`))
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<any>(useApiUrl(`/api/team/members?userId=${encodeURIComponent(userEmail.value)}`), { headers: await useAuthHeader() })
     teamMembers.value = res.members || []
   } catch {} finally {
     teamLoading.value = false
@@ -1898,9 +1902,11 @@ async function inviteTeamMember() {
   if (!teamInviteEmail.value || teamInviting.value) return
   teamInviting.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/team/invite'), {
       method: 'POST',
-      body: { inviterEmail: userEmail.value, inviteeEmail: teamInviteEmail.value, role: teamInviteRole.value },
+      headers: await useAuthHeader(),
+      body: { inviteeEmail: teamInviteEmail.value, role: teamInviteRole.value },
     })
     teamInviteEmail.value = ''
     await loadTeamMembers()
@@ -1914,7 +1920,8 @@ async function inviteTeamMember() {
 async function removeTeamMember(email: string) {
   if (!await openConfirm({ title: 'Mitglied entfernen?', name: email, icon: 'ti-user-off' })) return
   try {
-    await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}?userId=${encodeURIComponent(userEmail.value)}`), { method: 'DELETE' })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}?userId=${encodeURIComponent(userEmail.value)}`), { method: 'DELETE', headers: await useAuthHeader() })
     await loadTeamMembers()
   } catch (e: any) {
     alert(e?.data?.message || 'Fehler beim Entfernen')

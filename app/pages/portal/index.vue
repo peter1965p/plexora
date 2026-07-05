@@ -168,7 +168,7 @@ const orderLabel: Record<string, string> = {
   cancelled: 'Storniert',
 }
 
-const { data: invData }   = usePortalFetch('/api/portal/invoices', userEmail)
+const { data: invData }   = await usePortalFetch('/api/portal/invoices', userEmail)
 const { data: orderData } = await usePortalFetch('/api/portal/orders')
 const { data: docData }   = await usePortalFetch('/api/portal/documents')
 

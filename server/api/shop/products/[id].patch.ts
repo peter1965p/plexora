@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const body      = await readBody(event)
   const dynamo    = getDynamoClient()
 
-  const userId = body.userId || 'demo-user'
+  const userId = event.context.auth?.email || 'demo-user'
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-products',
     Key: { userId, productId },

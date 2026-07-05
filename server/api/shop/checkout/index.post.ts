@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new PutCommand({
     TableName: 'plexora-orders',
     Item: {
-      userId:    body.userId || 'guest',
+      userId:    event.context.auth?.email || 'guest',
       orderId,
       items:     cartItems,
       status:    'pending',
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     customer_email:       body.email || undefined,
     metadata: {
       orderId,
-      userId: body.userId || 'guest',
+      userId: event.context.auth?.email || 'guest',
     },
   })
 
