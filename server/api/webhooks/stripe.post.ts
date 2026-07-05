@@ -198,10 +198,15 @@ export default defineEventHandler(async (event) => {
       let cognitoCreated = false
 
       if (customerEmail) {
+        // Cognito-Pool hat AliasAttributes:["email"] — ein E-Mail-formatierter Username
+        // wird deshalb grundsätzlich abgelehnt (InvalidParameterException). Gleiches Muster
+        // wie bei der Selbstregistrierung (app/pages/login.vue::register()) verwenden, damit
+        // beide Wege konsistent sind.
+        const cognitoUsername = customerEmail.replace('@', '_').replace(/\./g, '_') + '_' + Date.now()
         try {
           await cognito.send(new AdminCreateUserCommand({
             UserPoolId:      userPoolId,
-            Username:        customerEmail,
+            Username:        cognitoUsername,
             TemporaryPassword: tempPassword,
             MessageAction:   'SUPPRESS',
             UserAttributes:  [
@@ -211,16 +216,16 @@ export default defineEventHandler(async (event) => {
             ],
           }))
           cognitoCreated = true
-          console.log(`✅ Cognito-User angelegt: ${customerEmail}`)
+          console.log(`✅ Cognito-User angelegt: ${cognitoUsername} (${customerEmail})`)
 
           await cognito.send(new AdminAddUserToGroupCommand({
             UserPoolId: userPoolId,
-            Username:   customerEmail,
+            Username:   cognitoUsername,
             GroupName:  'customers',
           }))
           console.log(`✅ Cognito-User zur Gruppe "customers" hinzugefügt`)
         } catch (cogErr: any) {
-          if (cogErr.name === 'UsernameExistsException') {
+          if (cogErr.name === 'UsernameExistsException' || cogErr.name === 'AliasExistsException') {
             console.log(`ℹ️  Cognito-User existiert bereits: ${customerEmail}`)
           } else {
             console.error('Cognito-Fehler:', cogErr)
