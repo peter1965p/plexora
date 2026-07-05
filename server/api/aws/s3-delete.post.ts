@@ -1,8 +1,10 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { requireAuth } from '../../utils/verifyAuth'
 
 const BUCKET = 'plexora-files'
 
 export default defineEventHandler(async (event) => {
+  requireAuth(event)
   const body = await readBody(event)
   const { key } = body
 

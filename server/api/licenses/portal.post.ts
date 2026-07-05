@@ -1,9 +1,10 @@
 import Stripe from 'stripe'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
-  const { email } = await readBody(event)
+  const { email } = requireAuth(event)
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
 

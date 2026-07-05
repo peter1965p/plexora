@@ -1469,8 +1469,10 @@ async function openBillingPortal(_section?: string) {
   billingPortalLoading.value = true
   billingPortalError.value = ''
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const data = await $fetch<{ url: string }>(useApiUrl('/api/billing/portal'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { email: userEmail.value }
     })
     if (data.url) window.location.href = data.url
@@ -1595,8 +1597,10 @@ async function uploadLogo(e: Event) {
       reader.onerror = reject
       reader.readAsDataURL(file)
     })
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { fileBase64, fileName: file.name, prefix: 'branding/' },
     }) as any
     if (res?.url) brand.logoUrl = res.url
@@ -1778,7 +1782,8 @@ function formatBytes(bytes: number) {
 async function loadS3() {
   s3Loading.value = true
   try {
-    const res = await $fetch(useApiUrl('/api/aws/s3'), { query: { prefix: s3Prefix.value } }) as any
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch(useApiUrl('/api/aws/s3'), { query: { prefix: s3Prefix.value }, headers: await useAuthHeader() }) as any
     s3Data.folders = res.folders || []
     s3Data.files = res.files || []
   } catch(e) { console.error(e) }
@@ -1801,8 +1806,10 @@ async function onS3FileChange(e: Event) {
       reader.onerror = reject
       reader.readAsDataURL(file)
     })
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { fileBase64, fileName: file.name, prefix: s3Prefix.value }
     })
     await loadS3()
@@ -1814,7 +1821,8 @@ async function onS3FileChange(e: Event) {
 
 async function deleteS3Object(key: string) {
   if (!await openConfirm({ title: 'Datei löschen?', name: key, icon: 'ti-file-off' })) return
-  await $fetch(useApiUrl('/api/aws/s3-delete'), { method: 'POST', body: { key } })
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  await $fetch(useApiUrl('/api/aws/s3-delete'), { method: 'POST', headers: await useAuthHeader(), body: { key } })
   await loadS3()
 }
 
@@ -1825,10 +1833,12 @@ function copyS3Url(url: string) {
 async function loadAws() {
   awsLoading.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const authHeaders = await useAuthHeader()
     const [dynamo, lambda, logs] = await Promise.all([
-      $fetch(useApiUrl('/api/aws/dynamo')),
-      $fetch(useApiUrl('/api/aws/lambda')),
-      $fetch(useApiUrl('/api/aws/logs')),
+      $fetch(useApiUrl('/api/aws/dynamo'), { headers: authHeaders }),
+      $fetch(useApiUrl('/api/aws/lambda'), { headers: authHeaders }),
+      $fetch(useApiUrl('/api/aws/logs'), { headers: authHeaders }),
     ])
     awsData.tables    = (dynamo as any).tables    || []
     awsData.functions = (lambda as any).functions || []

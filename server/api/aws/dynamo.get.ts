@@ -1,6 +1,8 @@
 import { DynamoDBClient, ListTablesCommand, DescribeTableCommand } from '@aws-sdk/client-dynamodb'
+import { requireAdmin } from '../../utils/verifyAuth'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const client = new DynamoDBClient({ region: 'eu-central-1' })
 
   const { TableNames } = await client.send(new ListTablesCommand({}))

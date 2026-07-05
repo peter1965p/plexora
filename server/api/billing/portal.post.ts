@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -8,8 +9,7 @@ export default defineEventHandler(async (event) => {
   const dynamo = getDynamoClient()
   const origin = getHeader(event, 'origin') || 'https://app.plexora.eu'
 
-  const { email } = await readBody(event)
-  if (!email) throw createError({ statusCode: 400, message: 'email erforderlich' })
+  const { email } = requireAuth(event)
 
   // Stripe Customer ID aus Lizenz holen
   let customerId: string | undefined

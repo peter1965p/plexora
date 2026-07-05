@@ -1,6 +1,8 @@
 import { CloudWatchLogsClient, DescribeLogGroupsCommand, GetLogEventsCommand, DescribeLogStreamsCommand } from '@aws-sdk/client-cloudwatch-logs'
+import { requireAdmin } from '../../utils/verifyAuth'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const client = new CloudWatchLogsClient({ region: 'eu-central-1' })
 
   try {

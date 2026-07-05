@@ -1,7 +1,7 @@
 import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth'
 
 export async function useAuthUser() {
-  if (import.meta.server) return { userId: 'demo-user', email: '', role: 'admins' }
+  if (import.meta.server) return { userId: 'demo-user', email: '', role: 'admins', idToken: '' }
   try {
     const [user, session] = await Promise.all([
       getCurrentUser(),
@@ -17,8 +17,16 @@ export async function useAuthUser() {
       email:  (payload?.email as string) || user.signInDetails?.loginId || '',
       role,
       groups,
+      idToken: session.tokens?.idToken?.toString() || '',
     }
   } catch {
-    return { userId: 'demo-user', email: '', role: 'admins', groups: [] }
+    return { userId: 'demo-user', email: '', role: 'admins', groups: [], idToken: '' }
   }
+}
+
+// Liefert den Authorization-Header mit dem echten Cognito-ID-Token für Requests
+// an geschützte Routen (aws/*, licenses/*, admin/*, ...).
+export async function useAuthHeader(): Promise<Record<string, string>> {
+  const { idToken } = await useAuthUser()
+  return idToken ? { Authorization: `Bearer ${idToken}` } : {}
 }

@@ -62,6 +62,7 @@ export default defineNuxtConfig({
     encryptionKey: "",
     googleClientId: "",
     googleClientSecret: "",
+    authEnforce: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",

@@ -438,8 +438,10 @@ async function uploadProductImage(e: Event) {
   try {
     const reader = new FileReader()
     const base64 = await new Promise<string>(r => { reader.onload = ev => r(ev.target!.result as string); reader.readAsDataURL(file) })
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { fileBase64: base64, fileName: `product-${Date.now()}.jpg`, prefix: 'products/' }
     })
     if (res?.url) form.image = res.url

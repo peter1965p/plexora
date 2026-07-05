@@ -860,8 +860,10 @@ async function confirmCropAndUpload() {
       reader.onload = e => r(e.target!.result as string)
       reader.readAsDataURL(uploadFile)
     })
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { fileBase64: base64, fileName: `banner-${Date.now()}.jpg`, prefix: 'marketing/' }
     })
     if (res?.url)      form.headerImageUrl = res.url
@@ -920,8 +922,10 @@ async function confirmBgCropAndUpload() {
       reader.onload = e => r(e.target!.result as string)
       reader.readAsDataURL(uploadFile)
     })
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { fileBase64: base64, fileName: `bg-${Date.now()}.jpg`, prefix: 'marketing/' }
     })
     if (res?.url)      form.bgImageUrl = res.url

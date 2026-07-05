@@ -403,8 +403,10 @@ async function confirmCoverCropAndUpload() {
     }
     const base64 = await fileToBase64(uploadFile)
     const safeName = `blog-${Date.now()}.jpg`
+    const { useAuthHeader } = await import('~/composables/useAuth')
     const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { fileBase64: base64, fileName: safeName, prefix: 'blog/' },
     })
     if (res?.url)      form.coverImageUrl = res.url

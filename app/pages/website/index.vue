@@ -1187,7 +1187,7 @@
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-const { useAuthUser } = await import('~/composables/useAuth')
+const { useAuthUser, useAuthHeader } = await import('~/composables/useAuth')
 const u = await useAuthUser()
 
 const loading         = ref(true)
@@ -1205,7 +1205,7 @@ async function uploadFile(file: File, prefix: string): Promise<string> {
   })
   const result = await $fetch<{ url: string }>(useApiUrl('/api/aws/s3-upload'), {
     method: 'POST',
-    headers: { 'x-user-email': u.email || '' },
+    headers: await useAuthHeader(),
     body: { fileBase64: b64, fileName: `${Date.now()}-${file.name}`, prefix },
   })
   return result.url

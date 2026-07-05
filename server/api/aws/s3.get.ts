@@ -1,8 +1,10 @@
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3'
+import { requireAuth } from '../../utils/verifyAuth'
 
 const BUCKET = 'plexora-files'
 
 export default defineEventHandler(async (event) => {
+  requireAuth(event)
   const query = getQuery(event)
   const prefix = (query.prefix as string) || ''
 

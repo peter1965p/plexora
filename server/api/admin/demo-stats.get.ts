@@ -1,12 +1,7 @@
 import { getDemoStats } from '../../utils/demoTracker'
+import { requireAdmin } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const email = getQuery(event).email as string
-
-  if (!email || email !== config.adminEmail) {
-    throw createError({ statusCode: 403, message: 'Forbidden' })
-  }
-
+  requireAdmin(event)
   return getDemoStats()
 })

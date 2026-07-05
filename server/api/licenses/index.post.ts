@@ -1,8 +1,10 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { generateLicenseKey, TIER_MODULES } from '../../utils/license'
+import { requireAdmin } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const body = await readBody(event)
   const { customerEmail, tier = 'pro', validUntil = null, note = '' } = body
 

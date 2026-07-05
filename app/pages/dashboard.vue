@@ -204,7 +204,7 @@ const { openConfirm } = useConfirm()
 async function cancelSubscription() {
   if (!await openConfirm({ title: 'Abonnement kündigen?', sub: 'Es läuft bis Ende des Abrechnungszeitraums weiter.', icon: 'ti-brand-stripe' })) return
   try {
-    const res = await $fetch(useApiUrl('/api/licenses/portal'), { method: 'POST', body: { email } }) as any
+    const res = await $fetch(useApiUrl('/api/licenses/portal'), { method: 'POST', headers: await useAuthHeader(), body: { email } }) as any
     if (res.url) window.location.href = res.url
   } catch {
     alert(lang.value === 'en' ? 'No active subscription found.' : 'Kein aktives Abonnement gefunden.')
@@ -219,7 +219,7 @@ const { data: invoicesData }  = await useFetch(() => useApiUrl(`/api/finance?use
 
 const { data: demoStatsRaw } = await useFetch(
   () => useApiUrl(`/api/admin/demo-stats?email=${encodeURIComponent(email)}`),
-  { default: () => null, onResponseError: () => {} }
+  { default: () => null, onResponseError: () => {}, headers: await useAuthHeader() }
 )
 const demoStats = computed(() => demoStatsRaw.value as any)
 

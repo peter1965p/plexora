@@ -26,6 +26,7 @@
     "@tabler/icons-vue": "^3.44.0",
     "@types/pdfkit": "^0.17.6",
     "aws-amplify": "^6.18.0",
+    "aws-jwt-verify": "^5.2.1",
     "chart.js": "^4.5.1",
     "marked": "^18.0.5",
     "nuxt": "^4.4.8",

@@ -1,7 +1,9 @@
 import { LambdaClient, ListFunctionsCommand, GetFunctionCommand } from '@aws-sdk/client-lambda'
 import { CloudWatchClient, GetMetricStatisticsCommand } from '@aws-sdk/client-cloudwatch'
+import { requireAdmin } from '../../utils/verifyAuth'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const lambda = new LambdaClient({ region: 'eu-central-1' })
   const { Functions } = await lambda.send(new ListFunctionsCommand({}))
 
