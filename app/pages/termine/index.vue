@@ -144,82 +144,93 @@
       <div v-if="loadingSettings" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
       </div>
-      <div v-else style="display:flex;flex-direction:column;gap:16px;max-width:640px">
+      <div v-else style="display:flex;flex-direction:column;gap:16px">
+        <div class="termine-settings-grid">
 
-        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>Öffentliche Buchungsseite</div>
-            <button @click="settingsForm.termineEnabled = !settingsForm.termineEnabled"
-              style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
-              :style="settingsForm.termineEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
-              <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
-                :style="settingsForm.termineEnabled ? 'left:21px' : 'left:3px'"></span>
-            </button>
-          </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-            Kunden können auf deiner Nexora-Webseite selbst einen freien Termin buchen.
-          </div>
-          <div class="auth-field" v-if="settingsForm.termineEnabled">
-            <label>Seitentitel (Navigation &amp; Überschrift)</label>
-            <input v-model="settingsForm.termineTitle" placeholder="Termine" />
-          </div>
-        </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
 
-        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-brand-google" style="margin-right:6px;color:var(--accent)"></i>Google Calendar</div>
-            <span v-if="settingsForm.googleConnected" class="badge badge-success">Verbunden</span>
-          </div>
-          <div v-if="settingsForm.googleConnected" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <div style="font-size:12px;color:var(--text-muted)">Verbunden als <strong>{{ settingsForm.googleEmail }}</strong> — neue Buchungen werden automatisch mit Meet-Link im Kalender angelegt.</div>
-            <button class="icon-btn" :disabled="googleDisconnecting" @click="disconnectGoogle" title="Trennen">
-              <i class="ti" :class="googleDisconnecting ? 'ti-loader-2 spin' : 'ti-plug-off'"></i>
-            </button>
-          </div>
-          <div v-else style="display:flex;flex-direction:column;gap:10px">
-            <div style="font-size:12px;color:var(--text-muted)">Verbinde dein Google-Konto, damit jede Buchung automatisch als Termin mit Meet-Link in deinem Kalender erscheint.</div>
-            <button class="accent-btn" style="align-self:flex-start" @click="connectGoogle">
-              <i class="ti ti-brand-google" style="margin-right:6px"></i>Google verbinden
-            </button>
-          </div>
-        </div>
-
-        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-clock-hour-4" style="margin-right:6px;color:var(--accent)"></i>Arbeitszeiten</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div v-for="d in weekdays" :key="d.key" style="display:flex;align-items:center;gap:10px">
-              <label style="display:flex;align-items:center;gap:8px;width:110px;flex-shrink:0;cursor:pointer;font-size:13px">
-                <input type="checkbox" v-model="settingsForm.termineWorkingHours[d.key].enabled" style="width:auto" />
-                {{ d.label }}
-              </label>
-              <template v-if="settingsForm.termineWorkingHours[d.key].enabled">
-                <input type="time" v-model="settingsForm.termineWorkingHours[d.key].start" class="form-select" style="width:110px" />
-                <span style="color:var(--text-muted);font-size:12px">bis</span>
-                <input type="time" v-model="settingsForm.termineWorkingHours[d.key].end" class="form-select" style="width:110px" />
-              </template>
-              <span v-else style="font-size:12px;color:var(--text-muted)">Geschlossen</span>
+            <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>Öffentliche Buchungsseite</div>
+                <button @click="settingsForm.termineEnabled = !settingsForm.termineEnabled"
+                  style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                  :style="settingsForm.termineEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                  <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                    :style="settingsForm.termineEnabled ? 'left:21px' : 'left:3px'"></span>
+                </button>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                Kunden können auf deiner Nexora-Webseite selbst einen freien Termin buchen.
+              </div>
+              <div class="auth-field" v-if="settingsForm.termineEnabled">
+                <label>Seitentitel (Navigation &amp; Überschrift)</label>
+                <input v-model="settingsForm.termineTitle" placeholder="Termine" />
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-adjustments" style="margin-right:6px;color:var(--accent)"></i>Buchungsregeln</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field"><label>Slot-Länge (Min.)</label>
-              <select v-model.number="settingsForm.termineSlotStepMinutes" class="form-select">
-                <option :value="15">15</option><option :value="30">30</option><option :value="45">45</option><option :value="60">60</option>
-              </select>
+            <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:13px;font-weight:700"><i class="ti ti-brand-google" style="margin-right:6px;color:var(--accent)"></i>Google Calendar</div>
+                <span v-if="settingsForm.googleConnected" class="badge badge-success">Verbunden</span>
+              </div>
+              <div v-if="settingsForm.googleConnected" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="font-size:12px;color:var(--text-muted)">Verbunden als <strong>{{ settingsForm.googleEmail }}</strong> — neue Buchungen werden automatisch mit Meet-Link im Kalender angelegt.</div>
+                <button class="icon-btn" :disabled="googleDisconnecting" @click="disconnectGoogle" title="Trennen">
+                  <i class="ti" :class="googleDisconnecting ? 'ti-loader-2 spin' : 'ti-plug-off'"></i>
+                </button>
+              </div>
+              <div v-else style="display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:12px;color:var(--text-muted)">Verbinde dein Google-Konto, damit jede Buchung automatisch als Termin mit Meet-Link in deinem Kalender erscheint.</div>
+                <button class="accent-btn" style="align-self:flex-start" @click="connectGoogle">
+                  <i class="ti ti-brand-google" style="margin-right:6px"></i>Google verbinden
+                </button>
+              </div>
             </div>
-            <div class="auth-field"><label>Zeitzone</label>
-              <select v-model="settingsForm.termineTimezone" class="form-select">
-                <option value="Europe/Berlin">Europe/Berlin</option>
-                <option value="Europe/Vienna">Europe/Vienna</option>
-                <option value="Europe/Zurich">Europe/Zurich</option>
-              </select>
-            </div>
-            <div class="auth-field"><label>Mindest-Vorlauf (Stunden)</label><input v-model.number="settingsForm.termineMinNoticeHours" type="number" min="0" /></div>
-            <div class="auth-field"><label>Max. Vorausbuchung (Tage)</label><input v-model.number="settingsForm.termineMaxAdvanceDays" type="number" min="1" /></div>
+
           </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+
+            <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-clock-hour-4" style="margin-right:6px;color:var(--accent)"></i>Arbeitszeiten</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div v-for="d in weekdays" :key="d.key" style="display:flex;align-items:center;gap:10px">
+                  <label style="display:flex;align-items:center;gap:8px;width:110px;flex-shrink:0;cursor:pointer;font-size:13px">
+                    <input type="checkbox" v-model="settingsForm.termineWorkingHours[d.key].enabled" style="width:auto" />
+                    {{ d.label }}
+                  </label>
+                  <template v-if="settingsForm.termineWorkingHours[d.key].enabled">
+                    <input type="time" v-model="settingsForm.termineWorkingHours[d.key].start" class="form-select" style="width:110px" />
+                    <span style="color:var(--text-muted);font-size:12px">bis</span>
+                    <input type="time" v-model="settingsForm.termineWorkingHours[d.key].end" class="form-select" style="width:110px" />
+                  </template>
+                  <span v-else style="font-size:12px;color:var(--text-muted)">Geschlossen</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-adjustments" style="margin-right:6px;color:var(--accent)"></i>Buchungsregeln</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="auth-field"><label>Slot-Länge (Min.)</label>
+                  <select v-model.number="settingsForm.termineSlotStepMinutes" class="form-select">
+                    <option :value="15">15</option><option :value="30">30</option><option :value="45">45</option><option :value="60">60</option>
+                  </select>
+                </div>
+                <div class="auth-field"><label>Zeitzone</label>
+                  <select v-model="settingsForm.termineTimezone" class="form-select">
+                    <option value="Europe/Berlin">Europe/Berlin</option>
+                    <option value="Europe/Vienna">Europe/Vienna</option>
+                    <option value="Europe/Zurich">Europe/Zurich</option>
+                  </select>
+                </div>
+                <div class="auth-field"><label>Mindest-Vorlauf (Stunden)</label><input v-model.number="settingsForm.termineMinNoticeHours" type="number" min="0" /></div>
+                <div class="auth-field"><label>Max. Vorausbuchung (Tage)</label><input v-model.number="settingsForm.termineMaxAdvanceDays" type="number" min="1" /></div>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
         <button class="accent-btn" style="align-self:flex-start" :disabled="savingSettings" @click="saveSettings">
@@ -443,3 +454,17 @@ onMounted(async () => {
   if (route.query.google === 'error') alert('Google-Verbindung fehlgeschlagen. Bitte erneut versuchen.')
 })
 </script>
+
+<style scoped>
+.termine-settings-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .termine-settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
