@@ -84,7 +84,7 @@
 
     <!-- MODAL: Beitrag erstellen / bearbeiten -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
-      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:900px;height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
+      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:1100px;height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
         <!-- Modal Header -->
         <div class="modal-header">
           <input v-model="form.title" @input="titleToSlug"
@@ -96,66 +96,110 @@
           </div>
         </div>
 
-        <!-- Meta Row -->
-        <div style="display:flex;gap:10px;padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg-elevated);flex-shrink:0;flex-wrap:wrap;align-items:center">
-          <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:180px">
-            <label style="font-size:11px;color:var(--text-muted);white-space:nowrap">Excerpt</label>
-            <input v-model="form.excerpt" class="field-input" style="flex:1;height:28px;font-size:12px" placeholder="Kurzbeschreibung..." />
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <label style="font-size:11px;color:var(--text-muted);white-space:nowrap">Tags</label>
-            <input v-model="tagsInput" class="field-input" style="width:160px;height:28px;font-size:12px" placeholder="tag1, tag2" />
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <label style="font-size:11px;color:var(--text-muted);white-space:nowrap">Kategorie</label>
-            <select v-model="form.category" class="field-input" style="width:150px;height:28px;font-size:12px">
-              <option value="">Keine</option>
-              <option v-for="cat in blogCategories" :key="cat" :value="cat">{{ cat }}</option>
-            </select>
-            <NuxtLink to="/settings" style="font-size:11px;color:var(--text-muted);white-space:nowrap;text-decoration:none" title="Kategorien verwalten">
-              <i class="ti ti-settings" style="font-size:12px"></i>
-            </NuxtLink>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <label style="font-size:11px;color:var(--text-muted);white-space:nowrap">Cover</label>
-            <input v-model="form.coverImageUrl" class="field-input" style="width:130px;height:28px;font-size:12px" placeholder="https://..." />
-            <label style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;flex-shrink:0;transition:border-color .15s"
-              :style="uploadingCover ? 'opacity:.5;pointer-events:none' : ''" title="Bild vom Computer hochladen"
-              @mouseenter="($event.currentTarget as HTMLElement).style.borderColor='var(--accent)'"
-              @mouseleave="($event.currentTarget as HTMLElement).style.borderColor='var(--border)'">
-              <i v-if="uploadingCover" class="ti ti-loader-2 spin" style="font-size:13px;color:var(--accent)"></i>
-              <i v-else class="ti ti-upload" style="font-size:13px;color:var(--text-muted)"></i>
-              <input type="file" accept="image/*" style="display:none" @change="uploadCover" :disabled="uploadingCover" />
-            </label>
-            <img v-if="form.coverImageUrl" :src="form.coverImageUrl" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0;border:1px solid var(--border)" />
-          </div>
-          <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
-            <button v-for="ct in ['markdown','html']" :key="ct" @click="form.contentType = ct"
-              style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-transform:uppercase;letter-spacing:.05em"
-              :style="form.contentType === ct ? 'background:var(--accent);color:#fff' : 'background:transparent;color:var(--text-muted)'">
-              {{ ct }}
-            </button>
-          </div>
-          <select v-model="monacoTheme" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer;flex-shrink:0">
-            <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
-          </select>
-        </div>
+        <!-- Zweispaltiger Bereich: Meta+Cover links, Editor rechts -->
+        <div class="blog-editor-grid">
 
-        <!-- Monaco -->
-        <ClientOnly>
-          <VueMonacoEditor
-            v-model:value="form.content"
-            :language="form.contentType === 'markdown' ? 'markdown' : 'html'"
-            :theme="monacoTheme"
-            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
-            style="flex:1;min-height:0"
-          />
-          <template #fallback>
-            <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">
-              <i class="ti ti-loader-2 spin"></i>
+          <!-- Linke Spalte: Meta-Felder + Cover -->
+          <div class="blog-meta-col">
+            <div class="blog-field">
+              <label>Excerpt</label>
+              <input v-model="form.excerpt" placeholder="Kurzbeschreibung..." />
             </div>
-          </template>
-        </ClientOnly>
+            <div class="blog-field">
+              <label>Tags</label>
+              <input v-model="tagsInput" placeholder="tag1, tag2" />
+            </div>
+            <div class="blog-field">
+              <label>Kategorie
+                <NuxtLink to="/settings" style="color:var(--text-muted);margin-left:4px" title="Kategorien verwalten">
+                  <i class="ti ti-settings" style="font-size:11px"></i>
+                </NuxtLink>
+              </label>
+              <select v-model="form.category">
+                <option value="">Keine</option>
+                <option v-for="cat in blogCategories" :key="cat" :value="cat">{{ cat }}</option>
+              </select>
+            </div>
+
+            <!-- Cover -->
+            <div class="blog-field">
+              <label>Cover-Bild</label>
+
+              <!-- Crop-Schritt -->
+              <div v-if="coverCropSrc">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
+                <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
+                  <img ref="coverCropImgRef" :src="coverCropSrc" style="width:100%;max-height:200px;object-fit:contain;display:block" />
+                  <div v-if="coverCropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${coverCropRect.x}px;top:${coverCropRect.y}px;width:${coverCropRect.w}px;height:${coverCropRect.h}px`"></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+                  <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto;width:auto" @click="setCoverCropRatio(16,9)">16:9</button>
+                  <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto;width:auto" @click="setCoverCropRatio(1,1)">1:1</button>
+                  <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto;width:auto" @click="coverCropRect=null">Original</button>
+                  <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="uploadingCover" @click="confirmCoverCropAndUpload">
+                    <i class="ti" :class="uploadingCover ? 'ti-loader-2 spin' : 'ti-check'"></i>
+                    {{ uploadingCover ? 'Lädt...' : 'Übernehmen' }}
+                  </button>
+                  <button class="icon-btn" style="color:var(--danger)" @click="coverCropSrc=null;coverCropRect=null">
+                    <i class="ti ti-x"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Große Vorschau, kein Crop aktiv -->
+              <div v-else-if="form.coverImageUrl" style="border-radius:8px;overflow:hidden;border:0.5px solid var(--border);position:relative">
+                <img :src="form.coverImageUrl" style="width:100%;height:160px;object-fit:cover;display:block" />
+                <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
+                  <label style="cursor:pointer">
+                    <input type="file" accept="image/*" style="display:none" @change="selectCoverFile" />
+                    <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none"><i class="ti ti-pencil"></i></span>
+                  </label>
+                  <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.coverImageUrl=''"><i class="ti ti-trash"></i></button>
+                </div>
+              </div>
+
+              <!-- Kein Cover, kein Crop -->
+              <label v-else style="cursor:pointer;display:block">
+                <input type="file" accept="image/*" style="display:none" @change="selectCoverFile" />
+                <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none;width:100%;justify-content:center">
+                  <i class="ti ti-photo-up"></i> Bild hochladen
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Rechte Spalte: Editor -->
+          <div class="blog-editor-col">
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg-elevated);flex-shrink:0">
+              <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
+                <button v-for="ct in ['markdown','html']" :key="ct" @click="form.contentType = ct"
+                  style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-transform:uppercase;letter-spacing:.05em"
+                  :style="form.contentType === ct ? 'background:var(--accent);color:#fff' : 'background:transparent;color:var(--text-muted)'">
+                  {{ ct }}
+                </button>
+              </div>
+              <select v-model="monacoTheme" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer;flex-shrink:0">
+                <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+
+            <ClientOnly>
+              <VueMonacoEditor
+                v-model:value="form.content"
+                :language="form.contentType === 'markdown' ? 'markdown' : 'html'"
+                :theme="monacoTheme"
+                :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
+                style="flex:1;min-height:0"
+              />
+              <template #fallback>
+                <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">
+                  <i class="ti ti-loader-2 spin"></i>
+                </div>
+              </template>
+            </ClientOnly>
+          </div>
+
+        </div>
 
         <!-- Modal Footer -->
         <div style="padding:14px 20px;border-top:0.5px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
@@ -315,23 +359,61 @@ function fileToBase64(file: File): Promise<string> {
   })
 }
 
-async function uploadCover(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]
+// ── Cover-Upload mit Crop ──
+const coverCropSrc    = ref<string | null>(null)
+const coverCropRect   = ref<{ x: number; y: number; w: number; h: number } | null>(null)
+const coverCropImgRef = ref<HTMLImageElement | null>(null)
+let _coverCropFile: File | null = null
+
+async function selectCoverFile(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
+  _coverCropFile = file
+  coverCropSrc.value = await fileToBase64(file)
+  coverCropRect.value = null
+  ;(e.target as HTMLInputElement).value = ''
+}
+
+function setCoverCropRatio(rw: number, rh: number) {
+  const img = coverCropImgRef.value
+  if (!img) return
+  const dw = img.clientWidth, dh = img.clientHeight
+  const ratio = rw / rh
+  let w = dw, h = Math.round(w / ratio)
+  if (h > dh) { h = dh; w = Math.round(h * ratio) }
+  coverCropRect.value = { x: Math.round((dw - w) / 2), y: Math.round((dh - h) / 2), w, h }
+}
+
+async function confirmCoverCropAndUpload() {
+  if (!_coverCropFile) return
   uploadingCover.value = true
   try {
-    const base64 = await fileToBase64(file)
-    const safeName = `blog-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-    const res = await $fetch<{ url: string }>(useApiUrl('/api/aws/s3-upload'), {
+    let uploadFile: File = _coverCropFile
+    if (coverCropRect.value && coverCropImgRef.value) {
+      const img = coverCropImgRef.value
+      const sx = img.naturalWidth / img.clientWidth
+      const sy = img.naturalHeight / img.clientHeight
+      const { x, y, w, h } = coverCropRect.value
+      const canvas = document.createElement('canvas')
+      canvas.width  = Math.round(w * sx)
+      canvas.height = Math.round(h * sy)
+      canvas.getContext('2d')!.drawImage(img, Math.round(x*sx), Math.round(y*sy), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height)
+      const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), 'image/jpeg', 0.92))
+      uploadFile = new File([blob], _coverCropFile.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
+    }
+    const base64 = await fileToBase64(uploadFile)
+    const safeName = `blog-${Date.now()}.jpg`
+    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
       method: 'POST',
       body: { fileBase64: base64, fileName: safeName, prefix: 'blog/' },
     })
-    form.coverImageUrl = res.url
+    if (res?.url)      form.coverImageUrl = res.url
+    else if (res?.key) form.coverImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
+    coverCropSrc.value = null; coverCropRect.value = null; _coverCropFile = null
   } catch {
     alert('Upload fehlgeschlagen. Bitte nochmal versuchen.')
   } finally {
     uploadingCover.value = false
-    ;(event.target as HTMLInputElement).value = ''
   }
 }
 
@@ -385,3 +467,59 @@ onMounted(async () => {
   await Promise.all([loadPosts(), loadBlogCategories()])
 })
 </script>
+
+<style scoped>
+.blog-editor-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.blog-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 20px;
+  border-right: 0.5px solid var(--border);
+  background: var(--bg-elevated);
+  overflow-y: auto;
+}
+.blog-editor-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.blog-field label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.blog-field input,
+.blog-field select {
+  width: 100%;
+  height: 32px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+}
+@media (max-width: 900px) {
+  .blog-editor-grid {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .blog-meta-col {
+    border-right: none;
+    border-bottom: 0.5px solid var(--border);
+    overflow-y: visible;
+  }
+  .blog-editor-col {
+    min-height: 400px;
+  }
+}
+</style>

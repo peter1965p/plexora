@@ -1589,16 +1589,23 @@ async function uploadLogo(e: Event) {
   if (!file) return
   logoUploading.value = true
   try {
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('prefix', 'branding/')
-    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), { method: 'POST', body: fd }) as any
+    const reader = new FileReader()
+    const fileBase64 = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+    const res = await $fetch(useApiUrl('/api/aws/s3-upload'), {
+      method: 'POST',
+      body: { fileBase64, fileName: file.name, prefix: 'branding/' },
+    }) as any
     if (res?.url) brand.logoUrl = res.url
     else if (res?.key) brand.logoUrl = `https://plexora-files.s3.eu-central-1.amazonaws.com/${res.key}`
   } catch (err) {
     console.error('Logo-Upload fehlgeschlagen:', err)
   } finally {
     logoUploading.value = false
+    ;(e.target as HTMLInputElement).value = ''
   }
 }
 
