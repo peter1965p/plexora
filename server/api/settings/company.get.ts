@@ -12,6 +12,10 @@ const DEFAULTS = {
   vatId: '',
   register: '',
   registerCourt: '',
+  iban: '',
+  bic: '',
+  bankName: '',
+  paymentNote: '',
 }
 
 export default defineEventHandler(async () => {

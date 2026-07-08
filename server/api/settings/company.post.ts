@@ -21,6 +21,10 @@ export default defineEventHandler(async (event) => {
       vatId:         body.vatId         || '',
       register:      body.register      || '',
       registerCourt: body.registerCourt || '',
+      iban:          body.iban          || '',
+      bic:           body.bic           || '',
+      bankName:      body.bankName      || '',
+      paymentNote:   body.paymentNote   || '',
       updated:       new Date().toISOString(),
     }
   }))

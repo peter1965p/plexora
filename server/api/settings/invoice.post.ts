@@ -9,11 +9,14 @@ export default defineEventHandler(async (event) => {
   await client.send(new PutCommand({
     TableName: 'plexora-settings',
     Item: {
-      settingId: 'invoice',
-      scope:     'global',
-      dueDays:   body.dueDays || 7,
-      dueText:   body.dueText || 'Zahlbar innerhalb von 7 Tagen netto',
-      updated:   new Date().toISOString(),
+      settingId:     'invoice',
+      scope:         'global',
+      dueDays:       body.dueDays || 7,
+      dueText:       body.dueText || 'Zahlbar innerhalb von 7 Tagen netto',
+      vatRate:       body.vatRate ?? 19,
+      priceDisplay:  body.priceDisplay || 'netto',
+      smallBusiness: !!body.smallBusiness,
+      updated:       new Date().toISOString(),
     }
   }))
   return { success: true }
