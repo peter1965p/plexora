@@ -8,9 +8,9 @@
         <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ t.shop.subtitle }}</p>
       </div>
       <div style="display:flex;gap:10px">
-        <NuxtLink to="/shop" target="_blank">
+        <a v-if="shopSiteUrl" :href="shopSiteUrl" target="_blank">
           <button class="icon-btn"><i class="ti ti-external-link"></i></button>
-        </NuxtLink>
+        </a>
         <button v-if="tab==='produkte'" class="accent-btn" @click="openModal">
           <i class="ti ti-plus"></i> {{ t.shop.newProduct }}
         </button>
@@ -361,9 +361,19 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-const { userId, idToken } = await useAuthUser()
+const { userId, email, idToken } = await useAuthUser()
 const authHeaders = { Authorization: `Bearer ${idToken}` }
 const { t, lang } = useLang()
+
+const shopSiteUrl = ref('')
+onMounted(async () => {
+  try {
+    const res = await $fetch<any>(useApiUrl('/api/nexora/my'), {
+      headers: { 'x-user-email': email || '', ...authHeaders },
+    })
+    if (res?.nexora?.customDomain) shopSiteUrl.value = `https://${res.nexora.customDomain}/shop`
+  } catch {}
+})
 
 const tab  = ref('produkte')
 const tabs = computed(() => [

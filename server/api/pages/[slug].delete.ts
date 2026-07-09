@@ -1,5 +1,6 @@
 import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { assertOwner } from '../../utils/ownership'
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
@@ -12,6 +13,7 @@ export default defineEventHandler(async (event) => {
     ExpressionAttributeValues: { ':slug': slug },
   }))
   if (!Items?.length) throw createError({ statusCode: 404, message: 'Page not found' })
+  await assertOwner(event, Items[0] as any)
 
   await client.send(new DeleteCommand({
     TableName: 'plexora-pages',

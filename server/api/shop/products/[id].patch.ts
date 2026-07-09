@@ -1,12 +1,13 @@
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { resolveUserId } from '../../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
   const productId = getRouterParam(event, 'id')
   const body      = await readBody(event)
   const dynamo    = getDynamoClient()
 
-  const userId = event.context.auth?.email || 'demo-user'
+  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-products',
     Key: { userId, productId },

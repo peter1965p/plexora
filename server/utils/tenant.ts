@@ -1,4 +1,4 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 
 const cache = new Map<string, { id: string; ts: number }>()
@@ -29,4 +29,16 @@ export async function resolveUserId(email: string): Promise<string> {
 
 export function invalidateTenantCache(email: string) {
   cache.delete(email)
+}
+
+// Übersetzt einen Nexora-tenantId (Lizenzschlüssel-basiert, aus plexora-nexora) in die
+// E-Mail-Identität, mit der plexora-products/-finance/-... intern arbeiten (resolveUserId-Konvention).
+export async function resolveTenantEmail(tenantId: string): Promise<string | null> {
+  try {
+    const dynamo = getDynamoClient()
+    const res = await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))
+    return (res.Item?.email as string) || null
+  } catch {
+    return null
+  }
 }

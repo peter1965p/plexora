@@ -14,9 +14,6 @@
             {{ p.navLabel || p.title }}
           </button>
         </NuxtLink>
-        <NuxtLink to="/shop">
-          <button class="accent-btn" style="height:36px">Shop</button>
-        </NuxtLink>
         <NuxtLink to="/login">
           <button style="padding:6px 16px;border-radius:8px;border:0.5px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-size:13px">Anmelden</button>
         </NuxtLink>
