@@ -1,5 +1,6 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { resolveUserId } from '../../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
@@ -11,5 +12,15 @@ export default defineEventHandler(async (event) => {
   }))
   const campaign = result.Items?.[0]
   if (!campaign) throw createError({ statusCode: 404, message: 'Stelle nicht gefunden' })
-  return { campaign }
+
+  let branding: any = { brandName: 'Plexora', brandTagline: 'Business Platform', primaryColor: '#ea580c' }
+  if (campaign.userId) {
+    try {
+      const tenantUserId = await resolveUserId(campaign.userId)
+      const bs = await client.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'branding', scope: tenantUserId } }))
+      if (bs.Item) branding = { ...branding, ...bs.Item }
+    } catch {}
+  }
+
+  return { campaign, branding }
 })

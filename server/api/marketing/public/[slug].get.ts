@@ -1,5 +1,6 @@
-import { ScanCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand, QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { resolveUserId } from '../../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
   const slug   = getRouterParam(event, 'slug') as string
@@ -20,7 +21,7 @@ export default defineEventHandler(async (event) => {
     items[0] ||
     null
 
-  if (!campaign) return { campaign: null, form: null }
+  if (!campaign) return { campaign: null, form: null, branding: null }
 
   // Formular direkt mitholen
   let form = null
@@ -38,5 +39,14 @@ export default defineEventHandler(async (event) => {
     } catch {}
   }
 
-  return { campaign, form }
+  let branding: any = { brandName: 'Plexora', brandTagline: 'Business Platform', primaryColor: '#ea580c' }
+  if (campaign.userId) {
+    try {
+      const tenantUserId = await resolveUserId(campaign.userId)
+      const bs = await client.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'branding', scope: tenantUserId } }))
+      if (bs.Item) branding = { ...branding, ...bs.Item }
+    } catch {}
+  }
+
+  return { campaign, form, branding }
 })

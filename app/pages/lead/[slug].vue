@@ -121,10 +121,10 @@ const { data: publicData, pending: loading } = await useFetch(useApiUrl(`/api/ma
 const campaign = computed(() => (publicData.value as any)?.campaign || null)
 const form     = computed(() => (publicData.value as any)?.form || null)
 
-const { branding, loadBranding } = useBranding()
+const { branding } = useBranding()
+watchEffect(() => { if ((publicData.value as any)?.branding) Object.assign(branding.value, (publicData.value as any).branding) })
 const brandFirst = computed(() => branding.value.brandName.slice(0, -2))
 const brandLast  = computed(() => branding.value.brandName.slice(-2))
-onMounted(() => loadBranding())
 
 const accent = computed(() => campaign.value?.accentColor || '#6C3FE8')
 

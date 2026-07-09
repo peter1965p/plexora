@@ -86,10 +86,10 @@ const campaignId = route.params.id as string
 const { data } = await useFetch(`/api/jobs/${campaignId}`)
 const campaign = computed(() => (data.value as any)?.campaign)
 
-const { branding, loadBranding } = useBranding()
+const { branding } = useBranding()
+watchEffect(() => { if ((data.value as any)?.branding) Object.assign(branding.value, (data.value as any).branding) })
 const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
 const brandLast  = computed(() => branding.value.brandName.slice(-1))
-onMounted(() => loadBranding())
 
 const accentColor = computed(() => campaign.value?.accentColor || '')
 

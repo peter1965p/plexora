@@ -215,9 +215,9 @@ onMounted(async () => {
     const [tplRes, presetsRes, companyRes, brandingRes, invoiceRes] = await Promise.all([
       $fetch<any>(useApiUrl('/api/settings/invoice-template'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/invoice-presets')),
-      $fetch<any>(useApiUrl('/api/settings/company')),
-      $fetch<any>(useApiUrl('/api/settings/branding')),
-      $fetch<any>(useApiUrl('/api/settings/invoice')),
+      $fetch<any>(useApiUrl('/api/settings/company'), { headers: authHeaders }),
+      $fetch<any>(useApiUrl('/api/settings/branding'), { headers: authHeaders }),
+      $fetch<any>(useApiUrl('/api/settings/invoice'), { headers: authHeaders }),
     ])
     presets.value = presetsRes?.presets || []
     templateHtml.value = tplRes?.template?.html || presets.value.find(p => p.key === 'standard')?.html || ''

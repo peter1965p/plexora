@@ -324,6 +324,33 @@
             ℹ️ Gemäß §19 UStG wird keine Umsatzsteuer berechnet und ausgewiesen.
           </div>
         </div>
+        <div style="border-top:0.5px solid var(--border);padding-top:20px">
+          <div class="settings-label" style="margin-bottom:14px">💳 Zahlungswege auf Rechnungen</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="auth-field">
+              <label>SEPA-Überweisung (Banking-App-QR)</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                <div class="pill-toggle" :class="{ on: invoicePayment.sepaEnabled }"
+                  @click="invoicePayment.sepaEnabled = !invoicePayment.sepaEnabled"
+                  style="cursor:pointer"><div class="pill-thumb"></div></div>
+                <span style="font-size:12px;color:var(--text-muted)">{{ invoicePayment.sepaEnabled ? 'Aktiv' : 'Inaktiv' }}</span>
+              </div>
+            </div>
+            <div class="auth-field">
+              <label>Online-Zahlung (Stripe/Karte)</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                <div class="pill-toggle" :class="{ on: invoicePayment.stripeEnabled }"
+                  @click="invoicePayment.stripeEnabled = !invoicePayment.stripeEnabled"
+                  style="cursor:pointer"><div class="pill-thumb"></div></div>
+                <span style="font-size:12px;color:var(--text-muted)">{{ invoicePayment.stripeEnabled ? 'Aktiv' : 'Inaktiv' }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-if="!invoicePayment.sepaEnabled && !invoicePayment.stripeEnabled"
+            style="margin-top:12px;padding:12px;background:rgba(224,92,92,0.1);border-radius:8px;font-size:12px;color:#E05C5C">
+            Mindestens ein Zahlungsweg muss aktiv bleiben, sonst kann diese Rechnung nicht bezahlt werden.
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1506,6 +1533,7 @@ const agbPreview = computed(() => marked.parse(agb.content || ''))
 // ── Rechnungen ────────────────────────────────────────
 const invoiceSaving = ref(false)
 const invoiceSettings = reactive({ dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false })
+const invoicePayment = reactive({ sepaEnabled: true, stripeEnabled: true })
 
 // ── Kategorien ────────────────────────────────────────
 const categoryAreas = [
@@ -1569,14 +1597,22 @@ onMounted(async () => {
     }
   } catch {}
 
+  const { useAuthHeader: _useAuthHeaderLoader } = await import('~/composables/useAuth')
+  const loadAuthHeaders = await _useAuthHeaderLoader()
+
   try {
-    const d = await $fetch(useApiUrl('/api/settings/branding') as any)
+    const d = await $fetch(useApiUrl('/api/settings/branding') as any, { headers: loadAuthHeaders })
     if (d?.branding) Object.assign(brand, d.branding)
   } catch {}
 
   try {
-    const d = await $fetch(useApiUrl('/api/settings/invoice') as any)
+    const d = await $fetch(useApiUrl('/api/settings/invoice') as any, { headers: loadAuthHeaders })
     if (d?.settings) Object.assign(invoiceSettings, d.settings)
+  } catch {}
+
+  try {
+    const d = await $fetch(useApiUrl('/api/settings/invoice-payment') as any, { headers: loadAuthHeaders })
+    if (d?.settings) Object.assign(invoicePayment, d.settings)
   } catch {}
 
   try {
@@ -1620,7 +1656,8 @@ async function saveCompany() {
   if (isDemo.value) return
   companySaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', body: { ...company, userId: userId.value } })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', headers: await useAuthHeader(), body: { ...company, userId: userId.value } })
     showSettingsToast('Unternehmensdaten gespeichert!')
   } catch {
     showSettingsToast('Fehler beim Speichern!', true)
@@ -1633,7 +1670,8 @@ async function saveBranding() {
   if (isDemo.value) return
   brandSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/branding'), { method: 'POST', body: { ...brand, userId: userId.value } })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/branding'), { method: 'POST', headers: await useAuthHeader(), body: { ...brand, userId: userId.value } })
     const { useBranding } = await import('~/composables/useBranding')
     const { branding } = useBranding()
     Object.assign(branding.value, brand)
@@ -1646,7 +1684,10 @@ async function saveInvoiceSettings() {
   if (isDemo.value) return
   invoiceSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/invoice'), { method: 'POST', body: { ...invoiceSettings, userId: userId.value } })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const authHeaders = await useAuthHeader()
+    await $fetch(useApiUrl('/api/settings/invoice'), { method: 'POST', headers: authHeaders, body: { ...invoiceSettings, userId: userId.value } })
+    await $fetch(useApiUrl('/api/settings/invoice-payment'), { method: 'POST', headers: authHeaders, body: { ...invoicePayment, userId: userId.value } })
   } finally {
     invoiceSaving.value = false
   }
@@ -1856,7 +1897,8 @@ watch(tab, v => { if (v === 'infra') { loadAws(); loadS3() } })
 
 onMounted(async () => {
   try {
-    const d = await $fetch(useApiUrl('/api/settings/company') as any)
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const d = await $fetch(useApiUrl('/api/settings/company') as any, { headers: await useAuthHeader() })
     if (d?.company) Object.assign(company, d.company)
   } catch {}
   try {

@@ -57,10 +57,12 @@ export function getSampleInvoice() {
   }
 }
 
-export async function buildTemplateDataClient(invoice: any, branding: any = {}, company: any = {}, invoiceSettings: any = {}) {
+export async function buildTemplateDataClient(invoice: any, branding: any = {}, company: any = {}, invoiceSettings: any = {}, paymentPrefs: { sepaEnabled?: boolean; stripeEnabled?: boolean } = {}) {
   const brandName = branding?.brandName || company?.legalName || 'Plexora'
   const accent     = branding?.primaryColor || branding?.accentColor || '#EA580C'
   const invNum     = invoice.number || `INV-${String(invoice.invoiceId || '').slice(0, 8).toUpperCase()}`
+  const sepaEnabled   = paymentPrefs.sepaEnabled   !== false
+  const stripeEnabled = paymentPrefs.stripeEnabled !== false
 
   const items = invoice.items?.length ? invoice.items : [{ description: invoice.description || 'Dienstleistung', qty: 1, price: invoice.amount }]
 
@@ -71,7 +73,7 @@ export async function buildTemplateDataClient(invoice: any, branding: any = {}, 
   const zahllink = `https://app.plexora.eu/pay/${invoice.invoiceId}`
 
   let qrCode = ''
-  if (company?.iban) {
+  if (sepaEnabled && company?.iban) {
     try {
       const payload = buildEpcPayload(company.legalName || brandName, company.iban, company.bic, brutto, invNum)
       qrCode = await QRCode.toDataURL(payload, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
@@ -79,9 +81,11 @@ export async function buildTemplateDataClient(invoice: any, branding: any = {}, 
   }
 
   let qrCodeOnline = ''
-  try {
-    qrCodeOnline = await QRCode.toDataURL(zahllink, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
-  } catch { /* Vorschau trotzdem ohne Online-QR anzeigen */ }
+  if (stripeEnabled) {
+    try {
+      qrCodeOnline = await QRCode.toDataURL(zahllink, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
+    } catch { /* Vorschau trotzdem ohne Online-QR anzeigen */ }
+  }
 
   return {
     firma: {

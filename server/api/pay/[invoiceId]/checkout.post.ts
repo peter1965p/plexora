@@ -1,5 +1,6 @@
 import { GetCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { resolveUserId } from '../../../utils/tenant'
 import Stripe from 'stripe'
 
 export default defineEventHandler(async (event) => {
@@ -15,17 +16,29 @@ export default defineEventHandler(async (event) => {
   const invoice = scan.Items?.[0]
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
 
-  // Payment Settings laden
+  const tenantUserId = await resolveUserId(invoice.userId)
+
+  // Zahlungsweg-Präferenz des ausstellenden Tenants — Verteidigung nicht nur im UI
+  try {
+    const pp = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'invoice-payment', scope: tenantUserId } }))
+    if (pp.Item?.stripeEnabled === false) {
+      throw createError({ statusCode: 400, message: 'Online-Zahlung ist für diese Rechnung nicht aktiviert' })
+    }
+  } catch (e: any) {
+    if (e?.statusCode === 400) throw e
+  }
+
+  // Payment Settings laden (Zugangsdaten bleiben global — ein Plattform-Stripe-Konto für alle)
   const ps = await dynamo.send(new GetCommand({
     TableName: 'plexora-settings',
     Key: { settingId: 'payment', scope: 'global' }
   }))
   const paySettings = ps.Item
 
-  // Branding laden
+  // Branding des ausstellenden Tenants laden
   const bs = await dynamo.send(new GetCommand({
     TableName: 'plexora-settings',
-    Key: { settingId: 'branding', scope: 'global' }
+    Key: { settingId: 'branding', scope: tenantUserId }
   }))
   const brandName = bs.Item?.brandName || 'Plexora'
 

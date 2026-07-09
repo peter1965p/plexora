@@ -22,12 +22,14 @@ export default defineEventHandler(async (event) => {
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
   await assertOwner(event, invoice)
 
+  const tenantUserId = await resolveUserId(invoice.userId)
+
   // Branding laden
   let branding = { brandName: 'Plexora', brandTagline: 'Business Platform', primaryColor: '#EA580C' }
   try {
     const bs = await dynamo.send(new GetCommand({
       TableName: 'plexora-settings',
-      Key: { settingId: 'branding', scope: 'global' }
+      Key: { settingId: 'branding', scope: tenantUserId }
     }))
     if (bs.Item) branding = { ...branding, ...bs.Item }
   } catch {}
@@ -35,25 +37,30 @@ export default defineEventHandler(async (event) => {
   // Company laden
   let company = { legalName: '', street: '', zipCity: '', email: '' }
   try {
-    const cs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'company', scope: 'global' } }))
+    const cs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'company', scope: tenantUserId } }))
     if (cs.Item) company = cs.Item as any
   } catch {}
 
   let invoiceSettings = { vatRate: 19, smallBusiness: false, priceDisplay: 'netto' }
   try {
-    const is = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'invoice', scope: 'global' } }))
+    const is = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'invoice', scope: tenantUserId } }))
     if (is.Item) invoiceSettings = { ...invoiceSettings, ...is.Item }
+  } catch {}
+
+  let paymentPrefs = { sepaEnabled: true, stripeEnabled: true }
+  try {
+    const pp = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'invoice-payment', scope: tenantUserId } }))
+    if (pp.Item) paymentPrefs = { ...paymentPrefs, ...pp.Item }
   } catch {}
 
   // Aktives Rechnungs-Template des ausstellenden Tenants laden (Fallback: Standard-Preset)
   let templateHtml = getPresetHtml('standard')
   try {
-    const tenantUserId = await resolveUserId(invoice.userId)
     const tpl = await dynamo.send(new GetCommand({ TableName: 'plexora-invoice-templates', Key: { userId: tenantUserId } }))
     if (tpl.Item?.html) templateHtml = tpl.Item.html
   } catch {}
 
-  const pdfBuffer = await renderInvoiceTemplateToPdf(templateHtml, invoice, branding, company, invoiceSettings)
+  const pdfBuffer = await renderInvoiceTemplateToPdf(templateHtml, invoice, branding, company, invoiceSettings, paymentPrefs)
 
   // Mail via Resend senden
   const toEmail  = body.toEmail || invoice.clientEmail

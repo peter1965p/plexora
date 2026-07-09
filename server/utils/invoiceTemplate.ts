@@ -46,7 +46,10 @@ export async function buildTemplateData(
   branding: any = {},
   company: any = {},
   invoiceSettings: any = {},
+  paymentPrefs: { sepaEnabled?: boolean; stripeEnabled?: boolean } = {},
 ): Promise<InvoiceTemplateData> {
+  const sepaEnabled   = paymentPrefs.sepaEnabled   !== false
+  const stripeEnabled = paymentPrefs.stripeEnabled !== false
   const brandName = branding?.brandName || company?.legalName || 'Plexora'
   const accent     = branding?.primaryColor || branding?.accentColor || '#EA580C'
   const invNum     = invoice.number || `INV-${String(invoice.invoiceId || '').slice(0, 8).toUpperCase()}`
@@ -61,7 +64,7 @@ export async function buildTemplateData(
   const zahllink = `https://app.plexora.eu/pay/${invoice.invoiceId}`
 
   let qrCode = ''
-  if (company?.iban) {
+  if (sepaEnabled && company?.iban) {
     try {
       qrCode = await buildEpcQrDataUri({
         name:      company.legalName || brandName,
@@ -74,11 +77,13 @@ export async function buildTemplateData(
   }
 
   // Zweiter QR-Code: einfacher Link-QR zur Online-Zahlungsseite (Stripe-Checkout dahinter),
-  // unabhängig von hinterlegter IBAN — funktioniert immer, kein EPC-Format nötig.
+  // unabhängig von hinterlegter IBAN — nur wenn der Tenant Stripe als Zahlweg aktiviert hat.
   let qrCodeOnline = ''
-  try {
-    qrCodeOnline = await QRCode.toDataURL(zahllink, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
-  } catch { /* Rechnung trotzdem ohne Online-QR ausliefern */ }
+  if (stripeEnabled) {
+    try {
+      qrCodeOnline = await QRCode.toDataURL(zahllink, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
+    } catch { /* Rechnung trotzdem ohne Online-QR ausliefern */ }
+  }
 
   return {
     firma: {
@@ -167,8 +172,9 @@ export async function renderInvoiceTemplateToPdf(
   branding: any,
   company: any,
   invoiceSettings: any,
+  paymentPrefs?: { sepaEnabled?: boolean; stripeEnabled?: boolean },
 ): Promise<Buffer> {
-  const data = await buildTemplateData(invoice, branding, company, invoiceSettings)
+  const data = await buildTemplateData(invoice, branding, company, invoiceSettings, paymentPrefs)
   const html = renderInvoiceHtml(templateHtml, data)
   return renderInvoicePdf(html)
 }

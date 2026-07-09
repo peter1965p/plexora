@@ -62,17 +62,23 @@
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px">inkl. 19% MwSt.</div>
             </div>
 
-            <!-- Gateway Badge -->
-            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);justify-content:center">
-              <i class="ti ti-lock" style="color:#00D4B4"></i>
-              Sichere Zahlung via {{ gatewayName }}
-            </div>
+            <template v-if="stripeEnabled">
+              <!-- Gateway Badge -->
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);justify-content:center">
+                <i class="ti ti-lock" style="color:#00D4B4"></i>
+                Sichere Zahlung via {{ gatewayName }}
+              </div>
 
-            <!-- Pay Button -->
-            <button class="auth-btn" :disabled="paying" @click="startPayment" style="font-size:16px;height:52px">
-              <span v-if="paying"><i class="ti ti-loader-2 spin"></i> Weiterleitung...</span>
-              <span v-else><i class="ti ti-credit-card"></i> Jetzt bezahlen — € {{ brutto }}</span>
-            </button>
+              <!-- Pay Button -->
+              <button class="auth-btn" :disabled="paying" @click="startPayment" style="font-size:16px;height:52px">
+                <span v-if="paying"><i class="ti ti-loader-2 spin"></i> Weiterleitung...</span>
+                <span v-else><i class="ti ti-credit-card"></i> Jetzt bezahlen — € {{ brutto }}</span>
+              </button>
+            </template>
+            <div v-else style="text-align:center;font-size:13px;color:var(--text-muted)">
+              <i class="ti ti-building-bank" style="margin-right:6px"></i>
+              Online-Zahlung ist für diese Rechnung nicht aktiviert — bitte die Bankverbindung/den QR-Code auf der Rechnung nutzen.
+            </div>
 
           </div>
         </div>
@@ -92,14 +98,15 @@ definePageMeta({ layout: 'default' })
 const route     = useRoute()
 const invoiceId = route.params.invoiceId as string
 
-const { branding, loadBranding } = useBranding()
-const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
-const brandLast  = computed(() => branding.value.brandName.slice(-1))
-onMounted(() => loadBranding())
-
 const { data, pending: loading } = await useFetch(useApiUrl(`/api/pay/${invoiceId}`))
 const invoice = computed(() => (data.value as any)?.invoice || null)
-const gateway = computed(() => (data.value as any)?.gateway || 'stripe')
+const gateway = computed(() => (data.value as any)?.gateway || null)
+const stripeEnabled = computed(() => (data.value as any)?.stripeEnabled !== false)
+
+const { branding } = useBranding()
+watchEffect(() => { if ((data.value as any)?.branding) Object.assign(branding.value, (data.value as any).branding) })
+const brandFirst = computed(() => branding.value.brandName.slice(0, -1))
+const brandLast  = computed(() => branding.value.brandName.slice(-1))
 
 const gatewayLabels: Record<string, string> = { stripe: 'Stripe', paypal: 'PayPal', mollie: 'Mollie', custom: 'Payment Gateway' }
 const gatewayName = computed(() => gatewayLabels[gateway.value as string] || 'Stripe')

@@ -2,16 +2,17 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
 
-const DEFAULTS = { dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false }
+const DEFAULTS = { sepaEnabled: true, stripeEnabled: true }
 
 export default defineEventHandler(async (event) => {
-  const client = getDynamoClient()
   const email = event.context.auth?.email
-  const scope = email ? await resolveUserId(email) : 'global'
+  if (!email) throw createError({ statusCode: 401, message: 'Unauthorized' })
+  const scope = await resolveUserId(email)
+  const client = getDynamoClient()
   try {
     const result = await client.send(new GetCommand({
       TableName: 'plexora-settings',
-      Key: { settingId: 'invoice', scope }
+      Key: { settingId: 'invoice-payment', scope }
     }))
     return { settings: { ...DEFAULTS, ...result.Item } }
   } catch {
