@@ -145,7 +145,7 @@ const PLACEHOLDER_GROUPS = [
   { label: 'Positionen', items: ['{{positionen}}', '{{#each positionenListe}}...{{/each}}'] },
   { label: 'Summen',    items: ['{{summe.netto}}', '{{summe.mwst}}', '{{summe.mwst_satz}}', '{{summe.brutto}}'] },
   { label: 'Branding',  items: ['{{branding.farbe}}', '{{branding.firmenname}}', '{{branding.slogan}}', '{{branding.logo}}'] },
-  { label: 'QR-Code & Zahlung', items: ['{{qr_code}}', '{{zahllink}}'] },
+  { label: 'QR-Code & Zahlung', items: ['{{qr_code}}', '{{qr_code_online}}', '{{zahllink}}'] },
 ]
 
 let monacoEditorRef: any = null

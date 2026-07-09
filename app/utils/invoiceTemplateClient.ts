@@ -78,6 +78,11 @@ export async function buildTemplateDataClient(invoice: any, branding: any = {}, 
     } catch { /* ungültige IBAN in der Vorschau ignorieren */ }
   }
 
+  let qrCodeOnline = ''
+  try {
+    qrCodeOnline = await QRCode.toDataURL(zahllink, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
+  } catch { /* Vorschau trotzdem ohne Online-QR anzeigen */ }
+
   return {
     firma: {
       name: company?.legalName || brandName, strasse: company?.street || '', plz_ort: company?.zipCity || '',
@@ -106,6 +111,7 @@ export async function buildTemplateDataClient(invoice: any, branding: any = {}, 
     },
     branding: { logo: branding?.logoUrl || '', farbe: accent, firmenname: brandName, slogan: branding?.brandTagline || '' },
     qr_code: qrCode,
+    qr_code_online: qrCodeOnline,
     zahllink,
   }
 }

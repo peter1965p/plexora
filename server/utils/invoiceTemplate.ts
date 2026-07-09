@@ -1,6 +1,7 @@
 import Handlebars from 'handlebars'
 import puppeteer from 'puppeteer-core'
 import chromium from '@sparticuz/chromium'
+import QRCode from 'qrcode'
 import { buildEpcQrDataUri } from './epcQr'
 
 const eur = (n: number) => `€ ${(Number(n) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -34,6 +35,7 @@ export interface InvoiceTemplateData {
   summe: { netto: string; mwst: string; mwst_satz: string; brutto: string; kleinunternehmer: boolean }
   branding: { logo: string; farbe: string; firmenname: string; slogan: string }
   qr_code: string
+  qr_code_online: string
   zahllink: string
 }
 
@@ -70,6 +72,13 @@ export async function buildTemplateData(
       })
     } catch { /* fehlerhafte IBAN o.ä. — Rechnung trotzdem ohne QR-Code ausliefern */ }
   }
+
+  // Zweiter QR-Code: einfacher Link-QR zur Online-Zahlungsseite (Stripe-Checkout dahinter),
+  // unabhängig von hinterlegter IBAN — funktioniert immer, kein EPC-Format nötig.
+  let qrCodeOnline = ''
+  try {
+    qrCodeOnline = await QRCode.toDataURL(zahllink, { errorCorrectionLevel: 'M', margin: 1, width: 240 })
+  } catch { /* Rechnung trotzdem ohne Online-QR ausliefern */ }
 
   return {
     firma: {
@@ -116,6 +125,7 @@ export async function buildTemplateData(
       slogan:      branding?.brandTagline || '',
     },
     qr_code: qrCode,
+    qr_code_online: qrCodeOnline,
     zahllink,
   }
 }
