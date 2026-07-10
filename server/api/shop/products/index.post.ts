@@ -17,6 +17,11 @@ export default defineEventHandler(async (event) => {
     image:       body.image || '',
     stock:       Number(body.stock) || 0,
     status:      body.status || 'active',
+    sku:         body.sku || '',
+    unit:        body.unit || 'Stk',
+    minStock:    body.minStock ?? 10,
+    vatRate:     body.vatRate ?? 19,
+    supplierId:  body.supplierId || '',
     created:     new Date().toISOString(),
   }
   await client.send(new PutCommand({ TableName: 'plexora-products', Item: product }))

@@ -11,8 +11,8 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-products',
     Key: { userId, productId },
-    UpdateExpression: 'SET #n = :n, price = :p, category = :c, description = :d, longDescription = :ld, features = :ft, priceModel = :pm, stock = :s, minStock = :ms, image = :img, vatRate = :vr, supplierId = :sid, updated = :u',
-    ExpressionAttributeNames: { '#n': 'name' },
+    UpdateExpression: 'SET #n = :n, price = :p, category = :c, description = :d, longDescription = :ld, features = :ft, priceModel = :pm, stock = :s, minStock = :ms, image = :img, vatRate = :vr, supplierId = :sid, sku = :sku, unit = :unit, #st = :st, updated = :u',
+    ExpressionAttributeNames: { '#n': 'name', '#st': 'status' },
     ExpressionAttributeValues: {
       ':n':   body.name,
       ':p':   body.price,
@@ -26,6 +26,9 @@ export default defineEventHandler(async (event) => {
       ':img': body.image || '',
       ':vr':  body.vatRate ?? 19,
       ':sid': body.supplierId || '',
+      ':sku': body.sku || '',
+      ':unit': body.unit || 'Stk',
+      ':st':  body.status || 'active',
       ':u':   new Date().toISOString(),
     }
   }))
