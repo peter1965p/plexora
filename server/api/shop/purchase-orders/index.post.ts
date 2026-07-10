@@ -1,9 +1,13 @@
 import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { requireAuth } from '../../../utils/verifyAuth'
+import { resolveUserId } from '../../../utils/tenant'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
+  const { email } = requireAuth(event)
+  const userId = await resolveUserId(email)
   const body   = await readBody(event)
   const dynamo = getDynamoClient()
   const orderId = randomUUID()
@@ -12,20 +16,18 @@ export default defineEventHandler(async (event) => {
   let supplier: any = {}
   if (body.supplierId) {
     try {
-      const { ScanCommand } = await import('@aws-sdk/lib-dynamodb')
-      const res = await dynamo.send(new ScanCommand({
+      const res = await dynamo.send(new GetCommand({
         TableName: 'plexora-suppliers',
-        FilterExpression: 'supplierId = :id',
-        ExpressionAttributeValues: { ':id': body.supplierId }
+        Key: { supplierId: body.supplierId, userId },
       }))
-      supplier = res.Items?.[0] || {}
+      supplier = res.Item || {}
     } catch {}
   }
 
-  // Branding laden
+  // Branding laden (pro Tenant)
   let branding = { brandName: 'Plexora' }
   try {
-    const bs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'branding', scope: 'global' } }))
+    const bs = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'branding', scope: userId } }))
     if (bs.Item) branding = bs.Item as any
   } catch {}
 
@@ -34,7 +36,7 @@ export default defineEventHandler(async (event) => {
     TableName: 'plexora-purchase-orders',
     Item: {
       orderId,
-      userId: 'global',
+      userId,
       productId:    body.productId,
       productName:  body.productName,
       supplierId:   body.supplierId || '',

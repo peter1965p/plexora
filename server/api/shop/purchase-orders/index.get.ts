@@ -1,7 +1,17 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
-export default defineEventHandler(async () => {
+import { requireAuth } from '../../../utils/verifyAuth'
+import { resolveUserId } from '../../../utils/tenant'
+
+export default defineEventHandler(async (event) => {
+  const { email } = requireAuth(event)
+  const userId = await resolveUserId(email)
   const dynamo = getDynamoClient()
-  const res = await dynamo.send(new ScanCommand({ TableName: 'plexora-purchase-orders' }))
-  return { orders: (res.Items || []).sort((a: any, b: any) => b.created?.localeCompare(a.created)) }
+  const res = await dynamo.send(new QueryCommand({
+    TableName: 'plexora-purchase-orders',
+    IndexName: 'userId-index',
+    KeyConditionExpression: 'userId = :u',
+    ExpressionAttributeValues: { ':u': userId },
+  }))
+  return { orders: (res.Items || []).sort((a: any, b: any) => (b.created || '').localeCompare(a.created || '')) }
 })
