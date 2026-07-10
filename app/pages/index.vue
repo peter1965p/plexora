@@ -554,23 +554,31 @@ function scrollTo(selector: string) {
   document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' })
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+  ])
+}
+
 async function startDemo() {
   demoLoading.value = true
   try {
     const { signIn, signOut, getCurrentUser } = await import('aws-amplify/auth')
     try {
-      const current = await getCurrentUser()
+      const current = await withTimeout(getCurrentUser(), 8000)
       if (current.username !== 'demo-plexora') {
-        await signOut()
-        await signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' })
+        await withTimeout(signOut(), 8000)
+        await withTimeout(signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' }), 8000)
       }
     } catch {
-      await signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' })
+      await withTimeout(signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' }), 8000)
     }
     await navigateTo('/dashboard')
   } catch {
-    demoLoading.value = false
     await navigateTo('/login')
+  } finally {
+    demoLoading.value = false
   }
 }
 
