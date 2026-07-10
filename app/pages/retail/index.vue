@@ -164,7 +164,7 @@ const tabs = [
 function authHeaders() { return { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } }
 
 async function loadProducts() {
-  try { const r = await $fetch<any>(useApiUrl('/api/retail/products'), { headers: authHeaders() }); products.value = r.products || [] } catch {}
+  try { const r = await $fetch<any>(useApiUrl('/api/shop/products'), { headers: authHeaders() }); products.value = r.products || [] } catch {}
 }
 async function loadSales() {
   try { const r = await $fetch<any>(useApiUrl('/api/retail/sales'), { headers: authHeaders() }); sales.value = r.sales || [] } catch {}
@@ -173,7 +173,7 @@ async function loadClosings() {
   try { const r = await $fetch<any>(useApiUrl('/api/retail/closings'), { headers: authHeaders() }); closings.value = r.closings || [] } catch {}
 }
 
-const activeProducts = computed(() => products.value.filter(p => p.active !== false))
+const activeProducts = computed(() => products.value.filter(p => p.status === 'active'))
 
 // Kasse
 const cart = ref<{ productId: string; name: string; price: number; qty: number }[]>([])
@@ -225,11 +225,14 @@ function openEditProduct(p: any) {
 async function saveProduct() {
   savingProduct.value = true
   try {
-    const body = { ...pForm, price: Number(pForm.price) || 0, stock: Number(pForm.stock) || 0 }
+    const existing = editingProductId.value ? products.value.find(p => p.productId === editingProductId.value) : null
+    // Mit dem bestehenden Datensatz mergen, damit ein einfaches Retail-Edit nicht
+    // Felder überschreibt, die nur shop-admin.vue pflegt (description, vatRate, ...).
+    const body = { ...(existing || {}), ...pForm, price: Number(pForm.price) || 0, stock: Number(pForm.stock) || 0 }
     if (editingProductId.value) {
-      await $fetch(useApiUrl(`/api/retail/products/${editingProductId.value}`), { method: 'PUT', headers: authHeaders(), body })
+      await $fetch(useApiUrl(`/api/shop/products/${editingProductId.value}`), { method: 'PATCH', headers: authHeaders(), body })
     } else {
-      await $fetch(useApiUrl('/api/retail/products'), { method: 'POST', headers: authHeaders(), body })
+      await $fetch(useApiUrl('/api/shop/products'), { method: 'POST', headers: authHeaders(), body })
     }
     showProductModal.value = false
     await loadProducts()
@@ -238,7 +241,7 @@ async function saveProduct() {
 }
 async function deleteProduct(p: any) {
   if (!confirm(`"${p.name}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/retail/products/${p.productId}`), { method: 'DELETE', headers: authHeaders() })
+  await $fetch(useApiUrl(`/api/shop/products/${p.productId}`), { method: 'DELETE', headers: authHeaders() })
   await loadProducts()
 }
 
