@@ -1,10 +1,12 @@
 import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
-import { requireTenantId } from '../../../utils/auth'
+import { requireAuth } from '../../../utils/verifyAuth'
+import { resolveUserId } from '../../../utils/tenant'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
-  const tenantId = await requireTenantId(event)
+  const { email } = requireAuth(event)
+  const userId = await resolveUserId(email)
   const body = await readBody(event)
   const dynamo = getDynamoClient()
 
@@ -15,9 +17,9 @@ export default defineEventHandler(async (event) => {
   for (const line of cartItems) {
     const productId = line.productId
     if (!productId) continue
-    const res = await dynamo.send(new GetCommand({ TableName: 'plexora-retail-products', Key: { tenantId, productId } }))
+    const res = await dynamo.send(new GetCommand({ TableName: 'plexora-products', Key: { userId, productId } }))
     const product = res.Item
-    if (!product || product.active === false) continue
+    if (!product || product.status !== 'active') continue
     const qty = Math.max(1, Math.min(999, Number(line.qty) || 1))
     const unitPrice = Number(product.price) || 0
     const lineTotal = Math.round(unitPrice * qty * 100) / 100
@@ -26,8 +28,8 @@ export default defineEventHandler(async (event) => {
 
     const newStock = Math.max(0, (Number(product.stock) || 0) - qty)
     await dynamo.send(new PutCommand({
-      TableName: 'plexora-retail-products',
-      Item: { ...product, stock: newStock, updatedAt: new Date().toISOString() },
+      TableName: 'plexora-products',
+      Item: { ...product, stock: newStock, updated: new Date().toISOString() },
     }))
   }
 
@@ -36,7 +38,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
   const saleId = randomUUID()
   const item = {
-    tenantId,
+    userId,
     saleId,
     items: saleItems,
     totalGross: Math.round(totalGross * 100) / 100,

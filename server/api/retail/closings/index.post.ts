@@ -1,9 +1,11 @@
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
-import { requireTenantId } from '../../../utils/auth'
+import { requireAuth } from '../../../utils/verifyAuth'
+import { resolveUserId } from '../../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
-  const tenantId = await requireTenantId(event)
+  const { email } = requireAuth(event)
+  const userId = await resolveUserId(email)
   const body = await readBody(event)
   const dynamo = getDynamoClient()
 
@@ -11,8 +13,8 @@ export default defineEventHandler(async (event) => {
 
   const res = await dynamo.send(new QueryCommand({
     TableName: 'plexora-retail-sales',
-    KeyConditionExpression: 'tenantId = :t',
-    ExpressionAttributeValues: { ':t': tenantId },
+    KeyConditionExpression: 'userId = :u',
+    ExpressionAttributeValues: { ':u': userId },
   }))
   const daySales = (res.Items || []).filter((s: any) => s.dayKey === dayKey)
 
@@ -26,7 +28,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const item = {
-    tenantId,
+    userId,
     closingId: dayKey,
     totalGross: Math.round(totalGross * 100) / 100,
     totalByMethod: {
