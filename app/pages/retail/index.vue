@@ -38,7 +38,30 @@
 
       <!-- Warenkorb -->
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:18px;position:sticky;top:20px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px"><i class="ti ti-shopping-cart" style="color:var(--accent)"></i> Warenkorb</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-weight:700;font-size:14px"><i class="ti ti-shopping-cart" style="color:var(--accent)"></i> Warenkorb</div>
+          <button class="icon-btn" style="width:28px;height:28px" :title="showDisplay ? 'Anzeige ausblenden' : 'Anzeige einblenden'" @click="toggleDisplay">
+            <i class="ti" :class="showDisplay ? 'ti-eye' : 'ti-eye-off'"></i>
+          </button>
+        </div>
+
+        <!-- Digitalanzeige + Ziffernblock -->
+        <div v-if="showDisplay" style="margin-bottom:14px">
+          <div style="background:#0a1a0f;border:1px solid #1a3324;border-radius:10px;padding:10px 14px;margin-bottom:8px;overflow:hidden">
+            <div style="font-family:'VT323',monospace;font-size:12px;letter-spacing:.1em;color:#4ade80;opacity:.75;text-align:right">MENGE</div>
+            <div style="font-family:'VT323',monospace;font-size:34px;line-height:1;letter-spacing:.05em;color:#4ade80;text-shadow:0 0 8px rgba(74,222,128,.65);text-align:right">
+              {{ numpadBuffer || pendingQty }}<span style="opacity:.35">×</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+            <button v-for="n in ['7','8','9','4','5','6','1','2','3']" :key="n" class="icon-btn"
+              style="height:38px;font-family:'VT323',monospace;font-size:20px" @click="numpadPress(n)">{{ n }}</button>
+            <button class="icon-btn" style="height:38px;font-size:13px;color:#ef4444" @click="numpadClear">C</button>
+            <button class="icon-btn" style="height:38px;font-family:'VT323',monospace;font-size:20px" @click="numpadPress('0')">0</button>
+            <button class="icon-btn" style="height:38px" @click="numpadBackspace"><i class="ti ti-backspace"></i></button>
+          </div>
+        </div>
+
         <div v-if="!cart.length" style="text-align:center;padding:24px 0;color:var(--text-muted);font-size:13px">Leer</div>
         <div v-for="c in cart" :key="c.productId" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <div style="flex:1;font-size:13px">{{ c.name }}</div>
@@ -48,7 +71,13 @@
           <div style="font-size:13px;font-weight:700;min-width:60px;text-align:right">€ {{ (c.price*c.qty).toFixed(2) }}</div>
         </div>
         <div v-if="cart.length" style="border-top:0.5px solid var(--border);margin-top:12px;padding-top:12px">
-          <div style="display:flex;justify-content:space-between;font-weight:800;font-size:16px;margin-bottom:12px">
+          <div v-if="showDisplay" style="background:#0a1a0f;border:1px solid #1a3324;border-radius:10px;padding:10px 14px;margin-bottom:12px;overflow:hidden">
+            <div style="font-family:'VT323',monospace;font-size:12px;letter-spacing:.1em;color:#4ade80;opacity:.75;text-align:right">SUMME EUR</div>
+            <div style="font-family:'VT323',monospace;font-size:40px;line-height:1;letter-spacing:.03em;color:#4ade80;text-shadow:0 0 10px rgba(74,222,128,.7);text-align:right">
+              {{ cartTotal.toFixed(2) }}
+            </div>
+          </div>
+          <div v-else style="display:flex;justify-content:space-between;font-weight:800;font-size:16px;margin-bottom:12px">
             <span>Summe</span><span style="color:var(--accent)">€ {{ cartTotal.toFixed(2) }}</span>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -193,6 +222,10 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
+useHead({
+  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=VT323&display=swap' }],
+})
+
 const userEmail = ref('')
 const authToken = ref('')
 const activeTab = ref('kasse')
@@ -226,10 +259,40 @@ const cart = ref<{ productId: string; name: string; price: number; qty: number }
 const paymentMethod = ref<'bar'|'karte'>('bar')
 const checkingOut = ref(false)
 
+// Ziffernblock + Digitalanzeige — Menge vor dem Antippen eines Produkts eingeben
+const pendingQty = ref(1)
+const numpadBuffer = ref('')
+const showDisplay = ref(true)
+
+onMounted(() => {
+  const saved = localStorage.getItem('retail-kasse-display')
+  if (saved !== null) showDisplay.value = saved === '1'
+})
+function toggleDisplay() {
+  showDisplay.value = !showDisplay.value
+  localStorage.setItem('retail-kasse-display', showDisplay.value ? '1' : '0')
+}
+
+function numpadPress(digit: string) {
+  if (numpadBuffer.value.length >= 3) return
+  numpadBuffer.value += digit
+  pendingQty.value = Math.max(1, parseInt(numpadBuffer.value, 10) || 1)
+}
+function numpadBackspace() {
+  numpadBuffer.value = numpadBuffer.value.slice(0, -1)
+  pendingQty.value = numpadBuffer.value ? parseInt(numpadBuffer.value, 10) : 1
+}
+function numpadClear() {
+  numpadBuffer.value = ''
+  pendingQty.value = 1
+}
+
 function addToCart(p: any) {
+  const qty = pendingQty.value
   const existing = cart.value.find(c => c.productId === p.productId)
-  if (existing) existing.qty++
-  else cart.value.push({ productId: p.productId, name: p.name, price: p.price, qty: 1 })
+  if (existing) existing.qty += qty
+  else cart.value.push({ productId: p.productId, name: p.name, price: p.price, qty })
+  numpadClear()
 }
 function changeQty(c: any, delta: number) {
   c.qty += delta
