@@ -119,6 +119,51 @@
       <div v-if="!closings.length" style="text-align:center;padding:24px;color:var(--text-muted)">Noch kein Tag abgeschlossen.</div>
     </div>
 
+    <!-- VERKÄUFE -->
+    <div v-if="activeTab==='verkaeufe'">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase">
+            <th style="padding:8px">Datum</th><th style="padding:8px">Produkt</th><th style="padding:8px">Menge</th><th style="padding:8px">Summe</th><th style="padding:8px">Zahlart</th><th style="padding:8px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="s in sales" :key="s.saleId">
+            <tr v-for="(line, i) in s.items" :key="s.saleId + '-' + i" style="border-top:0.5px solid var(--border)">
+              <td style="padding:8px;color:var(--text-muted)" v-if="i===0">{{ formatDateTime(s.createdAt) }}</td>
+              <td style="padding:8px" v-else></td>
+              <td style="padding:8px;font-weight:600">{{ line.name }}</td>
+              <td style="padding:8px">{{ line.qty }}</td>
+              <td style="padding:8px">€ {{ line.lineTotal.toFixed(2) }}</td>
+              <td style="padding:8px" v-if="i===0">{{ s.paymentMethod }}</td>
+              <td style="padding:8px" v-else></td>
+              <td style="padding:8px;text-align:right">
+                <button class="icon-btn" style="width:28px;height:28px" title="Retoure" @click="openReturnModal(s, line)"><i class="ti ti-rotate-2"></i></button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+      <div v-if="!sales.length" style="text-align:center;padding:40px;color:var(--text-muted)">Noch keine Verkäufe.</div>
+    </div>
+
+    <!-- RETOURE MODAL -->
+    <div v-if="showReturnModal" class="modal-overlay" @click.self="showReturnModal=false">
+      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:400px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:16px;font-weight:700">Retoure erfassen</div>
+          <button class="icon-btn" @click="showReturnModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px">{{ returnForm.productName }}</div>
+        <div class="auth-field" style="margin-bottom:12px"><label>Menge</label><input v-model="returnForm.qty" type="number" min="1" :max="returnForm.maxQty" /></div>
+        <div class="auth-field" style="margin-bottom:20px"><label>Grund (optional)</label><input v-model="returnForm.reason" /></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px"><i class="ti ti-info-circle"></i> POS-Verkäufe haben keine Stripe-Zahlung — nur Bestand wird zurückgebucht, keine automatische Erstattung.</div>
+        <button class="auth-btn" :disabled="returnSaving || !returnForm.qty" @click="submitReturn">
+          <i class="ti ti-rotate-2" style="margin-right:6px"></i>{{ returnSaving ? 'Speichere…' : 'Retoure abschließen' }}
+        </button>
+      </div>
+    </div>
+
     <!-- PRODUKT MODAL -->
     <div v-if="showProductModal" class="modal-overlay" @click.self="showProductModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:440px">
@@ -159,6 +204,7 @@ const tabs = [
   { key: 'kasse',    label: 'Kasse',          icon: 'ti-cash-register' },
   { key: 'lager',    label: 'Lager',          icon: 'ti-boxes' },
   { key: 'abschluss', label: 'Tagesabschluss', icon: 'ti-report-money' },
+  { key: 'verkaeufe', label: 'Verkäufe',       icon: 'ti-receipt' },
 ]
 
 function authHeaders() { return { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } }
@@ -258,6 +304,45 @@ async function closeDay() {
     await loadClosings()
   } catch {}
   closingDay.value = false
+}
+
+function formatDateTime(d?: string) {
+  if (!d) return ''
+  return new Date(d).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+}
+
+// Verkäufe & Retouren (POS — keine Stripe-Zahlung, nur Bestandsrückbuchung)
+const showReturnModal = ref(false)
+const returnSaving    = ref(false)
+const returnForm = reactive({ originId: '', productId: '', productName: '', qty: 1, maxQty: 1, reason: '' })
+
+function openReturnModal(sale: any, line: any) {
+  returnForm.originId    = sale.saleId
+  returnForm.productId   = line.productId
+  returnForm.productName = line.name
+  returnForm.qty         = line.qty
+  returnForm.maxQty      = line.qty
+  returnForm.reason      = ''
+  showReturnModal.value  = true
+}
+
+async function submitReturn() {
+  returnSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/returns'), {
+      method: 'POST',
+      headers: authHeaders(),
+      body: {
+        source: 'pos',
+        originId: returnForm.originId,
+        items: [{ productId: returnForm.productId, qty: Number(returnForm.qty) }],
+        reason: returnForm.reason,
+      }
+    })
+    showReturnModal.value = false
+    await Promise.all([loadProducts(), loadSales()])
+  } catch { alert('Retoure fehlgeschlagen.') }
+  returnSaving.value = false
 }
 
 onMounted(async () => {

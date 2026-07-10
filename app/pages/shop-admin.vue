@@ -121,6 +121,7 @@
               <td style="font-size:12px">{{ s.phone || '—' }}</td>
               <td><span class="badge badge-info">{{ products.filter(p => p.supplierId === s.supplierId).length }}</span></td>
               <td>
+                <button class="icon-btn" @click="openEditSupplierModal(s)"><i class="ti ti-edit"></i></button>
                 <button class="icon-btn" style="color:var(--danger)" @click="deleteSupplier(s.supplierId)"><i class="ti ti-trash"></i></button>
               </td>
             </tr>
@@ -169,7 +170,7 @@
     </div>
 
     <!-- TAB: Bestellungen -->
-    <div v-if="tab === 'bestellungen'">
+    <div v-if="tab === 'wareneingang'">
       <div class="card">
         <div class="card-header">
           <span class="card-title">{{ t.shop.orders }}</span>
@@ -209,6 +210,63 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- TAB: Verkäufe (Webshop-Bestellungen, Retoure-Aktion) -->
+    <div v-if="tab === 'verkaeufe'">
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>{{ t.shop.orderNumber }}</th><th>{{ t.common.date }}</th><th>{{ t.common.email }}</th><th>{{ t.shop.product }}</th><th>{{ t.shop.quantity }}</th><th>{{ t.common.status }}</th><th style="width:100px"></th></tr>
+          </thead>
+          <tbody>
+            <tr v-if="!salesOrders.length">
+              <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.shop.noSales }}</td>
+            </tr>
+            <template v-for="o in salesOrders" :key="o.orderId">
+              <tr v-for="(line, i) in o.items" :key="o.orderId + '-' + i">
+                <td v-if="i===0" :rowspan="o.items.length" style="font-size:12px;font-family:monospace;vertical-align:top">{{ o.orderId?.slice(0,8).toUpperCase() }}</td>
+                <td v-if="i===0" :rowspan="o.items.length" style="font-size:12px;color:var(--text-muted);vertical-align:top">{{ o.created ? new Date(o.created).toLocaleDateString('de-DE') : '—' }}</td>
+                <td v-if="i===0" :rowspan="o.items.length" style="font-size:12px;vertical-align:top">{{ o.email || '—' }}</td>
+                <td style="font-weight:600">{{ line.name }}</td>
+                <td>{{ line.qty }}</td>
+                <td v-if="i===0" :rowspan="o.items.length" style="vertical-align:top">
+                  <span class="badge" :class="o.status === 'paid' ? 'badge-success' : 'badge-info'">{{ o.status }}</span>
+                </td>
+                <td>
+                  <button v-if="o.status === 'paid'" class="icon-btn" :title="t.shop.returnBtn" @click="openReturnModal('webshop', o, line)">
+                    <i class="ti ti-rotate-2"></i>
+                  </button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODAL: Retoure -->
+    <div v-if="showReturnModal" class="modal-overlay" @click.self="showReturnModal=false">
+      <div class="modal-card" style="max-width:420px">
+        <div class="modal-header">
+          <span class="card-title">{{ t.shop.returnModalTitle }}</span>
+          <button class="icon-btn" @click="showReturnModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:13px;font-weight:600">{{ returnForm.productName }}</div>
+          <div class="auth-field"><label>{{ t.shop.returnQty }}</label><input v-model="returnForm.qty" type="number" min="1" :max="returnForm.maxQty" /></div>
+          <div class="auth-field"><label>{{ t.shop.returnReason }}</label><input v-model="returnForm.reason" /></div>
+          <div v-if="returnForm.source === 'webshop'" style="font-size:12px;color:var(--text-muted)">
+            <i class="ti ti-credit-card"></i> Löst eine echte Stripe-Rückerstattung aus.
+          </div>
+        </div>
+        <div style="padding:0 24px 24px">
+          <button class="auth-btn" @click="submitReturn" :disabled="returnSaving || !returnForm.qty">
+            <span v-if="returnSaving"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else><i class="ti ti-rotate-2"></i> {{ t.shop.returnSubmit }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -291,7 +349,7 @@
     <div v-if="showSupplierModal" class="modal-overlay" @click.self="showSupplierModal=false">
       <div class="modal-card" style="max-width:500px">
         <div class="modal-header">
-          <span class="card-title">{{ t.shop.newSupplierTitle }}</span>
+          <span class="card-title">{{ editingSupplierId ? t.shop.editSupplierTitle : t.shop.newSupplierTitle }}</span>
           <button class="icon-btn" @click="showSupplierModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
@@ -381,7 +439,8 @@ const tabs = computed(() => [
   { key: 'kategorien',   label: t.value.shop.tabCategories, icon: 'ti-tag'            },
   { key: 'lieferanten',  label: t.value.shop.tabSuppliers,  icon: 'ti-truck'          },
   { key: 'bestand',      label: t.value.shop.tabStock,      icon: 'ti-chart-bar'      },
-  { key: 'bestellungen', label: t.value.shop.tabOrders,     icon: 'ti-clipboard-list' },
+  { key: 'wareneingang', label: t.value.shop.tabOrders,     icon: 'ti-clipboard-list' },
+  { key: 'verkaeufe',    label: t.value.shop.tabSales,      icon: 'ti-receipt'        },
 ])
 
 const saving         = ref(false)
@@ -390,6 +449,7 @@ const toast          = ref('')
 const newCat         = ref('')
 const showModal         = ref(false)
 const showSupplierModal = ref(false)
+const editingSupplierId = ref('')
 const fileInput      = ref<HTMLInputElement | null>(null)
 const imageUploading = ref(false)
 
@@ -439,6 +499,12 @@ function openEditModal(p: any) {
 
 function openSupplierModal() {
   Object.assign(supplierForm, { name: '', contact: '', email: '', phone: '', website: '', address: '' })
+  editingSupplierId.value = ''
+  showSupplierModal.value = true
+}
+function openEditSupplierModal(s: any) {
+  Object.assign(supplierForm, { name: s.name, contact: s.contact, email: s.email, phone: s.phone, website: s.website, address: s.address })
+  editingSupplierId.value = s.supplierId
   showSupplierModal.value = true
 }
 
@@ -495,10 +561,15 @@ async function createSupplier() {
   if (!supplierForm.name) return
   supplierSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/shop/suppliers'), { method: 'POST', headers: authHeaders, body: { ...supplierForm } })
+    if (editingSupplierId.value) {
+      await $fetch(useApiUrl(`/api/shop/suppliers/${editingSupplierId.value}`), { method: 'PATCH', headers: authHeaders, body: { ...supplierForm } })
+      showToast('Lieferant gespeichert!')
+    } else {
+      await $fetch(useApiUrl('/api/shop/suppliers'), { method: 'POST', headers: authHeaders, body: { ...supplierForm } })
+      showToast('Lieferant angelegt!')
+    }
     await refreshSuppliers()
     showSupplierModal.value = false
-    showToast('Lieferant angelegt!')
   } finally { supplierSaving.value = false }
 }
 
@@ -581,5 +652,51 @@ async function updateOrderStatus(orderId: string, status: string) {
   })
   await refreshPO()
   showToast(`Status auf "${status}" gesetzt!`)
+}
+
+// ── Verkäufe & Retouren ─────────────────────────────────────────────────────
+const salesOrders = ref<any[]>([])
+async function loadSalesOrders() {
+  try {
+    const r = await $fetch<any>(useApiUrl('/api/shop/orders'), { headers: authHeaders })
+    salesOrders.value = r.orders || []
+  } catch {}
+}
+onMounted(loadSalesOrders)
+
+const showReturnModal = ref(false)
+const returnSaving    = ref(false)
+const returnForm = reactive({ source: 'webshop', originId: '', productId: '', productName: '', qty: 1, maxQty: 1, reason: '' })
+
+function openReturnModal(source: 'webshop'|'pos', order: any, line: any) {
+  returnForm.source      = source
+  returnForm.originId    = order.orderId || order.saleId
+  returnForm.productId   = line.productId
+  returnForm.productName = line.name
+  returnForm.qty         = line.qty
+  returnForm.maxQty      = line.qty
+  returnForm.reason      = ''
+  showReturnModal.value  = true
+}
+
+async function submitReturn() {
+  returnSaving.value = true
+  try {
+    await $fetch(useApiUrl('/api/returns'), {
+      method: 'POST',
+      headers: authHeaders,
+      body: {
+        source: returnForm.source,
+        originId: returnForm.originId,
+        items: [{ productId: returnForm.productId, qty: Number(returnForm.qty) }],
+        reason: returnForm.reason,
+      }
+    })
+    showReturnModal.value = false
+    showToast('Retoure erfasst!')
+    await Promise.all([loadSalesOrders(), refresh()])
+  } catch (e: any) {
+    showToast(e?.data?.message || 'Retoure fehlgeschlagen')
+  } finally { returnSaving.value = false }
 }
 </script>
