@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   await client.send(new UpdateCommand({
     TableName: 'plexora-marketing',
     Key: { userId: existing.userId, campaignId },
-    UpdateExpression: 'SET #nm = :nm, slug = :sl, formId = :fi, headline = :hl, subtext = :st, headerImageUrl = :hi, accentColor = :ac, bgImageUrl = :bi, bgColor = :bc, contentTitle = :ct, contentItems = :ci, utmSource = :us, utmMedium = :um, utmCampaign = :uc, active = :av',
+    UpdateExpression: 'SET #nm = :nm, slug = :sl, formId = :fi, headline = :hl, subtext = :st, headerImageUrl = :hi, accentColor = :ac, bgImageUrl = :bi, bgColor = :bc, contentTitle = :ct, contentItems = :ci, utmSource = :us, utmMedium = :um, utmCampaign = :uc, active = :av, customTemplateHtml = :cth, templatePresetKey = :tpk',
     ExpressionAttributeNames: { '#nm': 'name' },
     ExpressionAttributeValues: {
       ':nm': body.name || '',
@@ -38,6 +38,10 @@ export default defineEventHandler(async (event) => {
       ':um': body.utmMedium || '',
       ':uc': body.utmCampaign || '',
       ':av': body.active !== false,
+      // Design-Editor speichert über dieselbe Route — Fallback auf den bestehenden Wert,
+      // damit das einfache Basis-Modal ein gespeichertes Template nicht versehentlich löscht.
+      ':cth': body.customTemplateHtml !== undefined ? body.customTemplateHtml : (existing.customTemplateHtml || ''),
+      ':tpk': body.templatePresetKey !== undefined ? body.templatePresetKey : (existing.templatePresetKey || ''),
     }
   }))
 

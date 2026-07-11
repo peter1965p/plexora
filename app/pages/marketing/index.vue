@@ -117,6 +117,9 @@
           <button class="mkt-action-btn" title="E-Mail Kampagne senden" @click="openSendEmail(c)">
             <i class="ti ti-mail-forward"></i>
           </button>
+          <NuxtLink class="mkt-action-btn" title="Design bearbeiten" :to="`/marketing/design/${c.campaignId}`">
+            <i class="ti ti-palette"></i>
+          </NuxtLink>
           <button class="mkt-action-btn" @click="openEdit(c)">
             <i class="ti ti-pencil"></i>
           </button>

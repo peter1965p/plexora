@@ -1,5 +1,7 @@
 <template>
-  <div :style="pageStyle" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div v-if="customHtml" ref="customRoot" v-html="customHtml"></div>
+
+  <div v-else :style="pageStyle" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
     <div style="max-width:680px;width:100%">
 
       <!-- Header-Bild -->
@@ -78,6 +80,8 @@
 </template>
 
 <script setup lang="ts">
+import { buildJobTemplateDataClient, renderCampaignHtmlClient } from '~/utils/campaignTemplateClient'
+
 definePageMeta({ layout: 'default' })
 
 const route      = useRoute()
@@ -121,4 +125,46 @@ async function apply() {
     sending.value = false
   }
 }
+
+// ── Freigestalt-Template (customTemplateHtml) ──
+// Wird per v-html eingefügt, dadurch gehen Vue-Events/Reactivity verloren — das
+// vorgerenderte Bewerbungsformular (feste IDs aus server/utils/campaignTemplate.ts) wird
+// darum nach dem Rendern per Vanilla-JS verdrahtet, statt Vue-Bindings zu erwarten.
+const customHtml = computed(() => {
+  if (!campaign.value?.customTemplateHtml) return null
+  const data = buildJobTemplateDataClient(campaign.value, branding.value)
+  return renderCampaignHtmlClient(campaign.value.customTemplateHtml, data)
+})
+const customRoot = ref<HTMLElement | null>(null)
+
+async function submitCustomJobForm(formEl: HTMLFormElement) {
+  const inputsEl  = formEl.querySelector('.plx-form-inputs') as HTMLElement | null
+  const successEl = formEl.querySelector('#plx-job-form-success') as HTMLElement | null
+  const errorEl   = formEl.querySelector('#plx-job-form-error') as HTMLElement | null
+  const submitBtn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement | null
+  if (errorEl) errorEl.style.display = 'none'
+  if (submitBtn) submitBtn.disabled = true
+  try {
+    const fd = new FormData(formEl)
+    const body: Record<string, string> = {}
+    fd.forEach((v, k) => { body[k] = String(v) })
+    if (!body.firstName || !body.email) throw new Error('Pflichtfelder fehlen')
+    await $fetch(`/api/jobs/${campaignId}/apply`, { method: 'POST', body })
+    if (inputsEl) inputsEl.style.display = 'none'
+    if (successEl) { successEl.textContent = 'Bewerbung eingegangen! Wir melden uns bald bei Ihnen.'; successEl.style.display = 'block' }
+  } catch {
+    if (errorEl) { errorEl.textContent = 'Da ist etwas schiefgelaufen. Bitte versuche es erneut.'; errorEl.style.display = 'block' }
+  } finally {
+    if (submitBtn) submitBtn.disabled = false
+  }
+}
+
+function wireCustomJobForm() {
+  const formEl = customRoot.value?.querySelector('#plx-job-form') as HTMLFormElement | null
+  if (!formEl || (formEl as any)._plxWired) return
+  ;(formEl as any)._plxWired = true
+  formEl.addEventListener('submit', (e) => { e.preventDefault(); submitCustomJobForm(formEl) })
+}
+
+watch(customHtml, () => { nextTick(wireCustomJobForm) }, { immediate: true })
 </script>

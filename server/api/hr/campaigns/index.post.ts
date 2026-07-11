@@ -20,6 +20,12 @@ export default defineEventHandler(async (event) => {
     accentColor:   body.accentColor || '',
     logoUrl:       body.logoUrl || '',
     headerImageUrl: body.headerImageUrl || '',
+    bgImageUrl:    body.bgImageUrl || '',
+    bgColor:       body.bgColor || '',
+    contentTitle:  body.contentTitle || '',
+    contentItems:  Array.isArray(body.contentItems) ? body.contentItems.filter(Boolean) : [],
+    customTemplateHtml: '',
+    templatePresetKey:  '',
     created:       new Date().toISOString(),
   }
   await client.send(new PutCommand({ TableName: 'plexora-campaigns', Item: campaign }))

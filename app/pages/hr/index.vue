@@ -75,11 +75,11 @@
         </div>
         <table class="data-table">
           <thead>
-            <tr><th>{{ t.hr.position }}</th><th>{{ t.hr.department }}</th><th>{{ t.hr.location }}</th><th>{{ t.hr.employmentType }}</th><th>{{ t.hr.link }}</th><th style="width:60px">{{ t.hr.applicants }}</th></tr>
+            <tr><th>{{ t.hr.position }}</th><th>{{ t.hr.department }}</th><th>{{ t.hr.location }}</th><th>{{ t.hr.employmentType }}</th><th>{{ t.hr.link }}</th><th style="width:40px">Design</th><th style="width:60px">{{ t.hr.applicants }}</th></tr>
           </thead>
           <tbody>
             <tr v-if="!campaigns.length">
-              <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.hr.noCampaigns }}</td>
+              <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.hr.noCampaigns }}</td>
             </tr>
             <tr v-for="c in campaigns" :key="c.campaignId">
               <td class="td-name">{{ c.title }}</td>
@@ -90,6 +90,11 @@
                 <button class="icon-btn" :title="t.hr.copyLink" @click="copyLink(c.campaignId)">
                   <i class="ti ti-link"></i>
                 </button>
+              </td>
+              <td>
+                <NuxtLink class="icon-btn" title="Design bearbeiten" :to="`/hr/campaigns/design/${c.campaignId}`">
+                  <i class="ti ti-palette"></i>
+                </NuxtLink>
               </td>
               <td style="text-align:center">
                 <button class="accent-btn" style="height:24px;font-size:11px;padding:0 8px" @click="viewApplications(c)">

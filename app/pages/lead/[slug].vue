@@ -1,5 +1,7 @@
 <template>
-  <div class="lp-root" :style="rootStyle">
+  <div v-if="customHtml" ref="customRoot" v-html="customHtml"></div>
+
+  <div v-else class="lp-root" :style="rootStyle">
 
     <!-- BG Layer -->
     <div class="lp-bg" :style="bgStyle"></div>
@@ -106,6 +108,8 @@
 </template>
 
 <script setup lang="ts">
+import { buildLeadTemplateDataClient, renderCampaignHtmlClient } from '~/utils/campaignTemplateClient'
+
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
@@ -176,6 +180,51 @@ async function submit() {
     sending.value = false
   }
 }
+
+// ── Freigestalt-Template (customTemplateHtml) ──
+// Wird per v-html eingefügt, dadurch gehen Vue-Events/Reactivity verloren — das
+// vorgerenderte Formular (feste IDs aus server/utils/campaignTemplate.ts) wird darum
+// nach dem Rendern per Vanilla-JS verdrahtet, statt Vue-Bindings zu erwarten.
+const customHtml = computed(() => {
+  if (!campaign.value?.customTemplateHtml) return null
+  const data = buildLeadTemplateDataClient(campaign.value, form.value, branding.value)
+  return renderCampaignHtmlClient(campaign.value.customTemplateHtml, data)
+})
+const customRoot = ref<HTMLElement | null>(null)
+
+async function submitCustomLeadForm(formEl: HTMLFormElement) {
+  const inputsEl  = formEl.querySelector('.plx-form-inputs') as HTMLElement | null
+  const successEl = formEl.querySelector('#plx-lead-form-success') as HTMLElement | null
+  const errorEl   = formEl.querySelector('#plx-lead-form-error') as HTMLElement | null
+  const submitBtn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement | null
+  if (errorEl) errorEl.style.display = 'none'
+  if (submitBtn) submitBtn.disabled = true
+  try {
+    const fd = new FormData(formEl)
+    const data: Record<string, string> = {}
+    fd.forEach((v, k) => { data[k] = String(v) })
+    const formId = form.value?.formId || slug
+    const res = await $fetch(useApiUrl(`/api/forms/${formId}/submit`), {
+      method: 'POST',
+      body: { data, utmSource, utmMedium, utmCampaign, utmContent, utmTerm }
+    }) as any
+    if (inputsEl) inputsEl.style.display = 'none'
+    if (successEl) { successEl.textContent = res.message || 'Vielen Dank!'; successEl.style.display = 'block' }
+  } catch {
+    if (errorEl) { errorEl.textContent = 'Da ist etwas schiefgelaufen. Bitte versuche es erneut.'; errorEl.style.display = 'block' }
+  } finally {
+    if (submitBtn) submitBtn.disabled = false
+  }
+}
+
+function wireCustomLeadForm() {
+  const formEl = customRoot.value?.querySelector('#plx-lead-form') as HTMLFormElement | null
+  if (!formEl || (formEl as any)._plxWired) return
+  ;(formEl as any)._plxWired = true
+  formEl.addEventListener('submit', (e) => { e.preventDefault(); submitCustomLeadForm(formEl) })
+}
+
+watch(customHtml, () => { nextTick(wireCustomLeadForm) }, { immediate: true })
 </script>
 
 <style scoped>
