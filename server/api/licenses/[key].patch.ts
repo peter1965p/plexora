@@ -1,8 +1,10 @@
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { TIER_MODULES } from '../../utils/license'
+import { requireAdmin } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const key  = String(getRouterParam(event, 'key')).toUpperCase()
   const body = await readBody(event)
   const dynamo = getDynamoClient()

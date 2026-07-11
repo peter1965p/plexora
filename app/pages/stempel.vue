@@ -26,8 +26,17 @@
       </div>
     </Transition>
 
+    <!-- Kiosk nicht angemeldet -->
+    <main v-if="!kioskReady" class="stempel-main" style="display:flex;align-items:center;justify-content:center;min-height:60vh">
+      <div style="text-align:center;color:var(--text-muted,#888)">
+        <i class="ti ti-lock" style="font-size:48px;display:block;margin-bottom:16px"></i>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Dieses Gerät ist nicht angemeldet</div>
+        <div style="font-size:13px">Bitte auf diesem Kiosk-Gerät einmalig mit dem Firmen-Account einloggen.</div>
+      </div>
+    </main>
+
     <!-- Main Content -->
-    <main class="stempel-main">
+    <main v-else class="stempel-main">
 
       <!-- Employee Grid -->
       <section class="emp-section">
@@ -118,7 +127,8 @@
 definePageMeta({ layout: false })
 
 const apiBase = useRuntimeConfig().public.apiBase as string
-const userId  = ref('demo-user')
+const idToken = ref('')
+const kioskReady = ref(false)
 
 const currentTime = ref('')
 const currentDate = ref('')
@@ -128,6 +138,8 @@ const selectedEmployee = ref<any>(null)
 const selectedId  = ref<string | null>(null)
 const loading     = ref(false)
 const confirmation= ref<any>(null)
+
+function authHeaders() { return idToken.value ? { Authorization: `Bearer ${idToken.value}` } : {} }
 
 let clockTimer: ReturnType<typeof setInterval>
 let refreshTimer: ReturnType<typeof setInterval>
@@ -164,26 +176,20 @@ function selectEmployee(emp: any) {
 
 async function loadTodayEntries() {
   try {
-    const url = `${apiBase}/api/hr/stempel?userId=${userId.value}`
-    const res = await $fetch<{ entries: any[] }>(url)
+    const res = await $fetch<{ entries: any[] }>(`${apiBase}/api/hr/stempel`, { headers: authHeaders() })
     todayEntries.value = res.entries || []
   } catch {}
 }
 
 async function loadEmployees() {
   try {
-    const res = await $fetch<{ employees: any[] }>(`${apiBase}/api/hr/employees?userId=${userId.value}`)
+    const res = await $fetch<{ employees: any[] }>(`${apiBase}/api/hr`, { headers: authHeaders() })
     employees.value = (res.employees || []).map((e: any) => ({
       id: e.employeeId,
       name: `${e.firstName} ${e.lastName}`,
     }))
   } catch {
-    employees.value = [
-      { id: 'emp-1', name: 'Max Mustermann' },
-      { id: 'emp-2', name: 'Anna Schmidt' },
-      { id: 'emp-3', name: 'Thomas Meier' },
-      { id: 'emp-4', name: 'Lisa Weber' },
-    ]
+    employees.value = []
   }
 }
 
@@ -193,7 +199,8 @@ async function stamp(action: 'in' | 'out') {
   try {
     const res = await $fetch<any>(`${apiBase}/api/hr/stempel`, {
       method: 'POST',
-      body: { action, employeeId: selectedEmployee.value.id, employeeName: selectedEmployee.value.name, userId: userId.value },
+      headers: authHeaders(),
+      body: { action, employeeId: selectedEmployee.value.id, employeeName: selectedEmployee.value.name },
     })
     await loadTodayEntries()
     confirmation.value = { action, name: selectedEmployee.value.name, time: res.time, minutes: res.minutes }
@@ -213,12 +220,15 @@ onMounted(async () => {
   refreshTimer = setInterval(loadTodayEntries, 30000)
 
   try {
-    const { getCurrentUser } = await import('aws-amplify/auth')
-    const u = await getCurrentUser()
-    userId.value = u.userId
+    const { fetchAuthSession } = await import('aws-amplify/auth')
+    const session = await fetchAuthSession()
+    idToken.value = session.tokens?.idToken?.toString() || ''
   } catch {}
 
-  await Promise.all([loadEmployees(), loadTodayEntries()])
+  if (idToken.value) {
+    kioskReady.value = true
+    await Promise.all([loadEmployees(), loadTodayEntries()])
+  }
 })
 
 onUnmounted(() => {

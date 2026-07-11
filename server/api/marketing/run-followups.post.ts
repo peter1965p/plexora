@@ -1,7 +1,8 @@
 import { Resend } from 'resend'
-import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { requireAuth } from '../../utils/verifyAuth'
+import { resolveUserId } from '../../utils/tenant'
 
 const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string) => string }> = {
   'not-opened-3d': {
@@ -25,15 +26,32 @@ const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string)
 }
 
 export default defineEventHandler(async (event) => {
-  requireAuth(event)
+  const { email } = requireAuth(event)
+  const userId = await resolveUserId(email)
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
   const resend = new Resend(config.resendApiKey as string)
   const now    = Date.now()
   let followupsSent = 0
 
-  const result = await dynamo.send(new ScanCommand({ TableName: 'plexora-email-sends' }))
-  const sends  = result.Items || []
+  // Nur eigene Kampagnen berücksichtigen — erst eigene campaignIds einsammeln,
+  // dann pro campaignId gezielt abfragen statt die gesamte Tabelle zu scannen.
+  const campaignsRes = await dynamo.send(new QueryCommand({
+    TableName: 'plexora-campaigns',
+    KeyConditionExpression: 'userId = :u',
+    ExpressionAttributeValues: { ':u': userId },
+  }))
+  const ownCampaignIds = (campaignsRes.Items || []).map((c: any) => c.campaignId)
+
+  const sends: any[] = []
+  for (const campaignId of ownCampaignIds) {
+    const res = await dynamo.send(new QueryCommand({
+      TableName: 'plexora-email-sends',
+      KeyConditionExpression: 'campaignId = :c',
+      ExpressionAttributeValues: { ':c': campaignId },
+    }))
+    sends.push(...(res.Items || []))
+  }
 
   for (const send of sends) {
     if (send.followupLevel > 0) continue

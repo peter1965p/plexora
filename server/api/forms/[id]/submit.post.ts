@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
     await client.send(new PutCommand({
       TableName: 'plexora-contacts',
       Item: {
-        userId:        'demo-user',
+        userId:        form.userId || 'demo-user',
         contactId:     randomUUID(),
         firstName,
         lastName,
