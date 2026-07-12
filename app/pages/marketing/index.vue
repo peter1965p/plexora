@@ -117,7 +117,7 @@
           <button class="mkt-action-btn" title="E-Mail Kampagne senden" @click="openSendEmail(c)">
             <i class="ti ti-mail-forward"></i>
           </button>
-          <NuxtLink class="mkt-action-btn" title="Design bearbeiten" :to="`/marketing/design/${c.campaignId}`">
+          <NuxtLink class="mkt-action-btn mkt-design-btn" title="Design-Editor öffnen" :to="`/marketing/design/${c.campaignId}`">
             <i class="ti ti-palette"></i>
           </NuxtLink>
           <button class="mkt-action-btn" @click="openEdit(c)">
@@ -1159,6 +1159,9 @@ function showToast(msg: string) {
 .mkt-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(220,38,38,0.08); }
 
 .mkt-action-btn:last-child { margin-left: auto; }
+
+.mkt-design-btn { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+.mkt-design-btn:hover { background: rgba(var(--accent-rgb), 0.2); }
 
 /* EMAIL STATS */
 .mkt-email-stats {
