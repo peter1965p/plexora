@@ -143,6 +143,15 @@
         </div>
         <div class="modal-body">
           <ImageUploadCrop :model-value="campaign[imageModal.field] || ''" s3-prefix="campaigns/" @update:model-value="onImageModalUpdate" />
+          <div v-if="campaign[imageModal.field]" class="image-size-row">
+            <div class="image-size-label">Bildgröße</div>
+            <div class="image-size-buttons">
+              <button v-for="pct in [25, 50, 75, 100]" :key="pct" class="image-size-btn"
+                :class="{ active: currentImageWidthPct === pct }" @click="setImageWidthPct(pct)">
+                {{ pct === 100 ? 'Volle Breite' : pct + '%' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -283,6 +292,12 @@ function openImageModal(field: string) {
   imageModal.open   = true
 }
 function closeImageModal() { imageModal.open = false }
+const currentImageWidthPct = computed(() => campaign.value.imageStyles?.[imageModal.field]?.widthPct ?? null)
+function setImageWidthPct(pct: number) {
+  if (!campaign.value.imageStyles) campaign.value.imageStyles = {}
+  campaign.value.imageStyles[imageModal.field] = { widthPct: pct }
+  preserveScrollThenRerender()
+}
 function onImageModalUpdate(url: string) {
   campaign.value[imageModal.field] = url
   preserveScrollThenRerender()
@@ -379,6 +394,13 @@ onMounted(async () => {
 .visual-toolbar-divider { width: 1px; align-self: stretch; background: var(--border); }
 .toolbar-image-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 8px 12px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); cursor: pointer; }
 .toolbar-image-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.image-size-row { margin-top: 16px; padding-top: 16px; border-top: 0.5px solid var(--border); }
+.image-size-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+.image-size-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+.image-size-btn { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 7px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); cursor: pointer; }
+.image-size-btn:hover { border-color: var(--accent); }
+.image-size-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 .visual-textarea { width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); font-family: inherit; font-size: 14px; resize: vertical; }
 
