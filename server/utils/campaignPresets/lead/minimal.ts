@@ -3,14 +3,14 @@ export const MINIMAL_LEAD_HTML = `<div class="lp3-root">
   <div class="lp3-wrap">
     <div class="lp3-brand">
       {{#if campaign.logoUrl}}
-        <img src="{{campaign.logoUrl}}" class="lp3-logo" />
+        <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="lp3-logo" />
       {{else}}
         <span>{{branding.brandNameFirst}}<span class="lp3-accent">{{branding.brandNameLast}}</span></span>
       {{/if}}
     </div>
 
-    <h1 class="lp3-headline">{{campaign.headline}}</h1>
-    {{#if campaign.subtext}}<p class="lp3-subtext">{{campaign.subtext}}</p>{{/if}}
+    <h1 class="lp3-headline" data-plx-field="campaign.headline" data-plx-type="text">{{campaign.headline}}</h1>
+    {{#if campaign.subtext}}<p class="lp3-subtext" data-plx-field="campaign.subtext" data-plx-type="text">{{campaign.subtext}}</p>{{/if}}
 
     {{#if campaign.contentItems.length}}
       <ul class="lp3-list">

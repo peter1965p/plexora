@@ -2,29 +2,29 @@
 export const MODERN_JOB_HTML = `<div class="jp2-root">
   <div class="jp2-hero" style="background: linear-gradient(135deg, {{campaign.accentColor}} 0%, {{campaign.accentColor}}cc 100%);">
     {{#if campaign.logoUrl}}
-      <img src="{{campaign.logoUrl}}" class="jp2-logo" />
+      <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp2-logo" />
     {{else}}
       <div class="jp2-logo-text">{{branding.brandNameFirst}}{{branding.brandNameLast}}</div>
     {{/if}}
     <div class="jp2-eyebrow">Karriere{{#if campaign.hasCompanyName}} bei {{campaign.companyName}}{{/if}}</div>
-    <h1 class="jp2-title">{{campaign.title}}</h1>
+    <h1 class="jp2-title" data-plx-field="campaign.title" data-plx-type="text">{{campaign.title}}</h1>
     <div class="jp2-badges">
-      <span class="jp2-badge"><i class="ti ti-building"></i> {{campaign.department}}</span>
-      <span class="jp2-badge"><i class="ti ti-map-pin"></i> {{campaign.location}}</span>
+      <span class="jp2-badge" data-plx-field="campaign.department" data-plx-type="text"><i class="ti ti-building"></i> {{campaign.department}}</span>
+      <span class="jp2-badge" data-plx-field="campaign.location" data-plx-type="text"><i class="ti ti-map-pin"></i> {{campaign.location}}</span>
       <span class="jp2-badge"><i class="ti ti-clock"></i> {{campaign.typeLabel}}</span>
     </div>
   </div>
 
   {{#if campaign.headerImageUrl}}
-    <div class="jp2-banner"><img src="{{campaign.headerImageUrl}}" /></div>
+    <div class="jp2-banner"><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
   {{/if}}
 
   <div class="jp2-body">
-    <div class="jp2-desc">{{campaign.description}}</div>
+    <div class="jp2-desc" data-plx-field="campaign.description" data-plx-type="multiline">{{campaign.description}}</div>
     {{#if campaign.requirements}}
       <div class="jp2-req">
         <div class="jp2-req-title">Anforderungen</div>
-        <div class="jp2-req-text">{{campaign.requirements}}</div>
+        <div class="jp2-req-text" data-plx-field="campaign.requirements" data-plx-type="multiline">{{campaign.requirements}}</div>
       </div>
     {{/if}}
 

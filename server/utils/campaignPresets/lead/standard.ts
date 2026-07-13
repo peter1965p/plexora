@@ -1,29 +1,29 @@
 // 1:1-Nachbau des ursprünglich hartcodierten Layouts aus app/pages/lead/[slug].vue —
 // Pflicht-Fallback für alle bestehenden Kampagnen ohne eigenes customTemplateHtml.
 export const STANDARD_LEAD_HTML = `<div class="lp-root">
-  <div class="lp-bg"></div>
+  <div class="lp-bg" data-plx-field="campaign.bgImageUrl" data-plx-type="image-bg"></div>
   <div class="lp-bg-overlay"></div>
 
   <div class="lp-layout">
     <div class="lp-hero">
       <div class="lp-logo">
         {{#if campaign.logoUrl}}
-          <img src="{{campaign.logoUrl}}" style="max-height:48px;max-width:180px;object-fit:contain" />
+          <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" style="max-height:48px;max-width:180px;object-fit:contain" />
         {{else}}
           <div class="lp-logo-text">{{branding.brandNameFirst}}<span class="lp-logo-accent">{{branding.brandNameLast}}</span></div>
         {{/if}}
       </div>
 
-      <h1 class="lp-headline">{{campaign.headline}}</h1>
-      {{#if campaign.subtext}}<p class="lp-subtext">{{campaign.subtext}}</p>{{/if}}
+      <h1 class="lp-headline" data-plx-field="campaign.headline" data-plx-type="text">{{campaign.headline}}</h1>
+      {{#if campaign.subtext}}<p class="lp-subtext" data-plx-field="campaign.subtext" data-plx-type="text">{{campaign.subtext}}</p>{{/if}}
 
       {{#if campaign.headerImageUrl}}
-        <div class="lp-banner-card"><img src="{{campaign.headerImageUrl}}" /></div>
+        <div class="lp-banner-card"><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
       {{/if}}
 
       {{#if campaign.contentItems.length}}
         <div class="lp-benefits">
-          {{#if campaign.contentTitle}}<div class="lp-benefits-title">{{campaign.contentTitle}}</div>{{/if}}
+          {{#if campaign.contentTitle}}<div class="lp-benefits-title" data-plx-field="campaign.contentTitle" data-plx-type="text">{{campaign.contentTitle}}</div>{{/if}}
           {{#each campaign.contentItems}}
             <div class="lp-benefit-item">
               <span class="lp-benefit-check"><i class="ti ti-check"></i></span>

@@ -3,19 +3,19 @@ export const MINIMAL_JOB_HTML = `<div class="jp3-root">
   <div class="jp3-wrap">
     <div class="jp3-brand">
       {{#if campaign.logoUrl}}
-        <img src="{{campaign.logoUrl}}" class="jp3-logo" />
+        <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp3-logo" />
       {{else}}
         <span>{{branding.brandNameFirst}}<span class="jp3-accent">{{branding.brandNameLast}}</span></span>
       {{/if}}
     </div>
 
     <div class="jp3-meta">{{campaign.department}} · {{campaign.location}} · {{campaign.typeLabel}}</div>
-    <h1 class="jp3-title">{{campaign.title}}</h1>
+    <h1 class="jp3-title" data-plx-field="campaign.title" data-plx-type="text">{{campaign.title}}</h1>
 
-    <div class="jp3-desc">{{campaign.description}}</div>
+    <div class="jp3-desc" data-plx-field="campaign.description" data-plx-type="multiline">{{campaign.description}}</div>
     {{#if campaign.requirements}}
       <div class="jp3-req-title">Anforderungen</div>
-      <div class="jp3-desc">{{campaign.requirements}}</div>
+      <div class="jp3-desc" data-plx-field="campaign.requirements" data-plx-type="multiline">{{campaign.requirements}}</div>
     {{/if}}
 
     <div class="jp3-divider"></div>

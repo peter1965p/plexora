@@ -98,7 +98,7 @@ export function buildLeadTemplateDataClient(campaign: any, form: any, branding: 
   }
 }
 
-const JOB_TYPE_LABELS: Record<string, string> = {
+export const JOB_TYPE_LABELS: Record<string, string> = {
   fulltime: 'Vollzeit', parttime: 'Teilzeit', internship: 'Praktikum', freelance: 'Freelance',
 }
 
@@ -145,3 +145,53 @@ export function renderCampaignHtmlClient(templateHtml: string, data: any): strin
     return `<pre style="color:#dc2626;padding:20px;font-family:monospace;white-space:pre-wrap">Template-Fehler:\n${e?.message || e}</pre>`
   }
 }
+
+// ── Visueller Bearbeitungsmodus (nur Editor-Vorschau, nie öffentliche Seiten) ──
+// Presets markieren editierbare Elemente mit data-plx-field="campaign.xxx" +
+// data-plx-type="text|multiline|image|image-bg" (siehe server/utils/campaignPresets/*).
+// markEditableFields() macht daraus tatsächlich interaktive Elemente: einzeilige Text-
+// felder werden contenteditable, alles andere (mehrzeilig/Bild/Hintergrundbild) bekommt
+// nur eine Klick-Markierung — das eigentliche Bearbeiten läuft dafür über ein Modal in
+// CampaignDesignEditor.vue, da contenteditable bei mehrzeiligem Text browserabhängig
+// Absätze als <div>/<br> einfügt und beim Auslesen per textContent verlustbehaftet ist.
+export function markEditableFields(html: string): string {
+  if (typeof DOMParser === 'undefined') return html
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  doc.querySelectorAll('[data-plx-field]').forEach((el) => {
+    const type = el.getAttribute('data-plx-type')
+    el.classList.add('plx-editable-field')
+    if (type === 'text') {
+      el.setAttribute('contenteditable', 'true')
+    } else {
+      el.classList.add('plx-editable-click')
+    }
+  })
+  return doc.body.innerHTML
+}
+
+export const VISUAL_MODE_STYLE = `
+  [data-plx-field] { outline-offset: 2px; transition: outline-color .15s; border-radius: 2px; }
+  [data-plx-field]:hover { outline: 2px dashed #6C3FE8; cursor: pointer; }
+  [data-plx-field][contenteditable="true"]:focus { outline: 2px solid #6C3FE8; cursor: text; }
+`
+
+export const VISUAL_MODE_SCRIPT = `
+  document.querySelectorAll('[data-plx-field]').forEach(function (el) {
+    if (el.getAttribute('contenteditable') === 'true') {
+      el.addEventListener('blur', function () {
+        window.parent.postMessage({
+          source: 'plx-visual-editor', type: 'plx-text-edit',
+          field: el.getAttribute('data-plx-field'), value: el.textContent,
+        }, window.location.origin)
+      })
+    } else {
+      el.addEventListener('click', function (e) {
+        e.preventDefault()
+        window.parent.postMessage({
+          source: 'plx-visual-editor', type: 'plx-field-click',
+          field: el.getAttribute('data-plx-field'), fieldType: el.getAttribute('data-plx-type'),
+        }, window.location.origin)
+      })
+    }
+  })
+`

@@ -29,9 +29,34 @@
         </button>
       </div>
 
-      <div class="editor-grid">
-        <!-- Linke Spalte: Monaco + Platzhalter-Referenz -->
-        <div class="editor-col">
+      <!-- Modus-Umschalter -->
+      <div class="mode-switch">
+        <button class="mode-btn" :class="{ active: mode === 'code' }" @click="mode = 'code'"><i class="ti ti-code"></i> Code</button>
+        <button class="mode-btn" :class="{ active: mode === 'visual' }" @click="mode = 'visual'"><i class="ti ti-hand-click"></i> Visuell</button>
+      </div>
+
+      <!-- Visuell-Toolbar: Farben + Typ (nicht per Klick in der Vorschau editierbar) -->
+      <div v-if="mode === 'visual'" class="visual-toolbar">
+        <div class="visual-toolbar-item">
+          <label>Akzentfarbe</label>
+          <input type="color" v-model="campaign.accentColor" @change="preserveScrollThenRerender" />
+        </div>
+        <div class="visual-toolbar-item">
+          <label>Hintergrundfarbe</label>
+          <input type="color" v-model="campaign.bgColor" @change="preserveScrollThenRerender" />
+        </div>
+        <div v-if="type === 'job'" class="visual-toolbar-item">
+          <label>Anstellungsart</label>
+          <select v-model="campaign.type" class="theme-select" @change="preserveScrollThenRerender">
+            <option v-for="(label, key) in JOB_TYPE_LABELS" :key="key" :value="key">{{ label }}</option>
+          </select>
+        </div>
+        <div class="visual-toolbar-hint"><i class="ti ti-info-circle"></i> Text in der Vorschau anklicken zum Bearbeiten</div>
+      </div>
+
+      <div class="editor-grid" :class="{ 'visual-mode': mode === 'visual' }">
+        <!-- Linke Spalte: Monaco + Platzhalter-Referenz (nur im Code-Modus) -->
+        <div v-if="mode === 'code'" class="editor-col">
           <div class="editor-toolbar">
             <span class="editor-toolbar-label"><i class="ti ti-code"></i> HTML / CSS Template</span>
             <select v-model="monacoTheme" class="theme-select" @change="setMonacoTheme(monacoTheme)">
@@ -82,11 +107,41 @@
             </div>
           </div>
           <div class="preview-frame-wrap">
-            <iframe :srcdoc="iframeSrcdoc" class="preview-frame" title="Live-Vorschau"></iframe>
+            <iframe ref="previewIframeRef" :srcdoc="iframeSrcdoc" class="preview-frame" title="Live-Vorschau" @load="onIframeLoad"></iframe>
           </div>
         </div>
       </div>
     </template>
+
+    <!-- Mehrzeiliges Textfeld bearbeiten -->
+    <div v-if="multilineModal.open" class="modal-overlay" @click.self="multilineModal.open = false">
+      <div class="modal-card" style="max-width:520px;width:92vw">
+        <div class="modal-header">
+          <span class="card-title">{{ multilineModal.label }}</span>
+          <button class="icon-btn" @click="multilineModal.open = false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <textarea v-model="multilineModal.value" rows="8" class="visual-textarea"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+            <button class="icon-btn" @click="multilineModal.open = false">Abbrechen</button>
+            <button class="accent-btn" @click="saveMultilineModal">Übernehmen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bild bearbeiten -->
+    <div v-if="imageModal.open" class="modal-overlay" @click.self="closeImageModal">
+      <div class="modal-card" style="max-width:520px;width:92vw">
+        <div class="modal-header">
+          <span class="card-title">{{ imageModal.label }}</span>
+          <button class="icon-btn" @click="closeImageModal"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <ImageUploadCrop :model-value="campaign[imageModal.field] || ''" s3-prefix="campaigns/" @update:model-value="onImageModalUpdate" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -94,6 +149,7 @@
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import {
   buildLeadTemplateDataClient, buildJobTemplateDataClient, renderCampaignHtmlClient,
+  markEditableFields, VISUAL_MODE_STYLE, VISUAL_MODE_SCRIPT, JOB_TYPE_LABELS,
 } from '~/utils/campaignTemplateClient'
 
 const props = defineProps<{ type: 'lead' | 'job'; campaignId: string }>()
@@ -165,7 +221,8 @@ function updatePreview() {
   const data = props.type === 'job'
     ? buildJobTemplateDataClient(campaign.value, branding.value)
     : buildLeadTemplateDataClient(campaign.value, linkedForm.value, branding.value)
-  htmlPreview.value = renderCampaignHtmlClient(templateHtml.value, data)
+  const rendered = renderCampaignHtmlClient(templateHtml.value, data)
+  htmlPreview.value = mode.value === 'visual' ? markEditableFields(rendered) : rendered
 }
 
 let previewDebounce: ReturnType<typeof setTimeout> | null = null
@@ -174,10 +231,78 @@ watch(templateHtml, () => {
   previewDebounce = setTimeout(updatePreview, 250)
 })
 
+// ── Visueller Bearbeitungsmodus ──────────────────────────────────────────────
+const mode = ref<'code' | 'visual'>('code')
+watch(mode, updatePreview)
+
+const previewIframeRef = ref<HTMLIFrameElement | null>(null)
+let pendingScrollY: number | null = null
+
+function preserveScrollThenRerender() {
+  pendingScrollY = previewIframeRef.value?.contentWindow?.scrollY ?? null
+  updatePreview()
+}
+function onIframeLoad() {
+  if (pendingScrollY !== null) {
+    previewIframeRef.value?.contentWindow?.scrollTo(0, pendingScrollY)
+    pendingScrollY = null
+  }
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  title: 'Titel', headline: 'Headline', subtext: 'Subtext', description: 'Beschreibung',
+  requirements: 'Anforderungen', department: 'Abteilung', location: 'Standort',
+  companyName: 'Firmenname', contentTitle: 'Block-Titel',
+  logoUrl: 'Logo', headerImageUrl: 'Header-Bild', bgImageUrl: 'Hintergrundbild',
+}
+function fieldKey(field: string) { return field.replace(/^campaign\./, '') }
+
+const multilineModal = reactive({ open: false, field: '', label: '', value: '' })
+function openMultilineModal(field: string) {
+  const key = fieldKey(field)
+  multilineModal.field = key
+  multilineModal.label  = FIELD_LABELS[key] || key
+  multilineModal.value  = campaign.value[key] || ''
+  multilineModal.open   = true
+}
+function saveMultilineModal() {
+  campaign.value[multilineModal.field] = multilineModal.value
+  multilineModal.open = false
+  preserveScrollThenRerender()
+}
+
+const imageModal = reactive({ open: false, field: '', label: '' })
+function openImageModal(field: string) {
+  const key = fieldKey(field)
+  imageModal.field = key
+  imageModal.label  = FIELD_LABELS[key] || key
+  imageModal.open   = true
+}
+function closeImageModal() { imageModal.open = false }
+function onImageModalUpdate(url: string) {
+  campaign.value[imageModal.field] = url
+  preserveScrollThenRerender()
+}
+
+function handleIframeMessage(event: MessageEvent) {
+  if (event.source !== previewIframeRef.value?.contentWindow) return
+  const data = event.data
+  if (!data || data.source !== 'plx-visual-editor') return
+  if (data.type === 'plx-text-edit') {
+    campaign.value[fieldKey(data.field)] = data.value
+    preserveScrollThenRerender()
+  } else if (data.type === 'plx-field-click') {
+    if (data.fieldType === 'multiline') openMultilineModal(data.field)
+    else if (data.fieldType === 'image' || data.fieldType === 'image-bg') openImageModal(data.field)
+  }
+}
+onMounted(() => window.addEventListener('message', handleIframeMessage))
+onUnmounted(() => window.removeEventListener('message', handleIframeMessage))
+
 const iframeSrcdoc = computed(() => `<!doctype html><html><head><meta charset="utf-8" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
-  <style>body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}</style>
-  </head><body>${htmlPreview.value}</body></html>`)
+  <style>body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}${mode.value === 'visual' ? VISUAL_MODE_STYLE : ''}</style>
+  </head><body>${htmlPreview.value}${mode.value === 'visual' ? `<script>${VISUAL_MODE_SCRIPT}<\/script>` : ''}</body></html>`)
 
 async function saveTemplate() {
   saving.value = true
@@ -238,7 +363,20 @@ onMounted(async () => {
 .preset-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
 .preset-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
+.mode-switch { display: flex; gap: 6px; margin-bottom: 14px; background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
+.mode-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 7px 14px; border: none; border-radius: 7px; background: transparent; color: var(--text-muted); cursor: pointer; }
+.mode-btn.active { background: var(--accent); color: #fff; }
+
+.visual-toolbar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; }
+.visual-toolbar-item { display: flex; align-items: center; gap: 8px; }
+.visual-toolbar-item label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.visual-toolbar-item input[type="color"] { width: 32px; height: 32px; border-radius: 7px; border: 0.5px solid var(--border); background: none; cursor: pointer; }
+.visual-toolbar-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+.visual-textarea { width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); font-family: inherit; font-size: 14px; resize: vertical; }
+
 .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+.editor-grid.visual-mode { grid-template-columns: 1fr; }
 @media (max-width: 1100px) { .editor-grid { grid-template-columns: 1fr; } }
 
 .editor-col, .preview-col { display: flex; flex-direction: column; background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 16px; overflow: hidden; min-height: 620px; }
