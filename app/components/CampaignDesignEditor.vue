@@ -51,6 +51,10 @@
             <option v-for="(label, key) in JOB_TYPE_LABELS" :key="key" :value="key">{{ label }}</option>
           </select>
         </div>
+        <div class="visual-toolbar-divider"></div>
+        <button class="toolbar-image-btn" @click="openImageModal('campaign.logoUrl')"><i class="ti ti-photo"></i> Logo</button>
+        <button class="toolbar-image-btn" @click="openImageModal('campaign.headerImageUrl')"><i class="ti ti-photo"></i> Header-Bild</button>
+        <button v-if="type === 'lead'" class="toolbar-image-btn" @click="openImageModal('campaign.bgImageUrl')"><i class="ti ti-photo"></i> Hintergrundbild</button>
         <div class="visual-toolbar-hint"><i class="ti ti-info-circle"></i> Text in der Vorschau anklicken zum Bearbeiten</div>
       </div>
 
@@ -372,6 +376,9 @@ onMounted(async () => {
 .visual-toolbar-item label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
 .visual-toolbar-item input[type="color"] { width: 32px; height: 32px; border-radius: 7px; border: 0.5px solid var(--border); background: none; cursor: pointer; }
 .visual-toolbar-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); margin-left: auto; }
+.visual-toolbar-divider { width: 1px; align-self: stretch; background: var(--border); }
+.toolbar-image-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 8px 12px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); cursor: pointer; }
+.toolbar-image-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .visual-textarea { width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); font-family: inherit; font-size: 14px; resize: vertical; }
 
