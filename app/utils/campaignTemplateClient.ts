@@ -182,8 +182,13 @@ export const VISUAL_MODE_STYLE = `
 // Ziel-Origin ablehnt (DOMException "An invalid or illegal string was specified", in Firefox
 // live reproduziert). Vertrauensprüfung passiert stattdessen beim Empfang im Parent über
 // event.source === iframe.contentWindow.
+// stopPropagation auf JEDEM getaggten Element (auch text/contenteditable, die selbst keine
+// eigene Klick-Nachricht senden) — sonst würde z.B. ein Klick in den Titel (contenteditable)
+// bis zu einer umschließenden image-bg-Region (Hero mit Hintergrundbild) durchbubbeln und dort
+// fälschlich das Bild-Upload-Modal öffnen, während der Nutzer eigentlich nur Text bearbeiten wollte.
 export const VISUAL_MODE_SCRIPT = `
   document.querySelectorAll('[data-plx-field]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.stopPropagation() })
     if (el.getAttribute('contenteditable') === 'true') {
       el.addEventListener('blur', function () {
         window.parent.postMessage({

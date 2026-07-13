@@ -1,6 +1,6 @@
 // Farbiger Hero-Banner statt neutraler Karte, größere Typografie — modernere Recruiting-Optik.
 export const MODERN_JOB_HTML = `<div class="jp2-root">
-  <div class="jp2-hero" style="background: linear-gradient(135deg, {{campaign.accentColor}} 0%, {{campaign.accentColor}}cc 100%);">
+  <div class="jp2-hero" {{#if campaign.headerImageUrl}}data-plx-field="campaign.headerImageUrl" data-plx-type="image-bg"{{/if}} style="background: {{#if campaign.headerImageUrl}}linear-gradient(135deg, {{campaign.accentColor}}cc 0%, {{campaign.accentColor}}99 100%), url('{{campaign.headerImageUrl}}') center/cover no-repeat{{else}}linear-gradient(135deg, {{campaign.accentColor}} 0%, {{campaign.accentColor}}cc 100%){{/if}};{{#if campaign.headerImageUrl}}min-height:380px;display:flex;flex-direction:column;justify-content:center;{{/if}}">
     {{#if campaign.logoUrl}}
       <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp2-logo" {{#if campaign.imageStyles.logoUrl}}style="max-width:{{campaign.imageStyles.logoUrl.widthPct}}%"{{/if}} />
     {{else}}
@@ -14,10 +14,6 @@ export const MODERN_JOB_HTML = `<div class="jp2-root">
       <span class="jp2-badge"><i class="ti ti-clock"></i> {{campaign.typeLabel}}</span>
     </div>
   </div>
-
-  {{#if campaign.headerImageUrl}}
-    <div class="jp2-banner" {{#if campaign.imageStyles.headerImageUrl}}style="max-width:{{campaign.imageStyles.headerImageUrl.widthPct}}%"{{/if}}><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
-  {{/if}}
 
   <div class="jp2-body">
     <div class="jp2-desc" data-plx-field="campaign.description" data-plx-type="multiline">{{campaign.description}}</div>
@@ -44,9 +40,6 @@ export const MODERN_JOB_HTML = `<div class="jp2-root">
 .jp2-title { font-size: clamp(24px, 4vw, 38px); font-weight: 900; margin: 0 0 18px; line-height: 1.2; }
 .jp2-badges { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .jp2-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 14px; }
-
-.jp2-banner { max-width: 760px; margin: -24px auto 0; border-radius: 16px; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.15); position: relative; z-index: 1; }
-.jp2-banner img { width: 100%; display: block; max-height: 260px; object-fit: cover; }
 
 .jp2-body { max-width: 640px; margin: 32px auto 0; padding: 0 24px; display: flex; flex-direction: column; gap: 24px; }
 .jp2-desc { font-size: 15px; color: #333; line-height: 1.7; white-space: pre-wrap; background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 20px rgba(20,20,40,0.05); }
