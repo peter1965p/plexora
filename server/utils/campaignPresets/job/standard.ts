@@ -6,14 +6,14 @@ export const STANDARD_JOB_HTML = `<div style="min-height:100vh;display:flex;alig
   <div style="max-width:680px;width:100%">
 
     {{#if campaign.headerImageUrl}}
-      <div style="border-radius:16px;overflow:hidden;margin-bottom:24px;height:200px">
+      <div style="border-radius:16px;overflow:hidden;margin-bottom:24px;height:200px;{{#if campaign.imageStyles.headerImageUrl}}max-width:{{campaign.imageStyles.headerImageUrl.widthPct}}%;margin-left:auto;margin-right:auto{{/if}}">
         <img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" style="width:100%;height:100%;object-fit:cover" alt="Header" />
       </div>
     {{/if}}
 
     <div style="text-align:center;margin-bottom:40px">
       {{#if campaign.logoUrl}}
-        <div style="margin-bottom:12px"><img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" style="max-height:60px;max-width:200px;object-fit:contain" alt="Logo" /></div>
+        <div style="margin-bottom:12px"><img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" style="max-height:60px;max-width:{{#if campaign.imageStyles.logoUrl}}{{campaign.imageStyles.logoUrl.widthPct}}%{{else}}200px{{/if}};object-fit:contain" alt="Logo" /></div>
       {{else}}
         <div class="logo-text" style="font-size:28px;margin-bottom:8px">{{branding.brandNameFirst}}<span style="color:{{campaign.accentColor}}">{{branding.brandNameLast}}</span></div>
         {{#if campaign.hasCompanyName}}

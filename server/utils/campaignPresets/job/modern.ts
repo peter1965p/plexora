@@ -2,7 +2,7 @@
 export const MODERN_JOB_HTML = `<div class="jp2-root">
   <div class="jp2-hero" style="background: linear-gradient(135deg, {{campaign.accentColor}} 0%, {{campaign.accentColor}}cc 100%);">
     {{#if campaign.logoUrl}}
-      <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp2-logo" />
+      <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp2-logo" {{#if campaign.imageStyles.logoUrl}}style="max-width:{{campaign.imageStyles.logoUrl.widthPct}}%"{{/if}} />
     {{else}}
       <div class="jp2-logo-text">{{branding.brandNameFirst}}{{branding.brandNameLast}}</div>
     {{/if}}
@@ -16,7 +16,7 @@ export const MODERN_JOB_HTML = `<div class="jp2-root">
   </div>
 
   {{#if campaign.headerImageUrl}}
-    <div class="jp2-banner"><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
+    <div class="jp2-banner" {{#if campaign.imageStyles.headerImageUrl}}style="max-width:{{campaign.imageStyles.headerImageUrl.widthPct}}%"{{/if}}><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
   {{/if}}
 
   <div class="jp2-body">

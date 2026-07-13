@@ -3,7 +3,7 @@ export const MINIMAL_JOB_HTML = `<div class="jp3-root">
   <div class="jp3-wrap">
     <div class="jp3-brand">
       {{#if campaign.logoUrl}}
-        <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp3-logo" />
+        <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="jp3-logo" {{#if campaign.imageStyles.logoUrl}}style="max-width:{{campaign.imageStyles.logoUrl.widthPct}}%"{{/if}} />
       {{else}}
         <span>{{branding.brandNameFirst}}<span class="jp3-accent">{{branding.brandNameLast}}</span></span>
       {{/if}}
