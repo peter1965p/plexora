@@ -2,14 +2,14 @@
 export const MODERN_LEAD_HTML = `<div class="lp2-root">
   <div class="lp2-topbar">
     {{#if campaign.logoUrl}}
-      <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="lp2-logo" />
+      <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" class="lp2-logo" {{#if campaign.imageStyles.logoUrl}}style="max-width:{{campaign.imageStyles.logoUrl.widthPct}}%"{{/if}} />
     {{else}}
       <div class="lp2-logo-text">{{branding.brandNameFirst}}<span class="lp2-accent">{{branding.brandNameLast}}</span></div>
     {{/if}}
   </div>
 
   <div class="lp2-hero">
-    {{#if campaign.headerImageUrl}}<div class="lp2-hero-img"><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>{{/if}}
+    {{#if campaign.headerImageUrl}}<div class="lp2-hero-img" {{#if campaign.imageStyles.headerImageUrl}}style="max-width:{{campaign.imageStyles.headerImageUrl.widthPct}}%;margin-left:auto;margin-right:auto"{{/if}}><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>{{/if}}
     <h1 class="lp2-headline" data-plx-field="campaign.headline" data-plx-type="text">{{campaign.headline}}</h1>
     {{#if campaign.subtext}}<p class="lp2-subtext" data-plx-field="campaign.subtext" data-plx-type="text">{{campaign.subtext}}</p>{{/if}}
   </div>
