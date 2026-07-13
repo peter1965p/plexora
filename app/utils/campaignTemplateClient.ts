@@ -175,6 +175,11 @@ export const VISUAL_MODE_STYLE = `
   [data-plx-field][contenteditable="true"]:focus { outline: 2px solid #6C3FE8; cursor: text; }
 `
 
+// Ziel-Origin bewusst '*' statt window.location.origin: in einer srcdoc-Iframe (Dokument-URL
+// about:srcdoc) liefert location.origin je nach Browser einen String, den postMessage als
+// Ziel-Origin ablehnt (DOMException "An invalid or illegal string was specified", in Firefox
+// live reproduziert). Vertrauensprüfung passiert stattdessen beim Empfang im Parent über
+// event.source === iframe.contentWindow.
 export const VISUAL_MODE_SCRIPT = `
   document.querySelectorAll('[data-plx-field]').forEach(function (el) {
     if (el.getAttribute('contenteditable') === 'true') {
@@ -182,7 +187,7 @@ export const VISUAL_MODE_SCRIPT = `
         window.parent.postMessage({
           source: 'plx-visual-editor', type: 'plx-text-edit',
           field: el.getAttribute('data-plx-field'), value: el.textContent,
-        }, window.location.origin)
+        }, '*')
       })
     } else {
       el.addEventListener('click', function (e) {
@@ -190,7 +195,7 @@ export const VISUAL_MODE_SCRIPT = `
         window.parent.postMessage({
           source: 'plx-visual-editor', type: 'plx-field-click',
           field: el.getAttribute('data-plx-field'), fieldType: el.getAttribute('data-plx-type'),
-        }, window.location.origin)
+        }, '*')
       })
     }
   })
