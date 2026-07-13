@@ -85,6 +85,7 @@ export function buildLeadTemplateDataClient(campaign: any, form: any, branding: 
       bgColor:         campaign?.bgColor || '#050815',
       contentTitle:    campaign?.contentTitle || '',
       contentItems,
+      imageStyles:     campaign?.imageStyles || {},
     },
     branding: {
       brandName,
@@ -124,6 +125,7 @@ export function buildJobTemplateDataClient(campaign: any, branding: any = {}) {
       bgColor:        campaign?.bgColor || '#050815',
       contentTitle:   campaign?.contentTitle || '',
       contentItems:   Array.isArray(campaign?.contentItems) ? campaign.contentItems.filter(Boolean) : [],
+      imageStyles:    campaign?.imageStyles || {},
     },
     branding: {
       brandName,

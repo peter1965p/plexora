@@ -8,7 +8,7 @@ export const STANDARD_LEAD_HTML = `<div class="lp-root">
     <div class="lp-hero">
       <div class="lp-logo">
         {{#if campaign.logoUrl}}
-          <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" style="max-height:48px;max-width:180px;object-fit:contain" />
+          <img src="{{campaign.logoUrl}}" data-plx-field="campaign.logoUrl" data-plx-type="image" style="max-height:48px;max-width:{{#if campaign.imageStyles.logoUrl}}{{campaign.imageStyles.logoUrl.widthPct}}%{{else}}180px{{/if}};object-fit:contain" />
         {{else}}
           <div class="lp-logo-text">{{branding.brandNameFirst}}<span class="lp-logo-accent">{{branding.brandNameLast}}</span></div>
         {{/if}}
@@ -18,7 +18,7 @@ export const STANDARD_LEAD_HTML = `<div class="lp-root">
       {{#if campaign.subtext}}<p class="lp-subtext" data-plx-field="campaign.subtext" data-plx-type="text">{{campaign.subtext}}</p>{{/if}}
 
       {{#if campaign.headerImageUrl}}
-        <div class="lp-banner-card"><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
+        <div class="lp-banner-card" {{#if campaign.imageStyles.headerImageUrl}}style="max-width:{{campaign.imageStyles.headerImageUrl.widthPct}}%"{{/if}}><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>
       {{/if}}
 
       {{#if campaign.contentItems.length}}
