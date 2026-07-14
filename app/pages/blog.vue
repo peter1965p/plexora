@@ -124,47 +124,7 @@
             <!-- Cover -->
             <div class="blog-field">
               <label>Cover-Bild</label>
-
-              <!-- Crop-Schritt -->
-              <div v-if="coverCropSrc">
-                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
-                <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
-                  <img ref="coverCropImgRef" :src="coverCropSrc" style="width:100%;max-height:200px;object-fit:contain;display:block" />
-                  <div v-if="coverCropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${coverCropRect.x}px;top:${coverCropRect.y}px;width:${coverCropRect.w}px;height:${coverCropRect.h}px`"></div>
-                </div>
-                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
-                  <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto;width:auto" @click="setCoverCropRatio(16,9)">16:9</button>
-                  <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto;width:auto" @click="setCoverCropRatio(1,1)">1:1</button>
-                  <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto;width:auto" @click="coverCropRect=null">Original</button>
-                  <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="uploadingCover" @click="confirmCoverCropAndUpload">
-                    <i class="ti" :class="uploadingCover ? 'ti-loader-2 spin' : 'ti-check'"></i>
-                    {{ uploadingCover ? 'Lädt...' : 'Übernehmen' }}
-                  </button>
-                  <button class="icon-btn" style="color:var(--danger)" @click="coverCropSrc=null;coverCropRect=null">
-                    <i class="ti ti-x"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Große Vorschau, kein Crop aktiv -->
-              <div v-else-if="form.coverImageUrl" style="border-radius:8px;overflow:hidden;border:0.5px solid var(--border);position:relative">
-                <img :src="form.coverImageUrl" style="width:100%;height:160px;object-fit:cover;display:block" />
-                <div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
-                  <label style="cursor:pointer">
-                    <input type="file" accept="image/*" style="display:none" @change="selectCoverFile" />
-                    <span class="icon-btn" style="background:rgba(0,0,0,0.6);display:inline-flex;align-items:center;justify-content:center;pointer-events:none"><i class="ti ti-pencil"></i></span>
-                  </label>
-                  <button class="icon-btn" style="background:rgba(0,0,0,0.6);color:var(--danger)" @click="form.coverImageUrl=''"><i class="ti ti-trash"></i></button>
-                </div>
-              </div>
-
-              <!-- Kein Cover, kein Crop -->
-              <label v-else style="cursor:pointer;display:block">
-                <input type="file" accept="image/*" style="display:none" @change="selectCoverFile" />
-                <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none;width:100%;justify-content:center">
-                  <i class="ti ti-photo-up"></i> Bild hochladen
-                </span>
-              </label>
+              <ImageUploadCrop v-model="form.coverImageUrl" s3-prefix="blog/" file-name-prefix="blog" :ratios="[[16, 9], [1, 1]]" />
             </div>
           </div>
 
@@ -199,6 +159,19 @@
             </ClientOnly>
           </div>
 
+          <!-- Rechte Spalte: Live-Vorschau -->
+          <div class="blog-preview-col">
+            <div style="padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg-elevated);flex-shrink:0;font-size:11px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;gap:6px">
+              <i class="ti ti-eye"></i> Live-Vorschau
+            </div>
+            <div class="blog-preview-body">
+              <div v-if="form.coverImageUrl" class="blog-preview-cover"><img :src="form.coverImageUrl" alt="" /></div>
+              <h1 class="blog-preview-title">{{ form.title || 'Beitragstitel...' }}</h1>
+              <p v-if="form.excerpt" class="blog-preview-excerpt">{{ form.excerpt }}</p>
+              <div class="prose-content" v-html="renderedPreview"></div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Modal Footer -->
@@ -224,6 +197,7 @@
 
 <script setup lang="ts">
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+import { marked } from 'marked'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
@@ -252,7 +226,6 @@ const showModal       = ref(false)
 const activeTab       = ref('all')
 const editingId       = ref('')
 const categoryFilter  = ref('')
-const uploadingCover  = ref(false)
 
 const tabs = [
   { key: 'all',   label: 'Alle',     icon: 'ti-list' },
@@ -275,6 +248,11 @@ const form = reactive({
 const tagsInput = computed({
   get: () => form.tags.join(', '),
   set: (v: string) => { form.tags = v.split(',').map(t => t.trim()).filter(Boolean) },
+})
+
+const renderedPreview = computed(() => {
+  if (form.contentType === 'markdown') return marked.parse(form.content || '') as string
+  return form.content || ''
 })
 
 const monacoTheme  = ref(import.meta.client ? (localStorage.getItem('plx_editor_theme') || 'vs-dark') : 'vs-dark')
@@ -351,74 +329,6 @@ function openEdit(p: BlogPost) {
   showModal.value    = true
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
-
-// ── Cover-Upload mit Crop ──
-const coverCropSrc    = ref<string | null>(null)
-const coverCropRect   = ref<{ x: number; y: number; w: number; h: number } | null>(null)
-const coverCropImgRef = ref<HTMLImageElement | null>(null)
-let _coverCropFile: File | null = null
-
-async function selectCoverFile(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  _coverCropFile = file
-  coverCropSrc.value = await fileToBase64(file)
-  coverCropRect.value = null
-  ;(e.target as HTMLInputElement).value = ''
-}
-
-function setCoverCropRatio(rw: number, rh: number) {
-  const img = coverCropImgRef.value
-  if (!img) return
-  const dw = img.clientWidth, dh = img.clientHeight
-  const ratio = rw / rh
-  let w = dw, h = Math.round(w / ratio)
-  if (h > dh) { h = dh; w = Math.round(h * ratio) }
-  coverCropRect.value = { x: Math.round((dw - w) / 2), y: Math.round((dh - h) / 2), w, h }
-}
-
-async function confirmCoverCropAndUpload() {
-  if (!_coverCropFile) return
-  uploadingCover.value = true
-  try {
-    let uploadFile: File = _coverCropFile
-    if (coverCropRect.value && coverCropImgRef.value) {
-      const img = coverCropImgRef.value
-      const sx = img.naturalWidth / img.clientWidth
-      const sy = img.naturalHeight / img.clientHeight
-      const { x, y, w, h } = coverCropRect.value
-      const canvas = document.createElement('canvas')
-      canvas.width  = Math.round(w * sx)
-      canvas.height = Math.round(h * sy)
-      canvas.getContext('2d')!.drawImage(img, Math.round(x*sx), Math.round(y*sy), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height)
-      const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), 'image/jpeg', 0.92))
-      uploadFile = new File([blob], _coverCropFile.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' })
-    }
-    const base64 = await fileToBase64(uploadFile)
-    const safeName = `blog-${Date.now()}.jpg`
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    const res: any = await $fetch(useApiUrl('/api/aws/s3-upload'), {
-      method: 'POST',
-      headers: await useAuthHeader(),
-      body: { fileBase64: base64, fileName: safeName, prefix: 'blog/' },
-    })
-    if (res?.url)      form.coverImageUrl = res.url
-    else if (res?.key) form.coverImageUrl = 'https://plexora-files.s3.eu-central-1.amazonaws.com/' + res.key
-    coverCropSrc.value = null; coverCropRect.value = null; _coverCropFile = null
-  } catch {
-    alert('Upload fehlgeschlagen. Bitte nochmal versuchen.')
-  } finally {
-    uploadingCover.value = false
-  }
-}
 
 async function loadPosts() {
   loading.value = true
@@ -475,7 +385,7 @@ onMounted(async () => {
 <style scoped>
 .blog-editor-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 320px 1fr 1fr;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -493,7 +403,42 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  border-right: 0.5px solid var(--border);
 }
+.blog-preview-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.blog-preview-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+.blog-preview-cover {
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+  margin-bottom: 20px;
+  background: var(--bg-elevated);
+}
+.blog-preview-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.blog-preview-title { font-size: 26px; font-weight: 800; margin: 0 0 8px; line-height: 1.2; }
+.blog-preview-excerpt { font-size: 14px; color: var(--text-muted); margin: 0 0 20px; }
+.prose-content { font-size: 14px; line-height: 1.7; color: var(--text); }
+.prose-content :deep(h1) { font-size: 24px; font-weight: 800; margin: 28px 0 12px; }
+.prose-content :deep(h2) { font-size: 20px; font-weight: 700; margin: 24px 0 10px; }
+.prose-content :deep(h3) { font-size: 16px; font-weight: 700; margin: 20px 0 8px; }
+.prose-content :deep(p) { margin: 0 0 14px; }
+.prose-content :deep(ul),
+.prose-content :deep(ol) { margin: 0 0 14px; padding-left: 22px; }
+.prose-content :deep(li) { margin-bottom: 4px; }
+.prose-content :deep(a) { color: var(--accent); }
+.prose-content :deep(strong) { font-weight: 700; }
+.prose-content :deep(blockquote) { border-left: 3px solid var(--accent); padding-left: 14px; color: var(--text-muted); margin: 0 0 14px; }
+.prose-content :deep(code) { background: var(--bg-elevated); border-radius: 4px; padding: 2px 6px; font-size: 12.5px; }
+.prose-content :deep(pre) { background: var(--bg-elevated); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 0 0 14px; }
+.prose-content :deep(img) { max-width: 100%; border-radius: 8px; }
 .blog-field label {
   display: block;
   font-size: 11px;
@@ -512,6 +457,10 @@ onMounted(async () => {
   border-radius: 6px;
   padding: 0 10px;
 }
+@media (max-width: 1300px) {
+  .blog-editor-grid { grid-template-columns: 280px 1fr; }
+  .blog-preview-col { display: none; }
+}
 @media (max-width: 900px) {
   .blog-editor-grid {
     grid-template-columns: 1fr;
@@ -524,6 +473,7 @@ onMounted(async () => {
   }
   .blog-editor-col {
     min-height: 400px;
+    border-right: none;
   }
 }
 </style>
