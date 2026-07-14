@@ -8,8 +8,7 @@ export const MODERN_LEAD_HTML = `<div class="lp2-root">
     {{/if}}
   </div>
 
-  <div class="lp2-hero">
-    {{#if campaign.headerImageUrl}}<div class="lp2-hero-img" {{#if campaign.imageStyles.headerImageUrl}}style="max-width:{{campaign.imageStyles.headerImageUrl.widthPct}}%;margin-left:auto;margin-right:auto"{{/if}}><img src="{{campaign.headerImageUrl}}" data-plx-field="campaign.headerImageUrl" data-plx-type="image" /></div>{{/if}}
+  <div class="lp2-hero {{#if campaign.headerImageUrl}}lp2-hero-photo{{/if}}" {{#if campaign.headerImageUrl}}data-plx-field="campaign.headerImageUrl" data-plx-type="image-bg" style="background: linear-gradient(135deg, {{campaign.accentColor}}cc 0%, {{campaign.accentColor}}99 100%), url('{{campaign.headerImageUrl}}') center/cover no-repeat;"{{/if}}>
     <h1 class="lp2-headline" data-plx-field="campaign.headline" data-plx-type="text">{{campaign.headline}}</h1>
     {{#if campaign.subtext}}<p class="lp2-subtext" data-plx-field="campaign.subtext" data-plx-type="text">{{campaign.subtext}}</p>{{/if}}
   </div>
@@ -42,10 +41,11 @@ export const MODERN_LEAD_HTML = `<div class="lp2-root">
 .lp2-accent { color: {{campaign.accentColor}}; }
 
 .lp2-hero { max-width: 720px; margin: 0 auto; text-align: center; padding: 24px 24px 8px; }
-.lp2-hero-img { border-radius: 20px; overflow: hidden; margin-bottom: 28px; box-shadow: 0 24px 60px rgba(0,0,0,0.12); }
-.lp2-hero-img img { width: 100%; display: block; max-height: 320px; object-fit: cover; }
+.lp2-hero-photo { border-radius: 24px; overflow: hidden; padding: 64px 32px; box-shadow: 0 24px 60px rgba(0,0,0,0.15); }
 .lp2-headline { font-size: clamp(26px, 4.5vw, 44px); font-weight: 900; color: #0d0d14; line-height: 1.2; margin: 0; }
+.lp2-hero-photo .lp2-headline { color: #fff; }
 .lp2-subtext { font-size: 16px; color: #55566b; margin: 14px 0 0; line-height: 1.6; }
+.lp2-hero-photo .lp2-subtext { color: rgba(255,255,255,0.85); }
 
 .lp2-body { max-width: 720px; margin: 32px auto 0; padding: 0 24px; display: flex; flex-direction: column; gap: 28px; }
 
