@@ -143,7 +143,7 @@
         </div>
         <div class="modal-body">
           <ImageUploadCrop :model-value="campaign[imageModal.field] || ''" s3-prefix="campaigns/" @update:model-value="onImageModalUpdate" />
-          <div v-if="campaign[imageModal.field]" class="image-size-row">
+          <div v-if="campaign[imageModal.field] && imageModalFieldType === 'image'" class="image-size-row">
             <div class="image-size-label">Bildgröße</div>
             <div class="image-size-buttons">
               <button v-for="pct in [25, 50, 75, 100]" :key="pct" class="image-size-btn"
@@ -151,6 +151,9 @@
                 {{ pct === 100 ? 'Volle Breite' : pct + '%' }}
               </button>
             </div>
+          </div>
+          <div v-else-if="campaign[imageModal.field] && imageModalFieldType === 'image-bg'" class="image-size-row">
+            <div class="image-size-hint"><i class="ti ti-info-circle"></i> Füllt in diesem Layout automatisch die volle Breite seines Bereichs — keine Größenwahl nötig.</div>
           </div>
         </div>
       </div>
@@ -292,6 +295,14 @@ function openImageModal(field: string) {
   imageModal.open   = true
 }
 function closeImageModal() { imageModal.open = false }
+// Ob ein Bildfeld im AKTUELL gewählten Preset als frei zuschneidbares <img> (Größe wählbar) oder
+// als volldeckender Hintergrund (immer 100%, keine Größenwahl sinnvoll) gerendert wird, hängt vom
+// Preset ab — nicht statisch bekannt, da derselbe Toolbar-Button ("Header-Bild") je nach Preset
+// beides treffen kann. Deshalb aus dem aktuellen Template-Quelltext ermittelt statt hartkodiert.
+const imageModalFieldType = computed(() => {
+  const re = new RegExp(`data-plx-field="campaign\\.${imageModal.field}"\\s+data-plx-type="([a-z-]+)"`)
+  return templateHtml.value.match(re)?.[1] || null
+})
 const currentImageWidthPct = computed(() => campaign.value.imageStyles?.[imageModal.field]?.widthPct ?? null)
 function setImageWidthPct(pct: number) {
   if (!campaign.value.imageStyles) campaign.value.imageStyles = {}
@@ -401,6 +412,7 @@ onMounted(async () => {
 .image-size-btn { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 7px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); cursor: pointer; }
 .image-size-btn:hover { border-color: var(--accent); }
 .image-size-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.image-size-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
 
 .visual-textarea { width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); font-family: inherit; font-size: 14px; resize: vertical; }
 
