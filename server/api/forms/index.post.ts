@@ -1,14 +1,16 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
+import { requireAuth } from '../../utils/verifyAuth'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
+  const { email } = requireAuth(event)
   const body = await readBody(event)
   const client = getDynamoClient()
   const form = {
     formId:      randomUUID(),
-    userId:      await resolveUserId(event.context.auth?.email || 'demo-user'),
+    userId:      await resolveUserId(email),
     title:       body.title,
     description: body.description || '',
     fields:      body.fields || [],

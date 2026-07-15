@@ -58,7 +58,8 @@ export function useIdleTimer() {
 
   onMounted(async () => {
     try {
-      const res = await $fetch<{ session: { timeoutMinutes: number } }>(sessionUrl)
+      const { useAuthHeader } = await import('~/composables/useAuth')
+      const res = await $fetch<{ session: { timeoutMinutes: number } }>(sessionUrl, { headers: await useAuthHeader() })
       const mins = res?.session?.timeoutMinutes ?? 5
       if (mins <= 0) { enabled.value = false; return }
       timeoutSeconds.value = mins * 60

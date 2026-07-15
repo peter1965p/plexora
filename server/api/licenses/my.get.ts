@@ -1,9 +1,9 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
-  const email = getQuery(event).email as string
-  if (!email) throw createError({ statusCode: 400, message: 'email erforderlich' })
+  const { email } = requireAuth(event)
 
   const dynamo = getDynamoClient()
   try {

@@ -9,14 +9,21 @@ const PUBLIC_PREFIXES = [
   '/api/licenses/validate',
   '/api/pay/',
   '/api/support/portal/',
-  '/api/forms/',
   '/api/jobs/',
+]
+
+// Nur der Formular-Submit selbst ist öffentlich (Endkunden füllen Formulare ohne
+// Login aus) — alle anderen /api/forms/*-Routen (Liste, Bearbeiten, Löschen,
+// Submissions einsehen) sind tenant-geschützt, daher kein Prefix-Eintrag dafür.
+const PUBLIC_PATTERNS = [
+  /^\/api\/forms\/[^/]+\/submit$/,
 ]
 
 export default defineEventHandler(async (event) => {
   const path = event.path || ''
   if (!path.startsWith('/api/')) return
   if (PUBLIC_PREFIXES.some(p => path.startsWith(p))) return
+  if (PUBLIC_PATTERNS.some(r => r.test(path))) return
 
   const auth = await verifyBearerToken(event)
   if (auth) event.context.auth = auth

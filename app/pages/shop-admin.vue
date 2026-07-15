@@ -461,7 +461,7 @@ const suppliers  = ref<any[]>([])
 
 async function loadCategories() {
   try {
-    const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'))
+    const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'), { headers: authHeaders })
     if (res.categories?.shop?.length) categories.value = res.categories.shop
   } catch {}
 }

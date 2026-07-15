@@ -72,19 +72,22 @@ export const useAppStore = defineStore("app", {
     async loadTheme() {
       if (this.themeLoaded) return;
       try {
-        const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"));
+        const { useAuthHeader } = await import('~/composables/useAuth');
+        const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"), { headers: await useAuthHeader() });
         const t = res?.theme || {};
         if (t.theme && t.theme in THEMES) this.setTheme(t.theme as ThemeKey);
         if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
       } catch {
-        // Defaults bleiben aktiv
+        // Defaults bleiben aktiv (u.a. für ausgeloggte Besucher auf öffentlichen Seiten)
       } finally {
         this.themeLoaded = true;
       }
     },
     async saveTheme() {
+      const { useAuthHeader } = await import('~/composables/useAuth');
       await $fetch(useApiUrl("/api/settings/theme"), {
         method: "POST",
+        headers: await useAuthHeader(),
         body: { theme: this.theme, accent: this.accent, accentRgb: this.accentRgb },
       });
     },
@@ -100,9 +103,12 @@ export const useAppStore = defineStore("app", {
     },
 
     async loadModules() {
+      const { useAuthHeader } = await import('~/composables/useAuth');
+      const authHeaders = import.meta.client ? await useAuthHeader() : {};
+
       // 1. Gespeicherte Ein/Aus-Zustände aus DynamoDB laden
       try {
-        const res = await $fetch<any>(useApiUrl("/api/settings/modules"));
+        const res = await $fetch<any>(useApiUrl("/api/settings/modules"), { headers: authHeaders });
         if (res?.modules) {
           const saved = JSON.parse(res.modules);
           this.modules = this.modules.map(m => {
@@ -119,7 +125,7 @@ export const useAppStore = defineStore("app", {
           const u = await useAuthUser();
           if (u.email) {
             const licRes = await $fetch<any>(
-              useApiUrl(`/api/licenses/my?email=${encodeURIComponent(u.email)}`)
+              useApiUrl('/api/licenses/my'), { headers: authHeaders }
             );
             this.setLicense(licRes?.license || null);
           }

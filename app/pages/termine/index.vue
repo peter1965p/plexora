@@ -404,7 +404,7 @@ const settingsForm = reactive({
 const googleDisconnecting = ref(false)
 
 function connectGoogle() {
-  window.location.href = useApiUrl(`/api/termine/google-auth?email=${encodeURIComponent(userEmail.value)}`)
+  window.location.href = useApiUrl(`/api/termine/google-auth?token=${encodeURIComponent(authToken.value)}`)
 }
 
 async function disconnectGoogle() {

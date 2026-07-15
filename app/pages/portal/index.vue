@@ -139,14 +139,14 @@ const licenseLoaded = ref(false)
 const keyCopied = ref(false)
 
 onMounted(async () => {
-  const { useAuthUser } = await import('~/composables/useAuth')
+  const { useAuthUser, useAuthHeader } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userId.value    = u.userId
   userEmail.value = u.email
 
   if (u.email) {
     try {
-      const res = await $fetch(useApiUrl(`/api/licenses/my?email=${encodeURIComponent(u.email)}`)) as any
+      const res = await $fetch(useApiUrl('/api/licenses/my'), { headers: await useAuthHeader() }) as any
       license.value = res.license || null
     } catch {}
   }

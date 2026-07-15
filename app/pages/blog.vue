@@ -271,7 +271,8 @@ const blogCategories = ref<string[]>([])
 
 async function loadBlogCategories() {
   try {
-    const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'))
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'), { headers: await useAuthHeader() })
     blogCategories.value = res.categories?.blog || []
   } catch {}
 }

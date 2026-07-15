@@ -1,9 +1,19 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { verifyToken } from '../../utils/verifyAuth'
 
+// Wird per echter Browser-Navigation aufgerufen (window.location.href, für den
+// Google-Consent-Redirect), daher kommt hier kein Authorization-Header an — die
+// Middleware kann requireAuth() nicht greifen lassen. Stattdessen wird das
+// Cognito-ID-Token selbst als Query-Param mitgegeben und hier verifiziert; die
+// E-Mail wird NICHT aus der Query übernommen, sondern aus dem verifizierten Token
+// gelesen (verhindert das Calendar-Hijack über eine erratene fremde E-Mail).
 export default defineEventHandler(async (event) => {
-  const email = getQuery(event).email as string | undefined
-  if (!email) throw createError({ statusCode: 400, message: 'email erforderlich' })
+  const token = getQuery(event).token as string | undefined
+  if (!token) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
+  const auth = await verifyToken(token)
+  if (!auth) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
+  const email = auth.email
 
   const config = useRuntimeConfig()
   if (!config.googleClientId || !config.googleClientSecret) {

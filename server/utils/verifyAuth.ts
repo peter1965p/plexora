@@ -20,13 +20,9 @@ function getVerifier() {
   return verifier
 }
 
-export async function verifyBearerToken(event: any): Promise<AuthUser | null> {
-  const header = getHeader(event, 'authorization') || ''
-  const match = header.match(/^Bearer\s+(.+)$/i)
-  if (!match) return null
-
+export async function verifyToken(token: string): Promise<AuthUser | null> {
   try {
-    const payload = await getVerifier().verify(match[1])
+    const payload = await getVerifier().verify(token)
     return {
       userId: payload.sub,
       email:  (payload.email as string) || '',
@@ -35,6 +31,13 @@ export async function verifyBearerToken(event: any): Promise<AuthUser | null> {
   } catch {
     return null
   }
+}
+
+export async function verifyBearerToken(event: any): Promise<AuthUser | null> {
+  const header = getHeader(event, 'authorization') || ''
+  const match = header.match(/^Bearer\s+(.+)$/i)
+  if (!match) return null
+  return verifyToken(match[1])
 }
 
 export function requireAuth(event: any): AuthUser {

@@ -1408,7 +1408,11 @@ async function saveAppearance() {
 const security = reactive({ timeoutMinutes: 5 })
 const securitySaving = ref(false)
 
-const { data: sessionData } = await useFetch(useApiUrl('/api/settings/session'), { getCachedData: () => undefined })
+const { useAuthHeader: _sessionAuthHeaderLoader } = await import('~/composables/useAuth')
+const { data: sessionData } = await useFetch(useApiUrl('/api/settings/session'), {
+  getCachedData: () => undefined,
+  headers: await _sessionAuthHeaderLoader(),
+})
 if ((sessionData.value as any)?.session) {
   security.timeoutMinutes = (sessionData.value as any).session.timeoutMinutes ?? 5
 }
@@ -1417,8 +1421,10 @@ async function saveSecurity() {
   if (isDemo.value) return
   securitySaving.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/settings/session'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { timeoutMinutes: security.timeoutMinutes }
     })
   } finally {
@@ -1705,7 +1711,8 @@ const categoriesSaving = ref(false)
 
 async function loadCategories() {
   try {
-    const d = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'))
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const d = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'), { headers: await useAuthHeader() })
     if (d?.categories) Object.assign(categories, d.categories)
   } catch {}
 }
@@ -1713,8 +1720,10 @@ async function loadCategories() {
 async function saveCategories(area: string) {
   categoriesSaving.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/settings/categories'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { area, categories: categories[area], userId: userId.value },
     })
   } finally {
@@ -1775,7 +1784,7 @@ onMounted(async () => {
   } catch {}
 
   try {
-    const d = await $fetch(useApiUrl('/api/settings/dunning') as any)
+    const d = await $fetch(useApiUrl('/api/settings/dunning') as any, { headers: loadAuthHeaders })
     if (d?.settings) Object.assign(dunning, d.settings)
   } catch {}
 
@@ -1856,7 +1865,8 @@ async function saveDunningSettings() {
   if (isDemo.value) return
   dunningSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/dunning'), { method: 'POST', body: { ...dunning, userId: userId.value } })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/dunning'), { method: 'POST', headers: await useAuthHeader(), body: { ...dunning, userId: userId.value } })
   } finally {
     dunningSaving.value = false
   }
@@ -1870,8 +1880,10 @@ async function saveModules() {
   if (isDemo.value) return
   modulesSaving.value = true
   try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/settings/modules'), {
       method: 'POST',
+      headers: await useAuthHeader(),
       body: { modules: store.modules, userId: userId.value }
     })
     modulesDirty.value = false
@@ -1924,7 +1936,8 @@ async function savePayment() {
   if (isDemo.value) return
   paymentSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', body: { ...payment, userId: userId.value } })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', headers: await useAuthHeader(), body: { ...payment, userId: userId.value } })
     showSettingsToast('Payment-Einstellungen gespeichert!')
   } catch {
     showSettingsToast('Fehler beim Speichern!', true)
@@ -2065,7 +2078,8 @@ onMounted(async () => {
     if (d?.agb) Object.assign(agb, d.agb)
   } catch {}
   try {
-    const d = await $fetch(useApiUrl('/api/settings/payment') as any)
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const d = await $fetch(useApiUrl('/api/settings/payment') as any, { headers: await useAuthHeader() })
     if (d?.payment) Object.assign(payment, d.payment)
   } catch {}
 })
@@ -2074,7 +2088,8 @@ async function saveAgb() {
   if (isDemo.value) return
   agbSaving.value = true
   try {
-    await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', body: { content: agb.content, userId: userId.value } })
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', headers: await useAuthHeader(), body: { content: agb.content, userId: userId.value } })
   } finally {
     agbSaving.value = false
   }
