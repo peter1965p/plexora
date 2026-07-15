@@ -36,7 +36,7 @@ const translations = {
     moduleNames: {
       crm: 'CRM', projects: 'Projekte', contracts: 'Verträge', finance: 'Finanzen',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
-      pagebuilder: 'Pagebuilder', forms: 'Formulare', marketing: 'Marketing', nexora: 'Website',
+      forms: 'Formulare', marketing: 'Marketing', nexora: 'Website',
       termine: 'Termine',
     } as Record<string, string>,
 
@@ -45,7 +45,7 @@ const translations = {
       '/dashboard':  'Dashboard', '/crm':        'CRM',        '/projects':   'Projekte',
       '/lead':       'Lead-Landingpage', '/finance': 'Finanzen', '/contracts':  'Verträge',
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
-      '/shop-admin': 'Shop',       '/pagebuilder':'Pagebuilder','/forms':      'Formulare',
+      '/shop-admin': 'Shop',       '/forms':      'Formulare',
       '/analytics':  'Analytics',  '/settings':   'Einstellungen', '/website': 'Website',
       '/blog':       'Blog',      '/automotive': 'Automotive', '/termine':    'Termine',
     } as Record<string, string>,
@@ -345,7 +345,7 @@ const translations = {
     moduleNames: {
       crm: 'CRM', projects: 'Projects', contracts: 'Contracts', finance: 'Finance',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
-      pagebuilder: 'Page Builder', forms: 'Forms', marketing: 'Marketing', nexora: 'Website',
+      forms: 'Forms', marketing: 'Marketing', nexora: 'Website',
       termine: 'Appointments',
     } as Record<string, string>,
 
@@ -354,7 +354,7 @@ const translations = {
       '/dashboard':  'Dashboard', '/crm':        'CRM',        '/projects':   'Projects',
       '/lead':       'Lead Page',  '/finance':    'Finance',    '/contracts':  'Contracts',
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
-      '/shop-admin': 'Shop',       '/pagebuilder':'Page Builder','/forms':     'Forms',
+      '/shop-admin': 'Shop',       '/forms':      'Forms',
       '/analytics':  'Analytics',  '/settings':   'Settings',   '/website':   'Website',
       '/blog':       'Blog',      '/automotive': 'Automotive', '/termine':   'Appointments',
     } as Record<string, string>,

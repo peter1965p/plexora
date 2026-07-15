@@ -911,7 +911,7 @@
       </div>
       <div class="card-body">
         <div v-if="!navPages.length" style="color:var(--text-muted);font-size:13px;padding:20px 0">
-          Noch keine Seiten in der Navigation — aktiviere "In Navigation anzeigen" im Pagebuilder.
+          Noch keine Seiten in der Navigation.
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <div v-for="(p, idx) in navPages" :key="p.pageId"
