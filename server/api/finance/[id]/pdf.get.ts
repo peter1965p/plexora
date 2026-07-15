@@ -1,13 +1,14 @@
 import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
+import { requireAuth } from '../../../utils/verifyAuth'
 import { renderInvoiceTemplateToPdf } from '../../../utils/invoiceTemplate'
 import { getPresetHtml } from '../../../utils/invoicePresets'
 
 export default defineEventHandler(async (event) => {
-  const invoiceId   = getRouterParam(event, 'id')
-  const callerEmail = event.context.auth?.email || 'demo-user'
-  const dynamo       = getDynamoClient()
+  const { email: callerEmail } = requireAuth(event)
+  const invoiceId = getRouterParam(event, 'id')
+  const dynamo     = getDynamoClient()
 
   const scan = await dynamo.send(new ScanCommand({
     TableName: 'plexora-finance',
@@ -15,11 +16,15 @@ export default defineEventHandler(async (event) => {
     ExpressionAttributeValues: { ':id': invoiceId },
   }))
   const invoice = scan.Items?.[0]
-  // Zugriff nur für den ausstellenden Tenant selbst oder den in der Rechnung genannten Kunden
-  if (invoice && invoice.userId !== callerEmail && invoice.clientEmail !== callerEmail) {
+  if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
+
+  // Zugriff nur für den ausstellenden Tenant selbst (über resolveUserId, damit auch
+  // Team-Mitglieder Zugriff auf die Rechnungen ihres Tenants haben) oder den in der
+  // Rechnung genannten Kunden.
+  const callerTenantId = await resolveUserId(callerEmail)
+  if (invoice.userId !== callerTenantId && invoice.clientEmail !== callerEmail) {
     throw createError({ statusCode: 403, message: 'Kein Zugriff auf diese Rechnung' })
   }
-  if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
 
   const tenantUserId = await resolveUserId(invoice.userId)
 

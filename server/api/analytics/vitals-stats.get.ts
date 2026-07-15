@@ -1,6 +1,6 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
-import { requireAuth } from '../../utils/verifyAuth'
+import { requireAdmin } from '../../utils/verifyAuth'
 
 const TABLE   = 'plexora-meta'
 const METRICS = ['lcp', 'inp', 'cls', 'fcp', 'ttfb']
@@ -15,7 +15,7 @@ const THRESHOLDS: Record<string, { good: number; poor: number; unit: string }> =
 }
 
 export default defineEventHandler(async (event) => {
-  requireAuth(event)
+  requireAdmin(event)
   const client = getDynamoClient()
   const res    = await client.send(new ScanCommand({ TableName: TABLE }))
   const items  = (res.Items || []).filter(i =>

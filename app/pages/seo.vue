@@ -392,7 +392,7 @@ async function reload() {
     const authHeaders = await useAuthHeader()
     const [data, vData] = await Promise.all([
       $fetch(useApiUrl('/api/admin/seo-stats'), { headers: authHeaders }) as any,
-      $fetch(useApiUrl('/api/analytics/vitals-stats')).catch(() => null),
+      $fetch(useApiUrl('/api/analytics/vitals-stats'), { headers: authHeaders }).catch(() => null),
     ])
     stats.value  = data
     vitals.value = vData
