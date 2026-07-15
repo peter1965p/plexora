@@ -1,7 +1,11 @@
+import { requireAdmin } from '../../utils/verifyAuth'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
-export default defineEventHandler(async () => {
+// Payment ist eine plattformweite Einstellung (EIN Stripe/PayPal/Mollie-Konto für
+// die gesamte Plattform inkl. aller Tenant-Shops/-Rechnungen) — admin-only.
+export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const client = getDynamoClient()
   try {
     const res = await client.send(new GetCommand({

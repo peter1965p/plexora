@@ -1,3 +1,4 @@
+import { requireAdmin } from '../../utils/verifyAuth'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
@@ -7,7 +8,8 @@ const DEFAULTS = {
   level3: { active: true, days: 30, fee: 40, inkasso: true, text: 'Dies ist unsere letzte Mahnung. Bei Nichtbegleichung übergeben wir die Forderung an ein Inkassounternehmen.' }
 }
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const client = getDynamoClient()
   try {
     const result = await client.send(new GetCommand({

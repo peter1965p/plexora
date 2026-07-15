@@ -1429,20 +1429,25 @@ async function saveSecurity() {
 const BASE_TABS = [
   { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
   { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
-  { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
   { key: 'appearance',  label: 'Darstellung',      icon: 'ti-palette'         },
   { key: 'security',    label: 'Sicherheit',       icon: 'ti-shield-lock'     },
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
-  { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
   { key: 'categories',  label: 'Kategorien',       icon: 'ti-tags'            },
   { key: 'licenses',    label: 'Lizenzen',         icon: 'ti-key'             },
-  { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
   { key: 'billing',     label: 'Abrechnung',       icon: 'ti-credit-card'     },
   { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
   { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
   { key: 'team',        label: 'Team',             icon: 'ti-users'           },
+]
+
+// Plattformweite (nicht pro-Tenant) Einstellungen — EIN gemeinsames Payment-Konto,
+// EIN Mahnwesen-Default, Plexoras eigene öffentliche AGB-Seite — daher admin-only.
+const ADMIN_TABS = [
+  { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
+  { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
+  { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
 ]
 
 const tabs = computed(() => {
@@ -1455,7 +1460,8 @@ const tabs = computed(() => {
   const integrityExtra = isAdmin.value
     ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
     : []
-  return [...BASE_TABS, ...extra, ...claudeExtra, ...integrityExtra]
+  const adminExtra = isAdmin.value ? ADMIN_TABS : []
+  return [...BASE_TABS, ...adminExtra, ...extra, ...claudeExtra, ...integrityExtra]
 })
 
 // ── Datenintegrität (Admin-only, echte clientseitige Rollenprüfung) ────────────
