@@ -37,7 +37,7 @@ const translations = {
       crm: 'CRM', projects: 'Projekte', contracts: 'Verträge', finance: 'Finanzen',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
       forms: 'Formulare', marketing: 'Marketing', nexora: 'Website',
-      termine: 'Termine',
+      termine: 'Termine', newsletter: 'Newsletter',
     } as Record<string, string>,
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
@@ -346,7 +346,7 @@ const translations = {
       crm: 'CRM', projects: 'Projects', contracts: 'Contracts', finance: 'Finance',
       hr: 'HR', support: 'Support', analytics: 'Analytics', shop: 'Shop',
       forms: 'Forms', marketing: 'Marketing', nexora: 'Website',
-      termine: 'Appointments',
+      termine: 'Appointments', newsletter: 'Newsletter',
     } as Record<string, string>,
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
