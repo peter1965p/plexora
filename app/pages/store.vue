@@ -250,6 +250,12 @@ const addons = computed(() => [
     desc: 'Öffentliche Buchungsseite für Kunden, mit Google-Calendar- und Meet-Anbindung.',
     features: ['Öffentliche Buchungsseite', 'Terminarten & Arbeitszeiten', 'Google-Calendar-Sync', 'Automatischer Meet-Link'],
   },
+  {
+    key: 'newsletter', name: 'Newsletter', icon: 'ti-mail', price: '€12', badge: 'NEU',
+    owned: owned('newsletter'),
+    desc: 'Mandantenfähiger Newsletter mit Double-Opt-In-Anmeldung, Kampagnen-Versand und Tracking.',
+    features: ['Double-Opt-In', 'One-Click-Abmeldung', 'CSV-Import', 'Öffnungs- & Klick-Tracking'],
+  },
 ])
 
 const branchenPakete = [
