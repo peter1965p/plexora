@@ -84,7 +84,7 @@
 
     <!-- MODAL: Beitrag erstellen / bearbeiten -->
     <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">
-      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:1100px;height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
+      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:1560px;height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
         <!-- Modal Header -->
         <div class="modal-header">
           <input v-model="form.title" @input="titleToSlug"
@@ -458,7 +458,7 @@ onMounted(async () => {
   border-radius: 6px;
   padding: 0 10px;
 }
-@media (max-width: 1300px) {
+@media (max-width: 1500px) {
   .blog-editor-grid { grid-template-columns: 280px 1fr; }
   .blog-preview-col { display: none; }
 }
