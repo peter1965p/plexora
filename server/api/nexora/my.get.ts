@@ -54,6 +54,8 @@ export default defineEventHandler(async (event) => {
       blogTitle:      item.blogTitle      || 'Blog',
       shopEnabled:    item.shopEnabled    ?? false,
       shopTitle:      item.shopTitle      || 'Shop',
+      newsletterEnabled: item.newsletterEnabled ?? false,
+      newsletterTitle:   item.newsletterTitle   || 'Newsletter',
       sectionOrder:   item.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact'],
       navOrder:       item.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
       heroMediaType:  item.heroMediaType  || 'code',

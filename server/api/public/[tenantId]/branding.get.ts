@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
     blogTitle:      res.Item.blogTitle      || 'Blog',
     shopEnabled:    res.Item.shopEnabled    ?? false,
     shopTitle:      res.Item.shopTitle      || 'Shop',
+    newsletterEnabled: res.Item.newsletterEnabled ?? false,
+    newsletterTitle:   res.Item.newsletterTitle   || 'Newsletter',
     vehiclesEnabled: res.Item.vehiclesEnabled ?? false,
     vehiclesTitle:   res.Item.vehiclesTitle   || 'Fahrzeuge',
     menuEnabled:     res.Item.menuEnabled      ?? false,

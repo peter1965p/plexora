@@ -709,6 +709,29 @@
         </div>
       </div>
 
+      <!-- ── TAB: NEWSLETTER SETTINGS ── -->
+      <div v-else-if="activeTab === 'newsletter-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-mail" style="margin-right:8px;color:var(--accent)"></i>Newsletter</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.newsletterEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.newsletterEnabled = !form.newsletterEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.newsletterEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.newsletterEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Anmeldeformular im Footer der Website anzeigen. Abonnenten und Absender-Einstellungen verwaltest du im Sidebar-Menü unter <strong>Newsletter</strong>.</div>
+          <div>
+            <label class="field-label">Überschrift im Footer</label>
+            <input v-model="form.newsletterTitle" class="field-input" placeholder="Newsletter" />
+          </div>
+        </div>
+      </div>
+
       <!-- ── TAB: AGB ── -->
       <div v-else-if="activeTab === 'agb'" style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0">
@@ -1256,6 +1279,7 @@ const tabs = [
   { key: 'pages',         label: 'Seiten',     icon: 'ti-file-text' },
   { key: 'blog-settings',  label: 'Blog',       icon: 'ti-news' },
   { key: 'shop-settings',  label: 'Shop',       icon: 'ti-shopping-cart' },
+  { key: 'newsletter-settings', label: 'Newsletter', icon: 'ti-mail' },
   { key: 'agb',           label: 'AGB',        icon: 'ti-license' },
   { key: 'datenschutz',label: 'Datenschutz',icon: 'ti-shield-lock' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
@@ -1319,6 +1343,8 @@ const form = reactive({
   blogTitle:       'Blog',
   shopEnabled:     false,
   shopTitle:       'Shop',
+  newsletterEnabled: false,
+  newsletterTitle:   'Newsletter',
   githubPat:       '',
   githubPatConfigured: false,
   githubTitle:     'PROJEKTE',
@@ -1392,6 +1418,8 @@ onMounted(async () => {
       form.blogTitle           = n.blogTitle      || 'Blog'
       form.shopEnabled         = n.shopEnabled    ?? false
       form.shopTitle           = n.shopTitle      || 'Shop'
+      form.newsletterEnabled   = n.newsletterEnabled ?? false
+      form.newsletterTitle     = n.newsletterTitle   || 'Newsletter'
       form.githubPatConfigured = n.githubPatConfigured ?? false
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
@@ -1491,6 +1519,8 @@ async function save() {
         blogTitle:      form.blogTitle,
         shopEnabled:    form.shopEnabled,
         shopTitle:      form.shopTitle,
+        newsletterEnabled: form.newsletterEnabled,
+        newsletterTitle:   form.newsletterTitle,
         githubShowForks: form.githubShowForks,
         githubRepos:    form.githubRepos,
         sectionOrder:   form.sectionOrder,
