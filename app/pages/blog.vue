@@ -128,48 +128,9 @@
             </div>
           </div>
 
-          <!-- Rechte Spalte: Editor -->
+          <!-- Rechte Spalte: Rich-Text-Editor -->
           <div class="blog-editor-col">
-            <div style="display:flex;justify-content:flex-end;gap:8px;padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg-elevated);flex-shrink:0">
-              <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
-                <button v-for="ct in ['markdown','html']" :key="ct" @click="form.contentType = ct"
-                  style="padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-transform:uppercase;letter-spacing:.05em"
-                  :style="form.contentType === ct ? 'background:var(--accent);color:#fff' : 'background:transparent;color:var(--text-muted)'">
-                  {{ ct }}
-                </button>
-              </div>
-              <select v-model="monacoTheme" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer;flex-shrink:0">
-                <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
-              </select>
-            </div>
-
-            <ClientOnly>
-              <VueMonacoEditor
-                v-model:value="form.content"
-                :language="form.contentType === 'markdown' ? 'markdown' : 'html'"
-                :theme="monacoTheme"
-                :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
-                style="flex:1;min-height:0"
-              />
-              <template #fallback>
-                <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">
-                  <i class="ti ti-loader-2 spin"></i>
-                </div>
-              </template>
-            </ClientOnly>
-          </div>
-
-          <!-- Rechte Spalte: Live-Vorschau -->
-          <div class="blog-preview-col">
-            <div style="padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg-elevated);flex-shrink:0;font-size:11px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;gap:6px">
-              <i class="ti ti-eye"></i> Live-Vorschau
-            </div>
-            <div class="blog-preview-body">
-              <div v-if="form.coverImageUrl" class="blog-preview-cover"><img :src="form.coverImageUrl" alt="" /></div>
-              <h1 class="blog-preview-title">{{ form.title || 'Beitragstitel...' }}</h1>
-              <p v-if="form.excerpt" class="blog-preview-excerpt">{{ form.excerpt }}</p>
-              <div class="prose-content" v-html="renderedPreview"></div>
-            </div>
+            <BlogRichTextEditor v-model="form.content" />
           </div>
 
         </div>
@@ -196,8 +157,8 @@
 </template>
 
 <script setup lang="ts">
-import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { marked } from 'marked'
+import BlogRichTextEditor from '~/components/blog/BlogRichTextEditor.vue'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
@@ -233,12 +194,14 @@ const tabs = [
   { key: 'draft', label: 'Entwürfe', icon: 'ti-pencil' },
 ]
 
+const DEFAULT_CONTENT = '<h1>Neuer Beitrag</h1><p>Hier beginnt dein Text...</p>'
+
 const form = reactive({
   title:        '',
   slug:         '',
   excerpt:      '',
-  content:      '# Neuer Beitrag\n\nHier beginnt dein Text...',
-  contentType:  'markdown',
+  content:      DEFAULT_CONTENT,
+  contentType:  'html',
   status:       'draft',
   coverImageUrl:'',
   category:     '',
@@ -249,19 +212,6 @@ const tagsInput = computed({
   get: () => form.tags.join(', '),
   set: (v: string) => { form.tags = v.split(',').map(t => t.trim()).filter(Boolean) },
 })
-
-const renderedPreview = computed(() => {
-  if (form.contentType === 'markdown') return marked.parse(form.content || '') as string
-  return form.content || ''
-})
-
-const monacoTheme  = ref(import.meta.client ? (localStorage.getItem('plx_editor_theme') || 'vs-dark') : 'vs-dark')
-const monacoThemes = [
-  { value: 'vs-dark',  label: 'VS Dark'  },
-  { value: 'vs',       label: 'VS Light' },
-  { value: 'hc-black', label: 'HC Dark'  },
-  { value: 'hc-light', label: 'HC Light' },
-]
 
 const allCategories = computed(() =>
   [...new Set(posts.value.map(p => p.category).filter(Boolean))]
@@ -306,8 +256,8 @@ function titleToSlug() {
 }
 
 function resetForm() {
-  form.title = ''; form.slug = ''; form.excerpt = ''; form.content = '# Neuer Beitrag\n\nHier beginnt dein Text...'
-  form.contentType = 'markdown'; form.status = 'draft'; form.coverImageUrl = ''; form.category = ''; form.tags = []
+  form.title = ''; form.slug = ''; form.excerpt = ''; form.content = DEFAULT_CONTENT
+  form.contentType = 'html'; form.status = 'draft'; form.coverImageUrl = ''; form.category = ''; form.tags = []
   editingId.value = ''
 }
 
@@ -320,8 +270,11 @@ function openEdit(p: BlogPost) {
   form.title         = p.title
   form.slug          = p.slug
   form.excerpt       = p.excerpt || ''
-  form.content       = p.content || ''
-  form.contentType   = p.contentType || 'markdown'
+  // Alte Markdown-Posts werden beim Öffnen einmalig zu HTML konvertiert, damit der
+  // Rich-Text-Editor sie darstellen kann. contentType kippt in der DB erst dauerhaft
+  // auf 'html', wenn tatsächlich gespeichert wird — Abbrechen lässt die Zeile unberührt.
+  form.content       = p.contentType === 'markdown' ? (marked.parse(p.content || '') as string) : (p.content || '')
+  form.contentType   = 'html'
   form.status        = p.status || 'draft'
   form.coverImageUrl = p.coverImageUrl || ''
   form.category      = p.category || ''
@@ -386,7 +339,7 @@ onMounted(async () => {
 <style scoped>
 .blog-editor-grid {
   display: grid;
-  grid-template-columns: 320px 1fr 1fr;
+  grid-template-columns: 320px 1fr;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -404,42 +357,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-right: 0.5px solid var(--border);
 }
-.blog-preview-col {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.blog-preview-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 28px;
-}
-.blog-preview-cover {
-  border-radius: 10px;
-  overflow: hidden;
-  aspect-ratio: 16/9;
-  margin-bottom: 20px;
-  background: var(--bg-elevated);
-}
-.blog-preview-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.blog-preview-title { font-size: 26px; font-weight: 800; margin: 0 0 8px; line-height: 1.2; }
-.blog-preview-excerpt { font-size: 14px; color: var(--text-muted); margin: 0 0 20px; }
-.prose-content { font-size: 14px; line-height: 1.7; color: var(--text); }
-.prose-content :deep(h1) { font-size: 24px; font-weight: 800; margin: 28px 0 12px; }
-.prose-content :deep(h2) { font-size: 20px; font-weight: 700; margin: 24px 0 10px; }
-.prose-content :deep(h3) { font-size: 16px; font-weight: 700; margin: 20px 0 8px; }
-.prose-content :deep(p) { margin: 0 0 14px; }
-.prose-content :deep(ul),
-.prose-content :deep(ol) { margin: 0 0 14px; padding-left: 22px; }
-.prose-content :deep(li) { margin-bottom: 4px; }
-.prose-content :deep(a) { color: var(--accent); }
-.prose-content :deep(strong) { font-weight: 700; }
-.prose-content :deep(blockquote) { border-left: 3px solid var(--accent); padding-left: 14px; color: var(--text-muted); margin: 0 0 14px; }
-.prose-content :deep(code) { background: var(--bg-elevated); border-radius: 4px; padding: 2px 6px; font-size: 12.5px; }
-.prose-content :deep(pre) { background: var(--bg-elevated); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 0 0 14px; }
-.prose-content :deep(img) { max-width: 100%; border-radius: 8px; }
 .blog-field label {
   display: block;
   font-size: 11px;
@@ -458,10 +376,6 @@ onMounted(async () => {
   border-radius: 6px;
   padding: 0 10px;
 }
-@media (max-width: 1500px) {
-  .blog-editor-grid { grid-template-columns: 280px 1fr; }
-  .blog-preview-col { display: none; }
-}
 @media (max-width: 900px) {
   .blog-editor-grid {
     grid-template-columns: 1fr;
@@ -474,7 +388,6 @@ onMounted(async () => {
   }
   .blog-editor-col {
     min-height: 400px;
-    border-right: none;
   }
 }
 </style>
