@@ -6,9 +6,14 @@
         <h1 style="font-size:22px;font-weight:800;margin:0">Newsletter</h1>
         <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Abonnenten, Anmeldung und Absender-Einstellungen</p>
       </div>
-      <button class="accent-btn" @click="showImportModal = true">
-        <i class="ti ti-file-import"></i> CSV importieren
-      </button>
+      <div style="display:flex;gap:10px">
+        <button v-if="activeTab === 'campaigns'" class="accent-btn" @click="openNewCampaign">
+          <i class="ti ti-plus"></i> Neue Kampagne
+        </button>
+        <button v-if="activeTab === 'subscribers'" class="accent-btn" @click="showImportModal = true">
+          <i class="ti ti-file-import"></i> CSV importieren
+        </button>
+      </div>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
@@ -22,9 +27,13 @@
       <div v-if="loading" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
       </div>
-      <div v-else-if="!subscribers.length" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
-        <i class="ti ti-mail-off" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px">Noch keine Abonnenten.</p>
+      <div v-else-if="!subscribers.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
+        <i class="ti ti-mail-plus" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Abonnenten</p>
+        <p style="font-size:13px;max-width:360px;margin:0 auto;line-height:1.6">
+          Sobald jemand über das Anmeldeformular auf deiner Website abonniert, taucht er hier auf.
+          Du kannst auch direkt <a href="#" @click.prevent="showImportModal = true" style="color:var(--accent)">eine bestehende Liste per CSV importieren</a>.
+        </p>
       </div>
       <table v-else class="data-table">
         <thead>
@@ -46,6 +55,39 @@
           <span v-else>Mehr laden</span>
         </button>
       </div>
+    </div>
+
+    <!-- KAMPAGNEN -->
+    <div v-if="activeTab === 'campaigns'" class="card">
+      <div v-if="loadingCampaigns" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
+        <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
+      </div>
+      <div v-else-if="!campaigns.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
+        <i class="ti ti-send" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Kampagnen</p>
+        <p style="font-size:13px;margin:0 0 16px">Erstelle deinen ersten Newsletter-Versand.</p>
+        <button class="accent-btn" @click="openNewCampaign"><i class="ti ti-plus" style="margin-right:6px"></i>Neue Kampagne</button>
+      </div>
+      <table v-else class="data-table">
+        <thead>
+          <tr><th>Name</th><th>Betreff</th><th>Status</th><th>Empfänger</th><th>Öffnungen</th><th>Klicks</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="c in campaigns" :key="c.campaignId" style="cursor:pointer" @click="openEditCampaign(c)">
+            <td class="td-name">{{ c.name }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ c.subject }}</td>
+            <td><span class="badge" :class="'badge-' + campaignStatusClass(c.status)">{{ campaignStatusLabel(c.status) }}</span></td>
+            <td style="font-size:12px">{{ c.status === 'draft' ? '–' : c.stats?.sentCount ?? 0 }}</td>
+            <td style="font-size:12px">{{ c.status === 'draft' ? '–' : c.stats?.openCount ?? 0 }}</td>
+            <td style="font-size:12px">{{ c.status === 'draft' ? '–' : c.stats?.clickCount ?? 0 }}</td>
+            <td>
+              <button v-if="c.status !== 'sending'" @click.stop="deleteCampaign(c)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 6px">
+                <i class="ti ti-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- EINSTELLUNGEN -->
@@ -101,10 +143,58 @@
       </div>
     </div>
 
+    <!-- KAMPAGNE ERSTELLEN/BEARBEITEN -->
+    <div v-if="showCampaignModal" class="modal-overlay" @click.self="showCampaignModal = false">
+      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:1400px;height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
+        <div class="modal-header">
+          <input v-model="campaignForm.name" style="background:transparent;border:none;outline:none;font-size:16px;font-weight:700;color:var(--text);font-family:inherit;flex:1;min-width:0" placeholder="Kampagnenname..." />
+          <button @click="showCampaignModal = false" class="icon-btn"><i class="ti ti-x"></i></button>
+        </div>
+
+        <div class="campaign-editor-grid">
+          <div class="campaign-meta-col">
+            <div class="blog-field">
+              <label>Betreff</label>
+              <input v-model="campaignForm.subject" placeholder="Betreffzeile der E-Mail..." />
+            </div>
+            <div class="blog-field">
+              <label>Zielgruppe</label>
+              <input v-model="campaignForm.segmentTag" placeholder="Leer = alle bestätigten Abonnenten" />
+            </div>
+            <div v-if="campaignStats" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;display:flex;flex-direction:column;gap:6px">
+              <div style="font-weight:700;color:var(--text)">Statistik</div>
+              <div>Empfänger: {{ campaignStats.recipientCount ?? campaignStats.sentCount ?? 0 }}</div>
+              <div>Versendet: {{ campaignStats.sentCount ?? 0 }}</div>
+              <div v-if="campaignStats.openCount !== undefined">Geöffnet: {{ campaignStats.openCount }}</div>
+              <div v-if="campaignStats.clickCount !== undefined">Geklickt: {{ campaignStats.clickCount }}</div>
+            </div>
+            <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+              <button class="icon-btn" :disabled="testSending || !campaignForm.name" @click="testSendCampaign">
+                <i v-if="testSending" class="ti ti-loader-2 spin"></i>
+                <span v-else><i class="ti ti-send" style="margin-right:6px"></i>Test-Versand an mich</span>
+              </button>
+              <button class="accent-btn" :disabled="savingCampaign" @click="saveCampaign">
+                <i v-if="savingCampaign" class="ti ti-loader-2 spin"></i>
+                <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>Entwurf speichern</span>
+              </button>
+              <button v-if="!campaignIsSent" class="accent-btn" style="background:#22c55e;border-color:#22c55e" :disabled="sendingCampaign || !campaignForm.name" @click="sendCampaign">
+                <i v-if="sendingCampaign" class="ti ti-loader-2 spin"></i>
+                <span v-else><i class="ti ti-send" style="margin-right:6px"></i>Jetzt an alle senden</span>
+              </button>
+            </div>
+          </div>
+          <div class="campaign-editor-col">
+            <NewsletterEditor v-model="campaignForm.bodyHtml" />
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
+import NewsletterEditor from '~/components/newsletter/NewsletterEditor.vue'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 interface Subscriber {
@@ -118,6 +208,7 @@ interface Subscriber {
 
 const tabs = [
   { key: 'subscribers', label: 'Abonnenten', icon: 'ti-users' },
+  { key: 'campaigns',   label: 'Kampagnen', icon: 'ti-send' },
   { key: 'settings',    label: 'Einstellungen', icon: 'ti-settings' },
 ]
 const activeTab = ref('subscribers')
@@ -228,8 +319,138 @@ async function submitImport() {
   }
 }
 
+interface Campaign {
+  campaignId: string
+  name: string
+  subject: string
+  bodyHtml: string
+  status: string
+  segmentFilter?: { tag: string }
+  stats?: { recipientCount: number; sentCount: number; deliveredCount: number; openCount: number; clickCount: number; bounceCount: number; complaintCount: number; unsubscribeCount: number }
+  sentAt?: string
+  createdAt: string
+}
+
+const campaigns        = ref<Campaign[]>([])
+const loadingCampaigns  = ref(true)
+const showCampaignModal = ref(false)
+const editingCampaignId = ref('')
+const savingCampaign    = ref(false)
+const testSending       = ref(false)
+const sendingCampaign   = ref(false)
+const campaignStats     = ref<Record<string, number> | null>(null)
+
+const campaignForm = reactive({
+  name: '', subject: '',
+  bodyHtml: '<h1>Neuigkeiten</h1><p>Hier beginnt dein Text...</p>',
+  segmentTag: '',
+})
+
+const campaignIsSent = computed(() => {
+  const c = campaigns.value.find(c => c.campaignId === editingCampaignId.value)
+  return c?.status === 'sent' || c?.status === 'sending'
+})
+
+function campaignStatusLabel(s: string) {
+  return { draft: 'Entwurf', sending: 'Wird versendet', sent: 'Versendet', failed: 'Fehlgeschlagen' }[s] || s
+}
+function campaignStatusClass(s: string) {
+  return { draft: 'muted', sending: 'warning', sent: 'success', failed: 'danger' }[s] || 'muted'
+}
+
+async function loadCampaigns() {
+  loadingCampaigns.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ campaigns: Campaign[] }>(useApiUrl('/api/newsletter/campaigns'), { headers: await useAuthHeader() })
+    campaigns.value = res.campaigns || []
+  } catch {}
+  loadingCampaigns.value = false
+}
+
+function openNewCampaign() {
+  editingCampaignId.value = ''
+  campaignForm.name = ''
+  campaignForm.subject = ''
+  campaignForm.bodyHtml = '<h1>Neuigkeiten</h1><p>Hier beginnt dein Text...</p>'
+  campaignForm.segmentTag = ''
+  campaignStats.value = null
+  showCampaignModal.value = true
+}
+
+function openEditCampaign(c: Campaign) {
+  editingCampaignId.value = c.campaignId
+  campaignForm.name = c.name
+  campaignForm.subject = c.subject
+  campaignForm.bodyHtml = c.bodyHtml
+  campaignForm.segmentTag = c.segmentFilter?.tag || ''
+  campaignStats.value = c.status !== 'draft' ? (c.stats as any) : null
+  showCampaignModal.value = true
+}
+
+async function saveCampaign() {
+  savingCampaign.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const headers = await useAuthHeader()
+    const body = {
+      name: campaignForm.name || 'Neue Kampagne',
+      subject: campaignForm.subject,
+      bodyHtml: campaignForm.bodyHtml,
+      segmentFilter: { tag: campaignForm.segmentTag },
+    }
+    if (editingCampaignId.value) {
+      await $fetch(useApiUrl(`/api/newsletter/campaigns/${editingCampaignId.value}`), { method: 'PATCH', headers, body })
+    } else {
+      const res = await $fetch<{ campaign: Campaign }>(useApiUrl('/api/newsletter/campaigns'), { method: 'POST', headers, body })
+      editingCampaignId.value = res.campaign.campaignId
+    }
+    await loadCampaigns()
+  } finally {
+    savingCampaign.value = false
+  }
+}
+
+async function testSendCampaign() {
+  if (!editingCampaignId.value) await saveCampaign()
+  if (!editingCampaignId.value) return
+  testSending.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl(`/api/newsletter/campaigns/${editingCampaignId.value}/test-send`), { method: 'POST', headers: await useAuthHeader() })
+    alert('Test-Mail wurde an deine eigene Adresse verschickt.')
+  } finally {
+    testSending.value = false
+  }
+}
+
+async function sendCampaign() {
+  if (!confirm('Kampagne jetzt an alle passenden Abonnenten senden? Das kann nicht rückgängig gemacht werden.')) return
+  if (!editingCampaignId.value) await saveCampaign()
+  if (!editingCampaignId.value) return
+  sendingCampaign.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ sentCount: number; recipientCount: number }>(
+      useApiUrl(`/api/newsletter/campaigns/${editingCampaignId.value}/send`),
+      { method: 'POST', headers: await useAuthHeader() },
+    )
+    campaignStats.value = { recipientCount: res.recipientCount, sentCount: res.sentCount, openCount: 0, clickCount: 0 } as any
+    await loadCampaigns()
+  } finally {
+    sendingCampaign.value = false
+  }
+}
+
+async function deleteCampaign(c: Campaign) {
+  if (!confirm(`"${c.name}" wirklich löschen?`)) return
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  await $fetch(useApiUrl(`/api/newsletter/campaigns/${c.campaignId}`), { method: 'DELETE', headers: await useAuthHeader() })
+  await loadCampaigns()
+}
+
 onMounted(async () => {
-  await Promise.all([loadSubscribers(), loadSettings()])
+  await Promise.all([loadSubscribers(), loadSettings(), loadCampaigns()])
 })
 </script>
 
@@ -243,4 +464,31 @@ onMounted(async () => {
 .badge-success { background: #22c55e22; color: #22c55e; border: 1px solid #22c55e44; }
 .badge-danger  { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
 .badge-muted   { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+
+.campaign-editor-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.campaign-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 20px;
+  border-right: 0.5px solid var(--border);
+  background: var(--bg-elevated);
+  overflow-y: auto;
+}
+.campaign-editor-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+@media (max-width: 900px) {
+  .campaign-editor-grid { grid-template-columns: 1fr; overflow-y: auto; }
+  .campaign-meta-col { border-right: none; border-bottom: 0.5px solid var(--border); overflow-y: visible; }
+  .campaign-editor-col { min-height: 400px; }
+}
 </style>
