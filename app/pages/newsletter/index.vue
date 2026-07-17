@@ -13,6 +13,9 @@
         <button v-if="activeTab === 'subscribers'" class="accent-btn" @click="showImportModal = true">
           <i class="ti ti-file-import"></i> CSV importieren
         </button>
+        <button v-if="activeTab === 'automation'" class="accent-btn" @click="openNewRule">
+          <i class="ti ti-plus"></i> Neue Regel
+        </button>
       </div>
     </div>
 
@@ -109,6 +112,34 @@
             <td style="display:flex;gap:4px;justify-content:flex-end">
               <button class="wide-btn" style="width:auto;padding:0 12px" @click="newCampaignFromTemplate(t)"><i class="ti ti-copy" style="margin-right:6px"></i>Als Kampagne verwenden</button>
               <button @click="deleteTemplate(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 10px"><i class="ti ti-trash"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- AUTOMATISIERUNG -->
+    <div v-if="activeTab === 'automation'" class="card">
+      <div v-if="loadingRules" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
+        <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
+      </div>
+      <div v-else-if="!automationRules.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
+        <i class="ti ti-bolt" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Automatisierung</p>
+        <p style="font-size:13px;margin:0 0 16px">Willkommens-Mails, verzögerte Follow-ups oder Erinnerungen an Nicht-Öffner einrichten.</p>
+        <button class="accent-btn" @click="openNewRule"><i class="ti ti-plus" style="margin-right:6px"></i>Neue Regel</button>
+      </div>
+      <table v-else class="data-table">
+        <thead><tr><th>Name</th><th>Trigger</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr v-for="r in automationRules" :key="r.ruleId" style="cursor:pointer" @click="openEditRule(r)">
+            <td class="td-name">{{ r.name }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ ruleTriggerLabel(r) }}</td>
+            <td><span class="badge" :class="r.active ? 'badge-success' : 'badge-muted'">{{ r.active ? 'Aktiv' : 'Pausiert' }}</span></td>
+            <td>
+              <button @click.stop="deleteRule(r)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 6px">
+                <i class="ti ti-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -219,6 +250,62 @@
       </div>
     </div>
 
+    <!-- REGEL ERSTELLEN/BEARBEITEN -->
+    <div v-if="showRuleModal" class="modal-overlay" @click.self="showRuleModal = false">
+      <div class="modal-card" style="max-width:480px">
+        <div class="modal-header">
+          <span style="font-weight:700">{{ editingRuleId ? 'Regel bearbeiten' : 'Neue Regel' }}</span>
+          <button @click="showRuleModal = false" class="icon-btn"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div class="blog-field">
+            <label>Name</label>
+            <input v-model="ruleForm.name" placeholder="z.B. Willkommens-Mail" />
+          </div>
+          <div class="blog-field">
+            <label>Trigger</label>
+            <select v-model="ruleForm.trigger" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
+              <option value="on-signup">Sofort nach Bestätigung (Willkommens-Mail)</option>
+              <option value="days-after-signup">X Tage nach Bestätigung</option>
+              <option value="campaign-reminder">Erinnerung an Nicht-Öffner einer Kampagne</option>
+            </select>
+          </div>
+          <div v-if="ruleForm.trigger === 'days-after-signup'" class="blog-field">
+            <label>Tage nach Bestätigung</label>
+            <input v-model.number="ruleForm.delayDays" type="number" min="1" placeholder="z.B. 3" />
+          </div>
+          <template v-if="ruleForm.trigger === 'campaign-reminder'">
+            <div class="blog-field">
+              <label>Kampagne</label>
+              <select v-model="ruleForm.campaignId" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
+                <option value="">Kampagne wählen...</option>
+                <option v-for="c in campaigns.filter(c => c.status === 'sent')" :key="c.campaignId" :value="c.campaignId">{{ c.name }}</option>
+              </select>
+            </div>
+            <div class="blog-field">
+              <label>Tage nach Versand warten</label>
+              <input v-model.number="ruleForm.delayDays" type="number" min="1" placeholder="z.B. 3" />
+            </div>
+          </template>
+          <div class="blog-field">
+            <label>{{ ruleForm.trigger === 'campaign-reminder' ? 'Vorlage für die Erinnerung' : 'Vorlage' }}</label>
+            <select v-model="ruleForm.templateId" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
+              <option value="">Vorlage wählen...</option>
+              <option v-for="t in templates" :key="t.templateId" :value="t.templateId">{{ t.name }}</option>
+            </select>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text)">
+            <input v-model="ruleForm.active" type="checkbox" style="width:auto" />
+            Regel aktiv
+          </label>
+          <button class="accent-btn" :disabled="savingRule || !ruleForm.name || !ruleForm.templateId" @click="saveRule">
+            <i v-if="savingRule" class="ti ti-loader-2 spin"></i>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>Speichern</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -236,10 +323,11 @@ interface Subscriber {
 }
 
 const tabs = [
-  { key: 'subscribers', label: 'Abonnenten', icon: 'ti-users' },
-  { key: 'campaigns',   label: 'Kampagnen', icon: 'ti-send' },
-  { key: 'templates',   label: 'Vorlagen', icon: 'ti-layout-grid' },
-  { key: 'settings',    label: 'Einstellungen', icon: 'ti-settings' },
+  { key: 'subscribers',  label: 'Abonnenten', icon: 'ti-users' },
+  { key: 'campaigns',    label: 'Kampagnen', icon: 'ti-send' },
+  { key: 'templates',    label: 'Vorlagen', icon: 'ti-layout-grid' },
+  { key: 'automation',   label: 'Automatisierung', icon: 'ti-bolt' },
+  { key: 'settings',     label: 'Einstellungen', icon: 'ti-settings' },
 ]
 const activeTab = ref('subscribers')
 
@@ -536,8 +624,92 @@ async function deleteTemplate(t: Template) {
   await loadTemplates()
 }
 
+interface AutomationRule {
+  ruleId: string
+  name: string
+  trigger: string
+  delayDays: number
+  templateId: string
+  campaignId: string
+  active: boolean
+}
+
+const automationRules = ref<AutomationRule[]>([])
+const loadingRules      = ref(true)
+const showRuleModal     = ref(false)
+const editingRuleId     = ref('')
+const savingRule        = ref(false)
+
+const ruleForm = reactive({
+  name: '', trigger: 'on-signup', delayDays: 3, templateId: '', campaignId: '', active: true,
+})
+
+function ruleTriggerLabel(r: AutomationRule) {
+  if (r.trigger === 'on-signup') return 'Sofort nach Bestätigung'
+  if (r.trigger === 'days-after-signup') return `${r.delayDays} Tage nach Bestätigung`
+  if (r.trigger === 'campaign-reminder') return `Erinnerung ${r.delayDays} Tage nach Kampagnen-Versand`
+  return r.trigger
+}
+
+async function loadRules() {
+  loadingRules.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ rules: AutomationRule[] }>(useApiUrl('/api/newsletter/automation-rules'), { headers: await useAuthHeader() })
+    automationRules.value = res.rules || []
+  } catch {}
+  loadingRules.value = false
+}
+
+function openNewRule() {
+  editingRuleId.value = ''
+  ruleForm.name = ''
+  ruleForm.trigger = 'on-signup'
+  ruleForm.delayDays = 3
+  ruleForm.templateId = ''
+  ruleForm.campaignId = ''
+  ruleForm.active = true
+  showRuleModal.value = true
+}
+
+function openEditRule(r: AutomationRule) {
+  editingRuleId.value = r.ruleId
+  ruleForm.name = r.name
+  ruleForm.trigger = r.trigger
+  ruleForm.delayDays = r.delayDays || 3
+  ruleForm.templateId = r.templateId || ''
+  ruleForm.campaignId = r.campaignId || ''
+  ruleForm.active = r.active
+  showRuleModal.value = true
+}
+
+async function saveRule() {
+  savingRule.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const headers = await useAuthHeader()
+    const body = { ...ruleForm }
+    if (editingRuleId.value) {
+      await $fetch(useApiUrl(`/api/newsletter/automation-rules/${editingRuleId.value}`), { method: 'PATCH', headers, body })
+    } else {
+      await $fetch(useApiUrl('/api/newsletter/automation-rules'), { method: 'POST', headers, body })
+    }
+    showRuleModal.value = false
+    await loadRules()
+  } finally {
+    savingRule.value = false
+  }
+}
+
+async function deleteRule(r: AutomationRule) {
+  if (!confirm(`Regel "${r.name}" wirklich löschen?`)) return
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  await $fetch(useApiUrl(`/api/newsletter/automation-rules/${r.ruleId}`), { method: 'DELETE', headers: await useAuthHeader() })
+  await loadRules()
+}
+
 onMounted(async () => {
-  await Promise.all([loadSubscribers(), loadSettings(), loadCampaigns(), loadTemplates()])
+  await Promise.all([loadSubscribers(), loadSettings(), loadCampaigns(), loadTemplates(), loadRules()])
 })
 </script>
 

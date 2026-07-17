@@ -15,8 +15,13 @@ const PUBLIC_PREFIXES = [
 // Nur der Formular-Submit selbst ist öffentlich (Endkunden füllen Formulare ohne
 // Login aus) — alle anderen /api/forms/*-Routen (Liste, Bearbeiten, Löschen,
 // Submissions einsehen) sind tenant-geschützt, daher kein Prefix-Eintrag dafür.
+//
+// /api/newsletter/cron/run-automations wird von einer EventBridge-Scheduled-Rule
+// aufgerufen (kein Cognito-Token möglich) — exakter Pfad statt Prefix, Route selbst
+// prüft zusätzlich einen Secret-Header (server/api/newsletter/cron/run-automations.post.ts).
 const PUBLIC_PATTERNS = [
   /^\/api\/forms\/[^/]+\/submit$/,
+  /^\/api\/newsletter\/cron\/run-automations$/,
 ]
 
 export default defineEventHandler(async (event) => {

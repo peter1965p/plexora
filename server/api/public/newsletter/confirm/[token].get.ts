@@ -2,6 +2,7 @@ import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { checkRateLimit } from '../../../../utils/rateLimit'
 import { renderNewsletterStatusPage } from '../../../../utils/newsletterPage'
+import { sendAutomationEmail } from '../../../../utils/newsletterAutomation'
 
 export default defineEventHandler(async (event) => {
   setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
@@ -37,6 +38,24 @@ export default defineEventHandler(async (event) => {
     ExpressionAttributeNames: { '#s': 'status' },
     ExpressionAttributeValues: { ':confirmed': 'confirmed', ':now': new Date().toISOString() },
   }))
+
+  // Willkommens-Mail(s): sofort ausgelöst, kein Cron nötig — anders als die
+  // verzögerten Automations-Trigger (days-after-signup, campaign-reminder),
+  // die im täglichen Sweep laufen (server/api/newsletter/cron/run-automations.post.ts).
+  try {
+    const rulesRes = await dynamo.send(new QueryCommand({
+      TableName: 'plexora-newsletter-automation-rules',
+      KeyConditionExpression: 'tenantId = :t',
+      FilterExpression: '#trig = :trig AND #a = :active',
+      ExpressionAttributeNames: { '#trig': 'trigger', '#a': 'active' },
+      ExpressionAttributeValues: { ':t': subscriber.tenantId, ':trig': 'on-signup', ':active': true },
+    }))
+    for (const rule of rulesRes.Items || []) {
+      if (rule.templateId) await sendAutomationEmail(subscriber.tenantId, subscriber as any, rule.templateId)
+    }
+  } catch (err) {
+    console.error('Willkommens-Mail-Trigger fehlgeschlagen:', err)
+  }
 
   return renderNewsletterStatusPage(
     'Anmeldung bestätigt!',
