@@ -90,6 +90,31 @@
       </table>
     </div>
 
+    <!-- VORLAGEN -->
+    <div v-if="activeTab === 'templates'" class="card">
+      <div v-if="loadingTemplates" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
+        <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
+      </div>
+      <div v-else-if="!templates.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
+        <i class="ti ti-layout-grid" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Vorlagen</p>
+        <p style="font-size:13px;margin:0">Speichere eine Kampagne als Vorlage, um sie später wiederzuverwenden.</p>
+      </div>
+      <table v-else class="data-table">
+        <thead><tr><th>Name</th><th>Zuletzt bearbeitet</th><th></th></tr></thead>
+        <tbody>
+          <tr v-for="t in templates" :key="t.templateId">
+            <td class="td-name">{{ t.name }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ formatDate(t.updatedAt) }}</td>
+            <td style="display:flex;gap:4px;justify-content:flex-end">
+              <button class="wide-btn" style="width:auto;padding:0 12px" @click="newCampaignFromTemplate(t)"><i class="ti ti-copy" style="margin-right:6px"></i>Als Kampagne verwenden</button>
+              <button @click="deleteTemplate(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 10px"><i class="ti ti-trash"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- EINSTELLUNGEN -->
     <div v-if="activeTab === 'settings'" class="card" style="max-width:560px">
       <div class="card-header">
@@ -169,7 +194,11 @@
               <div v-if="campaignStats.clickCount !== undefined">Geklickt: {{ campaignStats.clickCount }}</div>
             </div>
             <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
-              <button class="icon-btn" :disabled="testSending || !campaignForm.name" @click="testSendCampaign">
+              <button class="wide-btn" :disabled="savingTemplate || !campaignForm.bodyHtml" @click="saveAsTemplate">
+                <i v-if="savingTemplate" class="ti ti-loader-2 spin"></i>
+                <span v-else><i class="ti ti-layout-grid" style="margin-right:6px"></i>Als Vorlage speichern</span>
+              </button>
+              <button class="wide-btn" :disabled="testSending || !campaignForm.name" @click="testSendCampaign">
                 <i v-if="testSending" class="ti ti-loader-2 spin"></i>
                 <span v-else><i class="ti ti-send" style="margin-right:6px"></i>Test-Versand an mich</span>
               </button>
@@ -209,6 +238,7 @@ interface Subscriber {
 const tabs = [
   { key: 'subscribers', label: 'Abonnenten', icon: 'ti-users' },
   { key: 'campaigns',   label: 'Kampagnen', icon: 'ti-send' },
+  { key: 'templates',   label: 'Vorlagen', icon: 'ti-layout-grid' },
   { key: 'settings',    label: 'Einstellungen', icon: 'ti-settings' },
 ]
 const activeTab = ref('subscribers')
@@ -449,8 +479,65 @@ async function deleteCampaign(c: Campaign) {
   await loadCampaigns()
 }
 
+interface Template {
+  templateId: string
+  name: string
+  bodyHtml: string
+  updatedAt: string
+}
+
+const templates       = ref<Template[]>([])
+const loadingTemplates = ref(true)
+const savingTemplate   = ref(false)
+
+async function loadTemplates() {
+  loadingTemplates.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ templates: Template[] }>(useApiUrl('/api/newsletter/templates'), { headers: await useAuthHeader() })
+    templates.value = res.templates || []
+  } catch {}
+  loadingTemplates.value = false
+}
+
+async function saveAsTemplate() {
+  const name = window.prompt('Name der Vorlage:', campaignForm.name || 'Neue Vorlage')
+  if (!name) return
+  savingTemplate.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/newsletter/templates'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { name, bodyHtml: campaignForm.bodyHtml },
+    })
+    await loadTemplates()
+    alert('Als Vorlage gespeichert.')
+  } finally {
+    savingTemplate.value = false
+  }
+}
+
+function newCampaignFromTemplate(t: Template) {
+  editingCampaignId.value = ''
+  campaignForm.name = t.name
+  campaignForm.subject = ''
+  campaignForm.bodyHtml = t.bodyHtml
+  campaignForm.segmentTag = ''
+  campaignStats.value = null
+  activeTab.value = 'campaigns'
+  showCampaignModal.value = true
+}
+
+async function deleteTemplate(t: Template) {
+  if (!confirm(`Vorlage "${t.name}" wirklich löschen?`)) return
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  await $fetch(useApiUrl(`/api/newsletter/templates/${t.templateId}`), { method: 'DELETE', headers: await useAuthHeader() })
+  await loadTemplates()
+}
+
 onMounted(async () => {
-  await Promise.all([loadSubscribers(), loadSettings(), loadCampaigns()])
+  await Promise.all([loadSubscribers(), loadSettings(), loadCampaigns(), loadTemplates()])
 })
 </script>
 
@@ -486,6 +573,14 @@ onMounted(async () => {
   flex-direction: column;
   min-height: 0;
 }
+.wide-btn {
+  width: 100%; height: 34px; border-radius: 8px; background: transparent;
+  border: 0.5px solid var(--border); color: var(--text-secondary); font-family: inherit;
+  font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  white-space: nowrap; transition: background .15s, color .15s;
+}
+.wide-btn:hover { background: var(--bg-hover, var(--bg-elevated)); color: var(--text); }
+.wide-btn:disabled { opacity: .5; cursor: default; }
 @media (max-width: 900px) {
   .campaign-editor-grid { grid-template-columns: 1fr; overflow-y: auto; }
   .campaign-meta-col { border-right: none; border-bottom: 0.5px solid var(--border); overflow-y: visible; }
