@@ -330,8 +330,8 @@
             <div class="auth-field"><label>Marke *</label><input v-model="vForm.make" placeholder="VW, BMW, Mercedes..." /></div>
             <div class="auth-field"><label>Modell *</label><input v-model="vForm.model" placeholder="Golf, 3er, C-Klasse..." /></div>
             <div class="auth-field"><label>Variante</label><input v-model="vForm.variant" placeholder="GTI, xDrive, AMG..." /></div>
-            <div class="auth-field"><label>Baujahr *</label><input v-model="vForm.year" type="number" placeholder="2022" /></div>
-            <div class="auth-field"><label>Kilometerstand</label><input v-model="vForm.mileage" type="number" placeholder="45000" /></div>
+            <div class="auth-field"><label>Baujahr *</label><input :value="vForm.year" type="text" inputmode="numeric" placeholder="2022" @input="onYearInput" @paste.prevent="onYearPaste" /></div>
+            <div class="auth-field"><label>Kilometerstand</label><input :value="vForm.mileage" type="text" inputmode="numeric" placeholder="45000" @input="onMileageInput" @paste.prevent="onMileagePaste" /></div>
             <div class="auth-field"><label>Kraftstoff</label>
               <select v-model="vForm.fuel" class="form-select">
                 <option value="">— wählen —</option>
@@ -353,12 +353,60 @@
                 <option>in Werkstatt</option><option>Probefahrt</option>
               </select>
             </div>
+            <div class="auth-field"><label>Fahrzeugzustand</label>
+              <select v-model="vForm.condition" class="form-select">
+                <option value="">— wählen —</option>
+                <option>Neu</option><option>Gebraucht, unfallfrei</option>
+                <option>Gebraucht, Unfallschaden repariert</option><option>Beschädigt/Unfallwagen</option>
+              </select>
+            </div>
+            <div class="auth-field"><label>Fahrzeugtyp</label>
+              <select v-model="vForm.vehicleType" class="form-select">
+                <option value="">— wählen —</option>
+                <option>Kleinwagen</option><option>Limousine</option><option>Kombi</option>
+                <option>SUV/Geländewagen</option><option>Van/Minivan</option><option>Cabrio</option>
+                <option>Coupé</option><option>Pick-up</option>
+              </select>
+            </div>
+            <div class="auth-field"><label>Anzahl Türen</label>
+              <select v-model="vForm.doors" class="form-select">
+                <option value="">— wählen —</option>
+                <option>2/3</option><option>4/5</option>
+              </select>
+            </div>
+            <div class="auth-field"><label>Umweltplakette</label>
+              <select v-model="vForm.emissionSticker" class="form-select">
+                <option value="">— wählen —</option>
+                <option>Grün</option><option>Gelb</option><option>Rot</option><option>Keine</option>
+              </select>
+            </div>
+            <div class="auth-field"><label>Schadstoffklasse</label>
+              <select v-model="vForm.emissionClass" class="form-select">
+                <option value="">— wählen —</option>
+                <option>Euro 6</option><option>Euro 5</option><option>Euro 4</option>
+                <option>Euro 3</option><option>Euro 2</option><option>Euro 1</option>
+              </select>
+            </div>
+            <div class="auth-field"><label>Innenausstattung</label>
+              <select v-model="vForm.interiorMaterial" class="form-select">
+                <option value="">— wählen —</option>
+                <option>Stoff</option><option>Teilleder</option><option>Leder</option><option>Alcantara</option>
+              </select>
+            </div>
             <div class="auth-field"><label>Kennzeichen</label><input v-model="vForm.licensePlate" placeholder="MYK-PP 42" /></div>
             <div class="auth-field"><label>TÜV fällig</label><input v-model="vForm.tuevDate" type="date" /></div>
             <div class="auth-field" style="grid-column:span 2"><label>Farbe</label><input v-model="vForm.color" placeholder="Graphitgrau Metallic" /></div>
             <div class="auth-field" style="grid-column:span 2"><label>Bilder</label><VehicleImageGallery v-model="vForm.images" /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Beschreibung / Ausstattung</label>
-              <textarea v-model="vForm.description" style="height:80px;resize:none;width:100%" class="form-select" placeholder="Navigationssystem, Sitzheizung, Rückfahrkamera..."></textarea>
+            <div class="auth-field" style="grid-column:span 2">
+              <label>Ausstattung</label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px 12px;padding:10px 12px;background:var(--bg-elevated);border-radius:8px">
+                <label v-for="opt in EQUIPMENT_OPTIONS" :key="opt" style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400">
+                  <input type="checkbox" :value="opt" v-model="vForm.equipment" style="width:auto" /> {{ opt }}
+                </label>
+              </div>
+            </div>
+            <div class="auth-field" style="grid-column:span 2"><label>Sonstige Beschreibung</label>
+              <textarea v-model="vForm.description" style="height:60px;resize:none;width:100%" class="form-select" placeholder="Weitere Details, Historie, Besonderheiten..."></textarea>
             </div>
           </div>
         </div>
@@ -534,7 +582,18 @@ async function saveSettings() {
 const showVehicleModal  = ref(false)
 const editingVehicleId  = ref('')
 const savingVehicle     = ref(false)
-const vForm = reactive({ make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', licensePlate:'', tuevDate:'', color:'', images:[] as string[], description:'' })
+const EQUIPMENT_OPTIONS = [
+  'Klimaautomatik', 'Klimaanlage', 'Navigationssystem', 'Sitzheizung', 'Freisprecheinrichtung',
+  'Tempomat', 'Einparkhilfe', 'Rückfahrkamera', 'Anhängerkupplung', 'ABS', 'Bluetooth',
+  'Radio/Tuner', 'LED-Scheinwerfer', 'Scheckheftgepflegt', 'Nichtraucherfahrzeug', 'Alufelgen',
+]
+
+const vForm = reactive({ make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', condition:'', vehicleType:'', doors:'', emissionSticker:'', emissionClass:'', interiorMaterial:'', licensePlate:'', tuevDate:'', color:'', images:[] as string[], equipment:[] as string[], description:'' })
+
+function onYearInput(e: Event) { vForm.year = (e.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 4) }
+function onMileageInput(e: Event) { vForm.mileage = (e.target as HTMLInputElement).value.replace(/\D/g, '') }
+function onYearPaste(e: ClipboardEvent) { vForm.year = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 4) }
+function onMileagePaste(e: ClipboardEvent) { vForm.mileage = (e.clipboardData?.getData('text') || '').replace(/\D/g, '') }
 
 // Test drive form
 const showTestDriveModal = ref(false)
@@ -596,12 +655,12 @@ function orderStatusStyle(s?: string) {
 }
 
 function resetVehicleForm() {
-  Object.assign(vForm, { make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', licensePlate:'', tuevDate:'', color:'', images:[], description:'' })
+  Object.assign(vForm, { make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', condition:'', vehicleType:'', doors:'', emissionSticker:'', emissionClass:'', interiorMaterial:'', licensePlate:'', tuevDate:'', color:'', images:[], equipment:[], description:'' })
   editingVehicleId.value = ''
 }
 function openNewVehicle() { resetVehicleForm(); showVehicleModal.value = true }
 function openEditVehicle(v: any) {
-  Object.assign(vForm, { make:v.make||'', model:v.model||'', variant:v.variant||'', year:v.year||'', mileage:v.mileage||'', fuel:v.fuel||'', transmission:v.transmission||'', power:v.power||'', price:v.price||'', status:v.status||'verfügbar', licensePlate:v.licensePlate||'', tuevDate:v.tuevDate||'', color:v.color||'', images: v.images?.length ? [...v.images] : (v.imageUrl ? [v.imageUrl] : []), description:v.description||'' })
+  Object.assign(vForm, { make:v.make||'', model:v.model||'', variant:v.variant||'', year:v.year||'', mileage:v.mileage||'', fuel:v.fuel||'', transmission:v.transmission||'', power:v.power||'', price:v.price||'', status:v.status||'verfügbar', condition:v.condition||'', vehicleType:v.vehicleType||'', doors:v.doors||'', emissionSticker:v.emissionSticker||'', emissionClass:v.emissionClass||'', interiorMaterial:v.interiorMaterial||'', licensePlate:v.licensePlate||'', tuevDate:v.tuevDate||'', color:v.color||'', images: v.images?.length ? [...v.images] : (v.imageUrl ? [v.imageUrl] : []), equipment: v.equipment?.length ? [...v.equipment] : [], description:v.description||'' })
   editingVehicleId.value = v.vehicleId
   showVehicleModal.value = true
 }
