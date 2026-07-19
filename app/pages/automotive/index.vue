@@ -155,13 +155,21 @@
           @mouseenter="e => (e.currentTarget as HTMLElement).style.borderColor='var(--accent)'"
           @mouseleave="e => (e.currentTarget as HTMLElement).style.borderColor='var(--border)'">
           <div style="height:160px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
-            <img v-if="v.imageUrl" :src="v.imageUrl" style="width:100%;height:100%;object-fit:cover" />
+            <img v-if="vehicleImages(v)[0]" :src="vehicleImages(v)[0]" style="width:100%;height:100%;object-fit:cover" />
             <i v-else class="ti ti-car" style="font-size:48px;color:var(--text-muted);opacity:.2"></i>
             <span style="position:absolute;top:8px;left:8px;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.05em;text-transform:uppercase"
               :style="statusStyle(v.status)">{{ v.status || 'unbekannt' }}</span>
             <span v-if="isTuevDue(v)" style="position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700">
               ⚠ TÜV
             </span>
+          </div>
+          <div v-if="vehicleImages(v).length > 1" style="display:flex;gap:3px;padding:6px 8px;background:var(--bg-elevated);border-top:0.5px solid var(--border)">
+            <div v-for="(img, i) in vehicleImages(v).slice(1, 5)" :key="i" style="width:38px;height:30px;border-radius:5px;overflow:hidden;flex-shrink:0;position:relative">
+              <img :src="img" style="width:100%;height:100%;object-fit:cover" />
+              <span v-if="i === 3 && vehicleImages(v).length > 5" style="position:absolute;inset:0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">
+                +{{ vehicleImages(v).length - 5 }}
+              </span>
+            </div>
           </div>
           <div style="padding:14px;flex:1;display:flex;flex-direction:column">
             <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:700">{{ v.make }} {{ v.model }}</div>
@@ -348,7 +356,7 @@
             <div class="auth-field"><label>Kennzeichen</label><input v-model="vForm.licensePlate" placeholder="MYK-PP 42" /></div>
             <div class="auth-field"><label>TÜV fällig</label><input v-model="vForm.tuevDate" type="date" /></div>
             <div class="auth-field" style="grid-column:span 2"><label>Farbe</label><input v-model="vForm.color" placeholder="Graphitgrau Metallic" /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Bild-URL</label><input v-model="vForm.imageUrl" placeholder="https://..." /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>Bilder</label><VehicleImageGallery v-model="vForm.images" /></div>
             <div class="auth-field" style="grid-column:span 2"><label>Beschreibung / Ausstattung</label>
               <textarea v-model="vForm.description" style="height:80px;resize:none;width:100%" class="form-select" placeholder="Navigationssystem, Sitzheizung, Rückfahrkamera..."></textarea>
             </div>
@@ -437,6 +445,8 @@
 </template>
 
 <script setup lang="ts">
+import VehicleImageGallery from '~/components/automotive/VehicleImageGallery.vue'
+
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
@@ -524,7 +534,7 @@ async function saveSettings() {
 const showVehicleModal  = ref(false)
 const editingVehicleId  = ref('')
 const savingVehicle     = ref(false)
-const vForm = reactive({ make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', licensePlate:'', tuevDate:'', color:'', imageUrl:'', description:'' })
+const vForm = reactive({ make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', licensePlate:'', tuevDate:'', color:'', images:[] as string[], description:'' })
 
 // Test drive form
 const showTestDriveModal = ref(false)
@@ -566,6 +576,7 @@ function tuevDaysLeft(date: string) {
   return `Noch ${diff} Tage`
 }
 
+function vehicleImages(v: any): string[] { return v.images?.length ? v.images : (v.imageUrl ? [v.imageUrl] : []) }
 function formatKm(km?: number) { return km ? `${km.toLocaleString('de-DE')} km` : '—' }
 function formatPrice(p?: number) { return p ? `€ ${p.toLocaleString('de-DE')}` : '—' }
 function formatDate(d?: string) { if (!d) return ''; return new Date(d).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' }) }
@@ -585,12 +596,12 @@ function orderStatusStyle(s?: string) {
 }
 
 function resetVehicleForm() {
-  Object.assign(vForm, { make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', licensePlate:'', tuevDate:'', color:'', imageUrl:'', description:'' })
+  Object.assign(vForm, { make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', licensePlate:'', tuevDate:'', color:'', images:[], description:'' })
   editingVehicleId.value = ''
 }
 function openNewVehicle() { resetVehicleForm(); showVehicleModal.value = true }
 function openEditVehicle(v: any) {
-  Object.assign(vForm, { make:v.make||'', model:v.model||'', variant:v.variant||'', year:v.year||'', mileage:v.mileage||'', fuel:v.fuel||'', transmission:v.transmission||'', power:v.power||'', price:v.price||'', status:v.status||'verfügbar', licensePlate:v.licensePlate||'', tuevDate:v.tuevDate||'', color:v.color||'', imageUrl:v.imageUrl||'', description:v.description||'' })
+  Object.assign(vForm, { make:v.make||'', model:v.model||'', variant:v.variant||'', year:v.year||'', mileage:v.mileage||'', fuel:v.fuel||'', transmission:v.transmission||'', power:v.power||'', price:v.price||'', status:v.status||'verfügbar', licensePlate:v.licensePlate||'', tuevDate:v.tuevDate||'', color:v.color||'', images: v.images?.length ? [...v.images] : (v.imageUrl ? [v.imageUrl] : []), description:v.description||'' })
   editingVehicleId.value = v.vehicleId
   showVehicleModal.value = true
 }

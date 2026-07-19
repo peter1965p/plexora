@@ -30,7 +30,8 @@ export default defineEventHandler(async (event) => {
       power:        v.power       || '',
       price:        v.price       || '',
       color:        v.color       || '',
-      imageUrl:     v.imageUrl    || '',
+      images:       v.images?.length ? v.images : (v.imageUrl ? [v.imageUrl] : []),
+      imageUrl:     v.images?.[0]  || v.imageUrl || '',
       description:  v.description || '',
     }))
 

@@ -30,7 +30,7 @@ export function buildVehicleTemplateData(vehicle: any, branding: any = {}, compa
       kennzeichen:  vehicle.licensePlate || '',
       status:       vehicle.status || '',
       beschreibung: vehicle.description || '',
-      foto:         vehicle.imageUrl || '',
+      foto:         vehicle.images?.[0] || vehicle.imageUrl || '',
     },
     haendler: {
       name:    branding?.brandName || company?.legalName || 'Plexora',
@@ -112,7 +112,7 @@ export function getSampleVehicle() {
     licensePlate:  '',
     tuevDate:      '',
     color:         'Alpinweiß',
-    imageUrl:      '',
+    images:        [] as string[],
     description:   'Scheckheftgepflegtes Einzelfahrzeug aus erster Hand, Vollausstattung inkl. Navigationssystem und Sitzheizung.',
   }
 }

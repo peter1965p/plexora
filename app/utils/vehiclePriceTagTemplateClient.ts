@@ -10,7 +10,7 @@ export function getSampleVehicleClient() {
   return {
     vehicleId: 'sample-0000', make: 'BMW', model: '3er', variant: '320d Touring', year: 2022,
     mileage: 34500, fuel: 'Diesel', transmission: 'Automatik', power: 190, price: 32900,
-    status: 'verfügbar', licensePlate: '', tuevDate: '', color: 'Alpinweiß', imageUrl: '',
+    status: 'verfügbar', licensePlate: '', tuevDate: '', color: 'Alpinweiß', images: [] as string[],
     description: 'Scheckheftgepflegtes Einzelfahrzeug aus erster Hand, Vollausstattung inkl. Navigationssystem und Sitzheizung.',
   }
 }
@@ -22,7 +22,7 @@ export function buildVehicleTemplateDataClient(vehicle: any, branding: any = {},
       baujahr: String(vehicle.year || ''), km: km(vehicle.mileage), kraftstoff: vehicle.fuel || '',
       getriebe: vehicle.transmission || '', leistung: vehicle.power ? `${vehicle.power} PS` : '',
       preis: eur(vehicle.price), farbe: vehicle.color || '', kennzeichen: vehicle.licensePlate || '',
-      status: vehicle.status || '', beschreibung: vehicle.description || '', foto: vehicle.imageUrl || '',
+      status: vehicle.status || '', beschreibung: vehicle.description || '', foto: vehicle.images?.[0] || vehicle.imageUrl || '',
     },
     haendler: {
       name:    branding?.brandName || company?.legalName || 'Plexora',
