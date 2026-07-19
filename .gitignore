@@ -24,3 +24,7 @@ logs
 !.env.example
 dist/
 lambda*.zip
+
+# Lokale Claude-Code-/Tooling-Artefakte, keine Projektdateien
+.claude/
+.playwright-mcp/
