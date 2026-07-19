@@ -154,12 +154,19 @@ async function getBrowser() {
   return browserPromise
 }
 
-export async function renderInvoicePdf(html: string): Promise<Buffer> {
+export async function renderInvoicePdf(
+  html: string,
+  options?: { format?: 'A4' | 'A5' | 'A6'; landscape?: boolean },
+): Promise<Buffer> {
   const browser = await getBrowser()
   const page = await browser.newPage()
   try {
     await page.setContent(html, { waitUntil: 'networkidle0' })
-    const pdf = await page.pdf({ format: 'A4', printBackground: true })
+    const pdf = await page.pdf({
+      format:         options?.format ?? 'A4',
+      landscape:      options?.landscape ?? false,
+      printBackground: true,
+    })
     return Buffer.from(pdf)
   } finally {
     await page.close()

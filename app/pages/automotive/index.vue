@@ -8,6 +8,7 @@
         <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Fahrzeuge, Probefahrten, Werkstatt & TÜV-Tracking</p>
       </div>
       <div style="display:flex;gap:8px">
+        <button class="icon-btn" title="Preisschild-Vorlagen" @click="navigateTo('/automotive/pricetag-design')"><i class="ti ti-id-badge-2"></i></button>
         <button class="icon-btn" title="Marktplatz-Einstellungen" @click="openSettings"><i class="ti ti-settings"></i></button>
         <a href="https://www.mobile.de" target="_blank" style="text-decoration:none">
           <button class="icon-btn" title="mobile.de öffnen"><i class="ti ti-external-link"></i></button>
@@ -61,6 +62,22 @@
           <button class="accent-btn" :disabled="savingSettings" @click="saveSettings">
             <i v-if="savingSettings" class="ti ti-loader-2 spin"></i>
             <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>Speichern</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREISSCHILD-VORLAGE WÄHLEN -->
+    <div v-if="showPriceTagPicker" class="modal-overlay" @click.self="showPriceTagPicker=false">
+      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:380px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:15px;font-weight:700">Vorlage wählen</div>
+          <button class="icon-btn" @click="showPriceTagPicker=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button v-for="t in pricetagTemplates" :key="t.templateId" class="theme-opt" style="text-align:left;justify-content:flex-start"
+            @click="openPriceTagPdf(t.templateId)">
+            <i class="ti ti-id-badge-2"></i> {{ t.name }}
           </button>
         </div>
       </div>
@@ -153,6 +170,10 @@
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:0.5px solid var(--border)">
               <span style="font-weight:800;font-size:17px;color:var(--accent)">{{ formatPrice(v.price) }}</span>
               <div style="display:flex;gap:4px">
+                <button @click="printPriceTag(v)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s,color .15s"
+                  onmouseover="this.style.background='var(--bg-elevated)';this.style.color='var(--accent)'" onmouseout="this.style.background='none';this.style.color='var(--text-muted)'" title="Preisschild drucken">
+                  <i class="ti ti-printer"></i>
+                </button>
                 <button @click="openEditVehicle(v)" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s"
                   onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='none'" title="Bearbeiten">
                   <i class="ti ti-edit"></i>
@@ -437,6 +458,44 @@ const showSettingsModal = ref(false)
 const savingSettings    = ref(false)
 const settingsForm = reactive({ mobileDeApiKey: '', autoscout24ApiKey: '', vehiclesEnabled: false, vehiclesTitle: 'Fahrzeuge' })
 
+const pricetagTemplates = ref<any[]>([])
+const showPriceTagPicker = ref(false)
+const priceTagVehicleId = ref('')
+
+async function loadPricetagTemplates() {
+  try {
+    const r = await $fetch<any>(useApiUrl('/api/automotive/pricetag-templates'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
+    pricetagTemplates.value = r?.templates || []
+  } catch {}
+}
+
+function printPriceTag(v: any) {
+  if (!pricetagTemplates.value.length) {
+    if (confirm('Noch keine Preisschild-Vorlage angelegt. Jetzt eine erstellen?')) navigateTo('/automotive/pricetag-design')
+    return
+  }
+  priceTagVehicleId.value = v.vehicleId
+  if (pricetagTemplates.value.length === 1) {
+    openPriceTagPdf(pricetagTemplates.value[0].templateId)
+    return
+  }
+  showPriceTagPicker.value = true
+}
+
+async function openPriceTagPdf(templateId: string) {
+  showPriceTagPicker.value = false
+  const blob = await $fetch<Blob>(useApiUrl(`/api/automotive/${priceTagVehicleId.value}/pricetag?templateId=${templateId}`), {
+    headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
+    responseType: 'blob',
+  } as any)
+  const blobUrl = URL.createObjectURL(blob as any)
+  const a = document.createElement('a')
+  a.href = blobUrl
+  a.download = `Preisschild-${priceTagVehicleId.value.slice(0, 8)}.pdf`
+  a.click()
+  URL.revokeObjectURL(blobUrl)
+}
+
 async function openSettings() {
   showSettingsModal.value = true
   try {
@@ -599,6 +658,6 @@ onMounted(async () => {
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
-  await Promise.all([loadVehicles(), loadWorkshop()])
+  await Promise.all([loadVehicles(), loadWorkshop(), loadPricetagTemplates()])
 })
 </script>
