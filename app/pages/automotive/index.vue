@@ -590,9 +590,17 @@ const EQUIPMENT_OPTIONS = [
 
 const vForm = reactive({ make:'', model:'', variant:'', year:'', mileage:'', fuel:'', transmission:'', power:'', price:'', status:'verfügbar', condition:'', vehicleType:'', doors:'', emissionSticker:'', emissionClass:'', interiorMaterial:'', licensePlate:'', tuevDate:'', color:'', images:[] as string[], equipment:[] as string[], description:'' })
 
-function onYearInput(e: Event) { vForm.year = (e.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 4) }
+// Extrahiert ein plausibles Baujahr (19xx/20xx) aus beliebigem Text — reines "erste 4 Ziffern"
+// bricht bei "MM/YYYY"-Formaten wie "04/2016" (aus Kleinanzeigen/mobile.de kopiert), da dann
+// "0420" statt "2016" rauskäme. Erst gezielt nach einem 4-stelligen Jahr suchen, sonst Fallback.
+function extractYear(raw: string): string {
+  const yearMatch = raw.match(/(19|20)\d{2}/)
+  if (yearMatch) return yearMatch[0]
+  return raw.replace(/\D/g, '').slice(0, 4)
+}
+function onYearInput(e: Event) { vForm.year = extractYear((e.target as HTMLInputElement).value) }
 function onMileageInput(e: Event) { vForm.mileage = (e.target as HTMLInputElement).value.replace(/\D/g, '') }
-function onYearPaste(e: ClipboardEvent) { vForm.year = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 4) }
+function onYearPaste(e: ClipboardEvent) { vForm.year = extractYear(e.clipboardData?.getData('text') || '') }
 function onMileagePaste(e: ClipboardEvent) { vForm.mileage = (e.clipboardData?.getData('text') || '').replace(/\D/g, '') }
 
 // Test drive form

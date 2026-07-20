@@ -7,6 +7,8 @@ export interface PriceTagTemplateData {
     marke: string; modell: string; variante: string; baujahr: string; km: string
     kraftstoff: string; getriebe: string; leistung: string; preis: string
     farbe: string; kennzeichen: string; status: string; beschreibung: string; foto: string
+    zustand: string; typ: string; tueren: string; umweltplakette: string
+    schadstoffklasse: string; innenausstattung: string; ausstattung: string
   }
   haendler: { name: string; logo: string; telefon: string; email: string; adresse: string; farbe: string }
 }
@@ -31,6 +33,13 @@ export function buildVehicleTemplateData(vehicle: any, branding: any = {}, compa
       status:       vehicle.status || '',
       beschreibung: vehicle.description || '',
       foto:         vehicle.images?.[0] || vehicle.imageUrl || '',
+      zustand:          vehicle.condition        || '',
+      typ:              vehicle.vehicleType      || '',
+      tueren:           vehicle.doors            || '',
+      umweltplakette:   vehicle.emissionSticker  || '',
+      schadstoffklasse: vehicle.emissionClass    || '',
+      innenausstattung: vehicle.interiorMaterial || '',
+      ausstattung:      Array.isArray(vehicle.equipment) ? vehicle.equipment.join(', ') : '',
     },
     haendler: {
       name:    branding?.brandName || company?.legalName || 'Plexora',
@@ -113,6 +122,13 @@ export function getSampleVehicle() {
     tuevDate:      '',
     color:         'Alpinweiß',
     images:        [] as string[],
+    condition:        'Gebraucht, unfallfrei',
+    vehicleType:      'Kombi',
+    doors:            '4/5',
+    emissionSticker:  'Grün',
+    emissionClass:    'Euro 6',
+    interiorMaterial: 'Leder',
+    equipment:        ['Navigationssystem', 'Sitzheizung', 'Klimaautomatik'] as string[],
     description:   'Scheckheftgepflegtes Einzelfahrzeug aus erster Hand, Vollausstattung inkl. Navigationssystem und Sitzheizung.',
   }
 }
