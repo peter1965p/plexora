@@ -65,6 +65,10 @@
           <option value="portrait">Hochformat</option>
           <option value="landscape">Querformat</option>
         </select>
+        <select v-model="previewVehicleId" class="draft-select" @change="onPreviewVehicleChange">
+          <option value="">Beispiel-Fahrzeug (BMW 3er)</option>
+          <option v-for="v in vehicles" :key="v.vehicleId" :value="v.vehicleId">{{ v.make }} {{ v.model }} {{ v.variant || '' }}</option>
+        </select>
       </div>
 
       <div class="editor-grid">
@@ -119,9 +123,21 @@ const templates = ref<any[]>([])
 const presets    = ref<Array<{ key: string; label: string; description: string; frameHtml: string; startContentHtml: string }>>([])
 const companySettings  = ref<any>({})
 const brandingSettings = ref<any>({})
+const vehicles = ref<any[]>([])
+const previewVehicleId = ref('')
 
 const editingId = ref('')
 const draft = reactive({ name: '', presetKey: 'klassisch', contentHtml: '', pageFormat: 'A5', orientation: 'portrait' as 'portrait' | 'landscape' })
+
+function selectedVehicle() {
+  return vehicles.value.find(v => v.vehicleId === previewVehicleId.value) || null
+}
+
+function onPreviewVehicleChange() {
+  const v = selectedVehicle()
+  if (v && !draft.name.trim()) draft.name = `Preisschild – ${v.make} ${v.model}`.trim()
+  updateHtmlPreview()
+}
 
 const previewMode = ref<'html' | 'pdf'>('html')
 const htmlPreview  = ref('')
@@ -143,6 +159,7 @@ function startNewFromPreset(p: { key: string; startContentHtml: string }) {
   draft.contentHtml = p.startContentHtml
   draft.pageFormat = 'A5'
   draft.orientation = 'portrait'
+  previewVehicleId.value = ''
   mode.value = 'editor'
   updateHtmlPreview()
 }
@@ -154,13 +171,14 @@ function openEditor(t: any) {
   draft.contentHtml = t.contentHtml
   draft.pageFormat = t.pageFormat || 'A5'
   draft.orientation = t.orientation || 'portrait'
+  previewVehicleId.value = ''
   mode.value = 'editor'
   updateHtmlPreview()
 }
 
 let previewDebounce: ReturnType<typeof setTimeout> | null = null
 function updateHtmlPreview() {
-  const data = buildVehicleTemplateDataClient(getSampleVehicleClient(), brandingSettings.value, companySettings.value)
+  const data = buildVehicleTemplateDataClient(selectedVehicle() || getSampleVehicleClient(), brandingSettings.value, companySettings.value)
   htmlPreview.value = renderVehiclePriceTagHtmlClient(frameFor(draft.presetKey), draft.contentHtml, data)
 }
 watch(() => [draft.contentHtml, draft.presetKey], () => {
@@ -179,6 +197,7 @@ async function showPdfPreview() {
       body: JSON.stringify({
         presetKey: draft.presetKey, contentHtml: draft.contentHtml,
         pageFormat: draft.pageFormat, orientation: draft.orientation,
+        vehicleId: previewVehicleId.value || undefined,
       }),
     })
     if (!res.ok) throw new Error(`Rendern fehlgeschlagen (${res.status})`)
@@ -226,16 +245,18 @@ async function deleteTemplate(t: any) {
 onMounted(async () => {
   try {
     const authHeaders = await useAuthHeader()
-    const [tplRes, presetsRes, companyRes, brandingRes] = await Promise.all([
+    const [tplRes, presetsRes, companyRes, brandingRes, vehiclesRes] = await Promise.all([
       $fetch<any>(useApiUrl('/api/automotive/pricetag-templates'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/automotive/pricetag-templates/presets')),
       $fetch<any>(useApiUrl('/api/settings/company'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/branding'), { headers: authHeaders }),
+      $fetch<any>(useApiUrl('/api/automotive'), { headers: authHeaders }),
     ])
     templates.value = tplRes?.templates || []
     presets.value = presetsRes?.presets || []
     companySettings.value = companyRes?.company || {}
     brandingSettings.value = brandingRes?.branding || {}
+    vehicles.value = vehiclesRes?.vehicles || []
   } finally {
     loading.value = false
   }
@@ -260,9 +281,9 @@ onMounted(async () => {
 .template-actions .icon-btn.danger:hover { color: #ef4444; background: rgba(239,68,68,.1); }
 
 .preset-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.preset-card { text-align: left; background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: border-color .15s; }
+.preset-card { text-align: left; background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: border-color .15s; color: var(--text); font: inherit; }
 .preset-card:hover { border-color: var(--accent); }
-.preset-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.preset-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
 .preset-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
 
 .draft-meta-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }

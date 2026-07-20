@@ -2,6 +2,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { renderVehiclePriceTagPdf, getSampleVehicle } from '../../../utils/vehiclePriceTagTemplate'
 import { requireAuth } from '../../../utils/verifyAuth'
+import { requireTenantId } from '../../../utils/auth'
 import { resolveUserId } from '../../../utils/tenant'
 
 export default defineEventHandler(async (event) => {
@@ -12,6 +13,18 @@ export default defineEventHandler(async (event) => {
 
   const dynamo = getDynamoClient()
   const tenantUserId = await resolveUserId(email)
+
+  // Optional: Vorschau mit einem echten Fahrzeug statt des Beispiel-Datensatzes —
+  // eigene tenantId nötig (plexora-vehicles nutzt requireTenantId, nicht resolveUserId,
+  // siehe Identity-Bridge-Hinweis in server/api/automotive/[id]/pricetag.get.ts).
+  let vehicle: any = getSampleVehicle()
+  if (body.vehicleId) {
+    try {
+      const vehicleTenantId = await requireTenantId(event)
+      const vRes = await dynamo.send(new GetCommand({ TableName: 'plexora-vehicles', Key: { tenantId: vehicleTenantId, vehicleId: String(body.vehicleId) } }))
+      if (vRes.Item) vehicle = vRes.Item
+    } catch {}
+  }
 
   let branding = { brandName: 'Plexora', logoUrl: '', primaryColor: '#EA580C' }
   try {
@@ -32,7 +45,7 @@ export default defineEventHandler(async (event) => {
       pageFormat:  body.pageFormat  || 'A5',
       orientation: body.orientation || 'portrait',
     },
-    getSampleVehicle(),
+    vehicle,
     branding,
     company,
   )
