@@ -160,6 +160,105 @@
         </div>
       </div>
 
+      <!-- ── TAB: TRAFFIC ── -->
+      <div v-else-if="activeTab === 'traffic'">
+        <div v-if="loadingSiteStats" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
+          <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
+        </div>
+        <div v-else-if="!siteStats" style="text-align:center;padding:60px;color:var(--text-muted)">
+          <i class="ti ti-chart-line" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i>
+          <p style="font-size:13px">Noch keine Besucherdaten vorhanden.</p>
+        </div>
+        <template v-else>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-header">
+              <span class="card-title">Aufrufe letzte 30 Tage</span>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-muted)">
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>Besucher</span>
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6C3FE8;margin-right:4px"></span>Bots</span>
+              </div>
+            </div>
+            <div style="padding:16px 20px">
+              <div style="display:flex;align-items:flex-end;gap:3px;height:80px">
+                <div v-for="d in siteStats.days" :key="d.date"
+                  style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:default"
+                  :title="`${d.date}\nBesucher: ${d.human}\nBots: ${d.bot}`">
+                  <div :style="{ width:'100%', background:'#6C3FE8', borderRadius:'2px 2px 0 0', height: maxSiteDay > 0 ? `${Math.max(2, Math.round((d.bot / maxSiteDay) * 36))}px` : '2px', opacity: 0.7 }"></div>
+                  <div :style="{ width:'100%', background:'var(--accent)', borderRadius:'2px 2px 0 0', height: maxSiteDay > 0 ? `${Math.max(2, Math.round((d.human / maxSiteDay) * 36))}px` : '2px' }"></div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-muted)">
+                <span>{{ siteStats.days[0]?.date?.slice(5) }}</span>
+                <span>{{ siteStats.days[14]?.date?.slice(5) }}</span>
+                <span>{{ siteStats.days[29]?.date?.slice(5) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:14px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Top Seiten</span></div>
+              <table class="data-table">
+                <thead><tr><th>Seite</th><th style="text-align:right">Aufrufe</th></tr></thead>
+                <tbody>
+                  <tr v-if="!siteStats.topPages.length"><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Daten</td></tr>
+                  <tr v-for="p in siteStats.topPages" :key="p.path">
+                    <td class="td-name" style="font-family:monospace;font-size:12px">{{ p.path }}</td>
+                    <td style="text-align:right;font-weight:600">{{ p.count }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Traffic-Quellen</span></div>
+              <table class="data-table">
+                <thead><tr><th>Quelle</th><th style="text-align:right">Aufrufe</th></tr></thead>
+                <tbody>
+                  <tr v-if="!siteStats.topRefs.length"><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Daten</td></tr>
+                  <tr v-for="r in siteStats.topRefs" :key="r.ref">
+                    <td class="td-name" style="font-size:12px">
+                      <span v-if="r.ref === 'direct'" style="color:var(--text-muted)">— direkt / bookmark —</span>
+                      <span v-else>{{ r.ref }}</span>
+                    </td>
+                    <td style="text-align:right;font-weight:600">{{ r.count }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-world" style="color:var(--accent);margin-right:6px"></i>Länder</span></div>
+              <div v-if="!siteStats.topCountries?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+              <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+                <div v-for="c in siteStats.topCountries" :key="c.code" style="display:flex;align-items:center;gap:10px">
+                  <span style="font-size:16px;width:24px">{{ siteFlag(c.code) }}</span>
+                  <span style="font-size:13px;min-width:80px">{{ siteCountryName(c.code) }}</span>
+                  <div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:6px;overflow:hidden">
+                    <div :style="`width:${Math.round((c.count/siteStats.topCountries[0].count)*100)}%;background:var(--accent);height:100%;border-radius:4px`"></div>
+                  </div>
+                  <span style="font-size:12px;font-weight:600;min-width:28px;text-align:right">{{ c.count }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-building" style="color:var(--accent);margin-right:6px"></i>Städte</span></div>
+              <div v-if="!siteStats.topCities?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+              <table v-else class="data-table">
+                <thead><tr><th>Stadt</th><th style="text-align:right">Aufrufe</th></tr></thead>
+                <tbody>
+                  <tr v-for="c in siteStats.topCities" :key="c.city">
+                    <td style="font-size:13px">{{ c.city }}</td>
+                    <td style="text-align:right;font-weight:600">{{ c.count }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </template>
+      </div>
+
       <!-- ── TAB: INHALTE ── -->
       <div v-else-if="activeTab === 'content'" style="display:flex;flex-direction:column;gap:16px;max-width:760px">
         <div class="card">
@@ -732,6 +831,33 @@
         </div>
       </div>
 
+      <!-- ── TAB: SEO ── -->
+      <div v-else-if="activeTab === 'seo'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-robot" style="margin-right:8px;color:var(--accent)"></i>Robots.txt</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Steuert, welche Bereiche Suchmaschinen-Crawler durchsuchen dürfen. Leer lassen für die Standard-Einstellung (alles erlaubt).</div>
+          <textarea v-model="form.robotsTxt" class="field-input" style="height:120px;resize:vertical;font-family:monospace;font-size:12px" placeholder="User-Agent: *&#10;Disallow:"></textarea>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>Meta-Keywords</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Kommagetrennte Schlagworte für Suchmaschinen (heute kaum noch relevant fürs Ranking, schadet aber nicht).</div>
+          <input v-model="form.metaKeywords" class="field-input" placeholder="handwerk, sanitär, heizung, köln" />
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-brand-google" style="margin-right:8px;color:var(--accent)"></i>Google Analytics</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            Measurement-ID aus <a href="https://analytics.google.com" target="_blank" rel="noopener" style="color:var(--accent)">analytics.google.com</a> (Format <code>G-XXXXXXXXXX</code>). Lädt nur, wenn Besucher der Cookie-Nutzung zustimmen.
+          </div>
+          <input v-model="form.gaMeasurementId" class="field-input" placeholder="G-XXXXXXXXXX" />
+        </div>
+      </div>
+
       <!-- ── TAB: AGB ── -->
       <div v-else-if="activeTab === 'agb'" style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0">
@@ -1265,9 +1391,50 @@ const showKey = ref(false)
 const copied  = ref(false)
 const activeTab = ref('connection')
 const showDevSection = ref(false)
+const siteStats = ref<any>(null)
+const loadingSiteStats = ref(false)
+
+watch(activeTab, (tab) => {
+  if (tab === 'traffic' && !siteStats.value && !loadingSiteStats.value) loadSiteStats()
+})
+
+async function loadSiteStats() {
+  loadingSiteStats.value = true
+  try {
+    const res = await $fetch<any>(useApiUrl('/api/nexora/site-analytics'), {
+      headers: { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` },
+    })
+    siteStats.value = res?.stats || null
+  } catch {
+    siteStats.value = null
+  }
+  loadingSiteStats.value = false
+}
+
+const maxSiteDay = computed(() => {
+  if (!siteStats.value?.days) return 0
+  return Math.max(...siteStats.value.days.map((d: any) => d.human + d.bot), 1)
+})
+
+function siteFlag(code: string): string {
+  if (!code || code.length !== 2) return '🌍'
+  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397))
+}
+const SITE_COUNTRY_NAMES: Record<string, string> = {
+  DE:'Deutschland', AT:'Österreich', CH:'Schweiz', US:'USA', GB:'Großbritannien',
+  FR:'Frankreich', NL:'Niederlande', BE:'Belgien', PL:'Polen', IT:'Italien',
+  ES:'Spanien', RU:'Russland', UA:'Ukraine', TR:'Türkei', IN:'Indien',
+  CN:'China', JP:'Japan', BR:'Brasilien', AU:'Australien', CA:'Kanada',
+  LU:'Luxemburg', DK:'Dänemark', SE:'Schweden', NO:'Norwegen', FI:'Finnland',
+  CZ:'Tschechien', SK:'Slowakei', HU:'Ungarn', RO:'Rumänien', XX:'Unbekannt',
+}
+function siteCountryName(code: string): string {
+  return SITE_COUNTRY_NAMES[code] || code
+}
 
 const tabs = [
   { key: 'connection', label: 'Verbindung', icon: 'ti-plug' },
+  { key: 'traffic',    label: 'Traffic',    icon: 'ti-chart-line' },
   { key: 'content',    label: 'Inhalte',    icon: 'ti-text-size' },
   { key: 'media',      label: 'Medien',     icon: 'ti-photo' },
   { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
@@ -1280,12 +1447,16 @@ const tabs = [
   { key: 'blog-settings',  label: 'Blog',       icon: 'ti-news' },
   { key: 'shop-settings',  label: 'Shop',       icon: 'ti-shopping-cart' },
   { key: 'newsletter-settings', label: 'Newsletter', icon: 'ti-mail' },
+  { key: 'seo',           label: 'SEO',        icon: 'ti-search' },
   { key: 'agb',           label: 'AGB',        icon: 'ti-license' },
   { key: 'datenschutz',label: 'Datenschutz',icon: 'ti-shield-lock' },
   { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
 ]
 
 const form = reactive({
+  robotsTxt:           '',
+  metaKeywords:        '',
+  gaMeasurementId:     '',
   companyName:         '',
   subdomain:           '',
   customDomain:        '',
@@ -1428,6 +1599,9 @@ onMounted(async () => {
       form.navOrder            = n.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine']
       form.heroMediaType       = n.heroMediaType  || 'code'
       form.heroImageUrl        = n.heroImageUrl   || ''
+      form.robotsTxt           = n.robotsTxt        || ''
+      form.metaKeywords        = n.metaKeywords     || ''
+      form.gaMeasurementId     = n.gaMeasurementId  || ''
 
       if (n.tenantId) {
         try {
@@ -1527,6 +1701,9 @@ async function save() {
         navOrder:       form.navOrder,
         heroMediaType:  form.heroMediaType,
         heroImageUrl:   form.heroImageUrl,
+        robotsTxt:       form.robotsTxt,
+        metaKeywords:    form.metaKeywords,
+        gaMeasurementId: form.gaMeasurementId,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain

@@ -61,6 +61,9 @@ export default defineEventHandler(async (event) => {
       heroMediaType:  item.heroMediaType  || 'code',
       heroImageUrl:   item.heroImageUrl   || '',
       anthropicApiKeyMasked: item.anthropicApiKeyMasked || '',
+      robotsTxt:      item.robotsTxt      || '',
+      metaKeywords:   item.metaKeywords   || '',
+      gaMeasurementId: item.gaMeasurementId || '',
     }
   }
 })

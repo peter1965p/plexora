@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPatEncrypted = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, blogEnabled = :ble, blogTitle = :blt, shopEnabled = :she, shopTitle = :sht, newsletterEnabled = :nle, newsletterTitle = :nlt, sectionOrder = :so, navOrder = :no, heroMediaType = :hmt, heroImageUrl = :hiu, anthropicApiKeyEncrypted = :aak, anthropicApiKeyMasked = :aakm, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPatEncrypted = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, blogEnabled = :ble, blogTitle = :blt, shopEnabled = :she, shopTitle = :sht, newsletterEnabled = :nle, newsletterTitle = :nlt, sectionOrder = :so, navOrder = :no, heroMediaType = :hmt, heroImageUrl = :hiu, anthropicApiKeyEncrypted = :aak, anthropicApiKeyMasked = :aakm, robotsTxt = :rtx, metaKeywords = :mkw, gaMeasurementId = :gaid, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -66,6 +66,9 @@ export default defineEventHandler(async (event) => {
       // Empty/missing body.anthropicApiKey means "unchanged" — only a real new value gets (re-)encrypted.
       ':aak':  body.anthropicApiKey ? encryptSecret(body.anthropicApiKey) : (item.anthropicApiKeyEncrypted || ''),
       ':aakm': body.anthropicApiKey ? `sk-ant-${'•'.repeat(8)}${body.anthropicApiKey.slice(-4)}` : (item.anthropicApiKeyMasked || ''),
+      ':rtx':  body.robotsTxt      ?? item.robotsTxt      ?? '',
+      ':mkw':  body.metaKeywords   ?? item.metaKeywords   ?? '',
+      ':gaid': body.gaMeasurementId ?? item.gaMeasurementId ?? '',
       ':u':    new Date().toISOString(),
     }
   }))

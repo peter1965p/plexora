@@ -73,7 +73,7 @@ export function detectOS(ua: string): string {
 }
 
 // ── IP Geolocation (fallback when no Cloudflare headers) ──────────────────────
-function isPublicIp(ip: string): boolean {
+export function isPublicIp(ip: string): boolean {
   if (!ip) return false
   if (ip.startsWith('127.') || ip.startsWith('::1')) return false
   if (ip.startsWith('10.')) return false
@@ -82,7 +82,7 @@ function isPublicIp(ip: string): boolean {
   return true
 }
 
-async function geoLookup(ip: string): Promise<{ country: string; city: string }> {
+export async function geoLookup(ip: string): Promise<{ country: string; city: string }> {
   try {
     const ctrl  = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 3000)
