@@ -37,6 +37,11 @@ const BOT_PATTERNS: Record<string, string> = {
 }
 
 export function detectBot(ua: string): string | null {
+  // Ein komplett fehlender User-Agent ist das verdächtigste Signal überhaupt — echte
+  // Browser senden ihn immer. Bisher fiel das durch den reinen Namens-Abgleich (Googlebot,
+  // Bingbot, ...) durch und wurde fälschlich als "Mensch" gezählt (u.a. Scanner-/Scraper-
+  // Traffic von Cloud-IP-Bereichen ohne UA).
+  if (!ua || !ua.trim()) return 'Kein User-Agent'
   const lower = ua.toLowerCase()
   for (const [pattern, name] of Object.entries(BOT_PATTERNS)) {
     if (lower.includes(pattern)) return name
@@ -102,11 +107,16 @@ export function trackVisit(opts: {
 }): void {
   const { path, ua, referrer, ip } = opts
 
+  // Interne Anfragen (localhost/private Range — z.B. Lambda-Health-Checks, eigene
+  // Server-zu-Server-Aufrufe) sind keine echten Besuche und wurden bisher trotzdem
+  // vollständig mitgezählt (::1 tauchte z.B. in der Besucher-IP-Liste auf).
+  if (!isPublicIp(ip)) return
+
   const run = async () => {
     // Use Cloudflare headers if available; otherwise geo-lookup
     let country = opts.country || ''
     let city    = opts.city    || ''
-    if (!country && isPublicIp(ip)) {
+    if (!country) {
       const geo = await geoLookup(ip)
       country   = geo.country
       city      = geo.city
