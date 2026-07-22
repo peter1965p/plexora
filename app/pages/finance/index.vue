@@ -66,7 +66,14 @@
             <td>{{ formatEur(i.amount) }}</td>
             <td style="font-size:12px">{{ i.dueDate }}</td>
             <td>
-              <span class="badge" :class="statusBadge(i.status)">{{ statusLabel(i.status) }}</span>
+              <select v-if="editingStatusId === i.invoiceId" class="form-select" style="height:24px;font-size:11px;padding:0 6px"
+                :value="i.status" autofocus @change="updateStatus(i, ($event.target as HTMLSelectElement).value)" @blur="editingStatusId=null">
+                <option v-for="opt in STATUS_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+              </select>
+              <span v-else class="badge" :class="statusBadge(i.status)" style="cursor:pointer" title="Status ändern" @click="editingStatusId = i.invoiceId">
+                <i v-if="statusSaving===i.invoiceId" class="ti ti-loader-2 spin"></i>
+                <template v-else>{{ statusLabel(i.status) }}</template>
+              </span>
               <i v-if="i.mailSent"       class="ti ti-mail-check"   style="color:#00D4B4;margin-left:6px;font-size:12px" :title="t.finance.mailSent"></i>
               <i v-if="i.finalizedAt"    class="ti ti-lock"         style="color:#a78bfa;margin-left:6px;font-size:12px" :title="t.finance.archived"></i>
             </td>
@@ -362,7 +369,7 @@
 </template>
 
 <script setup lang="ts">
-import { calcRevenue, calcPending, calcOverdue, formatEur, statusLabel, statusBadge } from '~/modules/finance'
+import { calcRevenue, calcPending, calcOverdue, formatEur, statusLabel, statusBadge, STATUS_OPTIONS } from '~/modules/finance'
 import { exportToCsv, exportToXlsx } from '~/modules/export'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
@@ -444,6 +451,8 @@ const showCash = ref(false)
 const saving   = ref(false)
 const sending  = ref<string | null>(null)
 const dunning  = ref<string | null>(null)
+const editingStatusId = ref<string | null>(null)
+const statusSaving    = ref<string | null>(null)
 const toast    = ref('')
 
 onMounted(() => { if (route.query.new) showAdd.value = true })
@@ -511,6 +520,21 @@ async function finalizeInvoice(invoice: any) {
   })
   await refresh()
   showToast(`Rechnung ${invoice.number} archiviert!`)
+}
+
+async function updateStatus(invoice: any, newStatus: string) {
+  editingStatusId.value = null
+  if (newStatus === invoice.status) return
+  statusSaving.value = invoice.invoiceId
+  try {
+    await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/status`), {
+      method: 'PUT', headers: authHeaders, body: { status: newStatus },
+    })
+    await refresh()
+    showToast(`Status geändert: ${statusLabel(newStatus)}`)
+  } finally {
+    statusSaving.value = null
+  }
 }
 
 function canDunning(invoice: any): boolean {
