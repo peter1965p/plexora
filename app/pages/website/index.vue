@@ -48,9 +48,9 @@
       </div>
 
       <!-- Tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;position:sticky;top:67px;z-index:9;background:#0a0e1a;box-shadow:0 4px 16px rgba(0,0,0,0.6)">
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;position:sticky;top:67px;z-index:9;background:#0a0e1a;box-shadow:0 4px 16px rgba(0,0,0,0.6);overflow-x:auto;overflow-y:hidden;max-width:100%;scrollbar-width:thin">
         <button v-for="t in tabs" :key="t.key" @click="activeTab = t.key"
-          style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .15s;margin-bottom:-1px;font-family:inherit"
+          style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .15s;margin-bottom:-1px;font-family:inherit;white-space:nowrap;flex-shrink:0"
           :style="activeTab === t.key ? 'color:var(--accent);border-bottom-color:var(--accent)' : ''">
           <i class="ti" :class="t.icon" style="margin-right:6px"></i>{{ t.label }}
         </button>
