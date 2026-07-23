@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
       robotsTxt:      item.robotsTxt      || '',
       metaKeywords:   item.metaKeywords   || '',
       gaMeasurementId: item.gaMeasurementId || '',
+      pageTitles:     item.pageTitles     || {},
     }
   }
 })

@@ -50,5 +50,6 @@ export default defineEventHandler(async (event) => {
     navOrder:          res.Item.navOrder          || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
     metaKeywords:    res.Item.metaKeywords    || '',
     gaMeasurementId: res.Item.gaMeasurementId || '',
+    pageTitles:      res.Item.pageTitles      || {},
   }
 })

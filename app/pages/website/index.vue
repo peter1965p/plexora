@@ -835,6 +835,19 @@
       <div v-else-if="activeTab === 'seo'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
+            <span class="card-title"><i class="ti ti-heading" style="margin-right:8px;color:var(--accent)"></i>Seiten-Titel</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Titel, der im Browser-Tab und in Suchergebnissen für jede Seite erscheint. Leer lassen für den Standard-Titel.</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><label class="field-label">Start</label><input v-model="form.pageTitles.start" class="field-input" :placeholder="form.companyName || 'Nexora'" /></div>
+            <div><label class="field-label">Leistungen</label><input v-model="form.pageTitles.leistungen" class="field-input" :placeholder="`Leistungen · ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">Über uns</label><input v-model="form.pageTitles.about" class="field-input" :placeholder="`Über uns · ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">Kontakt</label><input v-model="form.pageTitles.kontakt" class="field-input" :placeholder="`Kontakt · ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">Impressum</label><input v-model="form.pageTitles.impressum" class="field-input" :placeholder="`Impressum — ${form.companyName || 'Nexora'}`" /></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
             <span class="card-title"><i class="ti ti-robot" style="margin-right:8px;color:var(--accent)"></i>Robots.txt</span>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Steuert, welche Bereiche Suchmaschinen-Crawler durchsuchen dürfen. Leer lassen für die Standard-Einstellung (alles erlaubt).</div>
@@ -1457,6 +1470,7 @@ const form = reactive({
   robotsTxt:           '',
   metaKeywords:        '',
   gaMeasurementId:     '',
+  pageTitles: { start: '', leistungen: '', about: '', kontakt: '', impressum: '' },
   companyName:         '',
   subdomain:           '',
   customDomain:        '',
@@ -1602,6 +1616,7 @@ onMounted(async () => {
       form.robotsTxt           = n.robotsTxt        || ''
       form.metaKeywords        = n.metaKeywords     || ''
       form.gaMeasurementId     = n.gaMeasurementId  || ''
+      form.pageTitles          = { start:'', leistungen:'', about:'', kontakt:'', impressum:'', ...(n.pageTitles || {}) }
 
       if (n.tenantId) {
         try {
@@ -1704,6 +1719,7 @@ async function save() {
         robotsTxt:       form.robotsTxt,
         metaKeywords:    form.metaKeywords,
         gaMeasurementId: form.gaMeasurementId,
+        pageTitles:      form.pageTitles,
       },
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
