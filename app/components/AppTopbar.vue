@@ -40,6 +40,9 @@
         <span class="topbar-username">{{ displayName }}</span>
         <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted)"></i>
         <div v-if="showMenu" class="topbar-menu">
+          <div class="topbar-menu-item" @click="navigateTo('/profile')">
+            <i class="ti ti-user-circle"></i> Profil
+          </div>
           <div class="topbar-menu-item" @click="navigateTo('/settings')">
             <i class="ti ti-settings"></i> {{ t.menuSettings }}
           </div>
@@ -99,12 +102,16 @@ onMounted(async () => {
     displayName.value = email.split('@')[0] || 'User'
     initials.value = displayName.value.slice(0,2).toUpperCase()
 
-    // Profilbild kommt nur bei Google-Login (Cognito 'picture'-Attribut aus dem
-    // Google-Profil gemappt) — bei Passwort-Login bleiben die Initialen der Fallback.
+    // Avatar-Priorität: eigener Upload (Profil-Seite) > Google-Profilbild (Cognito
+    // 'picture'-Attribut) > Initialen als Fallback bei Passwort-Login.
     const { fetchAuthSession } = await import('aws-amplify/auth')
     const session = await fetchAuthSession()
     const picture = session.tokens?.idToken?.payload?.picture as string | undefined
     if (picture) avatarUrl.value = picture
+
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const profile = await $fetch(useApiUrl('/api/settings/account'), { headers: await useAuthHeader() }) as any
+    if (profile?.profile?.avatarUrl) avatarUrl.value = profile.profile.avatarUrl
   } catch {}
 
   document.addEventListener('click', (e) => {
