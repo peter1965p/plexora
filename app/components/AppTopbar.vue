@@ -35,7 +35,8 @@
         </div>
       </div>
       <div class="topbar-user" @click="showMenu=!showMenu" ref="menuRef">
-        <div class="avatar" style="width:28px;height:28px;font-size:11px">{{ initials }}</div>
+        <img v-if="avatarUrl" :src="avatarUrl" class="avatar" style="width:28px;height:28px;object-fit:cover" referrerpolicy="no-referrer" @error="avatarUrl = ''" />
+        <div v-else class="avatar" style="width:28px;height:28px;font-size:11px">{{ initials }}</div>
         <span class="topbar-username">{{ displayName }}</span>
         <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted)"></i>
         <div v-if="showMenu" class="topbar-menu">
@@ -82,6 +83,7 @@ const showQuick  = ref(false)
 const quickRef   = ref<HTMLElement | null>(null)
 const displayName = ref('User')
 const initials   = ref('U')
+const avatarUrl  = ref('')
 
 const quickItems = computed(() => t.value.quick)
 
@@ -96,6 +98,13 @@ onMounted(async () => {
     const email = user.signInDetails?.loginId || user.username || ''
     displayName.value = email.split('@')[0] || 'User'
     initials.value = displayName.value.slice(0,2).toUpperCase()
+
+    // Profilbild kommt nur bei Google-Login (Cognito 'picture'-Attribut aus dem
+    // Google-Profil gemappt) — bei Passwort-Login bleiben die Initialen der Fallback.
+    const { fetchAuthSession } = await import('aws-amplify/auth')
+    const session = await fetchAuthSession()
+    const picture = session.tokens?.idToken?.payload?.picture as string | undefined
+    if (picture) avatarUrl.value = picture
   } catch {}
 
   document.addEventListener('click', (e) => {
