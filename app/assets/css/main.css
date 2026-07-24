@@ -839,6 +839,47 @@ ul {
 .auth-switch span:hover {
   text-decoration: underline;
 }
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 0.5px;
+  background: var(--border);
+}
+.auth-btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Exo 2", sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  margin-top: 10px;
+}
+.auth-btn-outline:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-surface);
+}
+.auth-btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .spin {
   animation: spin 1s linear infinite;
   display: inline-block;
