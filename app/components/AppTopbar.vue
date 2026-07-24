@@ -97,15 +97,18 @@ function quickNav(item: typeof quickItems.value[0]) {
 
 onMounted(async () => {
   try {
-    const user = await getCurrentUser()
-    const email = user.signInDetails?.loginId || user.username || ''
+    await getCurrentUser()
+    // Bei Google-Login weicht user.signInDetails/username vom Cognito-Alias ab
+    // (rohe Verknüpfungs-ID statt E-Mail) — der 'email'-Claim im ID-Token stimmt
+    // dagegen unabhängig vom Login-Weg immer.
+    const { fetchAuthSession } = await import('aws-amplify/auth')
+    const session = await fetchAuthSession()
+    const email = (session.tokens?.idToken?.payload?.email as string) || ''
     displayName.value = email.split('@')[0] || 'User'
     initials.value = displayName.value.slice(0,2).toUpperCase()
 
     // Avatar-Priorität: eigener Upload (Profil-Seite) > Google-Profilbild (Cognito
     // 'picture'-Attribut) > Initialen als Fallback bei Passwort-Login.
-    const { fetchAuthSession } = await import('aws-amplify/auth')
-    const session = await fetchAuthSession()
     const picture = session.tokens?.idToken?.payload?.picture as string | undefined
     if (picture) avatarUrl.value = picture
 

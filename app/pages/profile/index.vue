@@ -162,12 +162,14 @@ async function loadProfile() {
 
 onMounted(async () => {
   try {
-    const user = await getCurrentUser()
-    userEmail.value = user.signInDetails?.loginId || user.username || '–'
-    initials.value = userEmail.value.slice(0, 2).toUpperCase()
-
+    await getCurrentUser()
+    // authUser.email kommt aus dem 'email'-Claim des ID-Tokens — anders als
+    // signInDetails/username stimmt der auch bei Google-Login (nicht die rohe
+    // Verknüpfungs-ID).
     const { useAuthUser } = await import('~/composables/useAuth')
     const authUser = await useAuthUser()
+    userEmail.value = authUser.email || '–'
+    initials.value = userEmail.value.slice(0, 2).toUpperCase()
     userRole.value = authUser.role === 'admins' ? 'Administrator' : 'Kunde'
 
     if (!avatarUrl.value) {

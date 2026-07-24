@@ -1760,7 +1760,12 @@ const dunning = reactive({
 onMounted(async () => {
   try {
     const user = await getCurrentUser()
-    userEmail.value = user.signInDetails?.loginId || '–'
+    // Bei Google-Login ist signInDetails.loginId leer (Cognito liefert dort nur bei
+    // nativem Login etwas) — der 'email'-Claim im ID-Token stimmt immer, unabhängig
+    // vom Login-Weg.
+    const { fetchAuthSession } = await import('aws-amplify/auth')
+    const session = await fetchAuthSession()
+    userEmail.value = (session.tokens?.idToken?.payload?.email as string) || '–'
     userName.value  = user.username || '–'
     userId.value    = user.userId || 'demo-user'
     if (store.licenseModules?.includes('nexora') || store.licenseModules?.includes('marketing')) {
