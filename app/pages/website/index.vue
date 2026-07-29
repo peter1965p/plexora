@@ -1087,8 +1087,9 @@
             <label class="field-label">GitHub Personal Access Token (PAT) <span v-if="form.githubPatConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
             <div style="display:flex;gap:8px">
               <div style="flex:1;position:relative">
-                <input v-model="form.githubPat" class="field-input" :placeholder="form.githubPatConfigured ? 'Unverändert lassen zum Beibehalten' : 'github_pat_...'" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
-                  :type="form.githubPatVisible ? 'text' : 'password'" />
+                <input v-model="form.githubPat" class="field-input" :placeholder="form.githubPatConfigured ? 'Unverändert lassen zum Beibehalten' : 'github_pat_...'"
+                  :style="`width:100%;font-family:monospace;font-size:12px;padding-right:40px;${form.githubPatVisible ? '' : '-webkit-text-security:disc;'}`"
+                  type="text" autocomplete="off" />
                 <button @click="form.githubPatVisible = !form.githubPatVisible"
                   style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
                   <i class="ti" :class="form.githubPatVisible ? 'ti-eye-off' : 'ti-eye'"></i>
@@ -1103,6 +1104,10 @@
             <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">
               <i class="ti ti-info-circle" style="margin-right:4px"></i>
               Nur "Read-only" auf Public Repositories nötig — kein Schreibzugriff.
+            </div>
+            <div v-if="form.githubPatConfigured && !form.githubPat.trim()" style="margin-top:4px;font-size:11px;color:var(--text-muted)">
+              <i class="ti ti-alert-triangle" style="margin-right:4px;color:#f59e0b"></i>
+              Der PAT wird aus Sicherheitsgründen nie angezeigt — zum Neuladen (z.B. neues Repo aufnehmen) hier erneut einfügen.
             </div>
           </div>
 
