@@ -115,8 +115,9 @@
                   <i class="ti ti-settings" style="font-size:11px"></i>
                 </NuxtLink>
               </label>
-              <select v-model="form.category">
+              <select v-model="form.category" @change="onCategoryChange">
                 <option value="">Keine</option>
+                <option value="__new__">+ Neue Kategorie…</option>
                 <option v-for="cat in blogCategories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
             </div>
@@ -136,17 +137,19 @@
         </div>
 
         <!-- Modal Footer -->
-        <div style="padding:14px 20px;border-top:0.5px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-          <button @click="form.status = form.status === 'published' ? 'draft' : 'published'"
-            style="padding:6px 16px;font-size:12px;font-weight:700;border-radius:8px;border:none;cursor:pointer;transition:all .15s;font-family:inherit"
-            :style="form.status === 'published' ? 'background:#22c55e22;color:#22c55e;border:1px solid #22c55e44' : 'background:var(--border);color:var(--text-muted)'">
-            {{ form.status === 'published' ? '● Live' : '○ Entwurf' }}
-          </button>
-          <div style="display:flex;gap:16px">
-            <button @click="showModal=false" class="icon-btn" style="padding:0 16px;font-size:12px">Abbrechen</button>
-            <button class="accent-btn" :disabled="saving || !form.title" @click="savePost">
-              <i v-if="saving" class="ti ti-loader-2 spin"></i>
-              <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>Speichern</span>
+        <div style="padding:14px 20px;border-top:0.5px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">
+            {{ form.status === 'published' ? '● Veröffentlicht' : '○ Entwurf' }}
+          </span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+            <button @click="showModal=false" class="icon-btn" style="padding:0 16px;font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
+            <button class="icon-btn" style="padding:0 16px;font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
+              <i v-if="saving && form.status === 'draft'" class="ti ti-loader-2 spin"></i>
+              <span v-else><i class="ti ti-file-pencil" style="margin-right:4px"></i>Entwurf speichern</span>
+            </button>
+            <button class="accent-btn" style="white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('published')">
+              <i v-if="saving && form.status === 'published'" class="ti ti-loader-2 spin"></i>
+              <span v-else><i class="ti ti-send" style="margin-right:4px"></i>{{ editingId && form.status === 'published' ? 'Aktualisieren' : 'Veröffentlichen' }}</span>
             </button>
           </div>
         </div>
@@ -163,6 +166,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
 const authToken = ref('')
+const userId    = ref('')
 
 interface BlogPost {
   postId:        string
@@ -225,6 +229,36 @@ async function loadBlogCategories() {
     const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'), { headers: await useAuthHeader() })
     blogCategories.value = res.categories?.blog || []
   } catch {}
+}
+
+// Direktes Anlegen einer neuen Kategorie aus dem Post-Editor heraus, ohne zu
+// den Einstellungen wechseln zu müssen — schreibt über denselben Endpunkt wie
+// die Kategorien-Verwaltung in den Einstellungen (komplettes Array ersetzen).
+async function onCategoryChange() {
+  if (form.category !== '__new__') return
+  const name = (window.prompt('Name der neuen Kategorie:') || '').trim()
+  if (!name) {
+    form.category = ''
+    return
+  }
+  const existing = blogCategories.value.find(c => c.toLowerCase() === name.toLowerCase())
+  if (existing) {
+    form.category = existing
+    return
+  }
+  const updated = [...blogCategories.value, name]
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/categories'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { area: 'blog', categories: updated, userId: userId.value },
+    })
+    blogCategories.value = updated
+    form.category = name
+  } catch {
+    form.category = ''
+  }
 }
 
 const filteredPosts = computed(() => {
@@ -295,8 +329,9 @@ async function loadPosts() {
   loading.value = false
 }
 
-async function savePost() {
+async function savePost(targetStatus?: 'draft' | 'published') {
   if (!form.title) return
+  if (targetStatus) form.status = targetStatus
   saving.value = true
   try {
     if (!editingId.value) {
@@ -332,6 +367,7 @@ onMounted(async () => {
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
+  userId.value    = u.userId || ''
   await Promise.all([loadPosts(), loadBlogCategories()])
 })
 </script>
