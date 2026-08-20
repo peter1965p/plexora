@@ -141,9 +141,9 @@
           <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">
             {{ form.status === 'published' ? '● Veröffentlicht' : '○ Entwurf' }}
           </span>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-            <button @click="showModal=false" class="icon-btn" style="padding:0 16px;font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
-            <button class="icon-btn" style="padding:0 16px;font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end">
+            <button @click="showModal=false" class="icon-btn footer-action" style="font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
+            <button class="icon-btn footer-action" style="font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
               <i v-if="saving && form.status === 'draft'" class="ti ti-loader-2 spin"></i>
               <span v-else><i class="ti ti-file-pencil" style="margin-right:4px"></i>Entwurf speichern</span>
             </button>
@@ -411,6 +411,12 @@ onMounted(async () => {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0 10px;
+}
+.footer-action {
+  width: auto;
+  min-width: 128px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
 }
 @media (max-width: 900px) {
   .blog-editor-grid {
