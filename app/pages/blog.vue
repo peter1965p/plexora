@@ -142,8 +142,8 @@
             {{ form.status === 'published' ? '● Veröffentlicht' : '○ Entwurf' }}
           </span>
           <div class="blog-modal-actions">
-            <button @click="showModal=false" class="icon-btn footer-action" style="font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
-            <button class="icon-btn footer-action" style="font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
+            <button @click="showModal=false" class="icon-btn footer-action footer-cancel" style="font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
+            <button class="icon-btn footer-action footer-draft" style="font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
               <i v-if="saving && form.status === 'draft'" class="ti ti-loader-2 spin"></i>
               <span v-else><i class="ti ti-file-pencil" style="margin-right:4px"></i>Entwurf speichern</span>
             </button>
@@ -418,6 +418,14 @@ onMounted(async () => {
   min-width: 128px;
   padding: 0 16px;
   border: 1px solid var(--border);
+}
+.footer-cancel {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+.footer-draft {
+  border-color: #22c55e;
+  color: #22c55e;
 }
 .blog-modal-footer {
   display: grid;
