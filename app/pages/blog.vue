@@ -137,11 +137,11 @@
         </div>
 
         <!-- Modal Footer -->
-        <div style="padding:14px 20px;border-top:0.5px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px;flex-wrap:wrap">
+        <div class="blog-modal-footer">
           <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">
             {{ form.status === 'published' ? '● Veröffentlicht' : '○ Entwurf' }}
           </span>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end">
+          <div class="blog-modal-actions">
             <button @click="showModal=false" class="icon-btn footer-action" style="font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
             <button class="icon-btn footer-action" style="font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
               <i v-if="saving && form.status === 'draft'" class="ti ti-loader-2 spin"></i>
@@ -413,10 +413,27 @@ onMounted(async () => {
   padding: 0 10px;
 }
 .footer-action {
+  display: inline-flex;
   width: auto;
   min-width: 128px;
   padding: 0 16px;
   border: 1px solid var(--border);
+}
+.blog-modal-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-top: 0.5px solid var(--border);
+  background: var(--bg-elevated);
+  flex-shrink: 0;
+}
+.blog-modal-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 @media (max-width: 900px) {
   .blog-editor-grid {
@@ -430,6 +447,12 @@ onMounted(async () => {
   }
   .blog-editor-col {
     min-height: 400px;
+  }
+  .blog-modal-footer {
+    grid-template-columns: 1fr;
+  }
+  .blog-modal-actions {
+    justify-content: flex-start;
   }
 }
 </style>
