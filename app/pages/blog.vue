@@ -161,7 +161,9 @@
 
 <script setup lang="ts">
 import { marked } from 'marked'
+import { $fetch as ofetch } from 'ofetch'
 import BlogRichTextEditor from '~/components/blog/BlogRichTextEditor.vue'
+import { useAuthHeader } from '~/composables/useAuth'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
@@ -225,8 +227,7 @@ const blogCategories = ref<string[]>([])
 
 async function loadBlogCategories() {
   try {
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    const res = await $fetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'), { headers: await useAuthHeader() })
+    const res = await ofetch<{ categories: Record<string, string[]> }>(useApiUrl('/api/settings/categories'), { headers: await useAuthHeader() })
     blogCategories.value = res.categories?.blog || []
   } catch {}
 }
@@ -248,8 +249,7 @@ async function onCategoryChange() {
   }
   const updated = [...blogCategories.value, name]
   try {
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    await $fetch(useApiUrl('/api/settings/categories'), {
+    await ofetch(useApiUrl('/api/settings/categories'), {
       method: 'POST',
       headers: await useAuthHeader(),
       body: { area: 'blog', categories: updated, userId: userId.value },
@@ -321,7 +321,7 @@ function openEdit(p: BlogPost) {
 async function loadPosts() {
   loading.value = true
   try {
-    const res = await $fetch<{ posts: BlogPost[] }>(useApiUrl('/api/blog'), {
+    const res = await ofetch<{ posts: BlogPost[] }>(useApiUrl('/api/blog'), {
       headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
     })
     posts.value = res.posts || []
@@ -335,13 +335,13 @@ async function savePost(targetStatus?: 'draft' | 'published') {
   saving.value = true
   try {
     if (!editingId.value) {
-      await $fetch(useApiUrl('/api/blog'), {
+      await ofetch(useApiUrl('/api/blog'), {
         method: 'POST',
         headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
         body: { ...form },
       })
     } else {
-      await $fetch(useApiUrl(`/api/blog/${editingId.value}`), {
+      await ofetch(useApiUrl(`/api/blog/${editingId.value}`), {
         method: 'PUT',
         headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
         body: { ...form },
@@ -355,7 +355,7 @@ async function savePost(targetStatus?: 'draft' | 'published') {
 
 async function deletePost(p: BlogPost) {
   if (!confirm(`"${p.title}" wirklich löschen?`)) return
-  await $fetch(useApiUrl(`/api/blog/${p.postId}`), {
+  await ofetch(useApiUrl(`/api/blog/${p.postId}`), {
     method: 'DELETE',
     headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
   })
