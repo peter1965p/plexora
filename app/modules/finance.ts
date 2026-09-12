@@ -12,19 +12,19 @@ export interface Invoice {
 export function calcRevenue(invoices: Invoice[]): number {
   return invoices
     .filter(i => i.status === 'paid')
-    .reduce((sum, i) => sum + i.amount, 0)
+    .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
 }
 
 export function calcPending(invoices: Invoice[]): number {
   return invoices
     .filter(i => i.status === 'pending')
-    .reduce((sum, i) => sum + i.amount, 0)
+    .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
 }
 
 export function calcOverdue(invoices: Invoice[]): number {
   return invoices
     .filter(i => i.status === 'overdue')
-    .reduce((sum, i) => sum + i.amount, 0)
+    .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
 }
 
 export function statusLabel(status: string): string {
@@ -61,5 +61,5 @@ export const STATUS_OPTIONS = [
 ]
 
 export function formatEur(val: number): string {
-  return '€ ' + val.toLocaleString('de-DE')
+  return '€ ' + (Number(val) || 0).toLocaleString('de-DE')
 }
