@@ -689,12 +689,15 @@
       <div v-else-if="activeTab === 'pages'" style="display:flex;gap:16px;min-height:600px">
         <!-- Sidebar: page list -->
         <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:8px">
-          <div v-for="(pg, i) in form.pages" :key="pg.slug"
+          <div v-for="(pg, i) in form.pages" :key="i"
             @click="editingPage = i"
             style="padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s;font-size:13px;display:flex;align-items:center;gap:8px"
             :style="editingPage === i ? 'background:var(--accent)18;border-color:var(--accent);color:var(--accent)' : 'background:var(--bg-elevated);border-color:var(--border);color:var(--text)'">
             <i class="ti ti-file-text" style="font-size:15px;flex-shrink:0"></i>
-            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pg.title }}</span>
+            <div style="flex:1;overflow:hidden">
+              <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pg.title }}</div>
+              <div style="font-size:10px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/{{ pg.slug }}</div>
+            </div>
             <button class="icon-btn" style="color:#ef4444;padding:0;width:18px;height:18px;font-size:12px" @click.stop="removePage(i)">
               <i class="ti ti-x"></i>
             </button>
@@ -712,7 +715,14 @@
               <i class="ti ti-file-code" style="color:var(--accent)"></i>
               <input v-model="form.pages[editingPage!].title" style="background:transparent;border:none;outline:none;font-size:13px;font-weight:600;color:var(--text);font-family:inherit;width:200px" placeholder="Seitentitel" />
               <span style="color:var(--border)">|</span>
-              <code style="font-size:11px;color:var(--text-muted)">/{{ form.pages[editingPage!].slug }}</code>
+              <span style="font-size:11px;color:var(--text-muted)">/</span>
+              <input :value="form.pages[editingPage!].slug"
+                @input="setPageSlug(editingPage!, ($event.target as HTMLInputElement).value)"
+                style="background:transparent;border:none;outline:none;font-size:11px;color:var(--text-muted);font-family:monospace;width:160px"
+                placeholder="url-slug" />
+              <span v-if="slugTaken(editingPage!)" style="font-size:11px;color:#ef4444" title="Diese URL ist schon vergeben oder reserviert">
+                <i class="ti ti-alert-triangle"></i> vergeben
+              </span>
             </div>
             <!-- Content type toggle -->
             <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden">
@@ -1798,6 +1808,22 @@ function addPage() {
   editingPage.value = form.pages.length - 1
 }
 function removePage(i: number) { form.pages.splice(i, 1); if (editingPage.value === i) editingPage.value = null }
+
+// Reservierte Routen, die es als eigene Nexora-Seiten schon gibt — dürfen nicht überschrieben werden
+const RESERVED_SLUGS = ['about', 'kontakt', 'impressum', 'datenschutz', 'agb', 'leistungen', 'blog', 'shop', 'speisekarte', 'termine', 'fahrzeuge', 'immobilien']
+function setPageSlug(i: number, raw: string) {
+  const slug = raw.toLowerCase().trim()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  form.pages[i].slug = slug
+}
+function slugTaken(i: number): boolean {
+  const slug = form.pages[i]?.slug
+  if (!slug) return false
+  if (RESERVED_SLUGS.includes(slug)) return true
+  return form.pages.some((p, idx) => idx !== i && p.slug === slug)
+}
 
 // ── Stack ─────────────────────────────────────────────────────────────────────
 function addStackItem() {
