@@ -691,8 +691,19 @@
         <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:8px">
           <div v-for="(pg, i) in form.pages" :key="i"
             @click="editingPage = i"
-            style="padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s;font-size:13px;display:flex;align-items:center;gap:8px"
-            :style="editingPage === i ? 'background:var(--accent)18;border-color:var(--accent);color:var(--accent)' : 'background:var(--bg-elevated);border-color:var(--border);color:var(--text)'">
+            draggable="true"
+            @dragstart="onPageDragStart(i)"
+            @dragover.prevent="onPageDragOver(i)"
+            @drop="onPageDrop(i)"
+            @dragend="onPageDragEnd"
+            style="padding:10px 12px;border-radius:8px;cursor:grab;border:1px solid transparent;transition:opacity .15s,border-color .15s;font-size:13px;display:flex;align-items:center;gap:8px"
+            :style="{
+              background: editingPage === i ? 'var(--accent)18' : 'var(--bg-elevated)',
+              borderColor: dragOverPageIndex === i && draggedPageIndex !== i ? 'var(--accent)' : (editingPage === i ? 'var(--accent)' : 'var(--border)'),
+              color: editingPage === i ? 'var(--accent)' : 'var(--text)',
+              opacity: draggedPageIndex === i ? 0.4 : 1,
+            }">
+            <i class="ti ti-grip-vertical" style="font-size:14px;color:var(--text-muted);flex-shrink:0"></i>
             <i class="ti ti-file-text" style="font-size:15px;flex-shrink:0"></i>
             <div style="flex:1;overflow:hidden">
               <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pg.title }}</div>
@@ -705,6 +716,10 @@
           <button class="accent-btn" style="height:32px;font-size:12px;margin-top:4px" @click="addPage">
             <i class="ti ti-plus" style="margin-right:4px"></i> Neue Seite
           </button>
+          <div style="padding:10px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
+            <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
+            Ziehe die Seiten in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.
+          </div>
         </div>
 
         <!-- Monaco Editor -->
@@ -1978,6 +1993,24 @@ function onNavDrop(idx: number) {
   dragOverNavIndex.value = null
 }
 function onNavDragEnd() { draggedNavIndex.value = null; dragOverNavIndex.value = null }
+
+const draggedPageIndex  = ref<number | null>(null)
+const dragOverPageIndex = ref<number | null>(null)
+
+function onPageDragStart(idx: number) { draggedPageIndex.value = idx }
+function onPageDragOver(idx: number)  { dragOverPageIndex.value = idx }
+function onPageDrop(idx: number) {
+  if (draggedPageIndex.value === null || draggedPageIndex.value === idx) {
+    draggedPageIndex.value = null; dragOverPageIndex.value = null
+    return
+  }
+  const [moved] = form.pages.splice(draggedPageIndex.value, 1)
+  form.pages.splice(idx, 0, moved)
+  if (editingPage.value === draggedPageIndex.value) editingPage.value = idx
+  draggedPageIndex.value = null
+  dragOverPageIndex.value = null
+}
+function onPageDragEnd() { draggedPageIndex.value = null; dragOverPageIndex.value = null }
 
 // ── GitHub ────────────────────────────────────────────────────────────────────
 async function loadGithubRepos() {
