@@ -34,6 +34,7 @@
       <button class="theme-opt" :class="{ active: tab==='cashbook' }"   @click="tab='cashbook'">  <i class="ti ti-cash"></i> {{ t.finance.cashbook }}</button>
       <button class="theme-opt" :class="{ active: tab==='bank' }"       @click="tab='bank'">      <i class="ti ti-building-bank"></i> {{ t.finance.bankImport }}</button>
       <button class="theme-opt" :class="{ active: tab==='tax' }"        @click="tab='tax'">       <i class="ti ti-file-euro"></i> {{ t.finance.tax }}</button>
+      <button class="theme-opt" :class="{ active: tab==='catalog' }"    @click="tab='catalog'">   <i class="ti ti-box"></i> {{ t.finance.catalog }}</button>
     </div>
 
     <!-- ═══ TAB: RECHNUNGEN ═══ -->
@@ -293,6 +294,39 @@
       </div>
     </div>
 
+    <!-- ═══ TAB: LEISTUNGEN/PRODUKTE (allgemeiner Katalog) ═══ -->
+    <div v-if="tab==='catalog'" class="card">
+      <div class="card-header">
+        <span class="card-title">{{ t.finance.catalog }}</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddService">
+          <i class="ti ti-plus"></i> {{ t.finance.newService }}
+        </button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>{{ t.finance.serviceName }}</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>MwSt.</th><th style="width:80px"></th></tr>
+        </thead>
+        <tbody>
+          <tr v-if="!services.length">
+            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.finance.noServices }}</td>
+          </tr>
+          <tr v-for="s in services" :key="s.serviceId">
+            <td class="td-name">{{ s.name }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ s.description || '–' }}</td>
+            <td>{{ formatEur(s.price) }}</td>
+            <td style="font-size:12px">{{ s.unit }}</td>
+            <td style="font-size:12px">{{ s.vatRate }}%</td>
+            <td>
+              <div style="display:flex;gap:4px">
+                <button class="icon-btn" @click="openEditService(s)"><i class="ti ti-pencil"></i></button>
+                <button class="icon-btn" style="color:var(--danger)" @click="deleteService(s)"><i class="ti ti-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- ADD RECHNUNG MODAL -->
     <div v-if="showAdd" class="modal-overlay" @click.self="showAdd=false">
       <div class="modal-card">
@@ -305,18 +339,33 @@
             <div class="auth-field"><label>{{ t.finance.client }}</label><input v-model="newInv.client" placeholder="Firma GmbH" /></div>
             <div class="auth-field"><label>{{ t.finance.clientEmail }}</label><input v-model="newInv.clientEmail" placeholder="kunde@firma.de" /></div>
           </div>
-          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newInv.description" placeholder="Webentwicklung Mai 2026" /></div>
-          <div class="auth-row">
-            <div class="auth-field"><label>{{ t.common.amount }} (€ netto)</label><input v-model.number="newInv.amount" type="number" placeholder="10000" /></div>
-            <div class="auth-field"><label>{{ t.finance.dueDate }}</label><input v-model="newInv.dueDate" type="date" /></div>
-          </div>
-          <div class="auth-field">
-            <label>{{ t.common.status }}</label>
-            <select v-model="newInv.status" class="form-select">
-              <option value="pending">{{ t.finance.pending }}</option>
-              <option value="paid">{{ t.finance.paid }}</option>
-              <option value="overdue">{{ t.finance.overdue }}</option>
+
+          <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin:10px 0 6px">{{ t.finance.positions }}</label>
+          <div v-for="(item, idx) in newInv.items" :key="idx" style="display:flex;gap:6px;align-items:flex-end;margin-bottom:8px;flex-wrap:wrap">
+            <div class="auth-field" style="margin:0;flex:2;min-width:160px">
+              <input v-model="item.description" :placeholder="t.common.description" />
+            </div>
+            <select v-if="services.length" class="form-select" style="height:36px;width:130px" @change="applyService(item, ($event.target as HTMLSelectElement).value)">
+              <option value="">{{ t.finance.fromCatalog }}</option>
+              <option v-for="s in services" :key="s.serviceId" :value="s.serviceId">{{ s.name }}</option>
             </select>
+            <div class="auth-field" style="margin:0;width:70px"><input v-model.number="item.qty" type="number" min="0" :placeholder="t.finance.qty" /></div>
+            <div class="auth-field" style="margin:0;width:100px"><input v-model.number="item.price" type="number" min="0" :placeholder="t.finance.unitPrice" /></div>
+            <button class="icon-btn" style="color:var(--danger)" :disabled="newInv.items.length===1" @click="removeItem(idx)"><i class="ti ti-trash"></i></button>
+          </div>
+          <button class="icon-btn" style="font-size:12px;padding:0 10px;height:26px;margin-bottom:10px" @click="addItem"><i class="ti ti-plus"></i> {{ t.finance.addPosition }}</button>
+          <div style="text-align:right;font-size:13px;font-weight:700;margin-bottom:10px">{{ t.finance.positionsTotal }}: {{ formatEur(newInvTotal) }}</div>
+
+          <div class="auth-row">
+            <div class="auth-field"><label>{{ t.finance.dueDate }}</label><input v-model="newInv.dueDate" type="date" /></div>
+            <div class="auth-field">
+              <label>{{ t.common.status }}</label>
+              <select v-model="newInv.status" class="form-select">
+                <option value="pending">{{ t.finance.pending }}</option>
+                <option value="paid">{{ t.finance.paid }}</option>
+                <option value="overdue">{{ t.finance.overdue }}</option>
+              </select>
+            </div>
           </div>
           <div style="display:flex;gap:10px">
             <button class="auth-btn" :disabled="saving" @click="addInvoice(false)" style="flex:1">
@@ -328,6 +377,29 @@
               <span v-else><i class="ti ti-send"></i> {{ t.finance.saveAndMail }}</span>
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD/EDIT LEISTUNG MODAL -->
+    <div v-if="showService" class="modal-overlay" @click.self="showService=false">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="card-title">{{ editingService ? t.common.save : t.finance.newService }}</span>
+          <button class="icon-btn" @click="showService=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-field"><label>{{ t.finance.serviceName }}</label><input v-model="newService.name" placeholder="Python-Entwicklung" /></div>
+          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newService.description" placeholder="Optionale Beschreibung..." /></div>
+          <div class="auth-row">
+            <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newService.price" type="number" placeholder="95" /></div>
+            <div class="auth-field"><label>{{ t.finance.unit }}</label><input v-model="newService.unit" placeholder="Std." /></div>
+          </div>
+          <div class="auth-field"><label>MwSt.-Satz (%)</label><input v-model.number="newService.vatRate" type="number" placeholder="19" /></div>
+          <button class="auth-btn" :disabled="saving || !newService.name" @click="saveService">
+            <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else>{{ t.common.save }}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -443,11 +515,16 @@ const yearOptions = Array.from({ length: 5 }, (_, i) => new Date().getFullYear()
 const { data: _ustvaRaw } = await useFetch(() => useApiUrl(`/api/finance/ustva?userId=${encodeURIComponent(userId)}&year=${taxYear.value}&mode=${taxMode.value}`), { headers: authHeaders })
 const ustva = computed(() => _ustvaRaw.value as any)
 
+const { data: _servicesRaw, refresh: refreshServices } = await useFetch(() => useApiUrl('/api/services'), { headers: authHeaders })
+const services = computed(() => (_servicesRaw.value as any)?.services || [])
+
 // ── UI state ──────────────────────────────────────────
 const tab      = ref('invoices')
 const route    = useRoute()
 const showAdd  = ref(false)
 const showCash = ref(false)
+const showService = ref(false)
+const editingService = ref<any>(null)
 const saving   = ref(false)
 const sending  = ref<string | null>(null)
 const dunning  = ref<string | null>(null)
@@ -455,12 +532,27 @@ const editingStatusId = ref<string | null>(null)
 const statusSaving    = ref<string | null>(null)
 const toast    = ref('')
 
-onMounted(() => { if (route.query.new) showAdd.value = true })
-
-const newInv = reactive({ client: '', clientEmail: '', description: '', amount: 0, dueDate: '', status: 'pending' })
+function emptyItem() { return { description: '', qty: 1, price: 0 } }
+const newInv = reactive({ client: '', clientEmail: '', items: [emptyItem()], dueDate: '', status: 'pending' })
 const newCash = reactive({ date: new Date().toISOString().slice(0, 10), description: '', amount: 0, type: 'ausgabe' })
+const newInvTotal = computed(() => newInv.items.reduce((sum, i: any) => sum + (Number(i.qty) || 0) * (Number(i.price) || 0), 0))
+
+onMounted(() => {
+  // Vorbefüllung aus dem Projekte-Modul ("Rechnung erstellen"-Button) via Query-Params
+  if (route.query.client)      newInv.client = String(route.query.client)
+  if (route.query.clientEmail) newInv.clientEmail = String(route.query.clientEmail)
+  if (route.query.description) newInv.items[0].description = String(route.query.description)
+  if (route.query.new) showAdd.value = true
+})
 
 function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.value = '', 3500) }
+
+function addItem() { newInv.items.push(emptyItem()) }
+function removeItem(idx: number) { if (newInv.items.length > 1) newInv.items.splice(idx, 1) }
+function applyService(item: any, serviceId: string) {
+  const s = services.value.find((x: any) => x.serviceId === serviceId)
+  if (s) { item.description = s.name; item.price = s.price }
+}
 
 // ── Rechnungen ────────────────────────────────────────
 async function addInvoice(sendMailFlag: boolean) {
@@ -477,8 +569,31 @@ async function addInvoice(sendMailFlag: boolean) {
       showToast('Rechnung gespeichert!')
     }
     showAdd.value = false
-    Object.assign(newInv, { client: '', clientEmail: '', description: '', amount: 0, dueDate: '', status: 'pending' })
+    Object.assign(newInv, { client: '', clientEmail: '', items: [emptyItem()], dueDate: '', status: 'pending' })
   } finally { saving.value = false }
+}
+
+// ── Leistungskatalog ──────────────────────────────────
+function openAddService() { editingService.value = null; Object.assign(newService, { name: '', description: '', price: 0, unit: 'Std.', vatRate: 19 }); showService.value = true }
+function openEditService(s: any) { editingService.value = s; Object.assign(newService, { name: s.name, description: s.description || '', price: s.price, unit: s.unit, vatRate: s.vatRate }); showService.value = true }
+const newService = reactive({ name: '', description: '', price: 0, unit: 'Std.', vatRate: 19 })
+async function saveService() {
+  saving.value = true
+  try {
+    if (editingService.value) {
+      await $fetch(useApiUrl(`/api/services/${editingService.value.serviceId}`), { method: 'PATCH', headers: authHeaders, body: newService })
+    } else {
+      await $fetch(useApiUrl('/api/services'), { method: 'POST', headers: authHeaders, body: newService })
+    }
+    await refreshServices()
+    showService.value = false
+    showToast('Leistung gespeichert!')
+  } finally { saving.value = false }
+}
+async function deleteService(s: any) {
+  if (!await openConfirm({ title: 'Leistung löschen?', name: s.name })) return
+  await $fetch(useApiUrl(`/api/services/${s.serviceId}`), { method: 'DELETE', headers: authHeaders })
+  await refreshServices()
 }
 
 async function sendMail(invoice: any) {

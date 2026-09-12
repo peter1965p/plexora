@@ -45,6 +45,7 @@
             <span class="badge" :class="statusBadge(p.status)">{{ statusLabel(p.status) }}</span>
             <span class="badge" :class="priorityBadge(p.priority)">{{ priorityLabel(p.priority) }}</span>
             <span v-if="p.deadline" style="font-size:11px;color:var(--text-muted)">{{ fmtDate(p.deadline) }}</span>
+            <button class="icon-btn" style="font-size:11px" :title="t.projects.createInvoice" @click.stop="createInvoiceFromProject(p)"><i class="ti ti-file-invoice"></i></button>
             <button class="icon-btn" style="font-size:11px" @click.stop="openEdit(p)"><i class="ti ti-pencil"></i></button>
             <button class="icon-btn" style="font-size:11px;color:var(--danger)" @click.stop="deleteProject(p)"><i class="ti ti-trash"></i></button>
           </div>
@@ -279,6 +280,10 @@ function toggleExpand(id: string) {
 }
 
 const companyName = (id?: string) => id ? (companies.value.find((c: Company) => c.companyId === id)?.name || '—') : '—'
+function createInvoiceFromProject(p: any) {
+  const co = companies.value.find((c: Company) => c.companyId === p.companyId)
+  navigateTo({ path: '/finance', query: { new: '1', client: co?.name || '', clientEmail: co?.email || '', description: p.name } })
+}
 const fmtDate = (iso: string) => iso ? new Date(iso).toLocaleDateString('de-DE') : '—'
 const statusLabel  = (s: string) => ({ active: 'Aktiv', review: 'Review', done: 'Fertig', overdue: 'Verzug' }[s] || s)
 const statusBadge  = (s: string) => ({ active: 'badge-info', review: 'badge-warning', done: 'badge-success', overdue: 'badge-danger' }[s] || '')

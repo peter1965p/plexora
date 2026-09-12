@@ -148,6 +148,10 @@ const translations = {
       profitBeforeTax: 'Gewinn vor Steuer', exports: 'Exporte',
       cashbookEntry: 'Kassenbuch-Eintrag', income: 'Einnahme', expense: 'Ausgabe', book: 'Buchen',
       clientEmail: 'Kunden-E-Mail', saveAndMail: 'Speichern + Mail',
+      catalog: 'Leistungen', newService: 'Neue Leistung', serviceName: 'Bezeichnung', unit: 'Einheit',
+      noServices: 'Noch keine Leistungen/Produkte angelegt', addPosition: 'Position hinzufügen',
+      fromCatalog: '– aus Katalog –', positions: 'Positionen', qty: 'Menge', unitPrice: 'Einzelpreis',
+      positionsTotal: 'Summe (netto)',
     },
 
     // ── Projects ───────────────────────────────────────────────────────────────
@@ -164,6 +168,7 @@ const translations = {
       ganttEmpty: 'Keine Projekte mit Deadline für Gantt-Ansicht.',
       projectTask: 'Projekt / Task',
       projectName: 'Projektname', client: 'Mandant', noClient: '— kein Mandant —',
+      createInvoice: 'Rechnung erstellen',
       team: 'Team', deadline: 'Deadline', priority: 'Priorität', progress: 'Fortschritt',
       newTask: 'Neuer Task', taskTitle: 'Titel', assignee: 'Zuständig', start: 'Start',
       estimatedHours: 'Geschätzte Stunden', createTask: 'Task anlegen',
@@ -457,6 +462,10 @@ const translations = {
       profitBeforeTax: 'Profit before Tax', exports: 'Exports',
       cashbookEntry: 'Cash Book Entry', income: 'Income', expense: 'Expense', book: 'Post',
       clientEmail: 'Client E-Mail', saveAndMail: 'Save + Mail',
+      catalog: 'Services', newService: 'New Service', serviceName: 'Name', unit: 'Unit',
+      noServices: 'No services/products yet', addPosition: 'Add position',
+      fromCatalog: '– from catalog –', positions: 'Positions', qty: 'Qty', unitPrice: 'Unit Price',
+      positionsTotal: 'Total (net)',
     },
 
     // ── Projects ───────────────────────────────────────────────────────────────
@@ -473,6 +482,7 @@ const translations = {
       ganttEmpty: 'No projects with deadline for Gantt view.',
       projectTask: 'Project / Task',
       projectName: 'Project Name', client: 'Client', noClient: '— no client —',
+      createInvoice: 'Create Invoice',
       team: 'Team', deadline: 'Deadline', priority: 'Priority', progress: 'Progress',
       newTask: 'New Task', taskTitle: 'Title', assignee: 'Assignee', start: 'Start',
       estimatedHours: 'Estimated Hours', createTask: 'Create Task',
