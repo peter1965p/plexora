@@ -718,7 +718,7 @@
           </button>
           <div style="padding:10px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
-            Ziehe die Seiten in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.
+            Reihenfolge hier bestimmt, wo deine Seiten untereinander stehen — sie steuert auch ihre Position in der Navigation (relativ zu den anderen eigenen Seiten). Die Gesamt-Reihenfolge inkl. Start/Leistungen/Shop etc. legst du unter <strong>Positionen → Navigation-Reihenfolge</strong> fest.
           </div>
         </div>
 
@@ -1175,7 +1175,11 @@
               {{ form.githubRepos.length === 0 ? 'Alle öffentlichen Repos werden angezeigt' : `${form.githubRepos.length} Repo(s) ausgewählt` }}
             </div>
           </div>
-          <div v-else-if="!form.githubPat.trim()" style="text-align:center;padding:32px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
+          <div v-else-if="form.githubError" style="text-align:center;padding:32px;color:#f59e0b;font-size:12px;background:var(--bg-elevated);border:1px dashed #f59e0b;border-radius:8px">
+            <i class="ti ti-alert-triangle" style="font-size:32px;display:block;margin-bottom:8px;opacity:.6"></i>
+            {{ form.githubError }}
+          </div>
+          <div v-else style="text-align:center;padding:32px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
             <i class="ti ti-brand-github" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i>
             PAT eingeben und "Repos laden" klicken
           </div>
@@ -1229,7 +1233,7 @@
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Ziehe die Menüpunkte in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <template v-for="(key, idx) in form.navOrder" :key="key">
-            <div v-if="NAV_META[key]"
+            <div v-if="NAV_META[key] || pageBySlug(key)"
               draggable="true"
               @dragstart="onNavDragStart(idx)"
               @dragover.prevent="onNavDragOver(idx)"
@@ -1245,8 +1249,9 @@
               <!-- Position number -->
               <div style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted)">{{ idx + 1 }}</div>
               <!-- Icon + label -->
-              <i class="ti" :class="NAV_META[key].icon" style="font-size:16px;flex-shrink:0;color:var(--accent)"></i>
+              <i class="ti" :class="navIcon(key)" style="font-size:16px;flex-shrink:0;color:var(--accent)"></i>
               <div style="flex:1;font-size:13px;font-weight:600">{{ navLabel(key) }}</div>
+              <span v-if="!NAV_META[key]" style="font-size:10px;color:var(--text-muted);flex-shrink:0">eigene Seite</span>
               <!-- Enabled indicator -->
               <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
                 <div style="width:6px;height:6px;border-radius:50%" :style="navEnabled(key) ? 'background:#22c55e;box-shadow:0 0 4px #22c55e88' : 'background:var(--border)'"></div>
@@ -1567,6 +1572,8 @@ const form = reactive({
   githubRepos:     [] as string[],
   githubAvailable: [] as { name: string; description: string; language: string; stars: number }[],
   githubLoading:   false,
+  githubLoaded:    false,
+  githubError:     '',
   githubPatVisible: false,
   sectionOrder:    ['stack', 'clients', 'github', 'services', 'contact'] as string[],
   navOrder:        ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'] as string[],
@@ -1647,6 +1654,7 @@ onMounted(async () => {
       form.metaKeywords        = n.metaKeywords     || ''
       form.gaMeasurementId     = n.gaMeasurementId  || ''
       form.pageTitles          = { start:'', leistungen:'', about:'', kontakt:'', impressum:'', ...(n.pageTitles || {}) }
+      syncNavOrderWithPages()
 
       if (n.tenantId) {
         try {
@@ -1957,6 +1965,26 @@ const NAV_META: Record<string, { label: string; icon: string }> = {
   termine:    { label: 'Termine',     icon: 'ti-calendar-event' },
 }
 
+const LEGAL_SLUGS = ['agb', 'datenschutz', 'impressum']
+
+function pageBySlug(slug: string) {
+  return form.pages.find(p => p.slug === slug)
+}
+
+// Eigene Seiten (ohne Rechtsseiten) landen als eigene Einträge in navOrder,
+// damit ihre Reihenfolge dort auch wirklich die Nexora-Navbar steuert.
+function syncNavOrderWithPages() {
+  const customSlugs = form.pages.filter(p => !LEGAL_SLUGS.includes(p.slug)).map(p => p.slug)
+  const withoutStaleCustom = form.navOrder.filter(key => NAV_META[key] || customSlugs.includes(key))
+  const fixedOnly = withoutStaleCustom.filter(key => NAV_META[key])
+  const firstCustomIdx = withoutStaleCustom.findIndex(key => !NAV_META[key])
+  const insertAt = firstCustomIdx === -1 ? fixedOnly.length : firstCustomIdx
+  const merged = [...fixedOnly]
+  merged.splice(insertAt, 0, ...customSlugs)
+  form.navOrder = merged
+}
+watch(() => form.pages.map(p => p.slug).join('|'), syncNavOrderWithPages)
+
 function navLabel(key: string): string {
   if (key === 'shop')       return form.shopTitle || 'Shop'
   if (key === 'blog')       return form.blogTitle || 'Blog'
@@ -1964,7 +1992,8 @@ function navLabel(key: string): string {
   if (key === 'menu')       return navStatus.menuTitle
   if (key === 'properties') return navStatus.propertiesTitle
   if (key === 'termine')    return navStatus.termineTitle
-  return NAV_META[key]?.label || key
+  if (NAV_META[key]) return NAV_META[key].label
+  return pageBySlug(key)?.title || key
 }
 
 function navEnabled(key: string): boolean {
@@ -1974,7 +2003,12 @@ function navEnabled(key: string): boolean {
   if (key === 'menu')       return navStatus.menuEnabled
   if (key === 'properties') return navStatus.propertiesEnabled
   if (key === 'termine')    return navStatus.termineEnabled
-  return true
+  if (NAV_META[key]) return true
+  return !!pageBySlug(key)
+}
+
+function navIcon(key: string): string {
+  return NAV_META[key]?.icon || 'ti-file-text'
 }
 
 const draggedNavIndex  = ref<number | null>(null)
@@ -2016,8 +2050,10 @@ function onPageDragEnd() { draggedPageIndex.value = null; dragOverPageIndex.valu
 async function loadGithubRepos() {
   if (!form.githubPat.trim()) return
   form.githubLoading = true
+  form.githubLoaded = false
+  form.githubError = ''
   try {
-    const repos = await $fetch<any[]>('https://api.github.com/user/repos?per_page=100&sort=updated&type=owner', {
+    const repos = await $fetch<any[]>('https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member', {
       headers: {
         Authorization: `Bearer ${form.githubPat.trim()}`,
         Accept: 'application/vnd.github+json',
@@ -2027,8 +2063,20 @@ async function loadGithubRepos() {
     form.githubAvailable = repos
       .filter((r: any) => !r.private)
       .map((r: any) => ({ name: r.name, description: r.description || '', language: r.language || '', stars: r.stargazers_count }))
-  } catch {
-    alert('GitHub PAT ungültig oder Fehler beim Laden der Repos.')
+    form.githubLoaded = true
+    if (form.githubAvailable.length === 0) {
+      form.githubError = 'Keine öffentlichen Repos gefunden. Prüfe, ob das PAT Zugriff auf die richtigen Repos/Organisationen hat.'
+    }
+  } catch (err: any) {
+    const status = err?.response?.status
+    const ghMessage = err?.data?.message || err?.response?._data?.message
+    form.githubError = ghMessage
+      ? `GitHub: ${ghMessage}`
+      : status === 401
+        ? 'GitHub PAT ungültig oder abgelaufen.'
+        : status === 403
+          ? 'Zugriff verweigert (Rate-Limit erreicht oder PAT benötigt SSO-Autorisierung für die Organisation).'
+          : 'Fehler beim Laden der Repos.'
   }
   form.githubLoading = false
 }
