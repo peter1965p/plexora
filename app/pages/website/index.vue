@@ -2112,6 +2112,12 @@ const nexoraThemes = [
     desc: 'Hell + Blau',
     preview: { bg: '#ffffff', accent: '#2563eb', text: '#1e293b', surface: '#f8fafc' },
   },
+  {
+    key: 'dusk',
+    label: 'Dusk',
+    desc: 'Warmgrau + Amber — dunkel, aber luftiger',
+    preview: { bg: '#242230', accent: '#fb923c', text: '#f5f2fa', surface: '#2f2c3d' },
+  },
 ]
 
 function copyKey() {

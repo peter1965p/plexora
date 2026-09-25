@@ -166,6 +166,28 @@
       </div>
     </div>
 
+    <!-- DATENSCHUTZ -->
+    <div v-if="tab === 'datenschutz'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-lock" style="margin-right:8px;color:var(--accent)"></i>Datenschutzerklärung</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || datenschutzSaving" @click="saveDatenschutz">
+          <span v-if="datenschutzSaving"><i class="ti ti-loader-2 spin"></i></span>
+          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+        </button>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">
+          Markdown-Editor — # für Überschriften, **fett** für Hervorhebungen. Der Inhalt wird auf der öffentlichen Seite /datenschutz angezeigt (Abschnitt "Verantwortlicher" bleibt automatisch aus den Unternehmensdaten befüllt).
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;height:600px">
+          <textarea v-model="datenschutz.content"
+            style="width:100%;height:100%;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px;color:var(--text-primary);font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;line-height:1.6;resize:none;outline:none"
+            spellcheck="false"></textarea>
+          <div class="agb-preview" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:16px 24px;overflow-y:auto;font-size:14px;line-height:1.8" v-html="datenschutzPreview"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- DARSTELLUNG -->
     <div v-if="tab === 'appearance'" class="card">
       <div class="card-header">
@@ -1455,6 +1477,7 @@ const BASE_TABS = [
 // EIN Mahnwesen-Default, Plexoras eigene öffentliche AGB-Seite — daher admin-only.
 const ADMIN_TABS = [
   { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
+  { key: 'datenschutz', label: 'Datenschutz',      icon: 'ti-lock'            },
   { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
 ]
@@ -1697,6 +1720,11 @@ const company = reactive({
 const agbSaving = ref(false)
 const agb = reactive({ content: '', updated: '' })
 const agbPreview = computed(() => marked.parse(agb.content || ''))
+
+// ── Datenschutz ───────────────────────────────────────
+const datenschutzSaving = ref(false)
+const datenschutz = reactive({ content: '', updated: '' })
+const datenschutzPreview = computed(() => marked.parse(datenschutz.content || ''))
 
 // ── Rechnungen ────────────────────────────────────────
 const invoiceSaving = ref(false)
@@ -2086,6 +2114,10 @@ onMounted(async () => {
     if (d?.agb) Object.assign(agb, d.agb)
   } catch {}
   try {
+    const d = await $fetch(useApiUrl('/api/settings/datenschutz') as any)
+    if (d?.datenschutz) Object.assign(datenschutz, d.datenschutz)
+  } catch {}
+  try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     const d = await $fetch(useApiUrl('/api/settings/payment') as any, { headers: await useAuthHeader() })
     if (d?.payment) Object.assign(payment, d.payment)
@@ -2100,6 +2132,17 @@ async function saveAgb() {
     await $fetch(useApiUrl('/api/settings/agb'), { method: 'POST', headers: await useAuthHeader(), body: { content: agb.content, userId: userId.value } })
   } finally {
     agbSaving.value = false
+  }
+}
+
+async function saveDatenschutz() {
+  if (isDemo.value) return
+  datenschutzSaving.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/datenschutz'), { method: 'POST', headers: await useAuthHeader(), body: { content: datenschutz.content, userId: userId.value } })
+  } finally {
+    datenschutzSaving.value = false
   }
 }
 
