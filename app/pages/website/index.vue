@@ -1189,7 +1189,7 @@
 
       <!-- ── TAB: POSITIONEN ── -->
       <div v-else-if="activeTab === 'position'" style="max-width:1160px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="card" style="display:flex;flex-direction:column;height:100%">
+        <div class="card" style="display:flex;flex-direction:column;height:100%;max-height:600px">
           <div class="card-header">
             <span class="card-title"><i class="ti ti-layout-rows" style="margin-right:8px;color:var(--accent)"></i>Sektions-Reihenfolge</span>
           </div>
@@ -1227,7 +1227,7 @@
           </div>
         </div>
 
-        <div class="card" style="display:flex;flex-direction:column;height:100%">
+        <div class="card" style="display:flex;flex-direction:column;height:100%;max-height:600px">
           <div class="card-header">
             <span class="card-title"><i class="ti ti-menu-2" style="margin-right:8px;color:var(--accent)"></i>Navigation-Reihenfolge</span>
           </div>
