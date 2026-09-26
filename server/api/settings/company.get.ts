@@ -22,9 +22,11 @@ const DEFAULTS = {
 export default defineEventHandler(async (event) => {
   const client = getDynamoClient()
   const email = event.context.auth?.email
-  // Öffentliche Aufrufer (z.B. impressum.vue) ohne Login sehen weiterhin Plexoras eigene
-  // Firmendaten (scope:'global'); eingeloggte Tenants bekommen ihren eigenen Datensatz.
-  const scope = email ? await resolveUserId(email) : 'global'
+  const isAdmin = event.context.auth?.groups?.includes('admins')
+  // Öffentliche Aufrufer (z.B. impressum.vue) ohne Login sowie der Plattform-Admin selbst
+  // sehen/bearbeiten Plexoras eigene Firmendaten (scope:'global'); normale eingeloggte
+  // Tenants bekommen ihren eigenen Datensatz.
+  const scope = isAdmin ? 'global' : (email ? await resolveUserId(email) : 'global')
   try {
     const result = await client.send(new GetCommand({
       TableName: 'plexora-settings',

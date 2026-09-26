@@ -7,7 +7,10 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   demoGuard(body?.userId)
   const client = getDynamoClient()
-  const scope = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const isAdmin = event.context.auth?.groups?.includes('admins')
+  const scope = isAdmin
+    ? 'global'
+    : await resolveUserId(event.context.auth?.email || 'demo-user')
   await client.send(new PutCommand({
     TableName: 'plexora-settings',
     Item: {
