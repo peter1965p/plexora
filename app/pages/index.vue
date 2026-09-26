@@ -35,6 +35,7 @@
     <section class="lp-hero">
       <canvas ref="networkRef" class="lp-network"></canvas>
       <div class="lp-wrap lp-hero-inner">
+        <div class="lp-hero-text">
         <div class="lp-eyebrow">Business Platform</div>
         <h1 class="lp-h1">
           <span class="lp-h1-line">
@@ -74,6 +75,20 @@
           <UserRound :size="14" />
           {{ t.hero.demoHint }} <strong>demo@plexora.eu</strong> · <strong>Demo1234!</strong>
         </div>
+        </div>
+
+        <div class="lp-hero-visual">
+        <div class="lp-hero-shot lp-reveal">
+          <div class="lp-hero-shot-glow"></div>
+          <div class="lp-browser-chrome">
+            <span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span>
+            <div class="lp-browser-url">app.plexora.eu/dashboard</div>
+          </div>
+          <img src="/screenshots/dashboard.overview.png" alt="Plexora Dashboard" class="lp-hero-shot-img" loading="eager" />
+        </div>
+        <div class="lp-hero-float lp-hero-float-1 lp-reveal"><img src="/screenshots/cmr.overview.png" alt="CRM" /></div>
+        <div class="lp-hero-float lp-hero-float-2 lp-reveal"><img src="/screenshots/finance.overview.png" alt="Finanzen" /></div>
+        </div>
       </div>
     </section>
 
@@ -105,6 +120,34 @@
           <div class="lp-mod-name">{{ mod.name }}</div>
           <div class="lp-mod-desc">{{ mod.desc }}</div>
           <span v-if="mod.on" class="lp-mod-badge">{{ t.modules.active }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="lp-wrap lp-howit-section lp-reveal">
+      <div class="lp-section-label">{{ t.howItWorks.label }}</div>
+      <h2 class="lp-section-title" style="text-align:center;margin-bottom:40px">{{ t.howItWorks.heading }}</h2>
+      <div class="lp-howit-grid">
+        <div class="lp-howit-step" v-for="(step, i) in t.howItWorks.steps" :key="i" :style="{ transitionDelay: (i * 0.1) + 's' }">
+          <div class="lp-howit-num">{{ i + 1 }}</div>
+          <component :is="[LogIn, SlidersHorizontal, Rocket][i]" :size="22" :stroke-width="1.75" class="lp-howit-icon" />
+          <div class="lp-howit-title">{{ step.title }}</div>
+          <div class="lp-howit-desc">{{ step.desc }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POWERED BY -->
+    <section class="lp-wrap lp-poweredby-section lp-reveal">
+      <div class="lp-section-label">{{ t.poweredBy.label }}</div>
+      <div class="lp-poweredby-row">
+        <div class="lp-poweredby-item" v-for="(item, i) in t.poweredBy.items" :key="i">
+          <component :is="[Cloud, CreditCard, ShieldCheck][i]" :size="20" :stroke-width="1.6" />
+          <div>
+            <div class="lp-poweredby-name">{{ item.name }}</div>
+            <div class="lp-poweredby-sub">{{ item.sub }}</div>
+          </div>
         </div>
       </div>
     </section>
@@ -310,6 +353,7 @@ import {
   Users, Kanban, Receipt, IdCard, Headset, BarChart3,
   Car, UtensilsCrossed, Building2,
   Check, X, Info, UserRound, Rocket, Zap,
+  LogIn, SlidersHorizontal, Cloud, CreditCard, ShieldCheck,
 } from 'lucide-vue-next'
 
 definePageMeta({ layout: false })
@@ -346,6 +390,23 @@ const i18n = {
         { num: '1', label: 'Login statt 10+ Tools' },
         { num: 'Frankfurt', label: 'AWS-Hosting, DSGVO-konform' },
         { num: 'ab 49€', label: 'Alle Module inklusive' },
+      ],
+    },
+    howItWorks: {
+      label: 'So einfach geht\'s',
+      heading: 'Von Null auf startklar in 3 Schritten',
+      steps: [
+        { title: 'Demo starten', desc: 'Ohne Registrierung, ohne Kreditkarte — direkt ausprobieren.' },
+        { title: 'Module wählen', desc: 'Nur aktivieren, was du brauchst. Jederzeit erweiterbar.' },
+        { title: 'Loslegen', desc: 'Keine Einrichtungszeit, kein IT-Projekt — sofort startklar.' },
+      ],
+    },
+    poweredBy: {
+      label: 'Läuft auf bewährter Infrastruktur',
+      items: [
+        { name: 'Amazon Web Services', sub: 'Hosting · Frankfurt (eu-central-1)' },
+        { name: 'Stripe', sub: 'Sichere Zahlungsabwicklung' },
+        { name: 'Cloudflare', sub: 'Auslieferung & DDoS-Schutz' },
       ],
     },
     modules: { label: 'Klicken Sie ein Modul an', active: 'Aktiv' },
@@ -433,6 +494,23 @@ const i18n = {
         { num: '1', label: 'login instead of 10+ tools' },
         { num: 'Frankfurt', label: 'AWS hosting, GDPR-compliant' },
         { num: 'from €49', label: 'all modules included' },
+      ],
+    },
+    howItWorks: {
+      label: 'It\'s that simple',
+      heading: 'Zero to ready in 3 steps',
+      steps: [
+        { title: 'Start the demo', desc: 'No sign-up, no credit card — try it right away.' },
+        { title: 'Pick your modules', desc: 'Activate only what you need. Expand anytime.' },
+        { title: 'Get going', desc: 'No setup time, no IT project — ready instantly.' },
+      ],
+    },
+    poweredBy: {
+      label: 'Built on proven infrastructure',
+      items: [
+        { name: 'Amazon Web Services', sub: 'Hosting · Frankfurt (eu-central-1)' },
+        { name: 'Stripe', sub: 'Secure payment processing' },
+        { name: 'Cloudflare', sub: 'Delivery & DDoS protection' },
       ],
     },
     modules: { label: 'Click a module to activate', active: 'Active' },
@@ -710,12 +788,14 @@ onMounted(() => {
 .lp {
   background: #1a1723;
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(251,146,60,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 92% 10%, rgba(56,189,248,0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 35% at 5% 60%, rgba(251,146,60,0.07) 0%, transparent 70%),
-    linear-gradient(rgba(45,95,210,0.28) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45,95,210,0.28) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 52px 52px, 52px 52px;
+    radial-gradient(ellipse 90% 60% at 15% 0%, rgba(251,146,60,0.16) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 55% at 90% 45%, rgba(56,189,248,0.11) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 55% at 10% 90%, rgba(251,146,60,0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 55% at 95% 135%, rgba(56,189,248,0.09) 0%, transparent 65%),
+    linear-gradient(rgba(60,110,220,0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(60,110,220,0.09) 1px, transparent 1px);
+  background-size: 100% 90vh, 100% 90vh, 100% 90vh, 100% 90vh, 64px 64px, 64px 64px;
+  background-repeat: repeat-y, repeat-y, repeat-y, repeat-y, repeat, repeat;
   color: #f5f2fa;
   font-family: "Exo 2", sans-serif;
   min-height: 100vh;
@@ -783,6 +863,15 @@ onMounted(() => {
 /* HERO */
 .lp-hero { padding: 96px 0 72px; position: relative; overflow: hidden; }
 .lp-hero-inner { text-align: center; position: relative; z-index: 1; }
+@media (min-width: 1100px) {
+  .lp-hero { padding: 88px 0 64px; overflow: visible; }
+  .lp-hero-inner {
+    display: grid; grid-template-columns: 1fr 0.95fr; gap: 32px; align-items: center; text-align: left;
+  }
+  .lp-hero-text .lp-ctas, .lp-hero-text .lp-demo-hint { justify-content: flex-start; }
+  .lp-hero-text .lp-h1 { font-size: clamp(44px, 4.6vw, 76px); }
+  .lp-hero-visual { position: relative; }
+}
 .lp-eyebrow {
   display: inline-block; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
   color: #38bdf8; margin-bottom: 24px; font-weight: 500;
@@ -835,14 +924,105 @@ onMounted(() => {
   border-radius: 20px; padding: 6px 16px;
 }
 .lp-demo-hint strong { color: #f0eef9; }
-.lp-demo-hint .ti { color: #38bdf8; }
+.lp-demo-hint svg { color: #38bdf8; }
+
+/* HERO PRODUCT SHOT */
+.lp-hero-visual { max-width: 720px; margin: 56px auto 0; }
+.lp-hero-shot { position: relative; }
+.lp-hero-shot-glow {
+  position: absolute; inset: -40px -20px 0; z-index: -1;
+  background: radial-gradient(ellipse 70% 60% at 50% 30%, rgba(234,88,12,0.28), transparent 70%);
+  filter: blur(20px);
+}
+.lp-browser-chrome {
+  display: flex; align-items: center; gap: 8px;
+  background: #211d2b; border: 0.5px solid rgba(255,255,255,0.1);
+  border-bottom: none; border-radius: 14px 14px 0 0;
+  padding: 12px 16px;
+}
+.lp-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.lp-dot-r { background: #ff5f57; }
+.lp-dot-y { background: #febc2e; }
+.lp-dot-g { background: #28c840; }
+.lp-browser-url {
+  margin: 0 auto; font-size: 11px; color: #8b8fa8;
+  background: rgba(255,255,255,0.05); border-radius: 6px; padding: 3px 14px;
+}
+.lp-hero-shot-img {
+  display: block; width: 100%; height: auto;
+  border: 0.5px solid rgba(255,255,255,0.1); border-radius: 0 0 14px 14px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+}
+.lp-hero-float {
+  display: none;
+  position: absolute; width: 200px; border-radius: 10px; overflow: hidden;
+  border: 0.5px solid rgba(255,255,255,0.14); box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  transition: transform 0.3s;
+}
+.lp-hero-float img { display: block; width: 100%; height: auto; }
+.lp-hero-float:hover { transform: translateY(-4px) scale(1.02); z-index: 5; }
+.lp-hero-float-1 { top: -18px; left: -60px; transform: rotate(-6deg); }
+.lp-hero-float-2 { bottom: -24px; right: -50px; transform: rotate(5deg); }
+
+@media (min-width: 1100px) {
+  .lp-hero-visual { max-width: none; margin: 0; }
+  .lp-hero-float { display: block; }
+}
+
+/* HOW IT WORKS */
+.lp-howit-section { padding: 8px 0 56px; }
+.lp-howit-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; position: relative; }
+.lp-howit-grid::before {
+  content: ''; position: absolute; top: 52px; left: calc(16.66% + 20px); right: calc(16.66% + 20px); height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(251,146,60,0.4) 0 8px, transparent 8px 16px);
+  z-index: -1;
+}
+.lp-howit-step:nth-child(2) { margin-top: 28px; }
+.lp-howit-step:nth-child(3) { margin-top: -8px; }
+@media (max-width: 900px) {
+  .lp-howit-grid::before { display: none; }
+  .lp-howit-step:nth-child(2), .lp-howit-step:nth-child(3) { margin-top: 0; }
+}
+.lp-howit-step {
+  background: #241f30; border: 0.5px solid rgba(255,255,255,0.08); border-radius: 18px;
+  padding: 28px 24px; position: relative;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.lp-reveal.lp-in .lp-howit-step { opacity: 1; transform: translateY(0); }
+.lp-howit-num {
+  position: absolute; top: 20px; right: 22px; font-family: "Space Grotesk", sans-serif;
+  font-size: 32px; font-weight: 800; color: rgba(255,255,255,0.06);
+}
+.lp-howit-icon {
+  width: 40px; height: 40px; border-radius: 11px; padding: 9px; box-sizing: border-box;
+  background: rgba(234,88,12,0.12); border: 0.5px solid rgba(234,88,12,0.3);
+  color: #fb923c; margin-bottom: 16px;
+}
+.lp-howit-title { font-family: "Space Grotesk", sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.lp-howit-desc { font-size: 13px; color: #9a9db8; line-height: 1.5; }
+
+/* POWERED BY */
+.lp-poweredby-section { padding: 0 0 64px; }
+.lp-poweredby-row {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 16px;
+}
+.lp-poweredby-item {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.03); border: 0.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 14px 20px; color: #7dd3fc;
+}
+.lp-poweredby-name { font-size: 13px; font-weight: 600; color: #f0eef9; }
+.lp-poweredby-sub { font-size: 11px; color: #8b8fa8; margin-top: 1px; }
 
 /* STATS STRIP */
 .lp-stats-section { padding: 0 0 56px; }
 .lp-stats-row {
   display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
-  border-top: 0.5px solid rgba(255,255,255,0.08); border-bottom: 0.5px solid rgba(255,255,255,0.08);
-  padding: 28px 0;
+  background: linear-gradient(160deg, rgba(251,146,60,0.08), rgba(56,189,248,0.05));
+  border: 0.5px solid rgba(255,255,255,0.09);
+  border-radius: 20px;
+  padding: 28px 20px;
 }
 .lp-stat { text-align: center; }
 .lp-stat-num { font-family: "Space Grotesk", sans-serif; font-size: 26px; font-weight: 800; color: #fb923c; line-height: 1.2; }
