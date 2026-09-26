@@ -436,6 +436,7 @@ ul {
   border: 0.5px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
 }
 .card-header {
   display: flex;

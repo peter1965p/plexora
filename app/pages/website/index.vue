@@ -1188,13 +1188,13 @@
       </div>
 
       <!-- ── TAB: POSITIONEN ── -->
-      <div v-else-if="activeTab === 'position'" style="max-width:1160px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
-        <div class="card">
+      <div v-else-if="activeTab === 'position'" style="max-width:1160px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card" style="display:flex;flex-direction:column;height:100%">
           <div class="card-header">
             <span class="card-title"><i class="ti ti-layout-rows" style="margin-right:8px;color:var(--accent)"></i>Sektions-Reihenfolge</span>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Bestimme die Reihenfolge der Sektionen auf der Website. Hero und Footer sind immer fest.</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow-y:auto">
             <template v-for="(key, idx) in form.sectionOrder" :key="key">
             <div v-if="SECTION_META[key]"
               style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid;transition:all .15s"
@@ -1227,12 +1227,12 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card" style="display:flex;flex-direction:column;height:100%">
           <div class="card-header">
             <span class="card-title"><i class="ti ti-menu-2" style="margin-right:8px;color:var(--accent)"></i>Navigation-Reihenfolge</span>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Ziehe die Menüpunkte in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow-y:auto">
             <template v-for="(key, idx) in form.navOrder" :key="key">
             <div v-if="NAV_META[key] || pageBySlug(key)"
               draggable="true"
