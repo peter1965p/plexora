@@ -2,7 +2,7 @@
   <div class="page">
 
     <!-- Header -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;position:sticky;top:0;z-index:10;background:#0a0e1a;padding:16px 0 14px;margin-top:-16px;border-bottom:1px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,0.8)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;position:sticky;top:0;z-index:10;background:rgba(44,102,144,0.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:20px 24px 18px;margin:-24px -24px 28px;border-bottom:1px solid rgba(44,102,144,0.3);box-shadow:0 4px 16px rgba(44,102,144,0.12)">
       <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center">
         <i class="ti ti-world" style="font-size:18px;color:#fff"></i>
       </div>
@@ -1445,6 +1445,20 @@ const loadingSiteStats = ref(false)
 
 watch(activeTab, (tab) => {
   if (tab === 'traffic' && !siteStats.value && !loadingSiteStats.value) loadSiteStats()
+})
+
+// Monaco hängt Overlay-Widgets (Hover, Autovervollständigung, Kontextmenü) direkt an
+// document.body statt in die Komponente — beim Tab-Wechsel weg von einem Editor-Tab
+// werden die nicht zuverlässig entfernt und können danach über der Seite schweben.
+const MONACO_TABS = ['pages', 'agb', 'datenschutz']
+watch(activeTab, (tab, prevTab) => {
+  if (MONACO_TABS.includes(prevTab) && !MONACO_TABS.includes(tab)) {
+    nextTick(() => {
+      document.querySelectorAll(
+        '.monaco-editor, .overflowingContentWidgets, .context-view, .monaco-hover, .suggest-widget, .monaco-menu-container, .parameter-hints-widget'
+      ).forEach(el => el.remove())
+    })
+  }
 })
 
 async function loadSiteStats() {
