@@ -1188,7 +1188,7 @@
       </div>
 
       <!-- ── TAB: POSITIONEN ── -->
-      <div v-else-if="activeTab === 'position'" style="max-width:600px;display:flex;flex-direction:column;gap:16px">
+      <div v-else-if="activeTab === 'position'" style="max-width:1160px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
         <div class="card">
           <div class="card-header">
             <span class="card-title"><i class="ti ti-layout-rows" style="margin-right:8px;color:var(--accent)"></i>Sektions-Reihenfolge</span>
