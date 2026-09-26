@@ -1,7 +1,7 @@
 <template>
   <div class="auth-wrap">
     <div class="auth-card" style="text-align: center">
-      <div class="auth-logo">Plexo<span>ra</span></div>
+      <div class="auth-logo auth-logo-boot">Plexo<span>ra</span></div>
       <div v-if="!error" class="auth-sub" style="margin-top: 12px">
         <i class="ti ti-loader-2 spin"></i> Anmeldung wird abgeschlossen …
       </div>
@@ -57,3 +57,25 @@ onMounted(async () => {
   }, 10000);
 });
 </script>
+
+<style scoped>
+/* Boot-Screen-artiger Puls, wie bei einem Linux-Splash (z.B. CachyOS) —
+   nur auf dieser Anmelde-Ladeseite, nicht global auf .auth-logo. */
+.auth-logo-boot {
+  color: #2c6690;
+  animation: boot-pulse 2.2s ease-in-out infinite;
+}
+.auth-logo-boot span {
+  color: #f5c518;
+}
+@keyframes boot-pulse {
+  0%, 100% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 2px rgba(44, 102, 144, 0.25));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 14px rgba(44, 102, 144, 0.65)) drop-shadow(0 0 6px rgba(245, 197, 24, 0.4));
+  }
+}
+</style>
