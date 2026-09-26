@@ -86,8 +86,8 @@
           </div>
           <img src="/screenshots/dashboard-light.png" alt="Plexora Dashboard" class="lp-hero-shot-img" loading="eager" />
         </div>
-        <div class="lp-hero-float lp-hero-float-1 lp-reveal"><img src="/screenshots/dashboard-light.png" alt="Plexora Dashboard" /></div>
-        <div class="lp-hero-float lp-hero-float-2 lp-reveal"><img src="/screenshots/dashboard-light.png" alt="Plexora Dashboard" /></div>
+        <div class="lp-hero-float lp-hero-float-1 lp-reveal"><img src="/screenshots/seo-light.png" alt="Plexora SEO & Traffic Analytics" /></div>
+        <div class="lp-hero-float lp-hero-float-2 lp-reveal"><img src="/screenshots/modulstore-light.png" alt="Plexora Modul-Store" /></div>
         </div>
       </div>
     </section>
