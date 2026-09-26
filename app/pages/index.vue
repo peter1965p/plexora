@@ -84,10 +84,10 @@
             <span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span>
             <div class="lp-browser-url">app.plexora.eu/dashboard</div>
           </div>
-          <img src="/screenshots/dashboard.overview.png" alt="Plexora Dashboard" class="lp-hero-shot-img" loading="eager" />
+          <img src="/screenshots/dashboard-light.png" alt="Plexora Dashboard" class="lp-hero-shot-img" loading="eager" />
         </div>
-        <div class="lp-hero-float lp-hero-float-1 lp-reveal"><img src="/screenshots/cmr.overview.png" alt="CRM" /></div>
-        <div class="lp-hero-float lp-hero-float-2 lp-reveal"><img src="/screenshots/finance.overview.png" alt="Finanzen" /></div>
+        <div class="lp-hero-float lp-hero-float-1 lp-reveal"><img src="/screenshots/dashboard-light-crop1.png" alt="Plexora KPIs" /></div>
+        <div class="lp-hero-float lp-hero-float-2 lp-reveal"><img src="/screenshots/dashboard-light-crop2.png" alt="Plexora Finanzen" /></div>
         </div>
       </div>
     </section>
@@ -955,14 +955,22 @@ onMounted(() => {
 }
 .lp-hero-float {
   display: none;
-  position: absolute; width: 200px; border-radius: 10px; overflow: hidden;
-  border: 0.5px solid rgba(255,255,255,0.14); box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  position: absolute; width: 220px;
+  filter: drop-shadow(0 16px 30px rgba(0,0,0,0.5));
   transition: transform 0.3s;
 }
 .lp-hero-float img { display: block; width: 100%; height: auto; }
-.lp-hero-float:hover { transform: translateY(-4px) scale(1.02); z-index: 5; }
-.lp-hero-float-1 { top: -18px; left: -60px; transform: rotate(-6deg); }
-.lp-hero-float-2 { bottom: -24px; right: -50px; transform: rotate(5deg); }
+.lp-hero-float:hover { transform: translateY(-4px) scale(1.02) rotate(0deg) !important; z-index: 5; }
+/* Abgerissene Papierkante unten */
+.lp-hero-float-1 {
+  top: -18px; left: -70px; transform: rotate(-6deg);
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 93% 93%, 86% 87%, 79% 96%, 72% 89%, 65% 97%, 58% 88%, 51% 95%, 44% 89%, 37% 98%, 30% 90%, 23% 96%, 16% 88%, 9% 94%, 2% 89%, 0 92%);
+}
+/* Abgerissene Papierkante oben */
+.lp-hero-float-2 {
+  bottom: -24px; right: -60px; transform: rotate(5deg);
+  clip-path: polygon(0 12%, 5% 5%, 11% 11%, 18% 3%, 25% 10%, 32% 4%, 39% 11%, 46% 5%, 53% 12%, 60% 4%, 67% 10%, 74% 3%, 81% 11%, 88% 5%, 95% 10%, 100% 4%, 100% 100%, 0 100%);
+}
 
 @media (min-width: 1100px) {
   .lp-hero-visual { max-width: none; margin: 0; }
