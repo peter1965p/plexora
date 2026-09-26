@@ -71,24 +71,37 @@
           </button>
         </div>
         <div class="lp-demo-hint">
-          <i class="ti ti-user-circle"></i>
+          <UserRound :size="14" />
           {{ t.hero.demoHint }} <strong>demo@plexora.eu</strong> · <strong>Demo1234!</strong>
         </div>
       </div>
     </section>
 
-    <!-- MODULE GRID -->
-    <section class="lp-wrap lp-modules-section" id="modules">
+    <!-- STATS STRIP -->
+    <section class="lp-wrap lp-stats-section lp-reveal">
+      <div class="lp-stats-row">
+        <div class="lp-stat" v-for="(s, i) in t.stats.items" :key="i">
+          <div class="lp-stat-num">{{ s.num }}</div>
+          <div class="lp-stat-label">{{ s.label }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE GRID (BENTO) -->
+    <section class="lp-wrap lp-modules-section lp-reveal" id="modules">
       <div class="lp-section-label">{{ t.modules.label }}</div>
       <div class="lp-modules-grid">
         <div
-          v-for="mod in modules"
+          v-for="(mod, i) in modules"
           :key="mod.key"
           class="lp-mod"
-          :class="{ active: mod.on }"
+          :class="{ active: mod.on, 'lp-mod-featured': i === 0 }"
+          :style="{ transitionDelay: (i * 0.06) + 's' }"
           @click="mod.on = !mod.on"
         >
-          <i class="ti lp-mod-icon" :class="mod.icon"></i>
+          <div class="lp-mod-icon-badge">
+            <component :is="mod.icon" :size="i === 0 ? 26 : 20" :stroke-width="1.75" />
+          </div>
           <div class="lp-mod-name">{{ mod.name }}</div>
           <div class="lp-mod-desc">{{ mod.desc }}</div>
           <span v-if="mod.on" class="lp-mod-badge">{{ t.modules.active }}</span>
@@ -97,7 +110,7 @@
     </section>
 
     <!-- SAVINGS -->
-    <section class="lp-wrap" id="savings">
+    <section class="lp-wrap lp-reveal" id="savings">
       <div class="lp-savings">
         <div class="lp-savings-label">{{ t.savings.label }}</div>
         <div class="lp-savings-row">
@@ -119,7 +132,7 @@
     </section>
 
     <!-- COMPARE -->
-    <section class="lp-wrap lp-compare-section">
+    <section class="lp-wrap lp-compare-section lp-reveal">
       <h2 class="lp-section-title">{{ t.compare.heading }}</h2>
       <div class="lp-compare-grid">
         <div class="lp-ccard">
@@ -128,7 +141,7 @@
           <div class="lp-ccard-price">8–12 <span>{{ t.compare.oldPriceUnit }}</span></div>
           <div class="lp-ccard-note">{{ t.compare.oldNote }}</div>
           <ul class="lp-ccard-items">
-            <li v-for="item in t.compare.oldItems" :key="item"><i class="ti ti-x lp-cross"></i>{{ item }}</li>
+            <li v-for="item in t.compare.oldItems" :key="item"><X :size="15" class="lp-cross" />{{ item }}</li>
           </ul>
         </div>
         <div class="lp-ccard lp-ccard-featured">
@@ -137,14 +150,14 @@
           <div class="lp-ccard-price lp-price-accent">1 <span>{{ t.compare.newPriceUnit }}</span></div>
           <div class="lp-ccard-note">{{ t.compare.newNote }}</div>
           <ul class="lp-ccard-items">
-            <li v-for="item in t.compare.newItems" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
+            <li v-for="item in t.compare.newItems" :key="item"><Check :size="15" class="lp-tick" />{{ item }}</li>
           </ul>
         </div>
       </div>
     </section>
 
     <!-- TESTIMONIALS SLIDER -->
-    <section class="lp-wrap lp-testi-section">
+    <section class="lp-wrap lp-testi-section lp-reveal">
       <div class="lp-section-label" style="text-align:center;margin-bottom:8px">{{ t.testi.label }}</div>
       <div class="lp-testi-slider">
         <div class="lp-testi-track" :style="{ transform: `translateX(-${testiIdx * 100}%)` }">
@@ -167,7 +180,7 @@
     </section>
 
     <!-- PRICING -->
-    <section class="lp-wrap lp-pricing-section" id="pricing">
+    <section class="lp-wrap lp-pricing-section lp-reveal" id="pricing">
       <div class="lp-section-label">{{ t.pricing.label }}</div>
       <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.pricing.heading }}</h2>
       <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px">{{ t.pricing.sub }}</p>
@@ -175,12 +188,13 @@
 
         <!-- Starter -->
         <div class="lp-pcard">
+          <div class="lp-pcard-icon-badge"><Rocket :size="20" :stroke-width="1.75" /></div>
           <div class="lp-pcard-tier">Starter</div>
           <div class="lp-pcard-price">49 <span>€ / {{ t.pricing.month }}</span></div>
           <div style="font-size:11px;color:#545870;margin-bottom:2px">{{ t.pricing.vat }}</div>
           <div class="lp-pcard-note">{{ t.pricing.starter.note }}</div>
           <ul class="lp-pcard-items">
-            <li v-for="item in t.pricing.starter.items" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
+            <li v-for="item in t.pricing.starter.items" :key="item"><Check :size="15" class="lp-tick" />{{ item }}</li>
           </ul>
           <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>{{ t.pricing.cta }}</span></button>
         </div>
@@ -188,24 +202,26 @@
         <!-- Pro -->
         <div class="lp-pcard lp-pcard-featured">
           <div class="lp-pcard-popular">{{ t.pricing.popular }}</div>
+          <div class="lp-pcard-icon-badge lp-pcard-icon-badge-accent"><Zap :size="20" :stroke-width="1.75" /></div>
           <div class="lp-pcard-tier">Pro</div>
           <div class="lp-pcard-price">149 <span>€ / {{ t.pricing.month }}</span></div>
           <div style="font-size:11px;color:#545870;margin-bottom:2px">{{ t.pricing.vat }}</div>
           <div class="lp-pcard-note">{{ t.pricing.pro.note }}</div>
           <ul class="lp-pcard-items">
-            <li v-for="item in t.pricing.pro.items" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
+            <li v-for="item in t.pricing.pro.items" :key="item"><Check :size="15" class="lp-tick" />{{ item }}</li>
           </ul>
           <button class="lp-pcard-btn" @click="navigateTo('/kaufen')"><span>{{ t.pricing.cta }}</span></button>
         </div>
 
         <!-- Enterprise -->
         <div class="lp-pcard">
+          <div class="lp-pcard-icon-badge"><Building2 :size="20" :stroke-width="1.75" /></div>
           <div class="lp-pcard-tier">Enterprise</div>
           <div class="lp-pcard-price">299 <span>€ / {{ t.pricing.month }}</span></div>
           <div style="font-size:11px;color:#545870;margin-bottom:2px">{{ t.pricing.vat }}</div>
           <div class="lp-pcard-note">{{ t.pricing.enterprise.note }}</div>
           <ul class="lp-pcard-items">
-            <li v-for="item in t.pricing.enterprise.items" :key="item"><i class="ti ti-check lp-tick"></i>{{ item }}</li>
+            <li v-for="item in t.pricing.enterprise.items" :key="item"><Check :size="15" class="lp-tick" />{{ item }}</li>
           </ul>
           <button class="lp-pcard-btn lp-pcard-btn-ghost" @click="navigateTo('/kaufen')"><span>{{ t.pricing.cta }}</span></button>
         </div>
@@ -214,14 +230,14 @@
     </section>
 
     <!-- BRANCHEN-PAKETE -->
-    <section class="lp-wrap lp-branchen-section" id="branchen">
+    <section class="lp-wrap lp-branchen-section lp-reveal" id="branchen">
       <div class="lp-branchen-panel">
         <div class="lp-section-label">{{ t.branchen.label }}</div>
         <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.branchen.heading }}</h2>
         <p style="text-align:center;font-size:14px;color:#8b8fa8;margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto">{{ t.branchen.sub }}</p>
         <div class="lp-branchen-grid">
-          <div class="lp-bcard" v-for="pkg in t.branchen.items" :key="pkg.key">
-            <div class="lp-bcard-icon"><i class="ti" :class="pkg.icon"></i></div>
+          <div class="lp-bcard" v-for="(pkg, i) in t.branchen.items" :key="pkg.key" :style="{ transitionDelay: (i * 0.08) + 's' }">
+            <div class="lp-bcard-icon"><component :is="pkg.icon" :size="20" :stroke-width="1.75" /></div>
             <div class="lp-bcard-name">{{ pkg.name }}</div>
             <div class="lp-bcard-desc">{{ pkg.desc }}</div>
             <div class="lp-bcard-features">
@@ -233,12 +249,12 @@
             </div>
           </div>
         </div>
-        <div class="lp-branchen-note"><i class="ti ti-info-circle"></i> {{ t.branchen.note }}</div>
+        <div class="lp-branchen-note"><Info :size="14" /> {{ t.branchen.note }}</div>
       </div>
     </section>
 
     <!-- FOOTER CTA -->
-    <section class="lp-wrap lp-footer-cta">
+    <section class="lp-wrap lp-footer-cta lp-reveal">
       <h2 class="lp-h2">{{ t.footerCta.heading }}</h2>
       <p>{{ t.footerCta.sub }}</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
@@ -290,6 +306,12 @@
 </template>
 
 <script setup lang="ts">
+import {
+  Users, Kanban, Receipt, IdCard, Headset, BarChart3,
+  Car, UtensilsCrossed, Building2,
+  Check, X, Info, UserRound, Rocket, Zap,
+} from 'lucide-vue-next'
+
 definePageMeta({ layout: false })
 
 // ── i18n ────────────────────────────────────────────────────────────────────
@@ -317,6 +339,14 @@ const i18n = {
       ctaLoading: 'Wird geladen...',
       ctaPricing: 'Preise ansehen',
       demoHint: 'Demo-Zugang:',
+    },
+    stats: {
+      items: [
+        { num: '6', label: 'Module in einer Lizenz' },
+        { num: '1', label: 'Login statt 10+ Tools' },
+        { num: 'Frankfurt', label: 'AWS-Hosting, DSGVO-konform' },
+        { num: 'ab 49€', label: 'Alle Module inklusive' },
+      ],
     },
     modules: { label: 'Klicken Sie ein Modul an', active: 'Aktiv' },
     savings: {
@@ -369,9 +399,9 @@ const i18n = {
       cta: 'Paket wählen',
       note: 'Verfügbar im Modul-Store nach dem Kauf einer Lizenz — kein Extra-Vertrag nötig.',
       items: [
-        { key: 'automotive', name: 'Automotive', icon: 'ti-car', price: 59, desc: 'Fahrzeugverwaltung, Probefahrten und Werkstatt-Aufträge — alles in einem Modul.', features: ['Fahrzeug-DB', 'Probefahrten', 'TÜV-Erinnerungen'] },
-        { key: 'gastro', name: 'Gastronomie', icon: 'ti-tools-kitchen-2', price: 59, desc: 'Tischreservierung, Speisekarte und Bestellmanagement für dein Restaurant.', features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement'] },
-        { key: 'immobilien', name: 'Immobilien', icon: 'ti-home', price: 59, desc: 'Objekt-Verwaltung, Besichtigungen und Mieter-CRM für deine Hausverwaltung.', features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM'] },
+        { key: 'automotive', name: 'Automotive', icon: Car, price: 59, desc: 'Fahrzeugverwaltung, Probefahrten und Werkstatt-Aufträge — alles in einem Modul.', features: ['Fahrzeug-DB', 'Probefahrten', 'TÜV-Erinnerungen'] },
+        { key: 'gastro', name: 'Gastronomie', icon: UtensilsCrossed, price: 59, desc: 'Tischreservierung, Speisekarte und Bestellmanagement für dein Restaurant.', features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement'] },
+        { key: 'immobilien', name: 'Immobilien', icon: Building2, price: 59, desc: 'Objekt-Verwaltung, Besichtigungen und Mieter-CRM für deine Hausverwaltung.', features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM'] },
       ],
     },
     footerCta: {
@@ -396,6 +426,14 @@ const i18n = {
       ctaLoading: 'Loading...',
       ctaPricing: 'View Pricing',
       demoHint: 'Demo access:',
+    },
+    stats: {
+      items: [
+        { num: '6', label: 'modules in one license' },
+        { num: '1', label: 'login instead of 10+ tools' },
+        { num: 'Frankfurt', label: 'AWS hosting, GDPR-compliant' },
+        { num: 'from €49', label: 'all modules included' },
+      ],
     },
     modules: { label: 'Click a module to activate', active: 'Active' },
     savings: {
@@ -448,9 +486,9 @@ const i18n = {
       cta: 'Choose Package',
       note: 'Available in the Module Store after purchasing a license — no extra contract needed.',
       items: [
-        { key: 'automotive', name: 'Automotive', icon: 'ti-car', price: 59, desc: 'Vehicle inventory, test drives and workshop orders — all in one module.', features: ['Vehicle DB', 'Test Drives', 'Inspection Reminders'] },
-        { key: 'gastro', name: 'Restaurants', icon: 'ti-tools-kitchen-2', price: 59, desc: 'Table reservations, menu management and order handling for your restaurant.', features: ['Table Booking', 'Menu', 'Order Management'] },
-        { key: 'immobilien', name: 'Real Estate', icon: 'ti-home', price: 59, desc: 'Property management, viewings and tenant CRM for your portfolio.', features: ['Property Mgmt', 'Viewings', 'Tenant CRM'] },
+        { key: 'automotive', name: 'Automotive', icon: Car, price: 59, desc: 'Vehicle inventory, test drives and workshop orders — all in one module.', features: ['Vehicle DB', 'Test Drives', 'Inspection Reminders'] },
+        { key: 'gastro', name: 'Restaurants', icon: UtensilsCrossed, price: 59, desc: 'Table reservations, menu management and order handling for your restaurant.', features: ['Table Booking', 'Menu', 'Order Management'] },
+        { key: 'immobilien', name: 'Real Estate', icon: Building2, price: 59, desc: 'Property management, viewings and tenant CRM for your portfolio.', features: ['Property Mgmt', 'Viewings', 'Tenant CRM'] },
       ],
     },
     footerCta: {
@@ -472,20 +510,20 @@ const h1bChars = computed(() => t.value.hero.h1b.split(''))
 
 const moduleData = {
   de: [
-    { key: 'crm',       name: 'CRM',       icon: 'ti-users',         desc: 'Kontakte, Pipelines, Deals',        on: true,  cost: 45 },
-    { key: 'projects',  name: 'Projekte',   icon: 'ti-layout-kanban', desc: 'Kanban, Meilensteine, Teams',       on: true,  cost: 35 },
-    { key: 'finance',   name: 'Finanzen',   icon: 'ti-receipt',       desc: 'Rechnungen, Ausgaben, Berichte',    on: true,  cost: 55 },
-    { key: 'hr',        name: 'HR',         icon: 'ti-id-badge',      desc: 'Mitarbeiter, Urlaub, Zeiterfassung',on: false, cost: 40 },
-    { key: 'support',   name: 'Support',    icon: 'ti-headset',       desc: 'Tickets, SLA, Kunden-Portal',       on: false, cost: 30 },
-    { key: 'analytics', name: 'Analytics',  icon: 'ti-chart-dots',    desc: 'Dashboards, KPIs, Exports',         on: false, cost: 25 },
+    { key: 'crm',       name: 'CRM',       icon: Users,     desc: 'Kontakte, Pipelines, Deals',        on: true,  cost: 45 },
+    { key: 'projects',  name: 'Projekte',   icon: Kanban,    desc: 'Kanban, Meilensteine, Teams',       on: true,  cost: 35 },
+    { key: 'finance',   name: 'Finanzen',   icon: Receipt,   desc: 'Rechnungen, Ausgaben, Berichte',    on: true,  cost: 55 },
+    { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Mitarbeiter, Urlaub, Zeiterfassung',on: false, cost: 40 },
+    { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Kunden-Portal',       on: false, cost: 30 },
+    { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',         on: false, cost: 25 },
   ],
   en: [
-    { key: 'crm',       name: 'CRM',        icon: 'ti-users',         desc: 'Contacts, Pipelines, Deals',       on: true,  cost: 45 },
-    { key: 'projects',  name: 'Projects',   icon: 'ti-layout-kanban', desc: 'Kanban, Milestones, Teams',        on: true,  cost: 35 },
-    { key: 'finance',   name: 'Finance',    icon: 'ti-receipt',       desc: 'Invoices, Expenses, Reports',      on: true,  cost: 55 },
-    { key: 'hr',        name: 'HR',         icon: 'ti-id-badge',      desc: 'Employees, Leave, Time Tracking',  on: false, cost: 40 },
-    { key: 'support',   name: 'Support',    icon: 'ti-headset',       desc: 'Tickets, SLA, Client Portal',      on: false, cost: 30 },
-    { key: 'analytics', name: 'Analytics',  icon: 'ti-chart-dots',    desc: 'Dashboards, KPIs, Exports',        on: false, cost: 25 },
+    { key: 'crm',       name: 'CRM',        icon: Users,     desc: 'Contacts, Pipelines, Deals',       on: true,  cost: 45 },
+    { key: 'projects',  name: 'Projects',   icon: Kanban,    desc: 'Kanban, Milestones, Teams',        on: true,  cost: 35 },
+    { key: 'finance',   name: 'Finance',    icon: Receipt,   desc: 'Invoices, Expenses, Reports',      on: true,  cost: 55 },
+    { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Employees, Leave, Time Tracking',  on: false, cost: 40 },
+    { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Client Portal',      on: false, cost: 30 },
+    { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',        on: false, cost: 25 },
   ],
 }
 
@@ -650,21 +688,35 @@ const testiIdx = ref(0)
 let testiTimer: ReturnType<typeof setInterval>
 onMounted(() => { testiTimer = setInterval(() => { testiIdx.value = (testiIdx.value + 1) % t.value.testi.items.length }, 5000) })
 onUnmounted(() => clearInterval(testiTimer))
+
+// ── Scroll-Reveal ───────────────────────────────────────────────────────────
+onMounted(() => {
+  if (typeof IntersectionObserver === 'undefined') return
+  const els = document.querySelectorAll('.lp-reveal')
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('lp-in')
+        io.unobserve(entry.target)
+      }
+    }
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' })
+  els.forEach(el => io.observe(el))
+  onUnmounted(() => io.disconnect())
+})
 </script>
 
 <style scoped>
-@import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css");
-
 .lp {
-  background: #0b0f1d;
+  background: #1a1723;
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(234,88,12,0.14) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 92% 10%, rgba(56,189,248,0.11) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 35% at 5% 60%, rgba(56,189,248,0.06) 0%, transparent 70%),
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(251,146,60,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 92% 10%, rgba(56,189,248,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 5% 60%, rgba(251,146,60,0.07) 0%, transparent 70%),
+    linear-gradient(rgba(45,95,210,0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,95,210,0.28) 1px, transparent 1px);
   background-size: 100% 100%, 100% 100%, 100% 100%, 52px 52px, 52px 52px;
-  color: #f0eef9;
+  color: #f5f2fa;
   font-family: "Exo 2", sans-serif;
   min-height: 100vh;
 }
@@ -675,10 +727,10 @@ onUnmounted(() => clearInterval(testiTimer))
 
 /* NAV */
 .lp-nav {
-  border-bottom: 0.5px solid rgba(255,255,255,0.07);
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
   padding: 20px 0;
   position: sticky; top: 0; z-index: 100;
-  background: rgba(10,14,26,0.88);
+  background: rgba(26,23,35,0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -785,29 +837,63 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-demo-hint strong { color: #f0eef9; }
 .lp-demo-hint .ti { color: #38bdf8; }
 
-/* MODULES */
+/* STATS STRIP */
+.lp-stats-section { padding: 0 0 56px; }
+.lp-stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
+  border-top: 0.5px solid rgba(255,255,255,0.08); border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  padding: 28px 0;
+}
+.lp-stat { text-align: center; }
+.lp-stat-num { font-family: "Space Grotesk", sans-serif; font-size: 26px; font-weight: 800; color: #fb923c; line-height: 1.2; }
+.lp-stat-label { font-size: 12px; color: #9a9db8; margin-top: 4px; }
+
+/* MODULES (BENTO) */
 .lp-modules-section { padding: 48px 0; }
 .lp-section-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8b8fa8; text-align: center; margin-bottom: 24px; }
-.lp-modules-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.lp-modules-grid { display: grid; grid-template-columns: repeat(4,1fr); grid-auto-rows: minmax(148px, auto); gap: 16px; }
+.lp-mod:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+.lp-mod:nth-child(2) { grid-column: span 2; grid-row: span 1; }
+.lp-mod:nth-child(3) { grid-column: span 1; grid-row: span 1; }
+.lp-mod:nth-child(4) { grid-column: span 1; grid-row: span 1; }
+.lp-mod:nth-child(5) { grid-column: span 2; grid-row: span 1; }
+.lp-mod:nth-child(6) { grid-column: span 2; grid-row: span 1; }
 .lp-mod {
-  background: #13182a; border: 0.5px solid rgba(56,189,248,0.3); border-radius: 16px;
+  background: #241f30; border: 0.5px solid rgba(255,255,255,0.08); border-radius: 16px;
   padding: 22px 20px; cursor: pointer; transition: border-color 0.25s, transform 0.18s, box-shadow 0.25s; position: relative;
+  display: flex; flex-direction: column; justify-content: center;
 }
-.lp-mod:hover { border-color: #ea580c; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(234,88,12,0.12); }
-.lp-mod.active { border-color: #38bdf8; border-width: 1px; background: rgba(56,189,248,0.05); }
-.lp-mod-icon { font-size: 22px; color: #ea580c; margin-bottom: 10px; display: block; }
-.lp-mod.active .lp-mod-icon { color: #38bdf8; }
+.lp-mod:hover { border-color: #ea580c; transform: translateY(-3px); box-shadow: 0 10px 28px rgba(234,88,12,0.15); }
+.lp-mod.active { border-color: #38bdf8; border-width: 1px; background: rgba(56,189,248,0.06); }
+.lp-mod-icon-badge {
+  width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
+  background: rgba(234,88,12,0.12); border: 0.5px solid rgba(234,88,12,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: #fb923c; margin-bottom: 14px; transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+.lp-mod.active .lp-mod-icon-badge { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.4); color: #38bdf8; }
+.lp-mod-featured .lp-mod-icon-badge { width: 52px; height: 52px; border-radius: 14px; }
 .lp-mod-name { font-family: "Space Grotesk", sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.lp-mod-featured .lp-mod-name { font-size: 18px; }
 .lp-mod-desc { font-size: 12px; color: #8b8fa8; line-height: 1.5; }
+.lp-mod-featured .lp-mod-desc { font-size: 13px; }
 .lp-mod-badge {
   position: absolute; top: 12px; right: 12px; font-size: 9px; letter-spacing: 1px;
   text-transform: uppercase; background: rgba(56,189,248,0.15); color: #38bdf8;
   padding: 2px 8px; border-radius: 20px;
 }
 
+@media (max-width: 900px) {
+  .lp-modules-grid { grid-template-columns: repeat(2,1fr); grid-auto-rows: auto; }
+  .lp-mod, .lp-mod:nth-child(1), .lp-mod:nth-child(2), .lp-mod:nth-child(5), .lp-mod:nth-child(6) { grid-column: span 1; grid-row: span 1; }
+  .lp-mod-featured .lp-mod-icon-badge { width: 40px; height: 40px; border-radius: 11px; }
+  .lp-mod-featured .lp-mod-name { font-size: 14px; }
+  .lp-mod-featured .lp-mod-desc { font-size: 12px; }
+}
+
 /* SAVINGS */
 .lp-savings {
-  background: linear-gradient(160deg, rgba(56,189,248,0.06), #13182a); border: 0.5px solid rgba(56,189,248,0.25);
+  background: linear-gradient(160deg, rgba(56,189,248,0.06), #241f30); border: 0.5px solid rgba(56,189,248,0.25);
   border-radius: 20px; padding: 36px; margin: 0 0 48px; text-align: center;
 }
 .lp-savings-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8b8fa8; margin-bottom: 16px; }
@@ -825,8 +911,11 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-compare-section { padding: 0 0 48px; }
 .lp-section-title { font-family: "Space Grotesk", sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
 .lp-compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.lp-ccard { background: #13182a; border: 0.5px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 28px; }
-.lp-ccard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(56,189,248,0.05), #13182a); }
+.lp-ccard { background: #241f30; border: 0.5px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 28px; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+.lp-ccard:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.3); }
+.lp-ccard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(56,189,248,0.05), #241f30); }
+.lp-ccard-featured:hover { box-shadow: 0 10px 28px rgba(234,88,12,0.15); }
+.lp-ccard-items li svg { flex-shrink: 0; }
 .lp-ccard-tag { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #8b8fa8; margin-bottom: 8px; }
 .lp-ccard-featured .lp-ccard-tag { color: #38bdf8; }
 .lp-ccard-name { font-family: "Space Grotesk", sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
@@ -858,10 +947,20 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-pricing-section { padding: 0 0 64px; }
 .lp-pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
 .lp-pcard {
-  background: #13182a; border: 0.5px solid rgba(255,255,255,0.07);
+  background: #241f30; border: 0.5px solid rgba(255,255,255,0.07);
   border-radius: 20px; padding: 32px 26px; display: flex; flex-direction: column; position: relative;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
-.lp-pcard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(56,189,248,0.1), #13182a); }
+.lp-pcard:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(0,0,0,0.35); border-color: rgba(234,88,12,0.4); }
+.lp-pcard-featured { border-color: #ea580c; border-width: 1.5px; background: linear-gradient(160deg, rgba(56,189,248,0.1), #241f30); }
+.lp-pcard-featured:hover { box-shadow: 0 14px 32px rgba(234,88,12,0.2); border-color: #ea580c; }
+.lp-pcard-icon-badge {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: rgba(234,88,12,0.12); border: 0.5px solid rgba(234,88,12,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: #fb923c; margin-bottom: 16px;
+}
+.lp-pcard-icon-badge-accent { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.4); color: #38bdf8; }
 .lp-pcard-popular {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
   background: #ea580c; color: #fff; font-size: 10px; font-weight: 700;
@@ -901,14 +1000,20 @@ onUnmounted(() => clearInterval(testiTimer))
 .lp-pcard-btn-ghost:hover::before { opacity: 1; }
 .lp-pcard-btn-ghost:hover { border-color: rgba(234,88,12,0.5); box-shadow: 0 0 14px rgba(234,88,12,0.2); transform: translateY(-1px); }
 
-.lp-tick { color: #38bdf8; font-size: 15px; }
-.lp-cross { color: #545870; font-size: 15px; }
+.lp-tick { color: #38bdf8; flex-shrink: 0; }
+.lp-cross { color: #545870; flex-shrink: 0; }
+
+/* SCROLL REVEAL */
+.lp-reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+.lp-reveal.lp-in { opacity: 1; transform: translateY(0); }
+.lp-mod, .lp-bcard { opacity: 0; transform: translateY(20px); transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1), border-color 0.25s, box-shadow 0.25s; }
+.lp-reveal.lp-in .lp-mod, .lp-reveal.lp-in .lp-bcard { opacity: 1; transform: translateY(0); }
 
 /* BRANCHEN-PAKETE */
 .lp-branchen-section { padding: 0 0 64px; }
 .lp-branchen-panel {
   max-width: 1120px; margin: 0 auto; position: relative; overflow: hidden;
-  background: linear-gradient(160deg, rgba(234,88,12,0.06), #10141f 55%);
+  background: linear-gradient(160deg, rgba(234,88,12,0.06), #211d2b 55%);
   border: 0.5px solid rgba(255,255,255,0.08);
   border-radius: 28px;
   padding: 48px 40px;
@@ -953,7 +1058,7 @@ onUnmounted(() => clearInterval(testiTimer))
 /* FOOTER */
 .lp-footer {
   border-top: 0.5px solid rgba(255,255,255,0.07);
-  background: rgba(5,8,18,0.8);
+  background: rgba(23,20,31,0.82);
   padding: 40px 0 32px;
 }
 .lp-footer-inner {
@@ -1030,5 +1135,6 @@ onUnmounted(() => clearInterval(testiTimer))
   .lp-pricing-grid { grid-template-columns: 1fr; }
   .lp-compare-grid { grid-template-columns: 1fr; }
   .lp-branchen-panel { padding: 28px 18px; border-radius: 20px; }
+  .lp-stats-row { grid-template-columns: repeat(2,1fr); gap: 24px 16px; }
 }
 </style>

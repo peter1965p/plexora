@@ -37,6 +37,7 @@
     "chart.js": "^4.5.1",
     "handlebars": "^4.7.9",
     "jszip": "^3.10.1",
+    "lucide-vue-next": "^1.0.0",
     "marked": "^18.0.5",
     "nuxt": "^4.4.8",
     "papaparse": "^5.5.3",
