@@ -7,7 +7,11 @@ export default defineNuxtConfig({
     preset: "static",
     prerender: {
       crawlLinks: false,
-      routes: ['/', '/impressum', '/datenschutz', '/agb', '/kaufen'],
+      // AGB/Datenschutz/Impressum bewusst NICHT prerendern: Ihr Inhalt kommt aus DynamoDB
+      // (Editor in Einstellungen) und soll sofort nach dem Speichern live sein, ohne Rebuild.
+      // Sie fallen auf den SPA-Fallback (_redirects: /* /200.html 200) zurück und holen
+      // ihre Daten client-seitig live von der API.
+      routes: ['/', '/kaufen'],
     }
   },
   app: {
