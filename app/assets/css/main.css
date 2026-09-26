@@ -195,9 +195,10 @@ ul {
   font-weight: 800;
   font-size: 20px;
   letter-spacing: -0.5px;
+  color: #2c6690;
 }
 .logo-text span {
-  background: linear-gradient(160deg, #ffb347 0%, #ea580c 50%, #c2390a 100%);
+  background: linear-gradient(160deg, #ffd966 0%, #f5c518 50%, #c99a00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -21,12 +21,20 @@ definePageMeta({ layout: "default" });
 const router = useRouter();
 const error = ref("");
 let settled = false;
+const mountedAt = Date.now();
+// Kurze Mindestanzeigedauer, damit die Logo-Animation nicht nur aufblitzt,
+// wenn die Anmeldung technisch sofort durch ist ("Microsoft-Stil", aber dezent).
+const MIN_DISPLAY_MS = 1800;
 
 function finish(path: string, message?: string) {
   if (settled) return;
   settled = true;
-  if (message) error.value = message;
-  else router.replace(path);
+  if (message) {
+    error.value = message;
+    return;
+  }
+  const wait = Math.max(0, MIN_DISPLAY_MS - (Date.now() - mountedAt));
+  setTimeout(() => router.replace(path), wait);
 }
 
 onMounted(async () => {
