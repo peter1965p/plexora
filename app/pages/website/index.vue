@@ -667,6 +667,7 @@
               </div>
               <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);flex-shrink:0;min-width:8px">/</span>
               <input v-model="item.name" class="field-input" placeholder="Firmenname" style="flex:1;padding:5px 10px;height:32px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-family:monospace" />
+              <input v-model="item.logoUrl" class="field-input" placeholder="Logo-URL (optional)" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
               <button class="icon-btn" @click="removeClientItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
             </div>
             <div v-if="!form.clientsItems.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
@@ -1556,7 +1557,7 @@ const form = reactive({
   stackNewColor: 'blue' as string,
   clientsEnabled:  false,
   clientsTitle:    'REFERENZEN',
-  clientsItems:    [] as { name: string }[],
+  clientsItems:    [] as { name: string; logoUrl?: string }[],
   clientsNewName:  '',
   githubEnabled:   false,
   blogEnabled:     false,
@@ -1907,7 +1908,7 @@ const CHIP_COLOR: Record<string, { bg: string; text: string; bd: string }> = {
 // ── Clients ───────────────────────────────────────────────────────────────────
 function addClientItem() {
   if (!form.clientsNewName.trim()) return
-  form.clientsItems.push({ name: form.clientsNewName.trim() })
+  form.clientsItems.push({ name: form.clientsNewName.trim(), logoUrl: '' })
   form.clientsNewName = ''
 }
 function removeClientItem(i: number) { form.clientsItems.splice(i, 1) }
