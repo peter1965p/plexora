@@ -4,7 +4,7 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
     'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'public, max-age=30',
+    'Cache-Control': 'no-store',
   })
 
   const tenantId = getRouterParam(event, 'tenantId') || ''

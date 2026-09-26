@@ -6,7 +6,7 @@ const DEFAULT_ORDER = ['stack', 'clients', 'github', 'services', 'contact']
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
     'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'public, max-age=60',
+    'Cache-Control': 'no-store',
   })
 
   const tenantId = getRouterParam(event, 'tenantId') || ''
