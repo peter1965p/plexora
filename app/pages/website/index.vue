@@ -690,27 +690,27 @@
       <div v-else-if="activeTab === 'pages'" style="display:flex;gap:16px;min-height:600px">
         <!-- Sidebar: page list -->
         <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:8px">
-          <div v-for="(pg, i) in form.pages" :key="i"
-            @click="editingPage = i"
+          <div v-for="entry in visiblePageEntries" :key="entry.idx"
+            @click="editingPage = entry.idx"
             draggable="true"
-            @dragstart="onPageDragStart(i)"
-            @dragover.prevent="onPageDragOver(i)"
-            @drop="onPageDrop(i)"
+            @dragstart="onPageDragStart(entry.idx)"
+            @dragover.prevent="onPageDragOver(entry.idx)"
+            @drop="onPageDrop(entry.idx)"
             @dragend="onPageDragEnd"
             style="padding:10px 12px;border-radius:8px;cursor:grab;border:1px solid transparent;transition:opacity .15s,border-color .15s;font-size:13px;display:flex;align-items:center;gap:8px"
             :style="{
-              background: editingPage === i ? 'var(--accent)18' : 'var(--bg-elevated)',
-              borderColor: dragOverPageIndex === i && draggedPageIndex !== i ? 'var(--accent)' : (editingPage === i ? 'var(--accent)' : 'var(--border)'),
-              color: editingPage === i ? 'var(--accent)' : 'var(--text)',
-              opacity: draggedPageIndex === i ? 0.4 : 1,
+              background: editingPage === entry.idx ? 'var(--accent)18' : 'var(--bg-elevated)',
+              borderColor: dragOverPageIndex === entry.idx && draggedPageIndex !== entry.idx ? 'var(--accent)' : (editingPage === entry.idx ? 'var(--accent)' : 'var(--border)'),
+              color: editingPage === entry.idx ? 'var(--accent)' : 'var(--text)',
+              opacity: draggedPageIndex === entry.idx ? 0.4 : 1,
             }">
             <i class="ti ti-grip-vertical" style="font-size:14px;color:var(--text-muted);flex-shrink:0"></i>
             <i class="ti ti-file-text" style="font-size:15px;flex-shrink:0"></i>
             <div style="flex:1;overflow:hidden">
-              <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pg.title }}</div>
-              <div style="font-size:10px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/{{ pg.slug }}</div>
+              <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ entry.pg.title }}</div>
+              <div style="font-size:10px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/{{ entry.pg.slug }}</div>
             </div>
-            <button class="icon-btn" style="color:#ef4444;padding:0;width:18px;height:18px;font-size:12px" @click.stop="removePage(i)">
+            <button class="icon-btn" style="color:#ef4444;padding:0;width:18px;height:18px;font-size:12px" @click.stop="removePage(entry.idx)">
               <i class="ti ti-x"></i>
             </button>
           </div>
@@ -719,7 +719,7 @@
           </button>
           <div style="padding:10px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
-            Reihenfolge hier bestimmt, wo deine Seiten untereinander stehen — sie steuert auch ihre Position in der Navigation (relativ zu den anderen eigenen Seiten). Die Gesamt-Reihenfolge inkl. Start/Leistungen/Shop etc. legst du unter <strong>Positionen → Navigation-Reihenfolge</strong> fest.
+            Rechtsseiten (AGB/Datenschutz/Impressum) haben eigene Tabs und stehen hier bewusst nicht — sie beeinflussen die Navigation nicht. Reihenfolge hier bestimmt nur, wo deine eigenen Seiten untereinander stehen. Die Gesamt-Reihenfolge der Navigation (inkl. Start/Leistungen/Shop/eigene Seiten) legst du unter <strong>Positionen → Navigation-Reihenfolge</strong> fest.
           </div>
         </div>
 
@@ -1967,6 +1967,16 @@ const NAV_META: Record<string, { label: string; icon: string }> = {
 }
 
 const LEGAL_SLUGS = ['agb', 'datenschutz', 'impressum']
+
+// Rechtsseiten haben eigene Tabs (AGB/Datenschutz/Impressum) und beeinflussen
+// die Navigation nicht — sie sollen in der generischen "Seiten"-Liste nicht
+// auftauchen. Original-Index wird mitgeführt, damit Edit/Remove/Drag weiterhin
+// auf die richtige Stelle in form.pages zeigen.
+const visiblePageEntries = computed(() =>
+  form.pages
+    .map((pg, idx) => ({ pg, idx }))
+    .filter(entry => !LEGAL_SLUGS.includes(entry.pg.slug))
+)
 
 function pageBySlug(slug: string) {
   return form.pages.find(p => p.slug === slug)
