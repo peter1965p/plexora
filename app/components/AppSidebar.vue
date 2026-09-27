@@ -39,8 +39,20 @@ onMounted(() => loadBranding())
 const route = useRoute()
 const { t } = useLang()
 
-const openTickets    = ref(0)
-const branchPackages = ref<string[]>([])
+const openTickets = ref(0)
+// Aktive Branchen-Module dieses Tenants (nur status:'active', nicht deaktivierte)
+const activeBranchKeys = ref<string[]>([])
+// Katalog aller Branchen-Module aus der Registry — kein hartcodiertes Mapping mehr,
+// ein neues Modul in der Registry taucht hier automatisch auf.
+const branchRegistry = ref<Record<string, { name: string; icon: string; route: string }>>({})
+
+// Registry-Icon-Namen (Lucide, wie im Store) auf die im Sidebar genutzten Tabler-Klassen
+// abbilden, damit das bestehende Nav-Markup unverändert bleibt.
+const LUCIDE_TO_TABLER: Record<string, string> = {
+  Car: 'ti-car', Store: 'ti-shopping-bag', UtensilsCrossed: 'ti-tools-kitchen-2',
+  Hammer: 'ti-hammer', Home: 'ti-building-estate', Stethoscope: 'ti-stethoscope',
+  Scissors: 'ti-scissors',
+}
 
 onMounted(async () => {
   const { useAuthHeader } = await import('~/composables/useAuth')
@@ -54,22 +66,25 @@ onMounted(async () => {
     const { useAuthUser, useAuthHeader } = await import('~/composables/useAuth')
     const u = await useAuthUser()
     if (!u.email) return
-    const res = await $fetch<{ branchPackages: string[] }>(
-      useApiUrl('/api/settings/branch-packages'),
-      { headers: await useAuthHeader() }
+    const headers = await useAuthHeader()
+    const [installedRes, catalogRes] = await Promise.all([
+      $fetch<{ branchModules: { key: string; status: string }[] }>(useApiUrl('/api/settings/branch-packages'), { headers }),
+      $fetch<{ modules: any[] }>(useApiUrl('/api/store/branch-modules'), { headers }),
+    ])
+    branchRegistry.value = Object.fromEntries(
+      (catalogRes.modules || []).map((m: any) => [m.key, {
+        name: m.name,
+        icon: m.icon,
+        // Eingebaute Module haben eine feste Route; Zero-Deploy-Plugins laufen
+        // über den generischen Lader unter /plugins/<key>.
+        route: m.builtin ? m.route : `/plugins/${m.key}`,
+      }])
     )
-    branchPackages.value = res.branchPackages || []
+    activeBranchKeys.value = (installedRes.branchModules || [])
+      .filter(m => m.status === 'active')
+      .map(m => m.key)
   } catch {}
 })
-
-const BRANCH_MODULES: Record<string, { label: string; icon: string; to: string }> = {
-  automotive:   { label: 'Automotive',   icon: 'ti-car',                to: '/automotive' },
-  einzelhandel: { label: 'Einzelhandel', icon: 'ti-shopping-bag',       to: '/retail'     },
-  gastro:       { label: 'Gastronomie',  icon: 'ti-tools-kitchen-2',    to: '/gastro'     },
-  handwerk:     { label: 'Handwerk',     icon: 'ti-hammer',             to: '/handwerk'   },
-  immobilien:   { label: 'Immobilien',   icon: 'ti-building-estate',    to: '/immobilien' },
-  gesundheit:   { label: 'Gesundheit',   icon: 'ti-stethoscope',        to: '/praxis'     },
-}
 
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
@@ -101,11 +116,14 @@ const navSections = computed(() => [
         : []),
     ]
   },
-  ...(branchPackages.value.length ? [{
+  ...(activeBranchKeys.value.length ? [{
     label: 'BRANCHE',
-    items: branchPackages.value
-      .filter(key => BRANCH_MODULES[key])
-      .map(key => ({ ...BRANCH_MODULES[key], key })),
+    items: activeBranchKeys.value
+      .filter(key => branchRegistry.value[key] && branchRegistry.value[key].route)
+      .map(key => {
+        const mod = branchRegistry.value[key]
+        return { to: mod.route, label: mod.name, icon: LUCIDE_TO_TABLER[mod.icon] || 'ti-puzzle', key }
+      }),
   }] : []),
   {
     label: t.value.navSystem,

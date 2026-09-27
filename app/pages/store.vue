@@ -87,14 +87,18 @@
         <i class="ti ti-info-circle" style="color:var(--accent);font-size:16px;flex-shrink:0"></i>
         Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.
       </div>
-      <div class="store-grid">
-        <div v-for="pkg in branchenPakete" :key="pkg.key" class="store-card" :class="{ owned: activeBranchPackages.includes(pkg.key) }">
+      <div v-if="branchModulesLoading" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">
+        <i class="ti ti-loader-2 spin"></i> Lade Module …
+      </div>
+      <div v-else class="store-grid">
+        <div v-for="pkg in branchModuleCatalog" :key="pkg.key" class="store-card" :class="{ owned: branchStatus(pkg.key) === 'active' }">
           <div class="store-card-header">
-            <div class="store-icon" :style="activeBranchPackages.includes(pkg.key) ? 'background:var(--success-bg)' : ''">
-              <i class="ti" :class="pkg.icon" :style="activeBranchPackages.includes(pkg.key) ? 'color:#22c55e' : 'color:var(--accent)'"></i>
+            <div class="store-icon" :style="branchStatus(pkg.key) === 'active' ? 'background:var(--success-bg)' : ''">
+              <i class="ti" :class="lucideToTabler(pkg.icon)" :style="branchStatus(pkg.key) === 'active' ? 'color:#22c55e' : 'color:var(--accent)'"></i>
             </div>
-            <div v-if="activeBranchPackages.includes(pkg.key)" class="badge-owned"><i class="ti ti-check"></i> Aktiv</div>
-            <div v-else class="badge-new">Branchen-Paket</div>
+            <div v-if="branchStatus(pkg.key) === 'active'" class="badge-owned"><i class="ti ti-check"></i> Aktiv</div>
+            <div v-else-if="branchStatus(pkg.key) === 'disabled'" class="badge-soon"><i class="ti ti-player-pause"></i> Deaktiviert</div>
+            <div v-else class="badge-new">{{ pkg.builtin ? 'Branchen-Paket' : 'Plugin' }}</div>
           </div>
           <div class="store-card-name">{{ pkg.name }}</div>
           <div class="store-card-desc">{{ pkg.desc }}</div>
@@ -103,14 +107,20 @@
           </div>
           <div class="store-card-footer">
             <div class="store-price">
-              <span v-if="activeBranchPackages.includes(pkg.key)" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
+              <span v-if="branchStatus(pkg.key) !== 'not-installed'" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
               <template v-else>
-                <span style="font-size:18px;font-weight:700;color:var(--text)">{{ pkg.price }}</span>
+                <span style="font-size:18px;font-weight:700;color:var(--text)">€{{ pkg.price }}</span>
                 <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
               </template>
             </div>
-            <button v-if="!activeBranchPackages.includes(pkg.key)" class="btn-buy" @click="openBuy(pkg)">Hinzufügen</button>
-            <NuxtLink v-else :to="`/${pkg.key}`" class="btn-manage">Verwalten</NuxtLink>
+            <button v-if="branchStatus(pkg.key) === 'not-installed'" class="btn-buy" @click="openBuy(pkg)">Hinzufügen</button>
+            <NuxtLink v-else-if="branchStatus(pkg.key) === 'active' && pkg.route" :to="pkg.route" class="btn-manage" style="cursor:pointer">Verwalten</NuxtLink>
+            <NuxtLink v-else-if="branchStatus(pkg.key) === 'active' && !pkg.builtin" :to="`/plugins/${pkg.key}`" class="btn-manage" style="cursor:pointer">Öffnen</NuxtLink>
+          </div>
+          <div v-if="branchStatus(pkg.key) !== 'not-installed'" style="display:flex;gap:14px;font-size:11px;padding-top:2px">
+            <button v-if="branchStatus(pkg.key) === 'active'" class="btn-linklike" @click="disableBranchModule(pkg.key)">Deaktivieren</button>
+            <button v-else class="btn-linklike" @click="enableBranchModule(pkg.key)">Aktivieren</button>
+            <button class="btn-linklike danger" @click="uninstallBranchModule(pkg.key)">Deinstallieren</button>
           </div>
         </div>
       </div>
@@ -258,23 +268,46 @@ const addons = computed(() => [
   },
 ])
 
-const branchenPakete = [
-  { key: 'automotive',   name: 'Automotive',          icon: 'ti-car',              price: '€59', desc: 'Fahrzeugverwaltung, Probefahrten, KFZ-Dokumente und Werkstatt-Aufträge.',      features: ['Fahrzeug-DB', 'Probefahrten', 'Werkstatt-Aufträge', 'TÜV-Erinnerungen', 'Verkaufs-Tracking'] },
-  { key: 'einzelhandel', name: 'Einzelhandel',         icon: 'ti-building-store',   price: '€49', desc: 'Kassensystem, Lager-Tracking, Lieferanten-Verwaltung und Retouren.',           features: ['Kassensystem', 'Lagerverwaltung', 'Lieferanten', 'Retouren', 'Tagesabschluss'] },
-  { key: 'gastro',       name: 'Gastronomie',          icon: 'ti-tools-kitchen-2',  price: '€59', desc: 'Tischreservierung, Speisekarte, Bestellmanagement und Lieferdienst.',          features: ['Tisch-Reservierung', 'Speisekarte', 'Bestellmanagement', 'Lieferdienst', 'Trinkgeld-Tracking'] },
-  { key: 'handwerk',     name: 'Handwerk',             icon: 'ti-hammer',           price: '€39', desc: 'Aufmaß-Erfassung, Materialplanung, Stundenzettel und Baustellenverwaltung.',   features: ['Aufmaß-Erfassung', 'Materialplanung', 'Stundenzettel', 'Baustellen', 'Auftragszettel-PDF'] },
-  { key: 'immobilien',   name: 'Immobilien',           icon: 'ti-home',             price: '€59', desc: 'Objekt-Verwaltung, Besichtigungen, Mieter-Daten und Nebenkostenabrechnungen.', features: ['Objekt-Verwaltung', 'Besichtigungen', 'Mieter-CRM', 'Nebenkostenabrechnung', 'Dokumente'] },
-  { key: 'gesundheit',   name: 'Gesundheit / Praxis',  icon: 'ti-stethoscope',      price: '€79', desc: 'Patientenverwaltung, Terminplanung, Rezepte und DSGVO-konforme Dokumentation.', features: ['Patienten-Verwaltung', 'Terminplanung', 'Rezepte', 'DSGVO-konform', 'Karteikartenansicht'] },
-]
+// Registry-getrieben statt hartcodiert: neues Branchen-Modul = neuer Datensatz in
+// plexora-plugin-registry, kein Anfassen dieser Datei mehr nötig.
+const branchModuleCatalog = ref<any[]>([])
+const branchModulesLoading = ref(true)
+const installedBranchModules = ref<{ key: string; status: 'active' | 'disabled' }[]>([])
 
-const activeBranchPackages = ref<string[]>([])
+const LUCIDE_TO_TABLER: Record<string, string> = {
+  Car: 'ti-car', Store: 'ti-building-store', UtensilsCrossed: 'ti-tools-kitchen-2',
+  Hammer: 'ti-hammer', Home: 'ti-home', Stethoscope: 'ti-stethoscope', Scissors: 'ti-scissors',
+}
+function lucideToTabler(icon: string) { return LUCIDE_TO_TABLER[icon] || 'ti-puzzle' }
+
+function branchStatus(key: string): 'active' | 'disabled' | 'not-installed' {
+  const m = installedBranchModules.value.find(x => x.key === key)
+  return m ? m.status : 'not-installed'
+}
+
 const userEmail = ref('')
 const authToken = ref('')
 const userId = ref('demo-user')
 const isAdmin = ref(false)
 const isDemo = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
 const branchApiUrl = useApiUrl('/api/settings/branch-packages')
+const branchCatalogApiUrl = useApiUrl('/api/store/branch-modules')
 const checkoutApiUrl = useApiUrl('/api/store/checkout')
+
+async function branchAction(packageKey: string, action: 'install' | 'uninstall' | 'enable' | 'disable') {
+  const res = await $fetch<{ branchModules: typeof installedBranchModules.value }>(branchApiUrl, {
+    method: 'POST',
+    body: { packageKey, action },
+    headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
+  })
+  installedBranchModules.value = res.branchModules || []
+}
+function disableBranchModule(key: string)  { branchAction(key, 'disable').catch(e => alert(e?.message || 'Fehler')) }
+function enableBranchModule(key: string)   { branchAction(key, 'enable').catch(e => alert(e?.message || 'Fehler')) }
+function uninstallBranchModule(key: string) {
+  if (!confirm('Modul wirklich deinstallieren? Eigene Daten bleiben erhalten, das Modul verschwindet aber aus deiner Navigation.')) return
+  branchAction(key, 'uninstall').catch(e => alert(e?.message || 'Fehler'))
+}
 
 onMounted(async () => {
   try {
@@ -284,12 +317,16 @@ onMounted(async () => {
   authToken.value = u.idToken || ''
     userId.value = u.userId || 'demo-user'
     isAdmin.value = u.role === 'admins'
+    const headers = { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` }
+    const catalogRes = await $fetch<{ modules: any[] }>(branchCatalogApiUrl, { headers })
+    branchModuleCatalog.value = catalogRes.modules || []
+    branchModulesLoading.value = false
     if (!u.email) return
-    const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
-      headers: { 'x-user-email': u.email, Authorization: `Bearer ${u.idToken}` },
-    })
-    activeBranchPackages.value = res.branchPackages || []
-  } catch {}
+    const res = await $fetch<{ branchModules: typeof installedBranchModules.value }>(branchApiUrl, { headers })
+    installedBranchModules.value = res.branchModules || []
+  } catch {
+    branchModulesLoading.value = false
+  }
 })
 
 const buyItem    = ref<any>(null)
@@ -305,15 +342,10 @@ function notify(item: any)  { notifyItem.value = item }
 async function checkout() {
   if (!buyItem.value) return
   checkoutLoading.value = true
-  const isBranchPackage = branchenPakete.some(p => p.key === buyItem.value.key)
+  const isBranchPackage = branchModuleCatalog.value.some(p => p.key === buyItem.value.key)
   try {
     if (isAdmin.value && isBranchPackage && !isDemo.value) {
-      const res = await $fetch<{ branchPackages: string[] }>(branchApiUrl, {
-        method: 'POST',
-        body: { packageKey: buyItem.value.key },
-        headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
-      })
-      activeBranchPackages.value = res.branchPackages || []
+      await branchAction(buyItem.value.key, 'install')
       buyItem.value = null
       return
     }
@@ -487,6 +519,20 @@ async function checkout() {
   cursor: pointer;
   transition: all .15s;
 }
+
+.btn-linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.btn-linklike:hover { color: var(--accent); }
+.btn-linklike.danger:hover { color: #ef4444; }
 
 .btn-notify:hover {
   background: var(--accent);

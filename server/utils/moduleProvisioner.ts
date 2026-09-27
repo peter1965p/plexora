@@ -42,7 +42,7 @@ function newNexoraTenantItem(licenseKey: string, email: string) {
     status:      'active',
     companyName: '',
     subdomain:   '',
-    branchPackages: [] as string[],
+    branchModules: [] as { key: string; status: 'active' | 'disabled' }[],
     config: {
       primaryColor:   '#6C3FE8',
       secondaryColor: '#0a0e1a',
@@ -101,17 +101,36 @@ export async function provisionModule(
         console.log(`✅ Nexora Tenant ${licenseKey} für Branchenpaket ${moduleKey} minimal angelegt`)
       }
 
-      const bp = tenant.branchPackages
-      const existingPackages: string[] = bp instanceof Set ? Array.from(bp as Set<string>) : (Array.isArray(bp) ? bp : [])
-      if (!existingPackages.includes(moduleKey)) {
-        const updated = [...existingPackages, moduleKey]
+      // branchModules ist das aktuelle Format ({key,status}); branchPackages (flache
+      // Liste von Keys) ist das alte Format und wird beim Lesen als "alle aktiv" migriert.
+      let modules: { key: string; status: 'active' | 'disabled' }[]
+      if (Array.isArray(tenant.branchModules)) {
+        modules = tenant.branchModules
+      } else {
+        const bp = tenant.branchPackages
+        const legacy: string[] = bp instanceof Set ? Array.from(bp as Set<string>) : (Array.isArray(bp) ? bp : [])
+        modules = legacy.map(key => ({ key, status: 'active' }))
+      }
+
+      const idx = modules.findIndex(m => m.key === moduleKey)
+      if (idx === -1) {
+        modules.push({ key: moduleKey, status: 'active' })
         await dynamo.send(new UpdateCommand({
           TableName: 'plexora-nexora',
           Key: { tenantId: tenant.tenantId },
-          UpdateExpression: 'SET branchPackages = :p, updatedAt = :u',
-          ExpressionAttributeValues: { ':p': updated, ':u': new Date().toISOString() },
+          UpdateExpression: 'SET branchModules = :m, updatedAt = :u REMOVE branchPackages',
+          ExpressionAttributeValues: { ':m': modules, ':u': new Date().toISOString() },
         }))
         console.log(`✅ Branchenpaket ${moduleKey} für Tenant ${tenant.tenantId} freigeschaltet`)
+      } else if (modules[idx].status !== 'active') {
+        modules[idx].status = 'active'
+        await dynamo.send(new UpdateCommand({
+          TableName: 'plexora-nexora',
+          Key: { tenantId: tenant.tenantId },
+          UpdateExpression: 'SET branchModules = :m, updatedAt = :u REMOVE branchPackages',
+          ExpressionAttributeValues: { ':m': modules, ':u': new Date().toISOString() },
+        }))
+        console.log(`✅ Branchenpaket ${moduleKey} für Tenant ${tenant.tenantId} reaktiviert`)
       } else {
         console.log(`ℹ️  Branchenpaket ${moduleKey} war bei Tenant ${tenant.tenantId} bereits freigeschaltet`)
       }
