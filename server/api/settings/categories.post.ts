@@ -4,7 +4,7 @@ import { resolveUserId } from '../../utils/tenant'
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
-const ALLOWED_AREAS = ['blog', 'shop']
+const ALLOWED_AREAS = ['blog', 'shop', 'serviceUnits']
 
 // "Kategorien" ist ein normaler, für jeden eingeloggten Tenant sichtbarer
 // Settings-Tab (kein Admin-only-Feature) — jeder Tenant pflegt seine eigene

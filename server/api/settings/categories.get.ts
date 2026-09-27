@@ -6,6 +6,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 const DEFAULTS: Record<string, string[]> = {
   blog: [],
   shop: ['SOFTWARE', 'SERVICE'],
+  serviceUnits: ['Std.', 'Pauschal', 'Projekt', 'Monat', 'Tag', 'Stk.', 'Session'],
 }
 
 export default defineEventHandler(async (event) => {

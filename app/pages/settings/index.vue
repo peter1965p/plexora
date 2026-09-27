@@ -520,20 +520,20 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
         <div v-for="area in categoryAreas" :key="area.key" class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti" :class="area.icon" style="margin-right:8px;color:var(--accent)"></i>{{ area.label }}-Kategorien</span>
+            <span class="card-title"><i class="ti" :class="area.icon" style="margin-right:8px;color:var(--accent)"></i>{{ area.title || (area.label + '-Kategorien') }}</span>
           </div>
           <div class="card-body">
             <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px">
               <div class="auth-field" style="flex:1;margin:0">
-                <label>Neue Kategorie</label>
-                <input v-model="newCategoryInput[area.key]" placeholder="z.B. Ratgeber" @keyup.enter="addCategory(area.key)" />
+                <label>{{ area.inputLabel || 'Neue Kategorie' }}</label>
+                <input v-model="newCategoryInput[area.key]" :placeholder="area.placeholder || 'z.B. Ratgeber'" @keyup.enter="addCategory(area.key)" />
               </div>
               <button class="accent-btn" :disabled="isDemo || !newCategoryInput[area.key]?.trim() || categoriesSaving" @click="addCategory(area.key)">
                 <i class="ti ti-plus"></i> Hinzufügen
               </button>
             </div>
             <div v-if="!categories[area.key]?.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">
-              Noch keine Kategorien angelegt.
+              {{ area.emptyText || 'Noch keine Kategorien angelegt.' }}
             </div>
             <div v-for="cat in categories[area.key]" :key="cat"
               style="padding:10px 4px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
@@ -1821,8 +1821,9 @@ const invoicePayment = reactive({ sepaEnabled: true, stripeEnabled: true })
 const categoryAreas = [
   { key: 'blog', label: 'Blog', icon: 'ti-news' },
   { key: 'shop', label: 'Shop', icon: 'ti-shopping-cart' },
+  { key: 'serviceUnits', label: 'Leistungseinheiten', title: 'Leistungseinheiten', icon: 'ti-list-details', inputLabel: 'Neue Einheit', placeholder: 'z.B. Std.', emptyText: 'Noch keine Einheiten angelegt.' },
 ]
-const categories = reactive<Record<string, string[]>>({ blog: [], shop: [] })
+const categories = reactive<Record<string, string[]>>({ blog: [], shop: [], serviceUnits: [] })
 const newCategoryInput = reactive<Record<string, string>>({})
 const categoriesSaving = ref(false)
 

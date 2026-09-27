@@ -398,7 +398,16 @@
           <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newService.description" placeholder="Optionale Beschreibung..." /></div>
           <div class="auth-row">
             <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newService.price" type="number" placeholder="95" /></div>
-            <div class="auth-field"><label>{{ t.finance.unit }}</label><input v-model="newService.unit" placeholder="Std." /></div>
+            <div class="auth-field">
+              <label>{{ t.finance.unit }}
+                <NuxtLink to="/settings?tab=categories" style="color:var(--text-muted);margin-left:4px" title="Einheiten verwalten">
+                  <i class="ti ti-settings" style="font-size:11px"></i>
+                </NuxtLink>
+              </label>
+              <select v-model="newService.unit" class="form-select">
+                <option v-for="u in serviceUnits" :key="u" :value="u">{{ u }}</option>
+              </select>
+            </div>
           </div>
           <div class="auth-field"><label>MwSt.-Satz (%)</label><input v-model.number="newService.vatRate" type="number" placeholder="19" /></div>
           <button class="auth-btn" :disabled="saving || !newService.name" @click="saveService">
@@ -525,6 +534,9 @@ const services = computed(() => (_servicesRaw.value as any)?.services || [])
 
 const { data: _productsRaw } = await useFetch(() => useApiUrl('/api/shop/products'), { headers: authHeaders })
 const shopProducts = computed(() => (_productsRaw.value as any)?.products || [])
+
+const { data: _categoriesRaw } = await useFetch(() => useApiUrl('/api/settings/categories'), { headers: authHeaders })
+const serviceUnits = computed(() => (_categoriesRaw.value as any)?.categories?.serviceUnits || ['Std.'])
 
 // ── UI state ──────────────────────────────────────────
 const tab      = ref('invoices')
