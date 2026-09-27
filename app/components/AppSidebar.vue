@@ -40,11 +40,19 @@ const route = useRoute()
 const { t } = useLang()
 
 const openTickets = ref(0)
-// Aktive Branchen-Module dieses Tenants (nur status:'active', nicht deaktivierte)
-const activeBranchKeys = ref<string[]>([])
-// Katalog aller Branchen-Module aus der Registry — kein hartcodiertes Mapping mehr,
-// ein neues Modul in der Registry taucht hier automatisch auf.
-const branchRegistry = ref<Record<string, { name: string; icon: string; route: string }>>({})
+
+// Gemeinsamer State mit dem Store — ein Install/Deinstall dort taucht hier sofort auf.
+const { catalog: branchCatalog, installed: installedBranchModules, load: loadBranchModules } = useBranchModules()
+const activeBranchKeys = computed(() => installedBranchModules.value.filter(m => m.status === 'active').map(m => m.key))
+const branchRegistry = computed(() => Object.fromEntries(
+  branchCatalog.value.map(m => [m.key, {
+    name: m.name,
+    icon: m.icon,
+    // Eingebaute Module haben eine feste Route; Zero-Deploy-Plugins laufen
+    // über den generischen Lader unter /plugins/<key>.
+    route: m.builtin ? m.route : `/plugins/${m.key}`,
+  }])
+))
 
 // Registry-Icon-Namen (Lucide, wie im Store) auf die im Sidebar genutzten Tabler-Klassen
 // abbilden, damit das bestehende Nav-Markup unverändert bleibt.
@@ -61,30 +69,7 @@ onMounted(async () => {
   openTickets.value = tickets.filter((tk: any) => tk.status === 'open' || tk.status === 'in_progress').length
 })
 
-onMounted(async () => {
-  try {
-    const { useAuthUser, useAuthHeader } = await import('~/composables/useAuth')
-    const u = await useAuthUser()
-    if (!u.email) return
-    const headers = await useAuthHeader()
-    const [installedRes, catalogRes] = await Promise.all([
-      $fetch<{ branchModules: { key: string; status: string }[] }>(useApiUrl('/api/settings/branch-packages'), { headers }),
-      $fetch<{ modules: any[] }>(useApiUrl('/api/store/branch-modules'), { headers }),
-    ])
-    branchRegistry.value = Object.fromEntries(
-      (catalogRes.modules || []).map((m: any) => [m.key, {
-        name: m.name,
-        icon: m.icon,
-        // Eingebaute Module haben eine feste Route; Zero-Deploy-Plugins laufen
-        // über den generischen Lader unter /plugins/<key>.
-        route: m.builtin ? m.route : `/plugins/${m.key}`,
-      }])
-    )
-    activeBranchKeys.value = (installedRes.branchModules || [])
-      .filter(m => m.status === 'active')
-      .map(m => m.key)
-  } catch {}
-})
+onMounted(() => { loadBranchModules() })
 
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',

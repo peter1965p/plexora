@@ -269,10 +269,10 @@ const addons = computed(() => [
 ])
 
 // Registry-getrieben statt hartcodiert: neues Branchen-Modul = neuer Datensatz in
-// plexora-plugin-registry, kein Anfassen dieser Datei mehr nötig.
-const branchModuleCatalog = ref<any[]>([])
+// plexora-plugin-registry, kein Anfassen dieser Datei mehr nötig. Gemeinsamer State
+// mit der Sidebar — ein Install hier taucht dort sofort auf, ohne Reload.
+const { catalog: branchModuleCatalog, installed: installedBranchModules, load: loadBranchModules } = useBranchModules()
 const branchModulesLoading = ref(true)
-const installedBranchModules = ref<{ key: string; status: 'active' | 'disabled' }[]>([])
 
 const LUCIDE_TO_TABLER: Record<string, string> = {
   Car: 'ti-car', Store: 'ti-building-store', UtensilsCrossed: 'ti-tools-kitchen-2',
@@ -291,7 +291,6 @@ const userId = ref('demo-user')
 const isAdmin = ref(false)
 const isDemo = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
 const branchApiUrl = useApiUrl('/api/settings/branch-packages')
-const branchCatalogApiUrl = useApiUrl('/api/store/branch-modules')
 const checkoutApiUrl = useApiUrl('/api/store/checkout')
 
 async function branchAction(packageKey: string, action: 'install' | 'uninstall' | 'enable' | 'disable') {
@@ -317,14 +316,8 @@ onMounted(async () => {
   authToken.value = u.idToken || ''
     userId.value = u.userId || 'demo-user'
     isAdmin.value = u.role === 'admins'
-    const headers = { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` }
-    const catalogRes = await $fetch<{ modules: any[] }>(branchCatalogApiUrl, { headers })
-    branchModuleCatalog.value = catalogRes.modules || []
-    branchModulesLoading.value = false
-    if (!u.email) return
-    const res = await $fetch<{ branchModules: typeof installedBranchModules.value }>(branchApiUrl, { headers })
-    installedBranchModules.value = res.branchModules || []
-  } catch {
+    await loadBranchModules(true) // force, damit ein frischer Stand geladen wird
+  } finally {
     branchModulesLoading.value = false
   }
 })
