@@ -1,13 +1,13 @@
 <template>
   <div>
-    <button class="ai-fab" :class="{ open }" @click="open = !open" title="Plexora Assistent">
+    <button class="ai-fab" :class="{ open }" @click="open = !open" title="Plexi">
       <i class="ti" :class="open ? 'ti-x' : 'ti-sparkles'"></i>
     </button>
 
     <div v-if="open" class="ai-panel">
       <div class="ai-panel-header">
         <i class="ti ti-sparkles" style="color:var(--accent)"></i>
-        <span>Plexora Assistent</span>
+        <span>Plexi</span>
       </div>
 
       <div class="ai-panel-body" ref="scrollEl">

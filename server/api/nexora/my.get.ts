@@ -56,6 +56,8 @@ export default defineEventHandler(async (event) => {
       shopTitle:      item.shopTitle      || 'Shop',
       newsletterEnabled: item.newsletterEnabled ?? false,
       newsletterTitle:   item.newsletterTitle   || 'Newsletter',
+      plexiEnabled:   item.plexiEnabled ?? false,
+      plexiWelcome:   item.plexiWelcome || 'Hallo! Wie kann ich dir helfen?',
       sectionOrder:   item.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact'],
       navOrder:       item.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine'],
       heroMediaType:  item.heroMediaType  || 'code',

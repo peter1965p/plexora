@@ -38,6 +38,8 @@ export default defineEventHandler(async (event) => {
     shopTitle:      res.Item.shopTitle      || 'Shop',
     newsletterEnabled: res.Item.newsletterEnabled ?? false,
     newsletterTitle:   res.Item.newsletterTitle   || 'Newsletter',
+    plexiEnabled:    res.Item.plexiEnabled ?? false,
+    plexiWelcome:    res.Item.plexiWelcome || 'Hallo! Wie kann ich dir helfen?',
     vehiclesEnabled: res.Item.vehiclesEnabled ?? false,
     vehiclesTitle:   res.Item.vehiclesTitle   || 'Fahrzeuge',
     menuEnabled:     res.Item.menuEnabled      ?? false,

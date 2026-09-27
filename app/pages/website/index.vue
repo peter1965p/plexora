@@ -861,6 +861,32 @@
         </div>
       </div>
 
+      <!-- ── TAB: PLEXI (KI-CHAT-WIDGET) ── -->
+      <div v-else-if="activeTab === 'plexi-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Plexi — KI-Chat-Widget</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.plexiEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="form.plexiEnabled = !form.plexiEnabled"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="form.plexiEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.plexiEnabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+            Schwebender KI-Chat auf deiner Website, der Besuchern anhand deiner Leistungen, Kontaktdaten & Über-uns-Texte
+            antwortet. Nutzt den API-Key, den du unter <NuxtLink to="/settings" style="color:var(--accent)">Einstellungen → Plexora AI</NuxtLink> hinterlegt hast.
+          </div>
+          <div>
+            <label class="field-label">Begrüßungstext</label>
+            <input v-model="form.plexiWelcome" class="field-input" placeholder="Hallo! Wie kann ich dir helfen?" />
+          </div>
+        </div>
+      </div>
+
       <!-- ── TAB: SEO ── -->
       <div v-else-if="activeTab === 'seo'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
@@ -1514,6 +1540,7 @@ const tabs = [
   { key: 'blog-settings',  label: 'Blog',       icon: 'ti-news' },
   { key: 'shop-settings',  label: 'Shop',       icon: 'ti-shopping-cart' },
   { key: 'newsletter-settings', label: 'Newsletter', icon: 'ti-mail' },
+  { key: 'plexi-settings', label: 'Plexi', icon: 'ti-sparkles' },
   { key: 'seo',           label: 'SEO',        icon: 'ti-search' },
   { key: 'agb',           label: 'AGB',        icon: 'ti-license' },
   { key: 'datenschutz',label: 'Datenschutz',icon: 'ti-shield-lock' },
@@ -1584,6 +1611,8 @@ const form = reactive({
   shopTitle:       'Shop',
   newsletterEnabled: false,
   newsletterTitle:   'Newsletter',
+  plexiEnabled:    false,
+  plexiWelcome:    'Hallo! Wie kann ich dir helfen?',
   githubPat:       '',
   githubPatConfigured: false,
   githubTitle:     'PROJEKTE',
@@ -1661,6 +1690,8 @@ onMounted(async () => {
       form.shopTitle           = n.shopTitle      || 'Shop'
       form.newsletterEnabled   = n.newsletterEnabled ?? false
       form.newsletterTitle     = n.newsletterTitle   || 'Newsletter'
+      form.plexiEnabled        = n.plexiEnabled    ?? false
+      form.plexiWelcome        = n.plexiWelcome     || 'Hallo! Wie kann ich dir helfen?'
       form.githubPatConfigured = n.githubPatConfigured ?? false
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
@@ -1767,6 +1798,8 @@ async function save() {
         shopTitle:      form.shopTitle,
         newsletterEnabled: form.newsletterEnabled,
         newsletterTitle:   form.newsletterTitle,
+        plexiEnabled:   form.plexiEnabled,
+        plexiWelcome:   form.plexiWelcome,
         githubShowForks: form.githubShowForks,
         githubRepos:    form.githubRepos,
         sectionOrder:   form.sectionOrder,
