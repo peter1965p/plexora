@@ -1,0 +1,50 @@
+import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { getDynamoClient } from '../dynamodb'
+import { decryptSecret } from '../crypto'
+import { AI_PROVIDERS, type AiProvider } from './providers'
+
+const MASK_PREFIX: Record<AiProvider, string> = {
+  anthropic: 'sk-ant-', openai: 'sk-', groq: 'gsk_', gemini: '',
+}
+
+export function maskKey(provider: AiProvider, key: string): string {
+  return `${MASK_PREFIX[provider]}${'•'.repeat(8)}${key.slice(-4)}`
+}
+
+export async function getTenantByEmail(email: string) {
+  const dynamo = getDynamoClient()
+  const res = await dynamo.send(new ScanCommand({
+    TableName: 'plexora-nexora',
+    FilterExpression: 'email = :e',
+    ExpressionAttributeValues: { ':e': email },
+  }))
+  return res.Items?.[0] || null
+}
+
+// Liest die konfigurierten Provider eines Tenants, inkl. Rückwärtskompatibilität
+// zum alten Einzelfeld anthropicApiKeyEncrypted/-Masked aus der Marketing-Funktion.
+export function readAiProviders(item: Record<string, any>): Record<AiProvider, { configured: boolean; masked: string; enabled: boolean }> {
+  const stored = item.aiProviders || {}
+  const result = {} as Record<AiProvider, { configured: boolean; masked: string; enabled: boolean }>
+  for (const p of AI_PROVIDERS) {
+    if (stored[p]?.encrypted) {
+      result[p] = { configured: true, masked: stored[p].masked || '', enabled: stored[p].enabled !== false }
+    } else if (p === 'anthropic' && item.anthropicApiKeyEncrypted) {
+      result[p] = { configured: true, masked: item.anthropicApiKeyMasked || '', enabled: true }
+    } else {
+      result[p] = { configured: false, masked: '', enabled: false }
+    }
+  }
+  return result
+}
+
+export async function resolveProviderKey(tenantId: string, provider: AiProvider): Promise<string> {
+  const dynamo = getDynamoClient()
+  const res = await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))
+  const item = res.Item
+  if (!item) return ''
+  const encrypted = item.aiProviders?.[provider]?.encrypted
+  if (encrypted) return decryptSecret(encrypted)
+  if (provider === 'anthropic' && item.anthropicApiKeyEncrypted) return decryptSecret(item.anthropicApiKeyEncrypted)
+  return ''
+}

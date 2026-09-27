@@ -1277,48 +1277,65 @@
       </div>
     </div>
 
-    <!-- ── CLAUDE API-KEY ── -->
-    <div v-if="tab === 'claude'" class="card">
+    <!-- ── PLEXORA AI ── -->
+    <div v-if="tab === 'ai'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Claude API-Key</span>
+        <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Plexora AI</span>
       </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-width:500px">
+      <div class="card-body" style="display:flex;flex-direction:column;gap:20px;max-width:640px">
         <div style="font-size:12px;color:var(--text-muted)">
-          Hinterlege deinen eigenen Anthropic API-Key für die KI-generierten Marketing-E-Mails. Ohne eigenen Key wird weiterhin der Standard-Key von Plexora verwendet.
+          Hinterlege eigene API-Keys für KI-Anbieter (Bring Your Own Key). Sie werden verschlüsselt gespeichert
+          und für alle Plexora-AI-Features genutzt — Marketing-E-Mails, künftig auch Assistent & Auswertungen.
         </div>
 
-        <div class="auth-field">
-          <label>API-Key <span v-if="nexora?.anthropicApiKeyMasked" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+        <div v-for="p in aiProviderList" :key="p.key"
+          style="border:1px solid var(--border);border-radius:10px;padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <strong style="font-size:13px">{{ p.label }}</strong>
+              <span v-if="aiProviders[p.key]?.configured" class="badge badge-success" style="font-size:10px">Hinterlegt</span>
+              <span v-if="aiProviders[p.key]?.configured && !aiProviders[p.key].enabled"
+                style="font-size:10px;padding:2px 6px;border-radius:6px;background:var(--text-muted);color:#fff">Deaktiviert</span>
+            </div>
+            <label v-if="aiProviders[p.key]?.configured" style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);cursor:pointer">
+              <input type="checkbox" :checked="aiProviders[p.key].enabled"
+                @change="toggleAiProvider(p.key, ($event.target as HTMLInputElement).checked)" />
+              Aktiv
+            </label>
+          </div>
+
           <div style="display:flex;gap:8px">
             <div style="flex:1;position:relative">
-              <input v-model="claudeForm.apiKey" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
-                :type="claudeForm.visible ? 'text' : 'password'"
-                :placeholder="nexora?.anthropicApiKeyMasked || 'sk-ant-...'" />
-              <button @click="claudeForm.visible = !claudeForm.visible"
+              <input v-model="aiForms[p.key].apiKey" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
+                :type="aiForms[p.key].visible ? 'text' : 'password'"
+                :placeholder="aiProviders[p.key]?.masked || p.placeholder" />
+              <button @click="aiForms[p.key].visible = !aiForms[p.key].visible"
                 style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
-                <i class="ti" :class="claudeForm.visible ? 'ti-eye-off' : 'ti-eye'"></i>
+                <i class="ti" :class="aiForms[p.key].visible ? 'ti-eye-off' : 'ti-eye'"></i>
               </button>
             </div>
+            <button class="theme-opt" title="Verbindung testen" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].testing" @click="testAiKey(p.key)">
+              <i class="ti" :class="aiForms[p.key].testing ? 'ti-loader-2 spin' : 'ti-plug'"></i>
+            </button>
+            <button class="accent-btn" style="height:36px;padding:0 14px;font-size:12px" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].saving" @click="saveAiKey(p.key)">
+              <i class="ti" :class="aiForms[p.key].saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
+            </button>
+            <button v-if="aiProviders[p.key]?.configured" class="theme-opt" title="Key entfernen" @click="removeAiKey(p.key)">
+              <i class="ti ti-trash"></i>
+            </button>
           </div>
-          <div v-if="nexora?.anthropicApiKeyMasked" style="margin-top:6px;font-size:11px;color:var(--text-muted)">
-            Aktuell hinterlegt: <code>{{ nexora.anthropicApiKeyMasked }}</code> — leer lassen, um den bestehenden Key zu behalten.
+
+          <div v-if="aiForms[p.key].testResult" class="mkt-send-result" :class="aiForms[p.key].testResult.ok ? 'success' : 'warn'" style="margin-top:8px">
+            <i class="ti" :class="aiForms[p.key].testResult.ok ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
+            <span>{{ aiForms[p.key].testResult.ok ? 'Verbindung erfolgreich!' : ('Fehler: ' + aiForms[p.key].testResult.error) }}</span>
           </div>
         </div>
 
-        <div v-if="claudeTestResult" class="mkt-send-result" :class="claudeTestResult.ok ? 'success' : 'warn'">
-          <i class="ti" :class="claudeTestResult.ok ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
-          <span>{{ claudeTestResult.ok ? 'Verbindung erfolgreich!' : ('Fehler: ' + claudeTestResult.error) }}</span>
-        </div>
-
-        <div style="display:flex;gap:10px">
-          <button class="theme-opt" :disabled="!claudeForm.apiKey.trim() || claudeTesting" @click="testClaudeKey">
-            <i class="ti" :class="claudeTesting ? 'ti-loader-2 spin' : 'ti-plug'"></i>
-            {{ claudeTesting ? 'Teste...' : 'Verbindung testen' }}
-          </button>
-          <button class="accent-btn" style="height:36px;padding:0 16px;font-size:12px" :disabled="!claudeForm.apiKey.trim() || claudeSaving" @click="saveClaudeKey">
-            <i class="ti" :class="claudeSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
-            {{ claudeSaving ? 'Speichern...' : 'Speichern' }}
-          </button>
+        <div v-if="configuredAiProviders.length > 1" class="auth-field">
+          <label>Standard-Anbieter</label>
+          <select v-model="aiDefaultProvider" class="field-input" @change="saveAiDefaultProvider">
+            <option v-for="pk in configuredAiProviders" :key="pk" :value="pk">{{ aiLabel(pk) }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -1486,14 +1503,12 @@ const tabs = computed(() => {
   const extra = store.licenseModules?.includes('nexora')
     ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
     : []
-  const claudeExtra = store.licenseModules?.includes('marketing')
-    ? [{ key: 'claude', label: 'Claude', icon: 'ti-sparkles' }]
-    : []
+  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }]
   const integrityExtra = isAdmin.value
     ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
     : []
   const adminExtra = isAdmin.value ? ADMIN_TABS : []
-  return [...BASE_TABS, ...adminExtra, ...extra, ...claudeExtra, ...integrityExtra]
+  return [...BASE_TABS, ...adminExtra, ...extra, ...aiExtra, ...integrityExtra]
 })
 
 // ── Datenintegrität (Admin-only, echte clientseitige Rollenprüfung) ────────────
@@ -1610,46 +1625,117 @@ function copyNexoraKey() {
   setTimeout(() => { nexoraCopied.value = false }, 2000)
 }
 
-// ── Claude API-Key ────────────────────────────────────
-const claudeForm       = reactive({ apiKey: '', visible: false })
-const claudeSaving     = ref(false)
-const claudeTesting    = ref(false)
-const claudeTestResult = ref<{ ok: boolean; error?: string } | null>(null)
+// ── Plexora AI: Multi-Provider BYOK ────────────────────────────────────
+const aiProviderList = [
+  { key: 'anthropic', label: 'Claude (Anthropic)', placeholder: 'sk-ant-...' },
+  { key: 'openai',    label: 'OpenAI',              placeholder: 'sk-...' },
+  { key: 'groq',      label: 'Groq',                placeholder: 'gsk_...' },
+  { key: 'gemini',    label: 'Gemini (Google)',     placeholder: 'AIza...' },
+] as const
 
-async function testClaudeKey() {
-  if (!claudeForm.apiKey.trim()) return
-  claudeTesting.value = true
-  claudeTestResult.value = null
+type AiProviderKey = typeof aiProviderList[number]['key']
+
+const aiProviders = reactive<Record<string, { configured: boolean; masked: string; enabled: boolean }>>({})
+const aiForms = reactive<Record<string, { apiKey: string; visible: boolean; testing: boolean; saving: boolean; testResult: { ok: boolean; error?: string } | null }>>(
+  Object.fromEntries(aiProviderList.map(p => [p.key, { apiKey: '', visible: false, testing: false, saving: false, testResult: null }]))
+)
+const aiDefaultProvider = ref('')
+
+const configuredAiProviders = computed(() => aiProviderList.map(p => p.key).filter(k => aiProviders[k]?.configured))
+function aiLabel(key: string) { return aiProviderList.find(p => p.key === key)?.label || key }
+
+async function loadAiProviders() {
   try {
-    claudeTestResult.value = await $fetch(useApiUrl('/api/settings/claude-test'), {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ providers: Record<string, any>; defaultProvider: string }>(useApiUrl('/api/settings/ai-providers'), { headers: await useAuthHeader() })
+    Object.assign(aiProviders, res.providers)
+    aiDefaultProvider.value = res.defaultProvider || ''
+  } catch { /* Tab zeigt dann leere Karten — kein harter Fehler nötig */ }
+}
+onMounted(() => loadAiProviders())
+
+async function testAiKey(key: AiProviderKey) {
+  const form = aiForms[key]
+  if (!form.apiKey.trim()) return
+  form.testing = true
+  form.testResult = null
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    form.testResult = await $fetch(useApiUrl('/api/settings/ai-providers-test'), {
       method: 'POST',
-      body: { apiKey: claudeForm.apiKey.trim() },
+      headers: await useAuthHeader(),
+      body: { provider: key, apiKey: form.apiKey.trim() },
     })
   } catch (e: any) {
-    claudeTestResult.value = { ok: false, error: e?.message || 'Verbindung fehlgeschlagen' }
+    form.testResult = { ok: false, error: e?.message || 'Verbindung fehlgeschlagen' }
   } finally {
-    claudeTesting.value = false
+    form.testing = false
   }
 }
 
-async function saveClaudeKey() {
-  if (!claudeForm.apiKey.trim()) return
-  claudeSaving.value = true
+async function saveAiKey(key: AiProviderKey) {
+  const form = aiForms[key]
+  if (!form.apiKey.trim()) return
+  form.saving = true
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
-    await $fetch(useApiUrl('/api/nexora/my'), {
-      method:  'PUT',
-      headers: { 'x-user-email': userEmail.value, ...(await useAuthHeader()) },
-      body: { anthropicApiKey: claudeForm.apiKey.trim() },
+    await $fetch(useApiUrl('/api/settings/ai-providers'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { provider: key, apiKey: form.apiKey.trim() },
     })
-    claudeForm.apiKey = ''
-    claudeTestResult.value = null
-    await loadNexora(userEmail.value)
-    showSettingsToast('Claude-Key gespeichert!')
+    form.apiKey = ''
+    form.testResult = null
+    await loadAiProviders()
+    showSettingsToast(`${aiLabel(key)}-Key gespeichert!`)
   } catch (e: any) {
     showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   } finally {
-    claudeSaving.value = false
+    form.saving = false
+  }
+}
+
+async function removeAiKey(key: AiProviderKey) {
+  if (!confirm(`${aiLabel(key)}-Key wirklich entfernen?`)) return
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/ai-providers'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { provider: key, remove: true },
+    })
+    await loadAiProviders()
+    showSettingsToast(`${aiLabel(key)}-Key entfernt`)
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Entfernen fehlgeschlagen'), true)
+  }
+}
+
+async function toggleAiProvider(key: AiProviderKey, enabled: boolean) {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/ai-providers'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { provider: key, enabled },
+    })
+    aiProviders[key].enabled = enabled
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+  }
+}
+
+async function saveAiDefaultProvider() {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/ai-providers'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { defaultProvider: aiDefaultProvider.value },
+    })
+    showSettingsToast('Standard-Anbieter gespeichert!')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   }
 }
 

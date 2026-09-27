@@ -1,13 +1,9 @@
-import { GetCommand } from '@aws-sdk/lib-dynamodb'
-import { getDynamoClient } from './dynamodb'
-import { decryptSecret } from './crypto'
+import { resolveProviderKey } from './ai/keys'
 
 export async function resolveAnthropicApiKey(tenantId: string, fallbackKey: string): Promise<string> {
   try {
-    const dynamo = getDynamoClient()
-    const res = await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))
-    const encrypted = res.Item?.anthropicApiKeyEncrypted
-    if (encrypted) return decryptSecret(encrypted)
+    const key = await resolveProviderKey(tenantId, 'anthropic')
+    if (key) return key
   } catch {}
   return fallbackKey
 }
