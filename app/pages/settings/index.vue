@@ -535,15 +535,26 @@
             <div v-if="!categories[area.key]?.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">
               {{ area.emptyText || 'Noch keine Kategorien angelegt.' }}
             </div>
-            <div v-for="cat in categories[area.key]" :key="cat"
-              style="padding:10px 4px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-              <div style="display:flex;align-items:center;gap:10px">
-                <i class="ti ti-tag" style="color:var(--accent)"></i>
-                <span style="font-weight:600;font-size:13px">{{ cat }}</span>
-              </div>
-              <button class="icon-btn" style="color:var(--danger)" :disabled="isDemo || categoriesSaving" @click="removeCategory(area.key, cat)">
-                <i class="ti ti-trash"></i>
-              </button>
+            <div v-for="cat in sortedCategories(area.key)" :key="cat"
+              style="padding:10px 4px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <template v-if="editingCategory?.area === area.key && editingCategory.original === cat">
+                <input v-model="editingCategory.value" class="field-input" style="flex:1" ref="editCategoryInputRef"
+                  @keyup.enter="confirmEditCategory" @keyup.esc="cancelEditCategory" @blur="confirmEditCategory" />
+              </template>
+              <template v-else>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <i class="ti ti-tag" style="color:var(--accent);flex-shrink:0"></i>
+                  <span style="font-weight:600;font-size:13px">{{ cat }}</span>
+                </div>
+                <div style="display:flex;gap:4px;flex-shrink:0">
+                  <button class="icon-btn" :disabled="isDemo || categoriesSaving" @click="startEditCategory(area.key, cat)">
+                    <i class="ti ti-pencil"></i>
+                  </button>
+                  <button class="icon-btn" style="color:var(--danger)" :disabled="isDemo || categoriesSaving" @click="removeCategory(area.key, cat)">
+                    <i class="ti ti-trash"></i>
+                  </button>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -1862,6 +1873,34 @@ async function removeCategory(area: string, cat: string) {
   categories[area] = (categories[area] || []).filter(c => c !== cat)
   await saveCategories(area)
   showSettingsToast('Kategorie entfernt!')
+}
+
+function sortedCategories(area: string): string[] {
+  return [...(categories[area] || [])].sort((a, b) => a.localeCompare(b, 'de'))
+}
+
+const editingCategory = ref<{ area: string; original: string; value: string } | null>(null)
+const editCategoryInputRef = ref<HTMLInputElement | null>(null)
+
+function startEditCategory(area: string, cat: string) {
+  editingCategory.value = { area, original: cat, value: cat }
+  nextTick(() => editCategoryInputRef.value?.focus())
+}
+
+function cancelEditCategory() {
+  editingCategory.value = null
+}
+
+async function confirmEditCategory() {
+  const e = editingCategory.value
+  if (!e) return
+  editingCategory.value = null
+  const v = e.value.trim()
+  if (!v || v === e.original) return
+  if (categories[e.area]?.includes(v)) { showSettingsToast('Existiert bereits!', true); return }
+  categories[e.area] = categories[e.area].map(c => c === e.original ? v : c)
+  await saveCategories(e.area)
+  showSettingsToast('Gespeichert!')
 }
 
 // ── Mahnwesen ─────────────────────────────────────────
