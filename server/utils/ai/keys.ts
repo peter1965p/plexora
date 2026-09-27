@@ -48,3 +48,27 @@ export async function resolveProviderKey(tenantId: string, provider: AiProvider)
   if (provider === 'anthropic' && item.anthropicApiKeyEncrypted) return decryptSecret(item.anthropicApiKeyEncrypted)
   return ''
 }
+
+// Wählt für einen Tenant den zu nutzenden Anbieter: explizit angefragter Anbieter,
+// sonst der hinterlegte Standard, sonst der erste konfigurierte & aktive.
+// Zentral genutzt von allen Plexora-AI-Features (Chat, Assistent, Insights, Content).
+export async function pickProvider(item: Record<string, any>, requested?: string): Promise<{ provider: AiProvider; apiKey: string } | null> {
+  const providers = readAiProviders(item)
+
+  let provider: AiProvider | undefined
+  if (requested) {
+    if (!AI_PROVIDERS.includes(requested as AiProvider)) return null
+    provider = requested as AiProvider
+  } else {
+    const def = item.aiDefaultProvider as AiProvider | undefined
+    provider = (def && providers[def]?.configured && providers[def].enabled)
+      ? def
+      : AI_PROVIDERS.find(p => providers[p].configured && providers[p].enabled)
+  }
+  if (!provider || !providers[provider].enabled) return null
+
+  const apiKey = await resolveProviderKey(item.tenantId, provider)
+  if (!apiKey) return null
+
+  return { provider, apiKey }
+}

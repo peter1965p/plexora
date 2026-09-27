@@ -91,6 +91,10 @@
             style="background:transparent;border:none;outline:none;font-size:16px;font-weight:700;color:var(--text);font-family:inherit;flex:1;min-width:0"
             placeholder="Beitragstitel..." />
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <button class="icon-btn" title="Mit KI schreiben (nutzt den Titel als Thema)"
+              :disabled="!form.title.trim() || generatingBlog" @click="generateBlogContent">
+              <i class="ti" :class="generatingBlog ? 'ti-loader-2 spin' : 'ti-sparkles'" :style="!generatingBlog ? 'color:var(--accent)' : ''"></i>
+            </button>
             <code style="font-size:11px;color:var(--text-muted)">/blog/{{ form.slug }}</code>
             <button @click="showModal=false" class="icon-btn"><i class="ti ti-x"></i></button>
           </div>
@@ -287,6 +291,25 @@ function titleToSlug() {
     .replace(/[äöüß]/g, c => ({ ä: 'ae', ö: 'oe', ü: 'ue', ß: 'ss' }[c] || c))
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
+}
+
+const generatingBlog = ref(false)
+async function generateBlogContent() {
+  if (!form.title.trim() || generatingBlog.value) return
+  generatingBlog.value = true
+  try {
+    const res = await ofetch<{ ok: boolean; data?: { excerpt: string; content: string }; error?: string }>(
+      useApiUrl('/api/ai/content'),
+      { method: 'POST', headers: await useAuthHeader(), body: { type: 'blog', topic: form.title } }
+    )
+    if (!res.ok || !res.data) throw new Error(res.error || 'Generierung fehlgeschlagen')
+    form.excerpt = res.data.excerpt || form.excerpt
+    form.content = res.data.content || form.content
+  } catch (e: any) {
+    alert('KI-Generierung fehlgeschlagen: ' + (e?.data?.message || e?.message || 'Unbekannter Fehler'))
+  } finally {
+    generatingBlog.value = false
+  }
 }
 
 function resetForm() {

@@ -176,6 +176,26 @@
     </div>
   </div>
 
+  <!-- KI-Insights -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>KI-Insights</span>
+      <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="insightsLoading" @click="loadInsights">
+        <i class="ti" :class="insightsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
+        {{ insightsLoading ? 'Analysiere...' : (insightsText ? 'Neu generieren' : 'Analyse generieren') }}
+      </button>
+    </div>
+    <div class="card-body">
+      <div v-if="insightsError" style="font-size:12px;color:#e05c5c">
+        {{ insightsError }} — <NuxtLink to="/settings" style="color:var(--accent)">Zu Plexora AI →</NuxtLink>
+      </div>
+      <div v-else-if="insightsText" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap">{{ insightsText }}</div>
+      <div v-else style="font-size:12px;color:var(--text-muted)">
+        Lass dir Pipeline, offene Rechnungen und Support-Lage automatisch analysieren.
+      </div>
+    </div>
+  </div>
+
   <!-- Kündigungsbutton §312k BGB -->
   <div v-if="isCustomer" style="margin-top:32px;padding-top:16px;border-top:0.5px solid var(--border);text-align:right">
     <button @click="cancelSubscription" style="background:transparent;border:0.5px solid var(--border);color:var(--text-muted);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='#e05c5c';this.style.color='#e05c5c'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
@@ -201,6 +221,27 @@ const authHeaders = { Authorization: `Bearer ${idToken}` }
 const isCustomer = role === 'customers'
 
 const { openConfirm } = useConfirm()
+
+// ── KI-Insights ────────────────────────────────────
+const insightsText    = ref('')
+const insightsError   = ref('')
+const insightsLoading = ref(false)
+
+async function loadInsights() {
+  insightsLoading.value = true
+  insightsError.value = ''
+  try {
+    const res = await $fetch<{ text: string }>(useApiUrl('/api/ai/insights'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+    })
+    insightsText.value = res.text
+  } catch (e: any) {
+    insightsError.value = e?.data?.message || e?.message || 'Analyse fehlgeschlagen'
+  } finally {
+    insightsLoading.value = false
+  }
+}
 
 async function cancelSubscription() {
   if (!await openConfirm({ title: 'Abonnement kündigen?', sub: 'Es läuft bis Ende des Abrechnungszeitraums weiter.', icon: 'ti-brand-stripe' })) return

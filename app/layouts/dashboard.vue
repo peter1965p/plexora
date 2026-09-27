@@ -6,5 +6,6 @@
       <slot />
     </div>
     <ConfirmDialog />
+    <AiAssistantWidget />
   </div>
 </template>

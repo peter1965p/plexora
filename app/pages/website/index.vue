@@ -528,6 +528,10 @@
                     style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:3px;background:var(--bg);cursor:pointer;flex-shrink:0" />
                 </div>
 
+                <button class="icon-btn" title="Mit KI beschreiben (nutzt den Titel als Thema)"
+                  :disabled="!svc.title.trim() || generatingServiceIndex === i" @click="generateServiceContent(i)" style="flex-shrink:0">
+                  <i class="ti" :class="generatingServiceIndex === i ? 'ti-loader-2 spin' : 'ti-sparkles'" :style="generatingServiceIndex !== i ? 'color:var(--accent)' : ''"></i>
+                </button>
                 <button class="icon-btn" @click="removeService(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
               </div>
               <textarea v-model="svc.description" class="field-input" rows="2" placeholder="Kurzbeschreibung..." style="resize:vertical;margin-bottom:8px"></textarea>
@@ -1805,6 +1809,26 @@ const SERVICE_ICONS = [
 ]
 function addService()   { form.services.push({ icon: '⭐', color: form.primaryColor || '#f97316', title: '', description: '', featuresRaw: '' }) }
 function removeService(i: number) { form.services.splice(i, 1) }
+
+const generatingServiceIndex = ref<number | null>(null)
+async function generateServiceContent(i: number) {
+  const svc = form.services[i]
+  if (!svc?.title.trim() || generatingServiceIndex.value !== null) return
+  generatingServiceIndex.value = i
+  try {
+    const res = await $fetch<{ ok: boolean; data?: { description: string; features: string[] }; error?: string }>(
+      useApiUrl('/api/ai/content'),
+      { method: 'POST', headers: await useAuthHeader(), body: { type: 'service', topic: svc.title } }
+    )
+    if (!res.ok || !res.data) throw new Error(res.error || 'Generierung fehlgeschlagen')
+    svc.description = res.data.description || svc.description
+    if (res.data.features?.length) svc.featuresRaw = res.data.features.join(', ')
+  } catch (e: any) {
+    alert('KI-Generierung fehlgeschlagen: ' + (e?.data?.message || e?.message || 'Unbekannter Fehler'))
+  } finally {
+    generatingServiceIndex.value = null
+  }
+}
 function addStat()      { form.stats.push({ value: '', label: '' }) }
 function removeStat(i: number)    { form.stats.splice(i, 1) }
 

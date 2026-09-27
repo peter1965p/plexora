@@ -2,10 +2,17 @@ import { requireAuth } from '../../utils/verifyAuth'
 import { getTenantByEmail, pickProvider } from '../../utils/ai/keys'
 import { chatOnce, AI_PROVIDER_DEFAULT_MODELS } from '../../utils/ai/providers'
 import { logAiUsage } from '../../utils/ai/usage'
+import { buildBusinessSnapshot } from '../../utils/ai/snapshot'
 
-// Zentraler Einstiegspunkt für alle künftigen Plexora-AI-Features (Assistent,
-// Insights, Content-Generierung) — sie kennen nur diese eine Route, nicht die
-// einzelnen Anbieter.
+const SYSTEM_PROMPT = (snapshot: string) => `Du bist der Plexora-Assistent, ein hilfreicher Business-Copilot im Backend
+einer Firma. Du antwortest kurz, konkret und auf Deutsch. Du hast Lesezugriff
+auf eine Momentaufnahme der Geschäftsdaten (siehe unten) — sie kann leicht
+veraltet sein. Du kannst aktuell noch keine Aktionen ausführen (keine
+Rechnungen erstellen, keine Daten ändern) — weise freundlich darauf hin, falls
+danach gefragt wird, und schlage vor, wo man das im Backend selbst macht.
+
+${snapshot}`
+
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
   const body = await readBody(event)
@@ -21,23 +28,25 @@ export default defineEventHandler(async (event) => {
   const picked = await pickProvider(item, body?.provider)
   if (!picked) throw createError({ statusCode: 400, message: 'Kein KI-Anbieter konfiguriert. Bitte in den Einstellungen unter "Plexora AI" einen API-Key hinterlegen.' })
   const { provider, apiKey } = picked
-  const model = body?.model || AI_PROVIDER_DEFAULT_MODELS[provider]
+  const model = AI_PROVIDER_DEFAULT_MODELS[provider]
+
+  const { text: snapshotText } = await buildBusinessSnapshot(event)
 
   try {
     const result = await chatOnce(provider, {
       apiKey, model,
-      system: body?.system,
+      system: SYSTEM_PROMPT(snapshotText),
       messages,
-      maxTokens: body?.maxTokens,
+      maxTokens: 500,
     })
 
     logAiUsage({
       tenantId: item.tenantId, provider, model,
       inputTokens: result.inputTokens, outputTokens: result.outputTokens,
-      feature: String(body?.feature || 'unknown'),
+      feature: 'backend-assistant',
     })
 
-    return { text: result.text, provider, model, usage: { inputTokens: result.inputTokens, outputTokens: result.outputTokens } }
+    return { text: result.text }
   } catch (e: any) {
     throw createError({ statusCode: 502, message: e?.message || 'KI-Anfrage fehlgeschlagen' })
   }
