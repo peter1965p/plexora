@@ -99,6 +99,9 @@ const navSections = computed(() => [
       ...((store.licenseModules ? store.licenseModules.includes('nexora') : !!store.modules.find(m => m.key === 'nexora')?.on)
         ? [{ to: '/blog', label: 'Blog', icon: 'ti-news', key: 'blog' }]
         : []),
+      ...(store.modules.find(m => m.key === 'finance' && m.on && !m.locked)
+        ? [{ to: '/finance?tab=catalog', label: 'Leistungen', icon: 'ti-list-details', key: 'catalog' }]
+        : []),
     ]
   },
   ...(activeBranchKeys.value.length ? [{

@@ -551,6 +551,10 @@ onMounted(() => {
   if (route.query.clientEmail) newInv.clientEmail = String(route.query.clientEmail)
   if (route.query.description) newInv.items[0].description = String(route.query.description)
   if (route.query.new) showAdd.value = true
+
+  // Direktsprung zum Leistungskatalog (Sidebar/Schnell-erstellen-Menü)
+  if (route.query.tab) tab.value = String(route.query.tab)
+  if (route.query.newService) openAddService()
 })
 
 function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.value = '', 3500) }
