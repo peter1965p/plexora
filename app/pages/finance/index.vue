@@ -345,9 +345,14 @@
             <div class="auth-field" style="margin:0;flex:2;min-width:160px">
               <input v-model="item.description" :placeholder="t.common.description" />
             </div>
-            <select v-if="services.length" class="form-select" style="height:36px;width:130px" @change="applyService(item, ($event.target as HTMLSelectElement).value)">
+            <select v-if="services.length || shopProducts.length" class="form-select" style="height:36px;width:150px" @change="applyCatalogItem(item, ($event.target as HTMLSelectElement).value)">
               <option value="">{{ t.finance.fromCatalog }}</option>
-              <option v-for="s in services" :key="s.serviceId" :value="s.serviceId">{{ s.name }}</option>
+              <optgroup v-if="services.length" label="Leistungen">
+                <option v-for="s in services" :key="s.serviceId" :value="'service:' + s.serviceId">{{ s.name }}</option>
+              </optgroup>
+              <optgroup v-if="shopProducts.length" label="Shop-Produkte">
+                <option v-for="p in shopProducts" :key="p.productId" :value="'product:' + p.productId">{{ p.name }}</option>
+              </optgroup>
             </select>
             <div class="auth-field" style="margin:0;width:70px"><input v-model.number="item.qty" type="number" min="0" :placeholder="t.finance.qty" /></div>
             <div class="auth-field" style="margin:0;width:100px"><input v-model.number="item.price" type="number" min="0" :placeholder="t.finance.unitPrice" /></div>
@@ -518,6 +523,9 @@ const ustva = computed(() => _ustvaRaw.value as any)
 const { data: _servicesRaw, refresh: refreshServices } = await useFetch(() => useApiUrl('/api/services'), { headers: authHeaders })
 const services = computed(() => (_servicesRaw.value as any)?.services || [])
 
+const { data: _productsRaw } = await useFetch(() => useApiUrl('/api/shop/products'), { headers: authHeaders })
+const shopProducts = computed(() => (_productsRaw.value as any)?.products || [])
+
 // ── UI state ──────────────────────────────────────────
 const tab      = ref('invoices')
 const route    = useRoute()
@@ -549,9 +557,15 @@ function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.valu
 
 function addItem() { newInv.items.push(emptyItem()) }
 function removeItem(idx: number) { if (newInv.items.length > 1) newInv.items.splice(idx, 1) }
-function applyService(item: any, serviceId: string) {
-  const s = services.value.find((x: any) => x.serviceId === serviceId)
-  if (s) { item.description = s.name; item.price = s.price }
+function applyCatalogItem(item: any, value: string) {
+  const [type, id] = value.split(':')
+  if (type === 'service') {
+    const s = services.value.find((x: any) => x.serviceId === id)
+    if (s) { item.description = s.name; item.price = s.price }
+  } else if (type === 'product') {
+    const p = shopProducts.value.find((x: any) => x.productId === id)
+    if (p) { item.description = p.name; item.price = p.price }
+  }
 }
 
 // ── Rechnungen ────────────────────────────────────────

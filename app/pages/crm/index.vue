@@ -65,6 +65,7 @@
               <td>
                 <div style="display:flex;gap:4px">
                   <button v-if="c.status === 'lead'" class="icon-btn" :title="t.crm.makeCustomer" @click="convertContact(c)"><i class="ti ti-user-check"></i></button>
+                  <button class="icon-btn" title="Rechnung erstellen" @click="createInvoiceFor(companyName(c), c.email)"><i class="ti ti-file-invoice"></i></button>
                   <button class="icon-btn" @click="openEditContact(c)"><i class="ti ti-pencil"></i></button>
                   <button class="icon-btn" style="color:var(--danger)" @click="deleteContact(c)"><i class="ti ti-trash"></i></button>
                 </div>
@@ -139,6 +140,7 @@
             </td>
             <td>
               <div style="display:flex;gap:4px">
+                <button class="icon-btn" title="Rechnung erstellen" @click="createInvoiceFor(co.name, co.email)"><i class="ti ti-file-invoice"></i></button>
                 <button class="icon-btn" @click="openEditCompany(co)"><i class="ti ti-pencil"></i></button>
                 <button class="icon-btn" style="color:var(--danger)" @click="deleteCompany(co)"><i class="ti ti-trash"></i></button>
               </div>
@@ -332,6 +334,16 @@ function companyName(c: Contact): string {
     if (co) return co.name
   }
   return c.company || '—'
+}
+
+// Direkter Sprung zu Finanzen mit vorausgefüllten Kundendaten — auch ohne
+// vorhandenes Projekt lässt sich so sofort eine Rechnung für einen Kontakt
+// oder ein Unternehmen erstellen.
+function createInvoiceFor(client: string, email?: string) {
+  const query: Record<string, string> = { new: '1' }
+  if (client && client !== '—') query.client = client
+  if (email) query.clientEmail = email
+  navigateTo({ path: '/finance', query })
 }
 
 // ── Export ────────────────────────────────────────────
