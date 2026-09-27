@@ -399,13 +399,10 @@
           <div class="auth-row">
             <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newService.price" type="number" placeholder="95" /></div>
             <div class="auth-field">
-              <label>{{ t.finance.unit }}
-                <NuxtLink to="/settings?tab=categories" style="color:var(--text-muted);margin-left:4px" title="Einheiten verwalten">
-                  <i class="ti ti-settings" style="font-size:11px"></i>
-                </NuxtLink>
-              </label>
-              <select v-model="newService.unit" class="form-select">
+              <label>{{ t.finance.unit }}</label>
+              <select :value="newService.unit" @change="onUnitSelect($event)" class="form-select">
                 <option v-for="u in serviceUnits" :key="u" :value="u">{{ u }}</option>
+                <option value="__new__">+ Neue Einheit...</option>
               </select>
             </div>
           </div>
@@ -536,7 +533,29 @@ const { data: _productsRaw } = await useFetch(() => useApiUrl('/api/shop/product
 const shopProducts = computed(() => (_productsRaw.value as any)?.products || [])
 
 const { data: _categoriesRaw } = await useFetch(() => useApiUrl('/api/settings/categories'), { headers: authHeaders })
-const serviceUnits = computed(() => (_categoriesRaw.value as any)?.categories?.serviceUnits || ['Std.'])
+const serviceUnits = ref<string[]>((_categoriesRaw.value as any)?.categories?.serviceUnits || ['Std.'])
+watch(_categoriesRaw, (v) => {
+  const list = (v as any)?.categories?.serviceUnits
+  if (Array.isArray(list) && list.length) serviceUnits.value = list
+})
+
+// Neue Einheit direkt aus dem Dropdown heraus anlegen, statt erst zu den
+// Einstellungen wechseln zu müssen — der Link dort war zu unauffällig.
+async function onUnitSelect(e: Event) {
+  const val = (e.target as HTMLSelectElement).value
+  if (val !== '__new__') { newService.unit = val; return }
+  const name = prompt('Neue Einheit (z.B. "Pauschal"):')?.trim()
+  if (!name) { (e.target as HTMLSelectElement).value = newService.unit; return }
+  if (!serviceUnits.value.includes(name)) {
+    serviceUnits.value = [...serviceUnits.value, name]
+    try {
+      await $fetch(useApiUrl('/api/settings/categories'), {
+        method: 'POST', headers: authHeaders, body: { area: 'serviceUnits', categories: serviceUnits.value },
+      })
+    } catch {}
+  }
+  newService.unit = name
+}
 
 // ── UI state ──────────────────────────────────────────
 const tab      = ref('invoices')
