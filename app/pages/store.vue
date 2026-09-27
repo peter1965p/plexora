@@ -85,7 +85,10 @@
     <template v-else-if="activeTab === 'branchen'">
       <div style="margin-bottom:20px;padding:14px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center">
         <i class="ti ti-info-circle" style="color:var(--accent);font-size:16px;flex-shrink:0"></i>
-        Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.
+        <span style="flex:1">Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.</span>
+        <button v-if="isAdmin" class="btn-buy" style="flex-shrink:0" @click="showNewModuleForm = true">
+          <i class="ti ti-plus" style="margin-right:4px"></i>Neues Modul registrieren
+        </button>
       </div>
       <div v-if="branchModulesLoading" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">
         <i class="ti ti-loader-2 spin"></i> Lade Module …
@@ -165,6 +168,70 @@
           <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Wir benachrichtigen dich sobald dieses Modul verfügbar ist.</div>
           <button class="btn-accent" style="width:100%" @click="notifyItem = null">
             <i class="ti ti-bell" style="margin-right:6px"></i>Ja, benachrichtigen!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEUES MODUL REGISTRIEREN (Admin) -->
+    <div v-if="showNewModuleForm" class="modal-overlay" @click.self="showNewModuleForm = false">
+      <div class="modal" style="max-width:520px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:16px;font-weight:700">Neues Modul registrieren</div>
+          <button class="icon-btn" @click="showNewModuleForm = false"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div>
+            <label class="field-label">Key (eindeutig, nur a-z/0-9/-)</label>
+            <input v-model="newModule.key" class="field-input" placeholder="z.b. friseur" />
+          </div>
+          <div>
+            <label class="field-label">Name</label>
+            <input v-model="newModule.name" class="field-input" placeholder="z.B. Friseur & Beauty" />
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label class="field-label">Icon (Lucide-Name)</label>
+              <input v-model="newModule.icon" class="field-input" placeholder="z.B. Scissors" />
+            </div>
+            <div>
+              <label class="field-label">Preis (€/Monat)</label>
+              <input v-model.number="newModule.price" type="number" class="field-input" placeholder="39" />
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Beschreibung</label>
+            <textarea v-model="newModule.desc" class="field-input" rows="2" style="resize:vertical"></textarea>
+          </div>
+          <div>
+            <label class="field-label">Features (kommagetrennt)</label>
+            <input v-model="newModule.featuresRaw" class="field-input" placeholder="Leistungen & Preise, Notizen" />
+          </div>
+          <div>
+            <label class="field-label">Modul-Typ</label>
+            <div style="display:flex;gap:16px;font-size:13px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="radio" v-model="newModule.type" value="plugin" /> Zero-Deploy-Plugin (URL)
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="radio" v-model="newModule.type" value="builtin" /> Eingebautes Modul (Route)
+              </label>
+            </div>
+          </div>
+          <div v-if="newModule.type === 'plugin'">
+            <label class="field-label">Remote-Bundle-URL</label>
+            <input v-model="newModule.remoteEntryUrl" class="field-input" placeholder="https://.../index.mjs" />
+          </div>
+          <div v-else>
+            <label class="field-label">Route</label>
+            <input v-model="newModule.route" class="field-input" placeholder="/mein-modul" />
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button class="btn-secondary" style="flex:1" @click="showNewModuleForm = false">Abbrechen</button>
+          <button class="btn-accent" style="flex:2" @click="registerNewModule" :disabled="registeringModule">
+            <i class="ti" :class="registeringModule ? 'ti-loader-2 spin' : 'ti-plus'" style="margin-right:6px"></i>
+            {{ registeringModule ? 'Wird angelegt...' : 'Modul registrieren' }}
           </button>
         </div>
       </div>
@@ -306,6 +373,42 @@ function enableBranchModule(key: string)   { branchAction(key, 'enable').catch(e
 function uninstallBranchModule(key: string) {
   if (!confirm('Modul wirklich deinstallieren? Eigene Daten bleiben erhalten, das Modul verschwindet aber aus deiner Navigation.')) return
   branchAction(key, 'uninstall').catch(e => alert(e?.message || 'Fehler'))
+}
+
+// ── Neues Modul registrieren (Admin) ─────────────────────────────────────────
+const showNewModuleForm = ref(false)
+const registeringModule = ref(false)
+const newModule = reactive({
+  key: '', name: '', icon: '', price: 0, desc: '', featuresRaw: '',
+  type: 'plugin' as 'plugin' | 'builtin', remoteEntryUrl: '', route: '',
+})
+
+async function registerNewModule() {
+  if (!newModule.key.trim() || !newModule.name.trim()) { alert('Key und Name sind Pflicht.'); return }
+  registeringModule.value = true
+  try {
+    await $fetch(useApiUrl('/api/store/branch-modules'), {
+      method: 'POST',
+      body: {
+        key: newModule.key,
+        name: newModule.name,
+        icon: newModule.icon || 'Puzzle',
+        price: newModule.price,
+        desc: newModule.desc,
+        features: newModule.featuresRaw.split(',').map(f => f.trim()).filter(Boolean),
+        remoteEntryUrl: newModule.type === 'plugin' ? newModule.remoteEntryUrl : undefined,
+        route: newModule.type === 'builtin' ? newModule.route : undefined,
+      },
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
+    })
+    await loadBranchModules(true)
+    showNewModuleForm.value = false
+    Object.assign(newModule, { key: '', name: '', icon: '', price: 0, desc: '', featuresRaw: '', type: 'plugin', remoteEntryUrl: '', route: '' })
+  } catch (e: any) {
+    alert('Fehler: ' + (e?.data?.message || e?.message || 'Unbekannter Fehler'))
+  } finally {
+    registeringModule.value = false
+  }
 }
 
 onMounted(async () => {
