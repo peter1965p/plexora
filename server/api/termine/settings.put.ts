@@ -20,11 +20,12 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-nexora',
     Key: { tenantId: item.tenantId },
-    UpdateExpression: 'SET termineEnabled = :te, termineTitle = :tt, termineDescription = :td, termineTimezone = :tz, termineWorkingHours = :wh, termineSlotStepMinutes = :ss, termineMinNoticeHours = :mn, termineMaxAdvanceDays = :ma, updatedAt = :u',
+    UpdateExpression: 'SET termineEnabled = :te, termineTitle = :tt, termineDescription = :td, termineAvatarUrl = :av, termineTimezone = :tz, termineWorkingHours = :wh, termineSlotStepMinutes = :ss, termineMinNoticeHours = :mn, termineMaxAdvanceDays = :ma, updatedAt = :u',
     ExpressionAttributeValues: {
       ':te': body.termineEnabled          ?? false,
       ':tt': body.termineTitle             || 'Termine',
       ':td': body.termineDescription        || '',
+      ':av': body.termineAvatarUrl          || '',
       ':tz': body.termineTimezone          || 'Europe/Berlin',
       ':wh': body.termineWorkingHours      || {},
       ':ss': Number(body.termineSlotStepMinutes) || 30,

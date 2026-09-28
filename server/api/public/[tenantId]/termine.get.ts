@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
   return {
     title:       res.Item.termineTitle || 'Termine',
     description: res.Item.termineDescription || '',
+    avatarUrl:   res.Item.termineAvatarUrl || '',
     timezone:    res.Item.termineTimezone || 'Europe/Berlin',
     types,
   }

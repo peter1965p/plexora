@@ -916,6 +916,10 @@
               placeholder="Vereinbare unkompliziert einen Termin mit uns — telefonisch oder per Video-Call."
               @blur="saveTermineSettings"></textarea>
           </div>
+          <div>
+            <label class="field-label">Foto (optional)</label>
+            <ImageUploadCrop :model-value="termineForm.avatarUrl" @update:model-value="onTermineAvatarChange" s3-prefix="termine/" file-name-prefix="termine-avatar" :ratios="[[1, 1]]" />
+          </div>
         </div>
       </div>
 
@@ -1760,7 +1764,7 @@ onMounted(async () => {
 })
 
 // ── Termine (eigener Bereich — /api/termine/settings statt /api/nexora/my) ──
-const termineForm = reactive({ enabled: false, title: 'Termine', description: '', loaded: false, raw: null as any })
+const termineForm = reactive({ enabled: false, title: 'Termine', description: '', avatarUrl: '', loaded: false, raw: null as any })
 
 async function loadTermineSettings() {
   try {
@@ -1769,6 +1773,7 @@ async function loadTermineSettings() {
     termineForm.enabled = res.settings.termineEnabled
     termineForm.title = res.settings.termineTitle
     termineForm.description = res.settings.termineDescription || ''
+    termineForm.avatarUrl = res.settings.termineAvatarUrl || ''
   } catch {}
   termineForm.loaded = true
 }
@@ -1780,11 +1785,20 @@ async function saveTermineSettings() {
     await $fetch(useApiUrl('/api/termine/settings'), {
       method: 'PUT',
       headers: await useAuthHeader(),
-      body: { ...termineForm.raw, termineEnabled: termineForm.enabled, termineTitle: termineForm.title, termineDescription: termineForm.description },
+      body: {
+        ...termineForm.raw,
+        termineEnabled: termineForm.enabled, termineTitle: termineForm.title,
+        termineDescription: termineForm.description, termineAvatarUrl: termineForm.avatarUrl,
+      },
     })
   } catch (e: any) {
     alert('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
   }
+}
+
+async function onTermineAvatarChange(url: string) {
+  termineForm.avatarUrl = url
+  await saveTermineSettings()
 }
 
 async function toggleTermineEnabled() {
