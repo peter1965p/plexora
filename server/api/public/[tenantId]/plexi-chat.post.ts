@@ -1,7 +1,7 @@
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { pickProvider } from '../../../utils/ai/keys'
-import { chatOnce, AI_PROVIDER_DEFAULT_MODELS } from '../../../utils/ai/providers'
+import { chatOnce } from '../../../utils/ai/providers'
 import { logAiUsage } from '../../../utils/ai/usage'
 
 const DAILY_LIMIT = 200

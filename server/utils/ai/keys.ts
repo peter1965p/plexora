@@ -1,7 +1,7 @@
 import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../dynamodb'
 import { decryptSecret } from '../crypto'
-import { AI_PROVIDERS, type AiProvider } from './providers'
+import { AI_PROVIDERS, AI_PROVIDER_DEFAULT_MODELS, type AiProvider } from './providers'
 
 const MASK_PREFIX: Record<AiProvider, string> = {
   anthropic: 'sk-ant-', openai: 'sk-', groq: 'gsk_', gemini: '',
@@ -23,16 +23,17 @@ export async function getTenantByEmail(email: string) {
 
 // Liest die konfigurierten Provider eines Tenants, inkl. Rückwärtskompatibilität
 // zum alten Einzelfeld anthropicApiKeyEncrypted/-Masked aus der Marketing-Funktion.
-export function readAiProviders(item: Record<string, any>): Record<AiProvider, { configured: boolean; masked: string; enabled: boolean }> {
+export function readAiProviders(item: Record<string, any>): Record<AiProvider, { configured: boolean; masked: string; enabled: boolean; model: string }> {
   const stored = item.aiProviders || {}
-  const result = {} as Record<AiProvider, { configured: boolean; masked: string; enabled: boolean }>
+  const result = {} as Record<AiProvider, { configured: boolean; masked: string; enabled: boolean; model: string }>
   for (const p of AI_PROVIDERS) {
+    const model = stored[p]?.model || AI_PROVIDER_DEFAULT_MODELS[p]
     if (stored[p]?.encrypted) {
-      result[p] = { configured: true, masked: stored[p].masked || '', enabled: stored[p].enabled !== false }
+      result[p] = { configured: true, masked: stored[p].masked || '', enabled: stored[p].enabled !== false, model }
     } else if (p === 'anthropic' && item.anthropicApiKeyEncrypted) {
-      result[p] = { configured: true, masked: item.anthropicApiKeyMasked || '', enabled: true }
+      result[p] = { configured: true, masked: item.anthropicApiKeyMasked || '', enabled: true, model }
     } else {
-      result[p] = { configured: false, masked: '', enabled: false }
+      result[p] = { configured: false, masked: '', enabled: false, model }
     }
   }
   return result
@@ -52,7 +53,7 @@ export async function resolveProviderKey(tenantId: string, provider: AiProvider)
 // Wählt für einen Tenant den zu nutzenden Anbieter: explizit angefragter Anbieter,
 // sonst der hinterlegte Standard, sonst der erste konfigurierte & aktive.
 // Zentral genutzt von allen Plexora-AI-Features (Chat, Assistent, Insights, Content).
-export async function pickProvider(item: Record<string, any>, requested?: string): Promise<{ provider: AiProvider; apiKey: string } | null> {
+export async function pickProvider(item: Record<string, any>, requested?: string): Promise<{ provider: AiProvider; apiKey: string; model: string } | null> {
   const providers = readAiProviders(item)
 
   let provider: AiProvider | undefined
@@ -70,5 +71,5 @@ export async function pickProvider(item: Record<string, any>, requested?: string
   const apiKey = await resolveProviderKey(item.tenantId, provider)
   if (!apiKey) return null
 
-  return { provider, apiKey }
+  return { provider, apiKey, model: providers[provider].model }
 }

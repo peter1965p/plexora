@@ -16,7 +16,7 @@ export const AI_PROVIDER_DEFAULT_MODELS: Record<AiProvider, string> = {
   anthropic: 'claude-sonnet-4-6',
   openai:    'gpt-4o-mini',
   groq:      'llama-3.3-70b-versatile',
-  gemini:    'gemini-2.0-flash',
+  gemini:    'gemini-3.8-flash',
 }
 
 export interface ChatMessage { role: 'user' | 'assistant'; content: string }
@@ -99,4 +99,32 @@ export async function chatOnce(provider: AiProvider, args: ChatArgs): Promise<Ch
     case 'groq':      return (await chatOpenAiCompatible('https://api.groq.com/openai/v1', AI_PROVIDER_DEFAULT_MODELS.groq))(args)
     case 'gemini':    return chatGemini(args)
   }
+}
+
+// Fragt die tatsächlich verfügbaren Modelle live beim Anbieter ab, statt eine
+// Liste im Code zu pflegen — genau das ist heute mit dem festen Gemini-Default
+// schiefgegangen (Modell wurde abgeschaltet, ohne dass wir's gemerkt hätten).
+export async function listModels(provider: AiProvider, apiKey: string): Promise<string[]> {
+  if (provider === 'anthropic') {
+    const res = await fetch('https://api.anthropic.com/v1/models?limit=100', {
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    })
+    const data = await res.json() as any
+    if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`)
+    return (data.data || []).map((m: any) => m.id)
+  }
+  if (provider === 'openai' || provider === 'groq') {
+    const baseUrl = provider === 'openai' ? 'https://api.openai.com/v1' : 'https://api.groq.com/openai/v1'
+    const res = await fetch(`${baseUrl}/models`, { headers: { 'Authorization': `Bearer ${apiKey}` } })
+    const data = await res.json() as any
+    if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`)
+    return (data.data || []).map((m: any) => m.id).sort()
+  }
+  // gemini
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=200`)
+  const data = await res.json() as any
+  if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`)
+  return (data.models || [])
+    .filter((m: any) => (m.supportedGenerationMethods || []).includes('generateContent'))
+    .map((m: any) => String(m.name || '').replace(/^models\//, ''))
 }

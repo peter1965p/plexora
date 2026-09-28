@@ -1293,60 +1293,123 @@
       <div class="card-header">
         <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Plexora AI</span>
       </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:20px;max-width:640px">
-        <div style="font-size:12px;color:var(--text-muted)">
-          Hinterlege eigene API-Keys für KI-Anbieter (Bring Your Own Key). Sie werden verschlüsselt gespeichert
-          und für alle Plexora-AI-Features genutzt — Marketing-E-Mails, künftig auch Assistent & Auswertungen.
-        </div>
-
-        <div v-for="p in aiProviderList" :key="p.key"
-          style="border:1px solid var(--border);border-radius:10px;padding:14px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <strong style="font-size:13px">{{ p.label }}</strong>
-              <span v-if="aiProviders[p.key]?.configured" class="badge badge-success" style="font-size:10px">Hinterlegt</span>
-              <span v-if="aiProviders[p.key]?.configured && !aiProviders[p.key].enabled"
-                style="font-size:10px;padding:2px 6px;border-radius:6px;background:var(--text-muted);color:#fff">Deaktiviert</span>
-            </div>
-            <label v-if="aiProviders[p.key]?.configured" style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);cursor:pointer">
-              <input type="checkbox" :checked="aiProviders[p.key].enabled"
-                @change="toggleAiProvider(p.key, ($event.target as HTMLInputElement).checked)" />
-              Aktiv
-            </label>
+      <div class="card-body" style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:340px;max-width:640px;display:flex;flex-direction:column;gap:20px">
+          <div style="font-size:12px;color:var(--text-muted)">
+            Hinterlege eigene API-Keys für KI-Anbieter (Bring Your Own Key). Sie werden verschlüsselt gespeichert
+            und für alle Plexora-AI-Features genutzt — Marketing-E-Mails, künftig auch Assistent & Auswertungen.
           </div>
 
-          <div style="display:flex;gap:8px">
-            <div style="flex:1;position:relative">
-              <input v-model="aiForms[p.key].apiKey" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
-                :type="aiForms[p.key].visible ? 'text' : 'password'"
-                :placeholder="aiProviders[p.key]?.masked || p.placeholder" />
-              <button @click="aiForms[p.key].visible = !aiForms[p.key].visible"
-                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
-                <i class="ti" :class="aiForms[p.key].visible ? 'ti-eye-off' : 'ti-eye'"></i>
+          <div v-for="p in aiProviderList" :key="p.key"
+            style="border:1px solid var(--border);border-radius:10px;padding:14px"
+            :style="modelsPanelProvider === p.key ? 'border-color:var(--accent)' : ''">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <strong style="font-size:13px">{{ p.label }}</strong>
+                <span v-if="aiProviders[p.key]?.configured" class="badge badge-success" style="font-size:10px">Hinterlegt</span>
+                <span v-if="aiProviders[p.key]?.configured && !aiProviders[p.key].enabled"
+                  style="font-size:10px;padding:2px 6px;border-radius:6px;background:var(--text-muted);color:#fff">Deaktiviert</span>
+              </div>
+              <label v-if="aiProviders[p.key]?.configured" style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);cursor:pointer">
+                <input type="checkbox" :checked="aiProviders[p.key].enabled"
+                  @change="toggleAiProvider(p.key, ($event.target as HTMLInputElement).checked)" />
+                Aktiv
+              </label>
+            </div>
+
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;position:relative">
+                <input v-model="aiForms[p.key].apiKey" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
+                  :type="aiForms[p.key].visible ? 'text' : 'password'"
+                  :placeholder="aiProviders[p.key]?.masked || p.placeholder" />
+                <button @click="aiForms[p.key].visible = !aiForms[p.key].visible"
+                  style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+                  <i class="ti" :class="aiForms[p.key].visible ? 'ti-eye-off' : 'ti-eye'"></i>
+                </button>
+              </div>
+              <button class="theme-opt" title="Verbindung testen" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].testing" @click="testAiKey(p.key)">
+                <i class="ti" :class="aiForms[p.key].testing ? 'ti-loader-2 spin' : 'ti-plug'"></i>
+              </button>
+              <button class="accent-btn" style="height:36px;padding:0 14px;font-size:12px" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].saving" @click="saveAiKey(p.key)">
+                <i class="ti" :class="aiForms[p.key].saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
+              </button>
+              <button v-if="aiProviders[p.key]?.configured" class="theme-opt" title="Key entfernen" @click="removeAiKey(p.key)">
+                <i class="ti ti-trash"></i>
               </button>
             </div>
-            <button class="theme-opt" title="Verbindung testen" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].testing" @click="testAiKey(p.key)">
-              <i class="ti" :class="aiForms[p.key].testing ? 'ti-loader-2 spin' : 'ti-plug'"></i>
-            </button>
-            <button class="accent-btn" style="height:36px;padding:0 14px;font-size:12px" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].saving" @click="saveAiKey(p.key)">
-              <i class="ti" :class="aiForms[p.key].saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
-            </button>
-            <button v-if="aiProviders[p.key]?.configured" class="theme-opt" title="Key entfernen" @click="removeAiKey(p.key)">
-              <i class="ti ti-trash"></i>
+
+            <div v-if="aiForms[p.key].testResult" class="mkt-send-result" :class="aiForms[p.key].testResult.ok ? 'success' : 'warn'" style="margin-top:8px">
+              <i class="ti" :class="aiForms[p.key].testResult.ok ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
+              <span>{{ aiForms[p.key].testResult.ok ? 'Verbindung erfolgreich!' : ('Fehler: ' + aiForms[p.key].testResult.error) }}</span>
+            </div>
+
+            <button style="margin-top:8px;background:none;border:none;padding:0;color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px"
+              :disabled="!aiForms[p.key].apiKey.trim() && !aiProviders[p.key]?.configured" @click="loadModels(p.key)">
+              <i class="ti ti-list-details"></i> Modelle anzeigen
+              <span v-if="aiProviders[p.key]?.model" style="font-weight:400">— aktuell: {{ aiProviders[p.key].model }}</span>
             </button>
           </div>
 
-          <div v-if="aiForms[p.key].testResult" class="mkt-send-result" :class="aiForms[p.key].testResult.ok ? 'success' : 'warn'" style="margin-top:8px">
-            <i class="ti" :class="aiForms[p.key].testResult.ok ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
-            <span>{{ aiForms[p.key].testResult.ok ? 'Verbindung erfolgreich!' : ('Fehler: ' + aiForms[p.key].testResult.error) }}</span>
+          <div v-if="configuredAiProviders.length > 1" class="auth-field">
+            <label>Standard-Anbieter</label>
+            <select v-model="aiDefaultProvider" class="field-input" @change="saveAiDefaultProvider">
+              <option v-for="pk in configuredAiProviders" :key="pk" :value="pk">{{ aiLabel(pk) }}</option>
+            </select>
           </div>
         </div>
 
-        <div v-if="configuredAiProviders.length > 1" class="auth-field">
-          <label>Standard-Anbieter</label>
-          <select v-model="aiDefaultProvider" class="field-input" @change="saveAiDefaultProvider">
-            <option v-for="pk in configuredAiProviders" :key="pk" :value="pk">{{ aiLabel(pk) }}</option>
-          </select>
+        <div v-if="modelsPanelProvider" style="flex:1;min-width:300px;max-width:420px;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <strong style="font-size:13px">Modelle — {{ aiLabel(modelsPanelProvider) }}</strong>
+            <button class="icon-btn" @click="modelsPanelProvider = ''"><i class="ti ti-x"></i></button>
+          </div>
+          <div v-if="modelsLoading" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">
+            <i class="ti ti-loader-2 spin"></i> Lade Modelle...
+          </div>
+          <div v-else-if="modelsError" style="font-size:12px;color:#e05c5c">{{ modelsError }}</div>
+          <div v-else-if="!modelsList.length" style="font-size:12px;color:var(--text-muted);text-align:center;padding:24px">
+            Keine Modelle gefunden — Key gültig?
+          </div>
+          <div v-else style="max-height:280px;overflow-y:auto;margin-bottom:14px">
+            <div v-for="m in modelsList" :key="m"
+              style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:0.5px solid var(--border)">
+              <span style="font-size:12px;font-family:monospace;word-break:break-all">{{ m }}</span>
+              <button @click="selectModel(modelsPanelProvider, m)"
+                :disabled="!aiProviders[modelsPanelProvider]?.configured"
+                style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="aiProviders[modelsPanelProvider]?.model === m ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="aiProviders[modelsPanelProvider]?.model === m ? 'left:19px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── PROBECHAT ── -->
+          <div style="border-top:0.5px solid var(--border);padding-top:12px">
+            <strong style="font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <i class="ti ti-message-2" style="color:var(--accent)"></i> Probechat
+            </strong>
+            <div v-if="!aiProviders[modelsPanelProvider]?.configured" style="font-size:11px;color:var(--text-muted)">
+              Erst Key speichern, dann live testen.
+            </div>
+            <template v-else>
+              <div ref="testChatScrollEl" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+                <div v-for="(m, i) in testChatMessages" :key="i" style="display:flex" :style="m.role === 'user' ? 'justify-content:flex-end' : ''">
+                  <div style="max-width:85%;padding:7px 10px;border-radius:9px;font-size:12px;line-height:1.5;white-space:pre-wrap"
+                    :style="m.role === 'user' ? 'background:var(--accent);color:#fff' : 'background:var(--bg-elevated);color:var(--text)'">{{ m.content }}</div>
+                </div>
+                <div v-if="testChatSending" style="font-size:12px;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
+                <div v-if="testChatError" style="font-size:11px;color:#e05c5c">{{ testChatError }}</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <input v-model="testChatInput" class="field-input" style="flex:1;font-size:12px" placeholder="Testnachricht..."
+                  @keyup.enter="sendTestChat" :disabled="testChatSending" />
+                <button class="accent-btn" style="height:32px;padding:0 12px" :disabled="testChatSending || !testChatInput.trim()" @click="sendTestChat">
+                  <i class="ti ti-send" style="font-size:14px"></i>
+                </button>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -1746,6 +1809,96 @@ async function saveAiDefaultProvider() {
     })
     showSettingsToast('Standard-Anbieter gespeichert!')
   } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+  }
+}
+
+// ── Modell-Auswahl pro Anbieter ─────────────────────────
+// Fragt die Modelle live beim Anbieter ab, statt eine Liste im Code zu
+// pflegen — genau die trägt sonst nicht mit, wenn ein Anbieter ein Modell
+// abschaltet (wie bei Gemini gerade passiert).
+const modelsPanelProvider = ref('')
+const modelsList    = ref<string[]>([])
+const modelsLoading = ref(false)
+const modelsError   = ref('')
+
+async function loadModels(key: AiProviderKey) {
+  modelsPanelProvider.value = key
+  modelsLoading.value = true
+  modelsError.value = ''
+  modelsList.value = []
+  testChatMessages.value = []
+  testChatError.value = ''
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ models: string[]; error?: string }>(useApiUrl('/api/settings/ai-providers-models'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { provider: key, apiKey: aiForms[key].apiKey.trim() || undefined },
+    })
+    modelsList.value = res.models || []
+    if (res.error) modelsError.value = res.error
+  } catch (e: any) {
+    modelsError.value = e?.data?.message || e?.message || 'Modelle konnten nicht geladen werden'
+  } finally {
+    modelsLoading.value = false
+  }
+}
+
+// ── Probechat ────────────────────────────────────────────
+interface TestChatMsg { role: 'user' | 'assistant'; content: string }
+const testChatMessages = ref<TestChatMsg[]>([])
+const testChatInput    = ref('')
+const testChatSending  = ref(false)
+const testChatError    = ref('')
+const testChatScrollEl = ref<HTMLElement | null>(null)
+
+async function sendTestChat() {
+  const text = testChatInput.value.trim()
+  if (!text || testChatSending.value || !modelsPanelProvider.value) return
+  testChatMessages.value.push({ role: 'user', content: text })
+  testChatInput.value = ''
+  testChatError.value = ''
+  testChatSending.value = true
+  await nextTick()
+  testChatScrollEl.value?.scrollTo({ top: testChatScrollEl.value.scrollHeight })
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ text: string }>(useApiUrl('/api/ai/chat'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: {
+        provider: modelsPanelProvider.value,
+        model: aiProviders[modelsPanelProvider.value]?.model,
+        messages: testChatMessages.value.map(m => ({ role: m.role, content: m.content })),
+        feature: 'settings-probechat',
+        maxTokens: 300,
+      },
+    })
+    testChatMessages.value.push({ role: 'assistant', content: res.text })
+  } catch (e: any) {
+    testChatError.value = e?.data?.message || e?.message || 'Anfrage fehlgeschlagen'
+  } finally {
+    testChatSending.value = false
+    await nextTick()
+    testChatScrollEl.value?.scrollTo({ top: testChatScrollEl.value.scrollHeight })
+  }
+}
+
+async function selectModel(key: AiProviderKey, model: string) {
+  if (!aiProviders[key]?.configured) return
+  const previous = aiProviders[key].model
+  aiProviders[key].model = model
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/ai-providers'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { provider: key, model },
+    })
+    showSettingsToast('Modell gespeichert!')
+  } catch (e: any) {
+    aiProviders[key].model = previous
     showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   }
 }

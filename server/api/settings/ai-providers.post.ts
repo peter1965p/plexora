@@ -59,6 +59,20 @@ export default defineEventHandler(async (event) => {
     return { ok: true }
   }
 
+  // Modell-Auswahl ohne neuen Key (Liste der verfügbaren Modelle → auswählen)
+  if (body?.model !== undefined && !body?.apiKey) {
+    const existing = item.aiProviders?.[provider]
+    if (!existing?.encrypted) throw createError({ statusCode: 400, message: 'Kein Key für diesen Anbieter hinterlegt' })
+    await dynamo.send(new UpdateCommand({
+      TableName: 'plexora-nexora',
+      Key: { tenantId: item.tenantId },
+      UpdateExpression: 'SET aiProviders.#p.model = :m',
+      ExpressionAttributeNames: { '#p': provider },
+      ExpressionAttributeValues: { ':m': String(body.model) },
+    }))
+    return { ok: true }
+  }
+
   const apiKey = String(body?.apiKey || '').trim()
   if (!apiKey) throw createError({ statusCode: 400, message: 'apiKey erforderlich' })
 

@@ -1,6 +1,6 @@
 import { requireAuth } from '../../utils/verifyAuth'
 import { getTenantByEmail, pickProvider } from '../../utils/ai/keys'
-import { chatOnce, AI_PROVIDER_DEFAULT_MODELS } from '../../utils/ai/providers'
+import { chatOnce } from '../../utils/ai/providers'
 import { logAiUsage } from '../../utils/ai/usage'
 import { buildBusinessSnapshot } from '../../utils/ai/snapshot'
 
@@ -27,8 +27,7 @@ export default defineEventHandler(async (event) => {
 
   const picked = await pickProvider(item, body?.provider)
   if (!picked) throw createError({ statusCode: 400, message: 'Kein KI-Anbieter konfiguriert. Bitte in den Einstellungen unter "Plexora AI" einen API-Key hinterlegen.' })
-  const { provider, apiKey } = picked
-  const model = AI_PROVIDER_DEFAULT_MODELS[provider]
+  const { provider, apiKey, model } = picked
 
   const { text: snapshotText } = await buildBusinessSnapshot(event)
 
