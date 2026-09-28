@@ -10,6 +10,9 @@
       <button v-if="activeTab === 'terminarten'" class="accent-btn" @click="openNewType">
         <i class="ti ti-plus"></i> Terminart anlegen
       </button>
+      <button v-if="activeTab === 'termine'" class="accent-btn" :disabled="!types.length" @click="openManualBooking">
+        <i class="ti ti-plus"></i> Termin eintragen
+      </button>
     </div>
 
     <!-- Stats -->
@@ -149,8 +152,11 @@
             <div style="font-size:12px;color:var(--text-muted)">{{ b.startTime }}–{{ b.endTime }}</div>
           </div>
           <div style="flex:1;min-width:160px">
-            <div style="font-weight:600;font-size:13px">{{ b.customerName }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">{{ b.typeName }} · {{ b.customerEmail }}</div>
+            <div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px">
+              {{ b.customerName }}
+              <i class="ti" :class="b.channel === 'phone' ? 'ti-phone' : 'ti-video'" :title="b.channel === 'phone' ? 'Telefontermin' : 'Video-Termin'" style="color:var(--text-muted);font-size:13px"></i>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ b.typeName }} · {{ b.customerEmail || b.customerPhone }}</div>
           </div>
           <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0"
             :style="b.status === 'cancelled' ? 'background:#ef444422;color:#ef4444' : 'background:#22c55e22;color:#22c55e'">
@@ -291,6 +297,55 @@
       </div>
     </div>
 
+    <!-- MODAL: Termin manuell eintragen -->
+    <div v-if="showManualBookingModal" class="modal-overlay" @click.self="showManualBookingModal=false">
+      <div class="modal-card" style="max-width:440px">
+        <div class="modal-header">
+          <span class="card-title">Termin eintragen</span>
+          <button class="icon-btn" @click="showManualBookingModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+          <div class="auth-field">
+            <label>Terminart *</label>
+            <select v-model="manualBooking.typeId">
+              <option v-for="t in types.filter(x => x.active)" :key="t.typeId" :value="t.typeId">{{ t.name }} ({{ t.durationMinutes }} Min.)</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px">
+            <div class="auth-field" style="flex:1"><label>Datum *</label><input v-model="manualBooking.date" type="date" /></div>
+            <div class="auth-field" style="flex:1"><label>Uhrzeit *</label><input v-model="manualBooking.startTime" type="time" /></div>
+          </div>
+          <div class="auth-field">
+            <label>Kanal *</label>
+            <div style="display:flex;gap:8px">
+              <button type="button" class="theme-opt" style="flex:1" :class="{ active: manualBooking.channel === 'video' }" @click="manualBooking.channel = 'video'">
+                <i class="ti ti-video"></i> Video
+              </button>
+              <button type="button" class="theme-opt" style="flex:1" :class="{ active: manualBooking.channel === 'phone' }" @click="manualBooking.channel = 'phone'">
+                <i class="ti ti-phone"></i> Telefon
+              </button>
+            </div>
+          </div>
+          <div class="auth-field"><label>Name *</label><input v-model="manualBooking.customerName" placeholder="Max Mustermann" /></div>
+          <div class="auth-field">
+            <label>E-Mail{{ manualBooking.channel === 'video' ? ' *' : '' }}</label>
+            <input v-model="manualBooking.customerEmail" placeholder="max@firma.de" />
+          </div>
+          <div class="auth-field">
+            <label>Telefon{{ manualBooking.channel === 'phone' ? ' *' : '' }}</label>
+            <input v-model="manualBooking.customerPhone" placeholder="+49 123 456789" />
+          </div>
+          <div class="auth-field"><label>Notiz</label><textarea v-model="manualBooking.notes" rows="2" placeholder="Worum geht es?"></textarea></div>
+          <div v-if="manualBookingError" style="font-size:12px;color:#e05c5c">{{ manualBookingError }}</div>
+        </div>
+        <div style="padding:0 24px 24px">
+          <button class="auth-btn" :disabled="!canSaveManualBooking || savingManualBooking" @click="saveManualBooking">
+            <i class="ti" :class="savingManualBooking ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>Termin eintragen
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -312,6 +367,7 @@ interface Booking {
   bookingId: string; typeId: string; typeName: string; durationMinutes: number
   date: string; startTime: string; endTime: string
   customerName: string; customerEmail: string; customerPhone: string; notes: string
+  channel?: 'video' | 'phone'
   status: string; googleEventId?: string; googleMeetLink?: string; createdAt: string
 }
 
@@ -442,6 +498,50 @@ function formatGoogleEventTime(ev: GoogleEvent): string {
   if (isAllDay) return `${dateStr}, ganztägig`
   const timeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
   return `${dateStr}, ${timeStr}`
+}
+
+// ── Termin manuell eintragen ─────────────────────────────
+const showManualBookingModal = ref(false)
+const savingManualBooking    = ref(false)
+const manualBookingError     = ref('')
+const manualBooking = reactive({
+  typeId: '', date: new Date().toISOString().slice(0, 10), startTime: '',
+  channel: 'video' as 'video' | 'phone',
+  customerName: '', customerEmail: '', customerPhone: '', notes: '',
+})
+
+const canSaveManualBooking = computed(() =>
+  !!manualBooking.typeId && !!manualBooking.date && !!manualBooking.startTime && !!manualBooking.customerName &&
+  (manualBooking.channel === 'phone' ? !!manualBooking.customerPhone : !!manualBooking.customerEmail)
+)
+
+function openManualBooking() {
+  Object.assign(manualBooking, {
+    typeId: types.value.find(t => t.active)?.typeId || '',
+    date: new Date().toISOString().slice(0, 10), startTime: '',
+    channel: 'video', customerName: '', customerEmail: '', customerPhone: '', notes: '',
+  })
+  manualBookingError.value = ''
+  showManualBookingModal.value = true
+}
+
+async function saveManualBooking() {
+  if (!canSaveManualBooking.value || savingManualBooking.value) return
+  savingManualBooking.value = true
+  manualBookingError.value = ''
+  try {
+    await $fetch(useApiUrl('/api/termine/bookings'), {
+      method: 'POST',
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
+      body: { ...manualBooking },
+    })
+    showManualBookingModal.value = false
+    await loadBookings()
+  } catch (e: any) {
+    manualBookingError.value = e?.data?.message || e?.message || 'Termin konnte nicht angelegt werden'
+  } finally {
+    savingManualBooking.value = false
+  }
 }
 
 // ── Einstellungen ───────────────────────────────────────

@@ -17,9 +17,14 @@ export default defineEventHandler(async (event) => {
   const startTime = String(body.startTime || '')
   const customerName = String(body.customerName || '').trim()
   const customerEmail = String(body.customerEmail || '').trim()
+  const customerPhone = String(body.customerPhone || '').trim()
+  const channel = body.channel === 'phone' ? 'phone' : 'video'
 
   if (!typeId || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(startTime) || !customerName || !customerEmail) {
     throw createError({ statusCode: 400, message: 'Pflichtfelder fehlen' })
+  }
+  if (channel === 'phone' && !customerPhone) {
+    throw createError({ statusCode: 400, message: 'Telefonnummer erforderlich für einen Telefontermin' })
   }
 
   const { tenantItem, typeItem } = await loadTenantAndType(tenantId, typeId)
@@ -42,9 +47,10 @@ export default defineEventHandler(async (event) => {
   try {
     const googleEvent = await createGoogleCalendarEvent(tenantItem, {
       summary: typeItem.name,
-      description: notes,
+      description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : notes,
       date, startTime, endTime,
       customerEmail,
+      channel,
     })
     if (googleEvent) {
       googleEventId = googleEvent.eventId
@@ -65,7 +71,8 @@ export default defineEventHandler(async (event) => {
     endTime,
     customerName,
     customerEmail,
-    customerPhone: String(body.customerPhone || ''),
+    customerPhone,
+    channel,
     notes,
     status: 'confirmed',
     source: 'public',
@@ -79,7 +86,7 @@ export default defineEventHandler(async (event) => {
   return {
     booking: {
       bookingId, typeName: item.typeName, date, startTime, endTime,
-      customerName, meetLink: item.googleMeetLink || null,
+      customerName, channel, meetLink: item.googleMeetLink || null,
     },
   }
 })

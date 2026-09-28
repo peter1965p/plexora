@@ -71,6 +71,7 @@ export async function createGoogleCalendarEvent(tenantItem: any, opts: {
   startTime: string
   endTime: string
   customerEmail: string
+  channel?: 'phone' | 'video'
 }): Promise<{ eventId: string; meetLink: string } | null> {
   if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return null
 
@@ -89,8 +90,10 @@ export async function createGoogleCalendarEvent(tenantItem: any, opts: {
   const accessToken = tokenRes.access_token as string
   if (!accessToken) return null
 
+  // Nur bei Video-Terminen einen Meet-Link anfordern — beim Telefontermin braucht's keinen.
+  const wantsMeet = opts.channel !== 'phone'
   const timeZone = tenantItem.termineTimezone || 'Europe/Berlin'
-  const event = await $fetch<any>('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1', {
+  const event = await $fetch<any>(`https://www.googleapis.com/calendar/v3/calendars/primary/events${wantsMeet ? '?conferenceDataVersion=1' : ''}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}` },
     body: {
@@ -99,9 +102,11 @@ export async function createGoogleCalendarEvent(tenantItem: any, opts: {
       start: { dateTime: `${opts.date}T${opts.startTime}:00`, timeZone },
       end:   { dateTime: `${opts.date}T${opts.endTime}:00`,   timeZone },
       attendees: [{ email: opts.customerEmail }],
-      conferenceData: {
-        createRequest: { requestId: `${opts.date}-${opts.startTime}-${Math.random().toString(36).slice(2)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } },
-      },
+      ...(wantsMeet ? {
+        conferenceData: {
+          createRequest: { requestId: `${opts.date}-${opts.startTime}-${Math.random().toString(36).slice(2)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } },
+        },
+      } : {}),
     },
   })
 
