@@ -20,7 +20,9 @@ export const AI_PROVIDER_DEFAULT_MODELS: Record<AiProvider, string> = {
 }
 
 export interface ChatMessage { role: 'user' | 'assistant'; content: string }
-export interface ChatResult { text: string; inputTokens: number; outputTokens: number }
+export interface ToolDef { name: string; description: string; parameters: Record<string, any> }
+export interface ToolCall { id: string; name: string; args: any }
+export interface ChatResult { text: string; inputTokens: number; outputTokens: number; toolCalls?: ToolCall[] }
 
 interface ChatArgs {
   apiKey: string
@@ -28,9 +30,14 @@ interface ChatArgs {
   system?: string
   messages: ChatMessage[]
   maxTokens?: number
+  tools?: ToolDef[]
 }
 
-async function chatAnthropic({ apiKey, model, system, messages, maxTokens }: ChatArgs): Promise<ChatResult> {
+function safeJsonParse(s: string): any {
+  try { return JSON.parse(s) } catch { return {} }
+}
+
+async function chatAnthropic({ apiKey, model, system, messages, maxTokens, tools }: ChatArgs): Promise<ChatResult> {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
@@ -39,20 +46,25 @@ async function chatAnthropic({ apiKey, model, system, messages, maxTokens }: Cha
       max_tokens: maxTokens || 1024,
       ...(system ? { system } : {}),
       messages,
+      ...(tools?.length ? { tools: tools.map(t => ({ name: t.name, description: t.description, input_schema: t.parameters })) } : {}),
     }),
   })
   const data = await res.json() as any
   if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`)
+  const blocks = data.content || []
+  const text = blocks.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('\n')
+  const toolCalls = blocks.filter((b: any) => b.type === 'tool_use').map((b: any) => ({ id: b.id, name: b.name, args: b.input }))
   return {
-    text: data.content?.[0]?.text || '',
+    text,
     inputTokens: data.usage?.input_tokens || 0,
     outputTokens: data.usage?.output_tokens || 0,
+    ...(toolCalls.length ? { toolCalls } : {}),
   }
 }
 
 // OpenAI und Groq sind API-kompatibel (Chat-Completions-Format) — ein Adapter genügt.
 async function chatOpenAiCompatible(baseUrl: string, defaultModel: string) {
-  return async ({ apiKey, model, system, messages, maxTokens }: ChatArgs): Promise<ChatResult> => {
+  return async ({ apiKey, model, system, messages, maxTokens, tools }: ChatArgs): Promise<ChatResult> => {
     const res = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'content-type': 'application/json' },
@@ -60,19 +72,23 @@ async function chatOpenAiCompatible(baseUrl: string, defaultModel: string) {
         model: model || defaultModel,
         max_tokens: maxTokens || 1024,
         messages: [...(system ? [{ role: 'system', content: system }] : []), ...messages],
+        ...(tools?.length ? { tools: tools.map(t => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })) } : {}),
       }),
     })
     const data = await res.json() as any
     if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`)
+    const msg = data.choices?.[0]?.message
+    const toolCalls = (msg?.tool_calls || []).map((tc: any) => ({ id: tc.id, name: tc.function.name, args: safeJsonParse(tc.function.arguments) }))
     return {
-      text: data.choices?.[0]?.message?.content || '',
+      text: msg?.content || '',
       inputTokens: data.usage?.prompt_tokens || 0,
       outputTokens: data.usage?.completion_tokens || 0,
+      ...(toolCalls.length ? { toolCalls } : {}),
     }
   }
 }
 
-async function chatGemini({ apiKey, model, system, messages, maxTokens }: ChatArgs): Promise<ChatResult> {
+async function chatGemini({ apiKey, model, system, messages, maxTokens, tools }: ChatArgs): Promise<ChatResult> {
   const useModel = model || AI_PROVIDER_DEFAULT_MODELS.gemini
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${apiKey}`, {
     method: 'POST',
@@ -81,14 +97,19 @@ async function chatGemini({ apiKey, model, system, messages, maxTokens }: ChatAr
       ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
       contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
       generationConfig: { maxOutputTokens: maxTokens || 1024 },
+      ...(tools?.length ? { tools: [{ functionDeclarations: tools.map(t => ({ name: t.name, description: t.description, parameters: t.parameters })) }] } : {}),
     }),
   })
   const data = await res.json() as any
   if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`)
+  const parts = data.candidates?.[0]?.content?.parts || []
+  const text = parts.filter((p: any) => p.text).map((p: any) => p.text).join('\n')
+  const toolCalls = parts.filter((p: any) => p.functionCall).map((p: any, i: number) => ({ id: `call_${i}`, name: p.functionCall.name, args: p.functionCall.args || {} }))
   return {
-    text: data.candidates?.[0]?.content?.parts?.[0]?.text || '',
+    text,
     inputTokens: data.usageMetadata?.promptTokenCount || 0,
     outputTokens: data.usageMetadata?.candidatesTokenCount || 0,
+    ...(toolCalls.length ? { toolCalls } : {}),
   }
 }
 

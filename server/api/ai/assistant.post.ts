@@ -3,15 +3,23 @@ import { getTenantByEmail, pickProvider } from '../../utils/ai/keys'
 import { chatOnce } from '../../utils/ai/providers'
 import { logAiUsage } from '../../utils/ai/usage'
 import { buildBusinessSnapshot } from '../../utils/ai/snapshot'
+import { ACTIONS } from '../../utils/ai/actions'
 
 const SYSTEM_PROMPT = (snapshot: string) => `Du bist "Plexi", der Plexora-Assistent — ein hilfreicher Business-Copilot im
 Backend einer Firma. Du antwortest kurz, konkret und auf Deutsch. Du hast Lesezugriff
 auf eine Momentaufnahme der Geschäftsdaten (siehe unten) — sie kann leicht
-veraltet sein. Du kannst aktuell noch keine Aktionen ausführen (keine
-Rechnungen erstellen, keine Daten ändern) — weise freundlich darauf hin, falls
-danach gefragt wird, und schlage vor, wo man das im Backend selbst macht.
+veraltet sein.
+
+Du kannst über die dir zur Verfügung gestellten Tools Aktionen VORSCHLAGEN
+(z.B. eine Rechnung oder einen Kontakt anlegen). Die Aktion wird NIE sofort
+ausgeführt — der Nutzer sieht danach immer erst eine Bestätigung und muss
+explizit zustimmen. Rufe ein Tool nur auf, wenn der Nutzer erkennbar genau
+das möchte, und frage vorher kurz nach fehlenden Pflichtangaben (z.B. Betrag,
+Kundenname), statt sie zu erfinden.
 
 ${snapshot}`
+
+const TOOLS = Object.values(ACTIONS).map(a => ({ name: a.name, description: a.description, parameters: a.parameters }))
 
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
@@ -37,6 +45,7 @@ export default defineEventHandler(async (event) => {
       system: SYSTEM_PROMPT(snapshotText),
       messages,
       maxTokens: 500,
+      tools: TOOLS,
     })
 
     logAiUsage({
@@ -45,7 +54,12 @@ export default defineEventHandler(async (event) => {
       feature: 'backend-assistant',
     })
 
-    return { text: result.text }
+    const call = result.toolCalls?.[0]
+    const action = call && ACTIONS[call.name]
+      ? { id: call.id, name: call.name, label: ACTIONS[call.name].label, args: call.args }
+      : undefined
+
+    return { text: result.text, action }
   } catch (e: any) {
     throw createError({ statusCode: 502, message: e?.message || 'KI-Anfrage fehlgeschlagen' })
   }
