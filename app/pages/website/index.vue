@@ -887,6 +887,32 @@
         </div>
       </div>
 
+      <!-- ── TAB: TERMINE ── -->
+      <div v-else-if="activeTab === 'termine-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-calendar-event" style="margin-right:8px;color:var(--accent)"></i>Termine</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--text-muted)">{{ termineForm.enabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <button @click="toggleTermineEnabled" :disabled="!termineForm.loaded"
+                style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="termineForm.enabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="termineForm.enabled ? 'left:21px' : 'left:3px'"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+            Terminbuchung-Sektion auf der Website aktivieren. Terminarten, Google-Kalender-Verbindung
+            und Arbeitszeiten verwaltest du im Sidebar-Menü unter <strong>Termine</strong>.
+          </div>
+          <div>
+            <label class="field-label">Titel (Navigation & Überschrift)</label>
+            <input v-model="termineForm.title" class="field-input" placeholder="Termine" @blur="saveTermineSettings" />
+          </div>
+        </div>
+      </div>
+
       <!-- ── TAB: SEO ── -->
       <div v-else-if="activeTab === 'seo'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
@@ -1541,6 +1567,7 @@ const tabs = [
   { key: 'shop-settings',  label: 'Shop',       icon: 'ti-shopping-cart' },
   { key: 'newsletter-settings', label: 'Newsletter', icon: 'ti-mail' },
   { key: 'plexi-settings', label: 'Plexi', icon: 'ti-sparkles' },
+  { key: 'termine-settings', label: 'Termine', icon: 'ti-calendar-event' },
   { key: 'seo',           label: 'SEO',        icon: 'ti-search' },
   { key: 'agb',           label: 'AGB',        icon: 'ti-license' },
   { key: 'datenschutz',label: 'Datenschutz',icon: 'ti-shield-lock' },
@@ -1725,6 +1752,38 @@ onMounted(async () => {
   } catch {}
   loading.value = false
 })
+
+// ── Termine (eigener Bereich — /api/termine/settings statt /api/nexora/my) ──
+const termineForm = reactive({ enabled: false, title: 'Termine', loaded: false, raw: null as any })
+
+async function loadTermineSettings() {
+  try {
+    const res = await $fetch<{ settings: any }>(useApiUrl('/api/termine/settings'), { headers: await useAuthHeader() })
+    termineForm.raw = res.settings
+    termineForm.enabled = res.settings.termineEnabled
+    termineForm.title = res.settings.termineTitle
+  } catch {}
+  termineForm.loaded = true
+}
+onMounted(() => loadTermineSettings())
+
+async function saveTermineSettings() {
+  if (!termineForm.raw) return
+  try {
+    await $fetch(useApiUrl('/api/termine/settings'), {
+      method: 'PUT',
+      headers: await useAuthHeader(),
+      body: { ...termineForm.raw, termineEnabled: termineForm.enabled, termineTitle: termineForm.title },
+    })
+  } catch (e: any) {
+    alert('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
+  }
+}
+
+async function toggleTermineEnabled() {
+  termineForm.enabled = !termineForm.enabled
+  await saveTermineSettings()
+}
 
 async function save() {
   saving.value = true

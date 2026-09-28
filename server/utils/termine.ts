@@ -108,6 +108,44 @@ export async function createGoogleCalendarEvent(tenantItem: any, opts: {
   return { eventId: event.id || '', meetLink: event.hangoutLink || '' }
 }
 
+// Reine Lese-Anzeige: holt Termine direkt aus Google Calendar (auch die, die NICHT über
+// Plexora gebucht wurden, z.B. manuell in Google eingetragen). Läuft komplett getrennt von
+// plexora-termine-bookings — es gibt bewusst keinen Sync zwischen beiden Seiten.
+export async function listGoogleCalendarEvents(tenantItem: any, opts: { timeMin: string; timeMax: string }): Promise<Array<{
+  id: string; summary: string; start: string; end: string; meetLink: string; htmlLink: string
+}>> {
+  if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return []
+
+  const config = useRuntimeConfig()
+  const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
+
+  const tokenRes = await $fetch<any>('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    body: {
+      client_id: config.googleClientId,
+      client_secret: config.googleClientSecret,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    },
+  })
+  const accessToken = tokenRes.access_token as string
+  if (!accessToken) return []
+
+  const res = await $fetch<any>('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    query: { timeMin: opts.timeMin, timeMax: opts.timeMax, singleEvents: true, orderBy: 'startTime', maxResults: 250 },
+  })
+
+  return (res.items || []).map((e: any) => ({
+    id: e.id,
+    summary: e.summary || '(Ohne Titel)',
+    start: e.start?.dateTime || e.start?.date || '',
+    end: e.end?.dateTime || e.end?.date || '',
+    meetLink: e.hangoutLink || '',
+    htmlLink: e.htmlLink || '',
+  }))
+}
+
 export async function loadTenantAndType(tenantId: string, typeId: string) {
   const dynamo = getDynamoClient()
   const [tenantRes, typeRes] = await Promise.all([

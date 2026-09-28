@@ -101,6 +101,33 @@
 
     <!-- ── TAB: TERMINE ── -->
     <div v-else-if="activeTab === 'termine'">
+      <!-- Google-Kalender: alles, was direkt in Google Calendar eingetragen wurde (nicht nur über
+           Plexora gebuchte Termine) — separat, weil es eine andere Quelle als plexora-termine-bookings ist. -->
+      <div v-if="settingsForm.googleConnected" class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-brand-google" style="margin-right:8px;color:var(--accent)"></i>Aus Google Kalender</span>
+          <button class="icon-btn" title="Aktualisieren" :disabled="loadingGoogleEvents" @click="loadGoogleEvents">
+            <i class="ti" :class="loadingGoogleEvents ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
+          </button>
+        </div>
+        <div v-if="googleEventsError" style="font-size:12px;color:#e05c5c">{{ googleEventsError }}</div>
+        <div v-else-if="!loadingGoogleEvents && !googleEvents.length" style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px">
+          Keine Termine in den nächsten 30 Tagen in deinem Google-Kalender.
+        </div>
+        <div v-else style="display:flex;flex-direction:column;gap:6px">
+          <div v-for="ev in googleEvents" :key="ev.id"
+            style="display:flex;align-items:center;gap:16px;padding:10px 4px;border-bottom:0.5px solid var(--border);flex-wrap:wrap">
+            <div style="width:150px;flex-shrink:0;font-size:12px;color:var(--text-muted)">{{ formatGoogleEventTime(ev) }}</div>
+            <div style="flex:1;min-width:160px;font-size:13px;font-weight:600">{{ ev.summary }}</div>
+            <a v-if="ev.meetLink" :href="ev.meetLink" target="_blank" class="icon-btn" title="Meet-Link öffnen"><i class="ti ti-video"></i></a>
+            <a :href="ev.htmlLink" target="_blank" class="icon-btn" title="In Google Calendar öffnen"><i class="ti ti-external-link"></i></a>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:10px">
+          Nur Anzeige — manuell in Google eingetragene Termine landen nicht automatisch in Plexora und umgekehrt.
+        </div>
+      </div>
+
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
         <button v-for="f in bookingFilters" :key="f.key" class="theme-opt" :class="{ active: bookingFilter === f.key }" @click="bookingFilter = f.key">
           {{ f.label }}
@@ -386,6 +413,37 @@ async function cancelBooking(b: Booking) {
   await $fetch(useApiUrl(`/api/termine/bookings/${b.bookingId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { status: 'cancelled' } })
 }
 
+// ── Google-Kalender (reine Anzeige, separat von plexora-termine-bookings) ──
+interface GoogleEvent { id: string; summary: string; start: string; end: string; meetLink: string; htmlLink: string }
+const googleEvents        = ref<GoogleEvent[]>([])
+const loadingGoogleEvents = ref(false)
+const googleEventsError   = ref('')
+
+async function loadGoogleEvents() {
+  loadingGoogleEvents.value = true
+  googleEventsError.value = ''
+  try {
+    const res = await $fetch<{ events: GoogleEvent[]; error?: string }>(useApiUrl('/api/termine/google-events'), {
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
+    })
+    googleEvents.value = res.events || []
+    if (res.error) googleEventsError.value = res.error
+  } catch (e: any) {
+    googleEventsError.value = e?.data?.message || e?.message || 'Google-Kalender konnte nicht geladen werden'
+  } finally {
+    loadingGoogleEvents.value = false
+  }
+}
+
+function formatGoogleEventTime(ev: GoogleEvent): string {
+  const start = new Date(ev.start)
+  const isAllDay = !ev.start.includes('T')
+  const dateStr = start.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+  if (isAllDay) return `${dateStr}, ganztägig`
+  const timeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  return `${dateStr}, ${timeStr}`
+}
+
 // ── Einstellungen ───────────────────────────────────────
 const loadingSettings = ref(true)
 const savingSettings  = ref(false)
@@ -450,7 +508,7 @@ onMounted(async () => {
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
-  await Promise.all([loadTypes(), loadBookings(), loadSettings()])
+  await Promise.all([loadTypes(), loadBookings(), loadSettings(), loadGoogleEvents()])
 
   const route = useRoute()
   if (route.query.google === 'error') alert('Google-Verbindung fehlgeschlagen. Bitte erneut versuchen.')
