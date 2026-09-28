@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     settings: {
       termineEnabled:         item?.termineEnabled         ?? false,
       termineTitle:           item?.termineTitle            || 'Termine',
+      termineDescription:     item?.termineDescription       || '',
       termineTimezone:        item?.termineTimezone         || 'Europe/Berlin',
       termineWorkingHours:    item?.termineWorkingHours     || DEFAULT_HOURS,
       termineSlotStepMinutes: item?.termineSlotStepMinutes  ?? 30,

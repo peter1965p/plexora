@@ -30,8 +30,9 @@ export default defineEventHandler(async (event) => {
     .map(t => ({ typeId: t.typeId, name: t.name, durationMinutes: t.durationMinutes }))
 
   return {
-    title:    res.Item.termineTitle || 'Termine',
-    timezone: res.Item.termineTimezone || 'Europe/Berlin',
+    title:       res.Item.termineTitle || 'Termine',
+    description: res.Item.termineDescription || '',
+    timezone:    res.Item.termineTimezone || 'Europe/Berlin',
     types,
   }
 })

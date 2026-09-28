@@ -910,6 +910,12 @@
             <label class="field-label">Titel (Navigation & Überschrift)</label>
             <input v-model="termineForm.title" class="field-input" placeholder="Termine" @blur="saveTermineSettings" />
           </div>
+          <div>
+            <label class="field-label">Beschreibungstext (unter der Überschrift)</label>
+            <textarea v-model="termineForm.description" class="field-input" rows="3"
+              placeholder="Vereinbare unkompliziert einen Termin mit uns — telefonisch oder per Video-Call."
+              @blur="saveTermineSettings"></textarea>
+          </div>
         </div>
       </div>
 
@@ -1754,7 +1760,7 @@ onMounted(async () => {
 })
 
 // ── Termine (eigener Bereich — /api/termine/settings statt /api/nexora/my) ──
-const termineForm = reactive({ enabled: false, title: 'Termine', loaded: false, raw: null as any })
+const termineForm = reactive({ enabled: false, title: 'Termine', description: '', loaded: false, raw: null as any })
 
 async function loadTermineSettings() {
   try {
@@ -1762,6 +1768,7 @@ async function loadTermineSettings() {
     termineForm.raw = res.settings
     termineForm.enabled = res.settings.termineEnabled
     termineForm.title = res.settings.termineTitle
+    termineForm.description = res.settings.termineDescription || ''
   } catch {}
   termineForm.loaded = true
 }
@@ -1773,7 +1780,7 @@ async function saveTermineSettings() {
     await $fetch(useApiUrl('/api/termine/settings'), {
       method: 'PUT',
       headers: await useAuthHeader(),
-      body: { ...termineForm.raw, termineEnabled: termineForm.enabled, termineTitle: termineForm.title },
+      body: { ...termineForm.raw, termineEnabled: termineForm.enabled, termineTitle: termineForm.title, termineDescription: termineForm.description },
     })
   } catch (e: any) {
     alert('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
