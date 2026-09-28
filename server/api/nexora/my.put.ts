@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName:  'plexora-nexora',
     Key:        { tenantId: item.tenantId },
-    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, githubEnabled = :ghe, githubPatEncrypted = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, blogEnabled = :ble, blogTitle = :blt, shopEnabled = :she, shopTitle = :sht, newsletterEnabled = :nle, newsletterTitle = :nlt, plexiEnabled = :ple, plexiWelcome = :plw, sectionOrder = :so, navOrder = :no, heroMediaType = :hmt, heroImageUrl = :hiu, anthropicApiKeyEncrypted = :aak, anthropicApiKeyMasked = :aakm, robotsTxt = :rtx, metaKeywords = :mkw, gaMeasurementId = :gaid, pageTitles = :pt, updatedAt = :u',
+    UpdateExpression: 'SET companyName = :cn, subdomain = :sd, customDomain = :cd, config = :cfg, services = :svc, hero = :hero, about = :about, contactInfo = :ci, pages = :pg, theme = :th, footer = :ft, logoUrl = :logo, faviconUrl = :fav, heroBackground = :hbg, heroTitleSize = :hts, heroGradient = :hgr, servicesLayout = :sl, stackEnabled = :se, stackItems = :si, stackTitle = :st, stackLegend = :slg, clientsEnabled = :ce, clientsItems = :cit, clientsTitle = :ct, clientsLogoStyle = :cls, clientsShowText = :cst, githubEnabled = :ghe, githubPatEncrypted = :ghp, githubRepos = :ghr, githubTitle = :ght, githubShowForks = :ghf, blogEnabled = :ble, blogTitle = :blt, shopEnabled = :she, shopTitle = :sht, newsletterEnabled = :nle, newsletterTitle = :nlt, plexiEnabled = :ple, plexiWelcome = :plw, sectionOrder = :so, navOrder = :no, heroMediaType = :hmt, heroImageUrl = :hiu, anthropicApiKeyEncrypted = :aak, anthropicApiKeyMasked = :aakm, robotsTxt = :rtx, metaKeywords = :mkw, gaMeasurementId = :gaid, pageTitles = :pt, updatedAt = :u',
     ExpressionAttributeValues: {
       ':cn':   body.companyName     ?? item.companyName     ?? '',
       ':sd':   body.subdomain       ?? item.subdomain       ?? '',
@@ -47,6 +47,8 @@ export default defineEventHandler(async (event) => {
       ':ce':   body.clientsEnabled  ?? item.clientsEnabled  ?? false,
       ':cit':  body.clientsItems    ?? item.clientsItems    ?? [],
       ':ct':   body.clientsTitle    ?? item.clientsTitle    ?? 'REFERENZEN',
+      ':cls':  body.clientsLogoStyle ?? item.clientsLogoStyle ?? 'accent',
+      ':cst':  body.clientsShowText  ?? item.clientsShowText  ?? false,
       ':ghe':  body.githubEnabled   ?? item.githubEnabled   ?? false,
       // Empty/missing body.githubPat means "unchanged" — only a real new value gets (re-)encrypted.
       ':ghp':  body.githubPat ? encryptSecret(body.githubPat) : (item.githubPatEncrypted || ''),

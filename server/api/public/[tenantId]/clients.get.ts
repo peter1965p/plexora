@@ -23,5 +23,7 @@ export default defineEventHandler(async (event) => {
     enabled: res.Item.clientsEnabled ?? false,
     title:   res.Item.clientsTitle   || 'REFERENZEN',
     items:   res.Item.clientsItems   || [],
+    logoStyle: res.Item.clientsLogoStyle || 'accent',
+    showText: res.Item.clientsShowText ?? false,
   }
 })

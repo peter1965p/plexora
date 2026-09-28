@@ -660,6 +660,25 @@
             <input v-model="form.clientsTitle" class="field-input" placeholder="REFERENZEN" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
           </div>
 
+          <!-- Logo-Darstellung -->
+          <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <label class="field-label">Logo-Darstellung</label>
+              <select v-model="form.clientsLogoStyle" class="field-input">
+                <option value="accent">Eingefärbt in Akzentfarbe (Freistell-Look)</option>
+                <option value="grayscale">Graustufen</option>
+                <option value="original">Originalfarben</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Firmenname</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;height:38px">
+                <input type="checkbox" v-model="form.clientsShowText" style="width:auto" />
+                <span style="font-size:13px">zusätzlich zum Logo anzeigen</span>
+              </label>
+            </div>
+          </div>
+
           <!-- Items list -->
           <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
             <div v-for="(item, i) in form.clientsItems" :key="i"
@@ -1644,6 +1663,8 @@ const form = reactive({
   stackNewColor: 'blue' as string,
   clientsEnabled:  false,
   clientsTitle:    'REFERENZEN',
+  clientsLogoStyle: 'accent',
+  clientsShowText: false,
   clientsItems:    [] as { name: string; logoUrl?: string }[],
   clientsNewName:  '',
   githubEnabled:   false,
@@ -1724,6 +1745,8 @@ onMounted(async () => {
       form.stackLegend         = { ...form.stackLegend, ...(n.stackLegend || {}) }
       form.clientsEnabled      = n.clientsEnabled ?? false
       form.clientsTitle        = n.clientsTitle   || 'REFERENZEN'
+      form.clientsLogoStyle    = n.clientsLogoStyle || 'accent'
+      form.clientsShowText     = n.clientsShowText ?? false
       form.clientsItems        = n.clientsItems   || []
       form.githubEnabled       = n.githubEnabled  ?? false
       form.blogEnabled         = n.blogEnabled    ?? false
@@ -1873,6 +1896,8 @@ async function save() {
         stackLegend:  form.stackLegend,
         clientsEnabled: form.clientsEnabled,
         clientsTitle:   form.clientsTitle,
+        clientsLogoStyle: form.clientsLogoStyle,
+        clientsShowText: form.clientsShowText,
         clientsItems:   form.clientsItems,
         githubEnabled:  form.githubEnabled,
         githubPat:      form.githubPat,
