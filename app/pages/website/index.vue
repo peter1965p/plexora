@@ -661,18 +661,23 @@
           </div>
 
           <!-- Items list -->
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
             <div v-for="(item, i) in form.clientsItems" :key="i"
-              style="display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
-              <!-- Reorder -->
-              <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">
-                <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, -1)" :disabled="i === 0"><i class="ti ti-chevron-up"></i></button>
-                <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, 1)" :disabled="i === form.clientsItems.length - 1"><i class="ti ti-chevron-down"></i></button>
+              style="padding:12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:8px;align-items:center">
+                <!-- Reorder -->
+                <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">
+                  <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, -1)" :disabled="i === 0"><i class="ti ti-chevron-up"></i></button>
+                  <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, 1)" :disabled="i === form.clientsItems.length - 1"><i class="ti ti-chevron-down"></i></button>
+                </div>
+                <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);flex-shrink:0;min-width:8px">/</span>
+                <input v-model="item.name" class="field-input" placeholder="Firmenname" style="flex:1;padding:5px 10px;height:32px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-family:monospace" />
+                <button class="icon-btn" @click="removeClientItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
               </div>
-              <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);flex-shrink:0;min-width:8px">/</span>
-              <input v-model="item.name" class="field-input" placeholder="Firmenname" style="flex:1;padding:5px 10px;height:32px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-family:monospace" />
-              <input v-model="item.logoUrl" class="field-input" placeholder="Logo-URL (optional)" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
-              <button class="icon-btn" @click="removeClientItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
+              <div>
+                <label class="field-label" style="font-size:11px">Logo — am besten PNG/SVG mit transparentem Hintergrund</label>
+                <ImageUploadCrop v-model="item.logoUrl" s3-prefix="nexora/clients/" file-name-prefix="logo" :ratios="[[1, 1], [3, 1]]" />
+              </div>
             </div>
             <div v-if="!form.clientsItems.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
               Noch keine Einträge — füge deine Kunden oder Referenzen hinzu
