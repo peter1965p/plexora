@@ -35,6 +35,7 @@
       <button class="theme-opt" :class="{ active: tab==='bank' }"       @click="tab='bank'">      <i class="ti ti-building-bank"></i> {{ t.finance.bankImport }}</button>
       <button class="theme-opt" :class="{ active: tab==='tax' }"        @click="tab='tax'">       <i class="ti ti-file-euro"></i> {{ t.finance.tax }}</button>
       <button class="theme-opt" :class="{ active: tab==='catalog' }"    @click="tab='catalog'">   <i class="ti ti-box"></i> {{ t.finance.catalog }}</button>
+      <button class="theme-opt" :class="{ active: tab==='articles' }"   @click="tab='articles'">  <i class="ti ti-package"></i> Artikel</button>
     </div>
 
     <!-- ═══ TAB: RECHNUNGEN ═══ -->
@@ -327,6 +328,40 @@
       </table>
     </div>
 
+    <!-- ═══ TAB: ARTIKEL (physische Ware, eigene DB getrennt von Leistungen & Shop) ═══ -->
+    <div v-if="tab==='articles'" class="card">
+      <div class="card-header">
+        <span class="card-title">Artikel</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddArticle">
+          <i class="ti ti-plus"></i> Neuer Artikel
+        </button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Bezeichnung</th><th>Artikelnr.</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>MwSt.</th><th style="width:80px"></th></tr>
+        </thead>
+        <tbody>
+          <tr v-if="!articles.length">
+            <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Artikel angelegt.</td>
+          </tr>
+          <tr v-for="a in articles" :key="a.articleId">
+            <td class="td-name">{{ a.name }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ a.sku || '–' }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ a.description || '–' }}</td>
+            <td>{{ formatEur(a.price) }}</td>
+            <td style="font-size:12px">{{ a.unit }}</td>
+            <td style="font-size:12px">{{ a.vatRate }}%</td>
+            <td>
+              <div style="display:flex;gap:4px">
+                <button class="icon-btn" @click="openEditArticle(a)"><i class="ti ti-pencil"></i></button>
+                <button class="icon-btn" style="color:var(--danger)" @click="deleteArticle(a)"><i class="ti ti-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- ADD RECHNUNG MODAL -->
     <div v-if="showAdd" class="modal-overlay" @click.self="showAdd=false">
       <div class="modal-card">
@@ -345,10 +380,13 @@
             <div class="auth-field" style="margin:0;flex:2;min-width:160px">
               <input v-model="item.description" :placeholder="t.common.description" />
             </div>
-            <select v-if="services.length || shopProducts.length" class="form-select" style="height:36px;width:150px" @change="applyCatalogItem(item, ($event.target as HTMLSelectElement).value)">
+            <select v-if="services.length || shopProducts.length || articles.length" class="form-select" style="height:36px;width:150px" @change="applyCatalogItem(item, ($event.target as HTMLSelectElement).value)">
               <option value="">{{ t.finance.fromCatalog }}</option>
               <optgroup v-if="services.length" label="Leistungen">
                 <option v-for="s in services" :key="s.serviceId" :value="'service:' + s.serviceId">{{ s.name }}</option>
+              </optgroup>
+              <optgroup v-if="articles.length" label="Artikel">
+                <option v-for="a in articles" :key="a.articleId" :value="'article:' + a.articleId">{{ a.name }}</option>
               </optgroup>
               <optgroup v-if="shopProducts.length" label="Shop-Produkte">
                 <option v-for="p in shopProducts" :key="p.productId" :value="'product:' + p.productId">{{ p.name }}</option>
@@ -400,7 +438,7 @@
             <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newService.price" type="number" placeholder="95" /></div>
             <div class="auth-field">
               <label>{{ t.finance.unit }}</label>
-              <select :value="newService.unit" @change="onUnitSelect($event)" class="form-select">
+              <select :value="newService.unit" @change="onUnitSelect($event, newService)" class="form-select">
                 <option v-for="u in serviceUnits" :key="u" :value="u">{{ u }}</option>
                 <option value="__new__">+ Neue Einheit...</option>
               </select>
@@ -409,6 +447,36 @@
           <div class="auth-field"><label>MwSt.-Satz (%)</label><input v-model.number="newService.vatRate" type="number" placeholder="19" /></div>
           <button class="auth-btn" :disabled="saving || !newService.name" @click="saveService">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else>{{ t.common.save }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD/EDIT ARTIKEL MODAL -->
+    <div v-if="showArticle" class="modal-overlay" @click.self="showArticle=false">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="card-title">{{ editingArticle ? t.common.save : 'Neuer Artikel' }}</span>
+          <button class="icon-btn" @click="showArticle=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-field"><label>Bezeichnung</label><input v-model="newArticle.name" placeholder="z.B. USB-Kabel 2m" /></div>
+          <div class="auth-field"><label>Artikelnummer (optional)</label><input v-model="newArticle.sku" placeholder="z.B. ART-1042" /></div>
+          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newArticle.description" placeholder="Optionale Beschreibung..." /></div>
+          <div class="auth-row">
+            <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newArticle.price" type="number" placeholder="9.90" /></div>
+            <div class="auth-field">
+              <label>{{ t.finance.unit }}</label>
+              <select :value="newArticle.unit" @change="onUnitSelect($event, newArticle)" class="form-select">
+                <option v-for="u in serviceUnits" :key="u" :value="u">{{ u }}</option>
+                <option value="__new__">+ Neue Einheit...</option>
+              </select>
+            </div>
+          </div>
+          <div class="auth-field"><label>MwSt.-Satz (%)</label><input v-model.number="newArticle.vatRate" type="number" placeholder="19" /></div>
+          <button class="auth-btn" :disabled="savingArticle || !newArticle.name" @click="saveArticle">
+            <span v-if="savingArticle"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else>{{ t.common.save }}</span>
           </button>
         </div>
@@ -529,6 +597,9 @@ const ustva = computed(() => _ustvaRaw.value as any)
 const { data: _servicesRaw, refresh: refreshServices } = await useFetch(() => useApiUrl('/api/services'), { headers: authHeaders })
 const services = computed(() => (_servicesRaw.value as any)?.services || [])
 
+const { data: _articlesRaw, refresh: refreshArticles } = await useFetch(() => useApiUrl('/api/articles'), { headers: authHeaders })
+const articles = computed(() => (_articlesRaw.value as any)?.articles || [])
+
 const { data: _productsRaw } = await useFetch(() => useApiUrl('/api/shop/products'), { headers: authHeaders })
 const shopProducts = computed(() => (_productsRaw.value as any)?.products || [])
 
@@ -541,11 +612,11 @@ watch(_categoriesRaw, (v) => {
 
 // Neue Einheit direkt aus dem Dropdown heraus anlegen, statt erst zu den
 // Einstellungen wechseln zu müssen — der Link dort war zu unauffällig.
-async function onUnitSelect(e: Event) {
+async function onUnitSelect(e: Event, target: { unit: string }) {
   const val = (e.target as HTMLSelectElement).value
-  if (val !== '__new__') { newService.unit = val; return }
+  if (val !== '__new__') { target.unit = val; return }
   const name = prompt('Neue Einheit (z.B. "Pauschal"):')?.trim()
-  if (!name) { (e.target as HTMLSelectElement).value = newService.unit; return }
+  if (!name) { (e.target as HTMLSelectElement).value = target.unit; return }
   if (!serviceUnits.value.includes(name)) {
     serviceUnits.value = [...serviceUnits.value, name]
     try {
@@ -554,7 +625,7 @@ async function onUnitSelect(e: Event) {
       })
     } catch {}
   }
-  newService.unit = name
+  target.unit = name
 }
 
 // ── UI state ──────────────────────────────────────────
@@ -597,6 +668,9 @@ function applyCatalogItem(item: any, value: string) {
   if (type === 'service') {
     const s = services.value.find((x: any) => x.serviceId === id)
     if (s) { item.description = s.name; item.price = s.price }
+  } else if (type === 'article') {
+    const a = articles.value.find((x: any) => x.articleId === id)
+    if (a) { item.description = a.name; item.price = a.price }
   } else if (type === 'product') {
     const p = shopProducts.value.find((x: any) => x.productId === id)
     if (p) { item.description = p.name; item.price = p.price }
@@ -643,6 +717,32 @@ async function deleteService(s: any) {
   if (!await openConfirm({ title: 'Leistung löschen?', name: s.name })) return
   await $fetch(useApiUrl(`/api/services/${s.serviceId}`), { method: 'DELETE', headers: authHeaders })
   await refreshServices()
+}
+
+// ── Artikelkatalog ────────────────────────────────────
+const showArticle     = ref(false)
+const editingArticle  = ref<any>(null)
+const savingArticle   = ref(false)
+const newArticle = reactive({ name: '', description: '', sku: '', price: 0, unit: 'Stk', vatRate: 19 })
+function openAddArticle() { editingArticle.value = null; Object.assign(newArticle, { name: '', description: '', sku: '', price: 0, unit: 'Stk', vatRate: 19 }); showArticle.value = true }
+function openEditArticle(a: any) { editingArticle.value = a; Object.assign(newArticle, { name: a.name, description: a.description || '', sku: a.sku || '', price: a.price, unit: a.unit, vatRate: a.vatRate }); showArticle.value = true }
+async function saveArticle() {
+  savingArticle.value = true
+  try {
+    if (editingArticle.value) {
+      await $fetch(useApiUrl(`/api/articles/${editingArticle.value.articleId}`), { method: 'PATCH', headers: authHeaders, body: newArticle })
+    } else {
+      await $fetch(useApiUrl('/api/articles'), { method: 'POST', headers: authHeaders, body: newArticle })
+    }
+    await refreshArticles()
+    showArticle.value = false
+    showToast('Artikel gespeichert!')
+  } finally { savingArticle.value = false }
+}
+async function deleteArticle(a: any) {
+  if (!await openConfirm({ title: 'Artikel löschen?', name: a.name })) return
+  await $fetch(useApiUrl(`/api/articles/${a.articleId}`), { method: 'DELETE', headers: authHeaders })
+  await refreshArticles()
 }
 
 async function sendMail(invoice: any) {
