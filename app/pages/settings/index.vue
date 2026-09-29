@@ -517,27 +517,42 @@
 
     <!-- KATEGORIEN -->
     <div v-if="tab === 'categories'">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
-        <div v-for="area in categoryAreas" :key="area.key" class="card">
-          <div class="card-header">
-            <span class="card-title"><i class="ti" :class="area.icon" style="margin-right:8px;color:var(--accent)"></i>{{ area.title || (area.label + '-Kategorien') }}</span>
+      <div class="card" style="max-width:640px">
+        <div class="card-header">
+          <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>Kategorien &amp; Einheiten</span>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+          <!-- Bereich wählen -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button v-for="area in categoryAreas" :key="area.key" class="theme-opt" :class="{ active: activeCategoryArea === area.key }" @click="activeCategoryArea = area.key">
+              <i class="ti" :class="area.icon"></i> {{ area.label }}
+            </button>
           </div>
-          <div class="card-body">
-            <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px">
-              <div class="auth-field" style="flex:1;margin:0">
-                <label>{{ area.inputLabel || 'Neue Kategorie' }}</label>
-                <input v-model="newCategoryInput[area.key]" :placeholder="area.placeholder || 'z.B. Ratgeber'" @keyup.enter="addCategory(area.key)" />
-              </div>
-              <button class="accent-btn" :disabled="isDemo || !newCategoryInput[area.key]?.trim() || categoriesSaving" @click="addCategory(area.key)">
-                <i class="ti ti-plus"></i> Hinzufügen
-              </button>
+
+          <!-- Eingabe bleibt immer offen -->
+          <div style="display:flex;gap:10px;align-items:flex-end">
+            <div class="auth-field" style="flex:1;margin:0">
+              <label>{{ currentCategoryArea.inputLabel || 'Neue Kategorie' }}</label>
+              <input v-model="newCategoryInput[activeCategoryArea]" :placeholder="currentCategoryArea.placeholder || 'z.B. Ratgeber'" @keyup.enter="addCategory(activeCategoryArea)" />
             </div>
-            <div v-if="!categories[area.key]?.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">
-              {{ area.emptyText || 'Noch keine Kategorien angelegt.' }}
+            <button class="accent-btn" :disabled="isDemo || !newCategoryInput[activeCategoryArea]?.trim() || categoriesSaving" @click="addCategory(activeCategoryArea)">
+              <i class="ti ti-plus"></i> Hinzufügen
+            </button>
+          </div>
+
+          <!-- Übersicht: erst nach Klick eingeblendet -->
+          <button class="icon-btn" style="align-self:flex-start;font-size:12px;padding:6px 12px;height:auto" @click="showCategoryOverview = !showCategoryOverview">
+            <i class="ti" :class="showCategoryOverview ? 'ti-chevron-up' : 'ti-chevron-down'" style="margin-right:6px"></i>
+            Übersicht ({{ categories[activeCategoryArea]?.length || 0 }})
+          </button>
+
+          <div v-if="showCategoryOverview">
+            <div v-if="!categories[activeCategoryArea]?.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">
+              {{ currentCategoryArea.emptyText || 'Noch keine Kategorien angelegt.' }}
             </div>
-            <div v-for="cat in sortedCategories(area.key)" :key="cat"
+            <div v-for="cat in sortedCategories(activeCategoryArea)" :key="cat"
               style="padding:10px 4px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
-              <template v-if="editingCategory?.area === area.key && editingCategory.original === cat">
+              <template v-if="editingCategory?.area === activeCategoryArea && editingCategory.original === cat">
                 <input v-model="editingCategory.value" class="field-input" style="flex:1" ref="editCategoryInputRef"
                   @keyup.enter="confirmEditCategory" @keyup.esc="cancelEditCategory" @blur="confirmEditCategory" />
               </template>
@@ -547,10 +562,10 @@
                   <span style="font-weight:600;font-size:13px">{{ cat }}</span>
                 </div>
                 <div style="display:flex;gap:4px;flex-shrink:0">
-                  <button class="icon-btn" :disabled="isDemo || categoriesSaving" @click="startEditCategory(area.key, cat)">
+                  <button class="icon-btn" :disabled="isDemo || categoriesSaving" @click="startEditCategory(activeCategoryArea, cat)">
                     <i class="ti ti-pencil"></i>
                   </button>
-                  <button class="icon-btn" style="color:var(--danger)" :disabled="isDemo || categoriesSaving" @click="removeCategory(area.key, cat)">
+                  <button class="icon-btn" style="color:var(--danger)" :disabled="isDemo || categoriesSaving" @click="removeCategory(activeCategoryArea, cat)">
                     <i class="ti ti-trash"></i>
                   </button>
                 </div>
@@ -1986,8 +2001,12 @@ const categoryAreas = [
   { key: 'blog', label: 'Blog', icon: 'ti-news' },
   { key: 'shop', label: 'Shop', icon: 'ti-shopping-cart' },
   { key: 'serviceUnits', label: 'Leistungseinheiten', title: 'Leistungseinheiten', icon: 'ti-list-details', inputLabel: 'Neue Einheit', placeholder: 'z.B. Std.', emptyText: 'Noch keine Einheiten angelegt.' },
+  { key: 'articles', label: 'Artikel', title: 'Artikel-Kategorien', icon: 'ti-package', placeholder: 'z.B. Hardware', emptyText: 'Noch keine Kategorien angelegt.' },
 ]
-const categories = reactive<Record<string, string[]>>({ blog: [], shop: [], serviceUnits: [] })
+const activeCategoryArea = ref(categoryAreas[0].key)
+const currentCategoryArea = computed(() => categoryAreas.find(a => a.key === activeCategoryArea.value) || categoryAreas[0])
+const showCategoryOverview = ref(false)
+const categories = reactive<Record<string, string[]>>({ blog: [], shop: [], serviceUnits: [], articles: [] })
 const newCategoryInput = reactive<Record<string, string>>({})
 const categoriesSaving = ref(false)
 

@@ -338,15 +338,16 @@
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>Bezeichnung</th><th>Artikelnr.</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>MwSt.</th><th style="width:80px"></th></tr>
+          <tr><th>Bezeichnung</th><th>Artikelnr.</th><th>Kategorie</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>MwSt.</th><th style="width:80px"></th></tr>
         </thead>
         <tbody>
           <tr v-if="!articles.length">
-            <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Artikel angelegt.</td>
+            <td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Artikel angelegt.</td>
           </tr>
           <tr v-for="a in articles" :key="a.articleId">
             <td class="td-name">{{ a.name }}</td>
             <td style="font-size:12px;color:var(--text-muted)">{{ a.sku || '–' }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ a.category || '–' }}</td>
             <td style="font-size:12px;color:var(--text-muted)">{{ a.description || '–' }}</td>
             <td>{{ formatEur(a.price) }}</td>
             <td style="font-size:12px">{{ a.unit }}</td>
@@ -462,7 +463,16 @@
         </div>
         <div class="modal-body">
           <div class="auth-field"><label>Bezeichnung</label><input v-model="newArticle.name" placeholder="z.B. USB-Kabel 2m" /></div>
-          <div class="auth-field"><label>Artikelnummer (optional)</label><input v-model="newArticle.sku" placeholder="z.B. ART-1042" /></div>
+          <div class="auth-row">
+            <div class="auth-field"><label>Artikelnummer (optional)</label><input v-model="newArticle.sku" placeholder="z.B. ART-1042" /></div>
+            <div class="auth-field">
+              <label>Kategorie (optional)</label>
+              <select v-model="newArticle.category" class="form-select">
+                <option value="">Keine</option>
+                <option v-for="c in articleCategories" :key="c" :value="c">{{ c }}</option>
+              </select>
+            </div>
+          </div>
           <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newArticle.description" placeholder="Optionale Beschreibung..." /></div>
           <div class="auth-row">
             <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newArticle.price" type="number" placeholder="9.90" /></div>
@@ -605,9 +615,12 @@ const shopProducts = computed(() => (_productsRaw.value as any)?.products || [])
 
 const { data: _categoriesRaw } = await useFetch(() => useApiUrl('/api/settings/categories'), { headers: authHeaders })
 const serviceUnits = ref<string[]>((_categoriesRaw.value as any)?.categories?.serviceUnits || ['Std.'])
+const articleCategories = ref<string[]>((_categoriesRaw.value as any)?.categories?.articles || [])
 watch(_categoriesRaw, (v) => {
   const list = (v as any)?.categories?.serviceUnits
   if (Array.isArray(list) && list.length) serviceUnits.value = list
+  const cats = (v as any)?.categories?.articles
+  if (Array.isArray(cats)) articleCategories.value = cats
 })
 
 // Neue Einheit direkt aus dem Dropdown heraus anlegen, statt erst zu den
@@ -723,9 +736,9 @@ async function deleteService(s: any) {
 const showArticle     = ref(false)
 const editingArticle  = ref<any>(null)
 const savingArticle   = ref(false)
-const newArticle = reactive({ name: '', description: '', sku: '', price: 0, unit: 'Stk', vatRate: 19 })
-function openAddArticle() { editingArticle.value = null; Object.assign(newArticle, { name: '', description: '', sku: '', price: 0, unit: 'Stk', vatRate: 19 }); showArticle.value = true }
-function openEditArticle(a: any) { editingArticle.value = a; Object.assign(newArticle, { name: a.name, description: a.description || '', sku: a.sku || '', price: a.price, unit: a.unit, vatRate: a.vatRate }); showArticle.value = true }
+const newArticle = reactive({ name: '', description: '', sku: '', category: '', price: 0, unit: 'Stk', vatRate: 19 })
+function openAddArticle() { editingArticle.value = null; Object.assign(newArticle, { name: '', description: '', sku: '', category: '', price: 0, unit: 'Stk', vatRate: 19 }); showArticle.value = true }
+function openEditArticle(a: any) { editingArticle.value = a; Object.assign(newArticle, { name: a.name, description: a.description || '', sku: a.sku || '', category: a.category || '', price: a.price, unit: a.unit, vatRate: a.vatRate }); showArticle.value = true }
 async function saveArticle() {
   savingArticle.value = true
   try {

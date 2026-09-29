@@ -7,6 +7,7 @@ const DEFAULTS: Record<string, string[]> = {
   blog: [],
   shop: ['SOFTWARE', 'SERVICE'],
   serviceUnits: ['Std.', 'Pauschal', 'Projekt', 'Monat', 'Tag', 'Stk.', 'Session'],
+  articles: [],
 }
 
 export default defineEventHandler(async (event) => {

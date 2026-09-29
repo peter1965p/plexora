@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
     name:        body.name,
     description: body.description || '',
     sku:         body.sku || '',
+    category:    body.category || '',
     price:       Number(body.price) || 0,
     unit:        body.unit || 'Stk',
     vatRate:     body.vatRate ?? 19,

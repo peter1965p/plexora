@@ -13,13 +13,14 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-articles',
     Key: { userId, articleId },
-    UpdateExpression: 'SET #n = :n, price = :p, description = :d, sku = :s, unit = :u, vatRate = :v, updated = :up',
+    UpdateExpression: 'SET #n = :n, price = :p, description = :d, sku = :s, category = :c, unit = :u, vatRate = :v, updated = :up',
     ExpressionAttributeNames: { '#n': 'name' },
     ExpressionAttributeValues: {
       ':n':  body.name,
       ':p':  Number(body.price) || 0,
       ':d':  body.description || '',
       ':s':  body.sku || '',
+      ':c':  body.category || '',
       ':u':  body.unit || 'Stk',
       ':v':  body.vatRate ?? 19,
       ':up': new Date().toISOString(),
