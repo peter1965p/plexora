@@ -60,7 +60,15 @@
 
             <div v-if="form" style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
               <template v-for="field in form.fields" :key="field.id">
-                <div class="lp-field">
+                <div class="lp-field" v-if="field.type === 'checkbox'">
+                  <label class="lp-toggle-row" @click.prevent="formData[field.label] = !formData[field.label]">
+                    <span class="lp-toggle" :class="{ on: !!formData[field.label] }" :style="formData[field.label] ? `background:${accent}` : ''">
+                      <span class="lp-toggle-dot"></span>
+                    </span>
+                    <span class="lp-toggle-label">{{ field.label }}<span v-if="field.required" :style="`color:${accent}`"> *</span></span>
+                  </label>
+                </div>
+                <div class="lp-field" v-else>
                   <label class="lp-label">{{ field.label }}<span v-if="field.required" :style="`color:${accent}`"> *</span></label>
                   <textarea v-if="field.type === 'textarea'" v-model="formData[field.label]"
                     :placeholder="field.placeholder || ''" rows="4" class="lp-input lp-textarea"></textarea>
@@ -161,7 +169,7 @@ const overlayStyle = computed(() => {
 
 const rootStyle = computed(() => `--lp-accent: ${accent.value}`)
 
-const formData  = reactive<Record<string, string>>({})
+const formData  = reactive<Record<string, string | boolean>>({})
 const sending   = ref(false)
 const submitted = ref(false)
 const successMsg = ref('Vielen Dank!')
@@ -201,8 +209,13 @@ async function submitCustomLeadForm(formEl: HTMLFormElement) {
   if (submitBtn) submitBtn.disabled = true
   try {
     const fd = new FormData(formEl)
-    const data: Record<string, string> = {}
+    const data: Record<string, string | boolean> = {}
     fd.forEach((v, k) => { data[k] = String(v) })
+    // Native Checkboxen landen bei FormData nur im "checked"-Zustand — unchecked
+    // würde sonst stillschweigend fehlen statt false zu übermitteln.
+    formEl.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((cb) => {
+      if (cb.name) data[cb.name] = cb.checked
+    })
     const formId = form.value?.formId || slug
     const res = await $fetch(useApiUrl(`/api/forms/${formId}/submit`), {
       method: 'POST',
@@ -440,6 +453,18 @@ watch(customHtml, () => { nextTick(wireCustomLeadForm) }, { immediate: true })
 .lp-textarea { resize: vertical; }
 .lp-select { appearance: none; cursor: pointer; }
 .lp-select option { background: #111827; color: #fff; }
+
+.lp-toggle-row { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+.lp-toggle {
+  position: relative; flex-shrink: 0; width: 42px; height: 24px; border-radius: 12px;
+  background: rgba(255,255,255,0.15); transition: background 0.2s;
+}
+.lp-toggle-dot {
+  position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; transition: left 0.2s;
+}
+.lp-toggle.on .lp-toggle-dot { left: 21px; }
+.lp-toggle-label { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
 
 .lp-submit-btn {
   width: 100%;

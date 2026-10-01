@@ -16,6 +16,9 @@ function renderLeadFormHtml(form: any): string {
   const fields = Array.isArray(form.fields) ? form.fields : []
   const fieldsHtml = fields.map((f: any) => {
     const req = f.required ? 'required' : ''
+    if (f.type === 'checkbox') {
+      return `<div class="plx-field plx-field-checkbox"><label class="plx-checkbox-label"><input type="checkbox" name="${esc(f.label)}" value="true" ${req} class="plx-checkbox" /> ${esc(f.label)}${f.required ? ' <span class="plx-required">*</span>' : ''}</label></div>`
+    }
     const label = `<label class="plx-label">${esc(f.label)}${f.required ? ' <span class="plx-required">*</span>' : ''}</label>`
     let input = ''
     if (f.type === 'textarea') {
