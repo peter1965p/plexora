@@ -47,9 +47,20 @@
         <h2 class="mkt-title">{{ t.marketing.campaigns }}</h2>
         <span class="mkt-count">{{ campaigns.length }}</span>
       </div>
-      <button class="mkt-new-btn" @click="openAdd">
-        <i class="ti ti-plus"></i> {{ t.marketing.newCampaign }}
-      </button>
+      <div style="display:flex;align-items:center;gap:16px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text-muted)">
+          <span>URL-Shortener</span>
+          <button @click="toggleShortener"
+            style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+            :style="shortenerEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+            <span style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+              :style="shortenerEnabled ? 'left:19px' : 'left:3px'"></span>
+          </button>
+        </label>
+        <button class="mkt-new-btn" @click="openAdd">
+          <i class="ti ti-plus"></i> {{ t.marketing.newCampaign }}
+        </button>
+      </div>
     </div>
 
     <!-- EMPTY -->
@@ -110,6 +121,9 @@
         <div class="mkt-campaign-actions">
           <button class="mkt-action-btn" :title="t.marketing.copyLink" @click="copyLink(c)">
             <i class="ti ti-copy"></i>
+          </button>
+          <button class="mkt-action-btn" title="Kurzlink erstellen &amp; kopieren" @click="shortenAndCopy(c)">
+            <i class="ti" :class="shorteningId === c.campaignId ? 'ti-loader-2 spin' : 'ti-scissors'"></i>
           </button>
           <button class="mkt-action-btn" :title="t.marketing.qrCode" @click="showQr(c)">
             <i class="ti ti-qrcode"></i>
@@ -544,6 +558,47 @@ function getCampaignUrl(c: any): string {
 async function copyLink(c: any) {
   await navigator.clipboard.writeText(getCampaignUrl(c))
   showToast('Link kopiert!')
+}
+
+// ── URL-Shortener ────────────────────────────────────
+const shortenerEnabled = ref(false)
+const shorteningId = ref('')
+
+async function loadShortenerSettings() {
+  try {
+    const res = await $fetch<{ enabled: boolean }>(useApiUrl('/api/marketing/shortlinks/settings'), { headers: authHeaders })
+    shortenerEnabled.value = res.enabled
+  } catch {}
+}
+onMounted(() => loadShortenerSettings())
+
+async function toggleShortener() {
+  shortenerEnabled.value = !shortenerEnabled.value
+  try {
+    await $fetch(useApiUrl('/api/marketing/shortlinks/settings'), {
+      method: 'POST', headers: authHeaders, body: { enabled: shortenerEnabled.value },
+    })
+    showToast(shortenerEnabled.value ? 'URL-Shortener aktiviert!' : 'URL-Shortener deaktiviert.')
+  } catch {
+    shortenerEnabled.value = !shortenerEnabled.value
+  }
+}
+
+async function shortenAndCopy(c: any) {
+  if (!shortenerEnabled.value) { showToast('Bitte zuerst den URL-Shortener oben aktivieren.'); return }
+  shorteningId.value = c.campaignId
+  try {
+    const res = await $fetch<{ link: { shortCode: string } }>(useApiUrl('/api/marketing/shortlinks'), {
+      method: 'POST', headers: authHeaders, body: { targetUrl: getCampaignUrl(c), label: c.name },
+    })
+    const shortUrl = `${BASE_URL}/s/${res.link.shortCode}`
+    await navigator.clipboard.writeText(shortUrl)
+    showToast(`Kurzlink kopiert: ${shortUrl}`)
+  } catch (e: any) {
+    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Kurzlink fehlgeschlagen'))
+  } finally {
+    shorteningId.value = ''
+  }
 }
 
 const qrCampaign = ref<any>(null)
