@@ -9,6 +9,7 @@ const ACTIONS = ['webhook', 'email']
 
 export default defineEventHandler(async (event) => {
   const { email } = requireAuth(event)
+  if (email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine Automatisierungen anlegen' })
   const userId = await resolveUserId(email)
   const body = await readBody(event)
 
