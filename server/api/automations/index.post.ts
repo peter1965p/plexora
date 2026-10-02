@@ -5,7 +5,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 
 const TRIGGERS = ['new_lead', 'form_submitted']
-const ACTIONS = ['send_email_template', 'set_lead_status', 'webhook', 'email']
+const ACTIONS = ['send_email_template', 'set_lead_status', 'send_booking_link', 'webhook', 'email']
 const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'unqualified']
 
 export default defineEventHandler(async (event) => {
@@ -42,6 +42,8 @@ export default defineEventHandler(async (event) => {
     templateId:   body.templateId || '',
     templateName: body.templateName || '',
     leadStatus:   body.leadStatus || '',
+    appointmentTypeId:   body.appointmentTypeId || '',
+    appointmentTypeName: body.appointmentTypeName || '',
     enabled:      true,
     created:      new Date().toISOString(),
   }

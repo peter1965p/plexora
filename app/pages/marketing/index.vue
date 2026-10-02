@@ -526,6 +526,7 @@
             <label>Dann...</label>
             <select v-model="newAutomation.action" class="form-select">
               <option value="send_email_template">E-Mail-Vorlage an den Lead senden</option>
+              <option value="send_booking_link">Termin-Buchungslink senden (Google Meet)</option>
               <option value="set_lead_status">Lead-Status setzen</option>
               <option value="email">Interne Benachrichtigung senden</option>
               <option value="webhook">Webhook aufrufen (nur für externe Ziele)</option>
@@ -539,6 +540,16 @@
             </select>
             <div v-if="!emailTemplates.length" style="font-size:11px;color:var(--text-muted);margin-top:4px">
               Noch keine Vorlagen vorhanden — unter Newsletter eine Vorlage anlegen.
+            </div>
+          </div>
+          <div v-else-if="newAutomation.action === 'send_booking_link'" class="auth-field">
+            <label>Terminart (optional)</label>
+            <select v-model="newAutomation.appointmentTypeId" class="form-select">
+              <option value="">Alle Terminarten anzeigen</option>
+              <option v-for="tp in appointmentTypes" :key="tp.typeId" :value="tp.typeId">{{ tp.name }}</option>
+            </select>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+              Mit Terminart springt der Lead direkt zur Buchung dieses einen Termins, sonst sieht er die komplette Übersicht.
             </div>
           </div>
           <div v-else-if="newAutomation.action === 'set_lead_status'" class="auth-field">
@@ -657,11 +668,12 @@ async function copyLink(c: any) {
 // ── Automatisierungen ────────────────────────────────
 const automations = ref<any[]>([])
 const emailTemplates = ref<any[]>([])
+const appointmentTypes = ref<any[]>([])
 const showAutomationModal = ref(false)
 const savingAutomation = ref(false)
 const newAutomation = reactive({
   name: '', trigger: 'new_lead', action: 'send_email_template',
-  webhookUrl: '', emailTo: '', emailSubject: '', templateId: '', leadStatus: 'contacted',
+  webhookUrl: '', emailTo: '', emailSubject: '', templateId: '', leadStatus: 'contacted', appointmentTypeId: '',
 })
 
 async function loadAutomations() {
@@ -676,7 +688,13 @@ async function loadEmailTemplates() {
     emailTemplates.value = res.templates || []
   } catch {}
 }
-onMounted(() => { loadAutomations(); loadEmailTemplates() })
+async function loadAppointmentTypes() {
+  try {
+    const res = await $fetch<{ types: any[] }>(useApiUrl('/api/termine/types'), { headers: authHeaders })
+    appointmentTypes.value = res.types || []
+  } catch {}
+}
+onMounted(() => { loadAutomations(); loadEmailTemplates(); loadAppointmentTypes() })
 
 function triggerLabel(trigger: string): string {
   return trigger === 'form_submitted' ? 'Formular abgeschickt' : 'Neuer Lead (mit E-Mail)'
@@ -684,6 +702,7 @@ function triggerLabel(trigger: string): string {
 const leadStatusLabels: Record<string, string> = { new: 'Neu', contacted: 'Kontaktiert', qualified: 'Qualifiziert', unqualified: 'Unqualifiziert' }
 function actionLabel(a: any): string {
   if (a.action === 'send_email_template') return `E-Mail "${a.templateName || a.templateId}" senden`
+  if (a.action === 'send_booking_link') return a.appointmentTypeName ? `Termin-Link "${a.appointmentTypeName}" senden` : 'Termin-Link (alle Terminarten) senden'
   if (a.action === 'set_lead_status') return `Lead-Status → ${leadStatusLabels[a.leadStatus] || a.leadStatus}`
   if (a.action === 'webhook') return `Webhook: ${a.webhookUrl}`
   return `Interne E-Mail an ${a.emailTo}`
@@ -692,7 +711,7 @@ function actionLabel(a: any): string {
 function openAddAutomation() {
   Object.assign(newAutomation, {
     name: '', trigger: 'new_lead', action: 'send_email_template',
-    webhookUrl: '', emailTo: '', emailSubject: '', templateId: '', leadStatus: 'contacted',
+    webhookUrl: '', emailTo: '', emailSubject: '', templateId: '', leadStatus: 'contacted', appointmentTypeId: '',
   })
   showAutomationModal.value = true
 }
@@ -701,7 +720,8 @@ async function saveAutomation() {
   savingAutomation.value = true
   try {
     const templateName = emailTemplates.value.find(t => t.templateId === newAutomation.templateId)?.name || ''
-    await $fetch(useApiUrl('/api/automations'), { method: 'POST', headers: authHeaders, body: { ...newAutomation, templateName } })
+    const appointmentTypeName = appointmentTypes.value.find(t => t.typeId === newAutomation.appointmentTypeId)?.name || ''
+    await $fetch(useApiUrl('/api/automations'), { method: 'POST', headers: authHeaders, body: { ...newAutomation, templateName, appointmentTypeName } })
     await loadAutomations()
     showAutomationModal.value = false
     showToast('Automatisierung angelegt!')

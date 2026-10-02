@@ -1,17 +1,19 @@
 import { QueryCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { compileNewsletterHtml } from './newsletterHtml'
+import { getTenantByEmail } from './ai/keys'
 import { Resend } from 'resend'
 import { lookup } from 'dns/promises'
 import { isIP } from 'net'
 
 // Schlankes, natives Automatisierungs-Fundament: "Wenn [Trigger], dann [Aktion]" —
 // bewusst ohne Bedingungen/Verzweigungen/Mehrstufigkeit. Die Aktionen laufen selbst in
-// Plexora (E-Mail-Vorlage versenden, Lead-Status setzen) — kein Umweg über Zapier/Make/
-// ActiveCampaign. Webhook bleibt nur als Zusatz-Option für Ziele außerhalb von Plexora.
+// Plexora (E-Mail-Vorlage versenden, Lead-Status setzen, Termin-Buchungslink) — kein
+// Umweg über Zapier/Make/ActiveCampaign. Webhook bleibt nur als Zusatz-Option für Ziele
+// außerhalb von Plexora.
 
 export type AutomationTrigger = 'new_lead' | 'form_submitted'
-export type AutomationAction = 'send_email_template' | 'set_lead_status' | 'webhook' | 'email'
+export type AutomationAction = 'send_email_template' | 'set_lead_status' | 'send_booking_link' | 'webhook' | 'email'
 
 function fillPlaceholders(template: string, data: Record<string, any>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => String(data[key] ?? ''))
@@ -98,9 +100,45 @@ async function setContactLeadStatus(userId: string, email: string, leadStatus: s
   }))
 }
 
+// Verlinkt die öffentliche Termine-Buchungsseite der Kunden-Website (Nexora) des
+// Tenants — dort läuft bereits die komplette Google-Calendar/Meet-Buchung, hier wird
+// sie dem Lead nur direkt nach seiner Anfrage per E-Mail angeboten.
+async function sendBookingLink(userId: string, toEmail: string, data: Record<string, any>, appointmentTypeId?: string) {
+  const tenant = await getTenantByEmail(userId)
+  const domain = tenant?.customDomain
+  if (!domain) return
+  const bookingUrl = appointmentTypeId
+    ? `https://${domain}/termine?type=${encodeURIComponent(appointmentTypeId)}`
+    : `https://${domain}/termine`
+  const name = data.name || ''
+  const companyName = tenant?.companyName || 'uns'
+
+  const resend = new Resend(useRuntimeConfig().resendApiKey as string)
+  await resend.emails.send({
+    from:    `${companyName} <automation@plexora.eu>`,
+    to:      toEmail,
+    subject: 'Jetzt Termin vereinbaren',
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <p>Hallo ${name || ''},</p>
+        <p>vielen Dank für Ihr Interesse! Buchen Sie sich jetzt direkt einen passenden Termin für ein kurzes Video-Gespräch (Google Meet) – ganz unkompliziert, ohne Hin- und Her-Mails:</p>
+        <p style="text-align:center;margin:28px 0">
+          <a href="${bookingUrl}" style="background:#1c71d8;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">Jetzt Termin buchen</a>
+        </p>
+        <p style="font-size:13px;color:#666">Oder Link kopieren: ${bookingUrl}</p>
+        <p>Viele Grüße<br>${companyName}</p>
+      </div>
+    `,
+  })
+}
+
 async function runAction(userId: string, automation: any, data: Record<string, any>) {
   if (automation.action === 'send_email_template' && automation.templateId && data.email) {
     await sendTemplateEmail(userId, automation.templateId, data.email, data)
+    return
+  }
+  if (automation.action === 'send_booking_link' && data.email) {
+    await sendBookingLink(userId, data.email, data, automation.appointmentTypeId)
     return
   }
   if (automation.action === 'set_lead_status' && automation.leadStatus && data.email) {
