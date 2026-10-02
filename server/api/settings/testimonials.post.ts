@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     name:    String(i.name || '').trim(),
     role:    String(i.role || '').trim(),
     roleEn:  String(i.roleEn || '').trim(),
+    enabled: i.enabled !== false,
   })).filter((i: any) => i.quote && i.name) : []
 
   const dynamo = getDynamoClient()

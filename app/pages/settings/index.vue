@@ -1261,9 +1261,18 @@
         <div v-if="!testimonials.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
           Noch keine Testimonials hinterlegt.
         </div>
-        <div v-for="(item, i) in testimonials" :key="i" style="padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;gap:8px">
+        <div v-for="(item, i) in testimonials" :key="i" style="padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px"
+          :style="item.enabled === false ? 'opacity:.55' : ''">
+          <div style="display:flex;gap:8px;align-items:center">
             <input v-model="item.name" class="field-input" placeholder="Name (z.B. Markus T.)" style="flex:1" />
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" :title="item.enabled === false ? 'Deaktiviert' : 'Aktiv'">
+              <button type="button" @click="item.enabled = item.enabled === false"
+                style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                :style="item.enabled !== false ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="item.enabled !== false ? 'left:19px' : 'left:3px'"></span>
+              </button>
+            </label>
             <button class="icon-btn" style="color:var(--danger)" @click="removeTestimonial(i)"><i class="ti ti-trash"></i></button>
           </div>
           <input v-model="item.role" class="field-input" placeholder="Rolle · Firma (z.B. CTO · SaaS-Startup, München)" />
@@ -2461,7 +2470,7 @@ onMounted(async () => {
 })
 
 // ── Testimonials (Plexora-Landingpage) ─────────────────
-const testimonials = ref<{ quote: string; quoteEn: string; name: string; role: string; roleEn: string }[]>([])
+const testimonials = ref<{ quote: string; quoteEn: string; name: string; role: string; roleEn: string; enabled: boolean }[]>([])
 const savingTestimonials = ref(false)
 let testimonialsLoaded = false
 
@@ -2474,7 +2483,7 @@ async function loadTestimonials() {
 }
 watch(tab, (v) => { if (v === 'testimonials' && !testimonialsLoaded) { testimonialsLoaded = true; loadTestimonials() } })
 
-function openAddTestimonial() { testimonials.value.push({ quote: '', quoteEn: '', name: '', role: '', roleEn: '' }) }
+function openAddTestimonial() { testimonials.value.push({ quote: '', quoteEn: '', name: '', role: '', roleEn: '', enabled: true }) }
 function removeTestimonial(i: number) { testimonials.value.splice(i, 1) }
 
 async function saveTestimonials() {

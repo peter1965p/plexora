@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
     const res = await dynamo.send(new GetCommand({
       TableName: 'plexora-settings', Key: { settingId: 'testimonials', scope: 'global' },
     }))
-    return { items: res.Item?.items || [] }
+    const items = (res.Item?.items || []).filter((i: any) => i.enabled !== false)
+    return { items }
   } catch {
     return { items: [] }
   }
