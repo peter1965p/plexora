@@ -472,6 +472,79 @@
       </div>
     </div>
 
+    <!-- AUTOMATISIERUNGEN -->
+    <div class="card" style="margin-top:24px">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-bolt" style="margin-right:8px;color:var(--accent)"></i>Automatisierungen</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddAutomation">
+          <i class="ti ti-plus"></i> Neue Automatisierung
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">
+          Wenn etwas passiert, löst automatisch eine Aktion aus — z.B. ein Webhook an Zapier, Make
+          oder ActiveCampaign, oder eine Benachrichtigungs-E-Mail.
+        </div>
+        <div v-if="!automations.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
+          Noch keine Automatisierungen angelegt.
+        </div>
+        <div v-for="a in automations" :key="a.automationId" style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:13px">{{ a.name }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">
+              Wenn <strong>{{ triggerLabel(a.trigger) }}</strong> → <strong>{{ actionLabel(a) }}</strong>
+            </div>
+          </div>
+          <button @click="toggleAutomation(a)"
+            style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s"
+            :style="a.enabled ? 'background:var(--accent)' : 'background:var(--border)'">
+            <span style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+              :style="a.enabled ? 'left:19px' : 'left:3px'"></span>
+          </button>
+          <button class="icon-btn" style="color:var(--danger)" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEUE AUTOMATISIERUNG MODAL -->
+    <div v-if="showAutomationModal" class="modal-overlay" @click.self="showAutomationModal=false">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="card-title">Neue Automatisierung</span>
+          <button class="icon-btn" @click="showAutomationModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-field"><label>Name</label><input v-model="newAutomation.name" placeholder="z.B. Lead an ActiveCampaign" /></div>
+          <div class="auth-field">
+            <label>Wenn...</label>
+            <select v-model="newAutomation.trigger" class="form-select">
+              <option value="new_lead">Neuer Lead (mit E-Mail)</option>
+              <option value="form_submitted">Formular abgeschickt</option>
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Dann...</label>
+            <select v-model="newAutomation.action" class="form-select">
+              <option value="webhook">Webhook aufrufen (Zapier, Make, ActiveCampaign, ...)</option>
+              <option value="email">Benachrichtigungs-E-Mail senden</option>
+            </select>
+          </div>
+          <div v-if="newAutomation.action === 'webhook'" class="auth-field">
+            <label>Webhook-URL</label>
+            <input v-model="newAutomation.webhookUrl" placeholder="https://hooks.zapier.com/..." />
+          </div>
+          <template v-else>
+            <div class="auth-field"><label>E-Mail-Adresse</label><input v-model="newAutomation.emailTo" placeholder="du@firma.de" /></div>
+            <div class="auth-field"><label>Betreff</label><input v-model="newAutomation.emailSubject" placeholder="Neuer Lead: {{name}}" /></div>
+          </template>
+          <button class="auth-btn" :disabled="savingAutomation || !newAutomation.name" @click="saveAutomation">
+            <span v-if="savingAutomation"><i class="ti ti-loader-2 spin"></i></span>
+            <span v-else>Automatisierung anlegen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- QR MODAL -->
     <div v-if="qrCampaign" class="modal-overlay" @click.self="qrCampaign=null">
       <div class="modal-card" style="max-width:360px;text-align:center">
@@ -558,6 +631,61 @@ function getCampaignUrl(c: any): string {
 async function copyLink(c: any) {
   await navigator.clipboard.writeText(getCampaignUrl(c))
   showToast('Link kopiert!')
+}
+
+// ── Automatisierungen ────────────────────────────────
+const automations = ref<any[]>([])
+const showAutomationModal = ref(false)
+const savingAutomation = ref(false)
+const newAutomation = reactive({ name: '', trigger: 'new_lead', action: 'webhook', webhookUrl: '', emailTo: '', emailSubject: '' })
+
+async function loadAutomations() {
+  try {
+    const res = await $fetch<{ automations: any[] }>(useApiUrl('/api/automations'), { headers: authHeaders })
+    automations.value = res.automations || []
+  } catch {}
+}
+onMounted(() => loadAutomations())
+
+function triggerLabel(trigger: string): string {
+  return trigger === 'form_submitted' ? 'Formular abgeschickt' : 'Neuer Lead (mit E-Mail)'
+}
+function actionLabel(a: any): string {
+  return a.action === 'webhook' ? `Webhook: ${a.webhookUrl}` : `E-Mail an ${a.emailTo}`
+}
+
+function openAddAutomation() {
+  Object.assign(newAutomation, { name: '', trigger: 'new_lead', action: 'webhook', webhookUrl: '', emailTo: '', emailSubject: '' })
+  showAutomationModal.value = true
+}
+
+async function saveAutomation() {
+  savingAutomation.value = true
+  try {
+    await $fetch(useApiUrl('/api/automations'), { method: 'POST', headers: authHeaders, body: { ...newAutomation } })
+    await loadAutomations()
+    showAutomationModal.value = false
+    showToast('Automatisierung angelegt!')
+  } catch (e: any) {
+    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Anlegen fehlgeschlagen'))
+  } finally {
+    savingAutomation.value = false
+  }
+}
+
+async function toggleAutomation(a: any) {
+  a.enabled = !a.enabled
+  try {
+    await $fetch(useApiUrl(`/api/automations/${a.automationId}`), { method: 'PATCH', headers: authHeaders, body: { enabled: a.enabled, name: a.name } })
+  } catch {
+    a.enabled = !a.enabled
+  }
+}
+
+async function deleteAutomation(a: any) {
+  if (!confirm(`"${a.name}" wirklich löschen?`)) return
+  await $fetch(useApiUrl(`/api/automations/${a.automationId}`), { method: 'DELETE', headers: authHeaders })
+  await loadAutomations()
 }
 
 // ── URL-Shortener ────────────────────────────────────

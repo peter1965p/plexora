@@ -1,5 +1,6 @@
 import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { fireAutomations } from '../../../utils/automations'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -31,6 +32,8 @@ export default defineEventHandler(async (event) => {
     }
   }))
 
+  fireAutomations(form.userId || 'demo-user', 'form_submitted', { ...(body.data || {}), formTitle: form.title || '' })
+
   // ── Auto-Lead: Kontakt anlegen wenn E-Mail vorhanden ──
   const data = body.data || {}
   const emailKey = Object.keys(data).find(k =>
@@ -50,6 +53,10 @@ export default defineEventHandler(async (event) => {
     const firstName = firstNameKey ? data[firstNameKey] : ''
     const lastName  = lastNameKey  ? data[lastNameKey]  : (form.title || 'Lead')
     const phone     = phoneKey     ? data[phoneKey]     : ''
+
+    fireAutomations(form.userId || 'demo-user', 'new_lead', {
+      name: `${firstName} ${lastName}`.trim(), email: data[emailKey], phone, formTitle: form.title || '',
+    })
 
     await client.send(new PutCommand({
       TableName: 'plexora-contacts',
