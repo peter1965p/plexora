@@ -543,6 +543,47 @@
             </div>
           </div>
         </div>
+
+        <!-- Preispakete -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>Preispakete</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button @click="form.pricingEnabled = !form.pricingEnabled"
+                style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s"
+                :style="form.pricingEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
+                <span style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+                  :style="form.pricingEnabled ? 'left:19px' : 'left:3px'"></span>
+              </button>
+              <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="addPricingPackage">
+                <i class="ti ti-plus"></i> Neues Paket
+              </button>
+            </div>
+          </div>
+          <div v-if="form.pricingEnabled" style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:10px">
+              <input v-model="form.pricingTitle" class="field-input" placeholder="Titel (z.B. Leistungen & Preise)" style="flex:1" />
+              <input v-model="form.pricingSubtitle" class="field-input" placeholder="Untertitel" style="flex:1" />
+            </div>
+            <div v-for="(pkg, i) in form.pricingPackages" :key="i" style="padding:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px">
+              <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
+                <input v-model="pkg.name" class="field-input" placeholder="Paketname (z.B. Business)" style="flex:1" />
+                <input v-model="pkg.price" class="field-input" placeholder="590 € / ab 2.500 €" style="width:160px" />
+                <input v-model="pkg.period" class="field-input" placeholder="einmalig" style="width:140px" />
+                <button class="icon-btn" title="Beliebteste Wahl" @click="pkg.highlighted = !pkg.highlighted"
+                  :style="pkg.highlighted ? 'color:var(--accent)' : ''">
+                  <i class="ti ti-star" :class="pkg.highlighted ? 'ti-star-filled' : 'ti-star'"></i>
+                </button>
+                <button class="icon-btn" @click="removePricingPackage(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Features (kommagetrennt):</div>
+              <input v-model="pkg.featuresRaw" class="field-input" placeholder="Bis zu 8 Seiten, CMS, SEO-Grundlagen" style="font-size:12px" />
+            </div>
+            <div v-if="!form.pricingPackages.length" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">
+              Noch keine Pakete — klick auf "Neues Paket"
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ── TAB: STACK ── -->
@@ -1626,6 +1667,10 @@ const form = reactive({
   aboutText:           '',
   stats:               [] as { value: string; label: string }[],
   services:            [] as { icon: string; color: string; title: string; description: string; featuresRaw: string }[],
+  pricingEnabled:      false,
+  pricingTitle:        'Leistungen & Preise',
+  pricingSubtitle:     'Transparente Pakete für dein Projekt',
+  pricingPackages:     [] as { name: string; price: string; period: string; featuresRaw: string; highlighted: boolean }[],
   logoUrl:             '',
   faviconUrl:          '',
   heroBackground:      'grid' as string,
@@ -1716,6 +1761,13 @@ onMounted(async () => {
         ...s,
         color:       s.color || n.config?.primaryColor || '#f97316',
         featuresRaw: (s.features || []).join(', ')
+      }))
+      form.pricingEnabled  = n.pricingEnabled  ?? false
+      form.pricingTitle    = n.pricingTitle    || 'Leistungen & Preise'
+      form.pricingSubtitle = n.pricingSubtitle || 'Transparente Pakete für dein Projekt'
+      form.pricingPackages = (n.pricingPackages || []).map((p: any) => ({
+        ...p,
+        featuresRaw: (p.features || []).join(', ')
       }))
       form.contactAddress      = n.contactInfo?.address      || ''
       form.contactEmail        = n.contactInfo?.email        || ''
@@ -1866,6 +1918,16 @@ async function save() {
           description: s.description,
           features:    s.featuresRaw.split(',').map((f: string) => f.trim()).filter(Boolean),
         })),
+        pricingEnabled:  form.pricingEnabled,
+        pricingTitle:    form.pricingTitle,
+        pricingSubtitle: form.pricingSubtitle,
+        pricingPackages: form.pricingPackages.map(p => ({
+          name:        p.name,
+          price:       p.price,
+          period:      p.period,
+          highlighted: p.highlighted,
+          features:    p.featuresRaw.split(',').map((f: string) => f.trim()).filter(Boolean),
+        })),
         contactInfo: {
           address:      form.contactAddress,
           email:        form.contactEmail,
@@ -1952,6 +2014,9 @@ const SERVICE_ICONS = [
 ]
 function addService()   { form.services.push({ icon: '⭐', color: form.primaryColor || '#f97316', title: '', description: '', featuresRaw: '' }) }
 function removeService(i: number) { form.services.splice(i, 1) }
+
+function addPricingPackage()   { form.pricingPackages.push({ name: '', price: '', period: 'einmalig', featuresRaw: '', highlighted: false }) }
+function removePricingPackage(i: number) { form.pricingPackages.splice(i, 1) }
 
 const generatingServiceIndex = ref<number | null>(null)
 async function generateServiceContent(i: number) {

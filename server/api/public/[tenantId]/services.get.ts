@@ -19,5 +19,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Tenant nicht gefunden' })
   }
 
-  return { services: res.Item.services || [] }
+  return {
+    services: res.Item.services || [],
+    pricingEnabled:  res.Item.pricingEnabled  ?? false,
+    pricingTitle:    res.Item.pricingTitle    || 'Leistungen & Preise',
+    pricingSubtitle: res.Item.pricingSubtitle || 'Transparente Pakete für dein Projekt',
+    pricingPackages: res.Item.pricingPackages || [],
+  }
 })
