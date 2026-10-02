@@ -1245,6 +1245,43 @@
       </div>
     </div>
 
+    <!-- ── TESTIMONIALS (Plexora-Landingpage, global) ── -->
+    <div v-if="tab === 'testimonials'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-quote" style="margin-right:8px;color:var(--accent)"></i>Testimonials (Landingpage)</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddTestimonial">
+          <i class="ti ti-plus"></i> Neues Testimonial
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px;max-width:760px">
+        <div style="font-size:12px;color:var(--text-muted)">
+          Erscheinen im Testimonial-Slider auf der öffentlichen Plexora-Startseite. Leer lassen,
+          bis echte Kundenstimmen vorliegen — die Sektion wird dann automatisch ausgeblendet.
+        </div>
+        <div v-if="!testimonials.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
+          Noch keine Testimonials hinterlegt.
+        </div>
+        <div v-for="(item, i) in testimonials" :key="i" style="padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px">
+            <input v-model="item.name" class="field-input" placeholder="Name (z.B. Markus T.)" style="flex:1" />
+            <button class="icon-btn" style="color:var(--danger)" @click="removeTestimonial(i)"><i class="ti ti-trash"></i></button>
+          </div>
+          <input v-model="item.role" class="field-input" placeholder="Rolle · Firma (z.B. CTO · SaaS-Startup, München)" />
+          <textarea v-model="item.quote" class="field-input" rows="2" placeholder="Zitat (Deutsch)"></textarea>
+          <details style="font-size:12px">
+            <summary style="cursor:pointer;color:var(--text-muted)">Englische Übersetzung (optional)</summary>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <input v-model="item.roleEn" class="field-input" placeholder="Role · Company (English)" />
+              <textarea v-model="item.quoteEn" class="field-input" rows="2" placeholder="Quote (English)"></textarea>
+            </div>
+          </details>
+        </div>
+        <button class="accent-btn" style="align-self:flex-start" :disabled="savingTestimonials" @click="saveTestimonials">
+          <i class="ti" :class="savingTestimonials ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>Speichern
+        </button>
+      </div>
+    </div>
+
   <!-- ── WEBSITE / NEXORA ── -->
     <div v-if="tab === 'nexora'" class="card">
       <div class="card-header">
@@ -1582,10 +1619,11 @@ const BASE_TABS = [
 // Plattformweite (nicht pro-Tenant) Einstellungen — EIN gemeinsames Payment-Konto,
 // EIN Mahnwesen-Default, Plexoras eigene öffentliche AGB-Seite — daher admin-only.
 const ADMIN_TABS = [
-  { key: 'agb',         label: 'AGB',              icon: 'ti-file-text'       },
-  { key: 'datenschutz', label: 'Datenschutz',      icon: 'ti-lock'            },
-  { key: 'dunning',     label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
-  { key: 'payment',     label: 'Payment',          icon: 'ti-credit-card'     },
+  { key: 'agb',          label: 'AGB',              icon: 'ti-file-text'       },
+  { key: 'datenschutz',  label: 'Datenschutz',      icon: 'ti-lock'            },
+  { key: 'dunning',      label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
+  { key: 'payment',      label: 'Payment',          icon: 'ti-credit-card'     },
+  { key: 'testimonials', label: 'Testimonials',     icon: 'ti-quote'           },
 ]
 
 const tabs = computed(() => {
@@ -2421,6 +2459,38 @@ onMounted(async () => {
     if (d?.payment) Object.assign(payment, d.payment)
   } catch {}
 })
+
+// ── Testimonials (Plexora-Landingpage) ─────────────────
+const testimonials = ref<{ quote: string; quoteEn: string; name: string; role: string; roleEn: string }[]>([])
+const savingTestimonials = ref(false)
+let testimonialsLoaded = false
+
+async function loadTestimonials() {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ items: any[] }>(useApiUrl('/api/settings/testimonials'), { headers: await useAuthHeader() })
+    testimonials.value = res.items || []
+  } catch {}
+}
+watch(tab, (v) => { if (v === 'testimonials' && !testimonialsLoaded) { testimonialsLoaded = true; loadTestimonials() } })
+
+function openAddTestimonial() { testimonials.value.push({ quote: '', quoteEn: '', name: '', role: '', roleEn: '' }) }
+function removeTestimonial(i: number) { testimonials.value.splice(i, 1) }
+
+async function saveTestimonials() {
+  savingTestimonials.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/testimonials'), {
+      method: 'POST', headers: await useAuthHeader(), body: { items: testimonials.value },
+    })
+    showSettingsToast('Testimonials gespeichert!')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+  } finally {
+    savingTestimonials.value = false
+  }
+}
 
 async function saveAgb() {
   if (isDemo.value) return

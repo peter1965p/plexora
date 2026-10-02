@@ -200,11 +200,11 @@
     </section>
 
     <!-- TESTIMONIALS SLIDER -->
-    <section class="lp-wrap lp-testi-section lp-reveal">
+    <section v-if="testimonialItems.length" class="lp-wrap lp-testi-section lp-reveal">
       <div class="lp-section-label" style="text-align:center;margin-bottom:8px">{{ t.testi.label }}</div>
       <div class="lp-testi-slider">
         <div class="lp-testi-track" :style="{ transform: `translateX(-${testiIdx * 100}%)` }">
-          <div class="lp-testi-slide" v-for="(tst, i) in t.testi.items" :key="i">
+          <div class="lp-testi-slide" v-for="(tst, i) in testimonialItems" :key="i">
             <div class="lp-testi-stars">★★★★★</div>
             <div class="lp-testi-quote">„{{ tst.quote }}"</div>
             <div class="lp-testi-author"><strong>{{ tst.name }}</strong> · {{ tst.role }}</div>
@@ -212,7 +212,7 @@
         </div>
         <div class="lp-testi-dots">
           <button
-            v-for="(_, i) in t.testi.items"
+            v-for="(_, i) in testimonialItems"
             :key="i"
             class="lp-testi-dot"
             :class="{ active: i === testiIdx }"
@@ -433,13 +433,6 @@ const i18n = {
     },
     testi: {
       label: 'Das sagen unsere Kunden',
-      items: [
-        { quote: 'Wir haben Salesforce, Jira, Personio und Lexoffice gekündigt. Plexora macht das alles – und unsere Buchhalterin musste sich nur einmal neu einarbeiten.', name: 'Markus T.', role: 'CTO · Münchner SaaS-Startup, 60 Mitarbeiter' },
-        { quote: 'Endlich ein Tool, das nicht nach 3 Klicks überfordert. Das CRM und die Rechnungsstellung allein haben uns schon 300 € pro Monat an anderen Abos gespart.', name: 'Sandra K.', role: 'Geschäftsführerin · Marketingagentur, Berlin' },
-        { quote: 'Wir nutzen Plexora für Projektmanagement und HR. Besonders die öffentlichen Jobseiten sind ein Hammer-Feature – haben sofort Bewerbungen bekommen.', name: 'Tobias M.', role: 'Gründer · E-Commerce Startup, Hamburg' },
-        { quote: 'Support antwortet schnell, die App läuft stabil und wir hatten in 3 Monaten null Downtimes. Für 149 € im Monat absolut unschlagbar.', name: 'Lena F.', role: 'Operations Lead · IT-Dienstleister, München' },
-        { quote: 'Als Freelancer brauche ich kein Enterprise-Monster. Plexora Starter ist perfekt – CRM, Rechnungen, Tickets. Alles was ich brauche, nichts was ich nicht brauche.', name: 'Jonas R.', role: 'Freelance Developer · Köln' },
-      ],
     },
     pricing: {
       label: 'Transparente Preise',
@@ -537,13 +530,6 @@ const i18n = {
     },
     testi: {
       label: 'What our customers say',
-      items: [
-        { quote: 'We cancelled Salesforce, Jira, Personio and Lexoffice. Plexora does it all — and our accountant only had to learn one tool.', name: 'Markus T.', role: 'CTO · Munich SaaS Startup, 60 employees' },
-        { quote: 'Finally a tool that doesn\'t overwhelm you after 3 clicks. CRM and invoicing alone have saved us €300/month in subscriptions.', name: 'Sandra K.', role: 'CEO · Marketing Agency, Berlin' },
-        { quote: 'We use Plexora for project management and HR. The public job pages are a killer feature — got applications immediately.', name: 'Tobias M.', role: 'Founder · E-Commerce Startup, Hamburg' },
-        { quote: 'Support responds fast, the app runs stable and we had zero downtime in 3 months. Absolutely unbeatable for €149/month.', name: 'Lena F.', role: 'Operations Lead · IT Services, Munich' },
-        { quote: 'As a freelancer I don\'t need an enterprise monster. Plexora Starter is perfect — CRM, invoices, tickets. Everything I need, nothing I don\'t.', name: 'Jonas R.', role: 'Freelance Developer · Cologne' },
-      ],
     },
     pricing: {
       label: 'Transparent Pricing',
@@ -762,9 +748,28 @@ const navPages = computed(() =>
     .sort((a: any, b: any) => (a.navLabel || '').localeCompare(b.navLabel || ''))
 )
 
+// Echte Kundenstimmen kommen aus dem Admin (Einstellungen → Testimonials) statt
+// hartkodierter Fake-Zitate — Sektion blendet sich aus, solange die Liste leer ist.
+// server:false: "/" wird statisch vorgerendert, ein SSR/Build-Zeit-Fetch würde den Stand
+// vom letzten Deploy einfrieren statt bei jedem Seitenaufruf aktuell zu sein.
+const { data: testimonialsData } = await useFetch(useApiUrl('/api/public/testimonials'), { server: false })
+const testimonialItems = computed(() => {
+  const items = (testimonialsData.value as any)?.items || []
+  return items.map((i: any) => ({
+    quote: lang.value === 'en' && i.quoteEn ? i.quoteEn : i.quote,
+    role:  lang.value === 'en' && i.roleEn  ? i.roleEn  : i.role,
+    name:  i.name,
+  }))
+})
+
 const testiIdx = ref(0)
 let testiTimer: ReturnType<typeof setInterval>
-onMounted(() => { testiTimer = setInterval(() => { testiIdx.value = (testiIdx.value + 1) % t.value.testi.items.length }, 5000) })
+onMounted(() => {
+  testiTimer = setInterval(() => {
+    if (!testimonialItems.value.length) return
+    testiIdx.value = (testiIdx.value + 1) % testimonialItems.value.length
+  }, 5000)
+})
 onUnmounted(() => clearInterval(testiTimer))
 
 // ── Scroll-Reveal ───────────────────────────────────────────────────────────
