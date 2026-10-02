@@ -525,11 +525,32 @@
           <div class="auth-field">
             <label>Dann...</label>
             <select v-model="newAutomation.action" class="form-select">
-              <option value="webhook">Webhook aufrufen (Zapier, Make, ActiveCampaign, ...)</option>
-              <option value="email">Benachrichtigungs-E-Mail senden</option>
+              <option value="send_email_template">E-Mail-Vorlage an den Lead senden</option>
+              <option value="set_lead_status">Lead-Status setzen</option>
+              <option value="email">Interne Benachrichtigung senden</option>
+              <option value="webhook">Webhook aufrufen (nur für externe Ziele)</option>
             </select>
           </div>
-          <div v-if="newAutomation.action === 'webhook'" class="auth-field">
+          <div v-if="newAutomation.action === 'send_email_template'" class="auth-field">
+            <label>Vorlage</label>
+            <select v-model="newAutomation.templateId" class="form-select">
+              <option value="" disabled>Vorlage wählen...</option>
+              <option v-for="tpl in emailTemplates" :key="tpl.templateId" :value="tpl.templateId">{{ tpl.name }}</option>
+            </select>
+            <div v-if="!emailTemplates.length" style="font-size:11px;color:var(--text-muted);margin-top:4px">
+              Noch keine Vorlagen vorhanden — unter Newsletter eine Vorlage anlegen.
+            </div>
+          </div>
+          <div v-else-if="newAutomation.action === 'set_lead_status'" class="auth-field">
+            <label>Neuer Lead-Status</label>
+            <select v-model="newAutomation.leadStatus" class="form-select">
+              <option value="new">Neu</option>
+              <option value="contacted">Kontaktiert</option>
+              <option value="qualified">Qualifiziert</option>
+              <option value="unqualified">Unqualifiziert</option>
+            </select>
+          </div>
+          <div v-else-if="newAutomation.action === 'webhook'" class="auth-field">
             <label>Webhook-URL</label>
             <input v-model="newAutomation.webhookUrl" placeholder="https://hooks.zapier.com/..." />
           </div>
@@ -635,9 +656,13 @@ async function copyLink(c: any) {
 
 // ── Automatisierungen ────────────────────────────────
 const automations = ref<any[]>([])
+const emailTemplates = ref<any[]>([])
 const showAutomationModal = ref(false)
 const savingAutomation = ref(false)
-const newAutomation = reactive({ name: '', trigger: 'new_lead', action: 'webhook', webhookUrl: '', emailTo: '', emailSubject: '' })
+const newAutomation = reactive({
+  name: '', trigger: 'new_lead', action: 'send_email_template',
+  webhookUrl: '', emailTo: '', emailSubject: '', templateId: '', leadStatus: 'contacted',
+})
 
 async function loadAutomations() {
   try {
@@ -645,24 +670,38 @@ async function loadAutomations() {
     automations.value = res.automations || []
   } catch {}
 }
-onMounted(() => loadAutomations())
+async function loadEmailTemplates() {
+  try {
+    const res = await $fetch<{ templates: any[] }>(useApiUrl('/api/newsletter/templates'), { headers: authHeaders })
+    emailTemplates.value = res.templates || []
+  } catch {}
+}
+onMounted(() => { loadAutomations(); loadEmailTemplates() })
 
 function triggerLabel(trigger: string): string {
   return trigger === 'form_submitted' ? 'Formular abgeschickt' : 'Neuer Lead (mit E-Mail)'
 }
+const leadStatusLabels: Record<string, string> = { new: 'Neu', contacted: 'Kontaktiert', qualified: 'Qualifiziert', unqualified: 'Unqualifiziert' }
 function actionLabel(a: any): string {
-  return a.action === 'webhook' ? `Webhook: ${a.webhookUrl}` : `E-Mail an ${a.emailTo}`
+  if (a.action === 'send_email_template') return `E-Mail "${a.templateName || a.templateId}" senden`
+  if (a.action === 'set_lead_status') return `Lead-Status → ${leadStatusLabels[a.leadStatus] || a.leadStatus}`
+  if (a.action === 'webhook') return `Webhook: ${a.webhookUrl}`
+  return `Interne E-Mail an ${a.emailTo}`
 }
 
 function openAddAutomation() {
-  Object.assign(newAutomation, { name: '', trigger: 'new_lead', action: 'webhook', webhookUrl: '', emailTo: '', emailSubject: '' })
+  Object.assign(newAutomation, {
+    name: '', trigger: 'new_lead', action: 'send_email_template',
+    webhookUrl: '', emailTo: '', emailSubject: '', templateId: '', leadStatus: 'contacted',
+  })
   showAutomationModal.value = true
 }
 
 async function saveAutomation() {
   savingAutomation.value = true
   try {
-    await $fetch(useApiUrl('/api/automations'), { method: 'POST', headers: authHeaders, body: { ...newAutomation } })
+    const templateName = emailTemplates.value.find(t => t.templateId === newAutomation.templateId)?.name || ''
+    await $fetch(useApiUrl('/api/automations'), { method: 'POST', headers: authHeaders, body: { ...newAutomation, templateName } })
     await loadAutomations()
     showAutomationModal.value = false
     showToast('Automatisierung angelegt!')

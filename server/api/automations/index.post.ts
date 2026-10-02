@@ -5,7 +5,8 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 
 const TRIGGERS = ['new_lead', 'form_submitted']
-const ACTIONS = ['webhook', 'email']
+const ACTIONS = ['send_email_template', 'set_lead_status', 'webhook', 'email']
+const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'unqualified']
 
 export default defineEventHandler(async (event) => {
   const { email } = requireAuth(event)
@@ -21,6 +22,12 @@ export default defineEventHandler(async (event) => {
   if (body.action === 'email' && !String(body?.emailTo || '').includes('@')) {
     throw createError({ statusCode: 400, message: 'Gültige E-Mail-Adresse erforderlich' })
   }
+  if (body.action === 'send_email_template' && !body?.templateId) {
+    throw createError({ statusCode: 400, message: 'Vorlage erforderlich' })
+  }
+  if (body.action === 'set_lead_status' && !LEAD_STATUSES.includes(body?.leadStatus)) {
+    throw createError({ statusCode: 400, message: 'Gültiger Lead-Status erforderlich' })
+  }
 
   const dynamo = getDynamoClient()
   const automation = {
@@ -32,6 +39,9 @@ export default defineEventHandler(async (event) => {
     webhookUrl:   body.webhookUrl || '',
     emailTo:      body.emailTo || '',
     emailSubject: body.emailSubject || '',
+    templateId:   body.templateId || '',
+    templateName: body.templateName || '',
+    leadStatus:   body.leadStatus || '',
     enabled:      true,
     created:      new Date().toISOString(),
   }

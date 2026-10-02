@@ -1,16 +1,17 @@
-import { QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { QueryCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
+import { compileNewsletterHtml } from './newsletterHtml'
 import { Resend } from 'resend'
 import { lookup } from 'dns/promises'
 import { isIP } from 'net'
 
-// Schlankes Automatisierungs-Fundament: "Wenn [Trigger], dann [Aktion]" — bewusst ohne
-// Bedingungen/Verzweigungen/Mehrstufigkeit. Die Webhook-Aktion macht Plexora sofort mit
-// Zapier/Make/ActiveCampaign & Co. kompatibel, ohne dass wir jede dieser Integrationen
-// selbst bauen müssten — Facebook-Anbindung, Funnel-Schritte etc. setzen später hier auf.
+// Schlankes, natives Automatisierungs-Fundament: "Wenn [Trigger], dann [Aktion]" —
+// bewusst ohne Bedingungen/Verzweigungen/Mehrstufigkeit. Die Aktionen laufen selbst in
+// Plexora (E-Mail-Vorlage versenden, Lead-Status setzen) — kein Umweg über Zapier/Make/
+// ActiveCampaign. Webhook bleibt nur als Zusatz-Option für Ziele außerhalb von Plexora.
 
 export type AutomationTrigger = 'new_lead' | 'form_submitted'
-export type AutomationAction = 'webhook' | 'email'
+export type AutomationAction = 'send_email_template' | 'set_lead_status' | 'webhook' | 'email'
 
 function fillPlaceholders(template: string, data: Record<string, any>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => String(data[key] ?? ''))
@@ -46,7 +47,66 @@ async function assertSafeWebhookUrl(rawUrl: string) {
   if (isPrivateIp(address)) throw new Error('Interne/private Adresse nicht erlaubt')
 }
 
-async function runAction(automation: any, data: Record<string, any>) {
+// Eigene Vorlage (aus dem Newsletter-Editor) an den Lead verschicken — der native
+// ActiveCampaign-Ersatz: kein Opt-in/Unsubscribe-Unterbau nötig, da es sich um eine
+// Reaktion auf eine Handlung des Leads selbst handelt (Formular abgeschickt), nicht
+// um einen Newsletter-Verteiler-Versand.
+async function sendTemplateEmail(userId: string, templateId: string, toEmail: string, data: Record<string, any>) {
+  const dynamo = getDynamoClient()
+  const [templateRes, brandingRes] = await Promise.all([
+    dynamo.send(new GetCommand({ TableName: 'plexora-newsletter-templates', Key: { tenantId: userId, templateId } })),
+    dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'branding', scope: userId } })),
+  ])
+  const template = templateRes.Item
+  if (!template) return
+  const branding = brandingRes.Item || { brandName: 'Plexora' }
+  const apiBase  = useRuntimeConfig().public.apiBase as string
+
+  const html = compileNewsletterHtml({
+    bodyHtml: fillPlaceholders(template.bodyHtml || '', data),
+    header:   { companyName: branding.brandName },
+    footer:   { impressum: branding.impressum || '', unsubscribeUrl: '' },
+    apiBase,
+  })
+
+  const resend = new Resend(useRuntimeConfig().resendApiKey as string)
+  await resend.emails.send({
+    from:    `${branding.brandName || 'Plexora'} <automation@plexora.eu>`,
+    to:      toEmail,
+    subject: fillPlaceholders(template.name || 'Nachricht', data),
+    html,
+  })
+}
+
+// Lead-Status direkt im CRM-Kontakt setzen — kein GSI auf E-Mail vorhanden, aber die
+// Query bleibt auf die Tenant-Partition beschränkt (kein Full-Table-Scan).
+async function setContactLeadStatus(userId: string, email: string, leadStatus: string) {
+  const dynamo = getDynamoClient()
+  const res = await dynamo.send(new QueryCommand({
+    TableName: 'plexora-contacts',
+    KeyConditionExpression: 'userId = :u',
+    FilterExpression: 'email = :e',
+    ExpressionAttributeValues: { ':u': userId, ':e': email },
+  }))
+  const contact = (res.Items || [])[0]
+  if (!contact) return
+  await dynamo.send(new UpdateCommand({
+    TableName: 'plexora-contacts',
+    Key: { userId, contactId: contact.contactId },
+    UpdateExpression: 'SET leadStatus = :s',
+    ExpressionAttributeValues: { ':s': leadStatus },
+  }))
+}
+
+async function runAction(userId: string, automation: any, data: Record<string, any>) {
+  if (automation.action === 'send_email_template' && automation.templateId && data.email) {
+    await sendTemplateEmail(userId, automation.templateId, data.email, data)
+    return
+  }
+  if (automation.action === 'set_lead_status' && automation.leadStatus && data.email) {
+    await setContactLeadStatus(userId, data.email, automation.leadStatus)
+    return
+  }
   if (automation.action === 'webhook' && automation.webhookUrl) {
     await assertSafeWebhookUrl(automation.webhookUrl)
     await fetch(automation.webhookUrl, {
@@ -82,7 +142,7 @@ export async function fireAutomations(userId: string, trigger: AutomationTrigger
       ExpressionAttributeValues: { ':u': userId, ':t': trigger, ':e': true },
     }))
     for (const automation of res.Items || []) {
-      runAction(automation, data).catch(() => {})
+      runAction(userId, automation, data).catch(() => {})
     }
   } catch {
     // Automatisierungen sind best-effort — ein Fehler hier darf nie nach außen durchschlagen.
