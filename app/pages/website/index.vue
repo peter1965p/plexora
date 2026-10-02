@@ -560,24 +560,28 @@
               </button>
             </div>
           </div>
-          <div v-if="form.pricingEnabled" style="display:flex;flex-direction:column;gap:12px">
+          <div v-if="form.pricingEnabled" style="display:flex;flex-direction:column;gap:16px">
             <div style="display:flex;gap:10px">
               <input v-model="form.pricingTitle" class="field-input" placeholder="Titel (z.B. Leistungen & Preise)" style="flex:1" />
               <input v-model="form.pricingSubtitle" class="field-input" placeholder="Untertitel" style="flex:1" />
             </div>
-            <div v-for="(pkg, i) in form.pricingPackages" :key="i" style="padding:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px">
-              <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
-                <input v-model="pkg.name" class="field-input" placeholder="Paketname (z.B. Business)" style="flex:1" />
-                <input v-model="pkg.price" class="field-input" placeholder="590 € / ab 2.500 €" style="width:160px" />
-                <input v-model="pkg.period" class="field-input" placeholder="einmalig" style="width:140px" />
-                <button class="icon-btn" title="Beliebteste Wahl" @click="pkg.highlighted = !pkg.highlighted"
-                  :style="pkg.highlighted ? 'color:var(--accent)' : ''">
-                  <i class="ti ti-star" :class="pkg.highlighted ? 'ti-star-filled' : 'ti-star'"></i>
-                </button>
-                <button class="icon-btn" @click="removePricingPackage(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+              <div v-for="(pkg, i) in form.pricingPackages" :key="i" style="padding:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input v-model="pkg.name" class="field-input" placeholder="Paketname (z.B. Business)" style="flex:1" />
+                  <button class="icon-btn" title="Beliebteste Wahl" @click="pkg.highlighted = !pkg.highlighted"
+                    :style="pkg.highlighted ? 'color:var(--accent)' : ''">
+                    <i class="ti" :class="pkg.highlighted ? 'ti-star-filled' : 'ti-star'"></i>
+                  </button>
+                  <button class="icon-btn" @click="removePricingPackage(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <input v-model="pkg.price" class="field-input" placeholder="590 € / ab 2.500 €" style="flex:1" />
+                  <input v-model="pkg.period" class="field-input" placeholder="einmalig" style="flex:1" />
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Features (eine Zeile pro Punkt):</div>
+                <textarea v-model="pkg.featuresRaw" class="field-input" rows="4" placeholder="Bis zu 8 Seiten&#10;CMS – Inhalte selbst pflegen&#10;SEO-Grundlagen" style="font-size:12px;resize:vertical"></textarea>
               </div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Features (kommagetrennt):</div>
-              <input v-model="pkg.featuresRaw" class="field-input" placeholder="Bis zu 8 Seiten, CMS, SEO-Grundlagen" style="font-size:12px" />
             </div>
             <div v-if="!form.pricingPackages.length" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">
               Noch keine Pakete — klick auf "Neues Paket"
@@ -1767,7 +1771,7 @@ onMounted(async () => {
       form.pricingSubtitle = n.pricingSubtitle || 'Transparente Pakete für dein Projekt'
       form.pricingPackages = (n.pricingPackages || []).map((p: any) => ({
         ...p,
-        featuresRaw: (p.features || []).join(', ')
+        featuresRaw: (p.features || []).join('\n')
       }))
       form.contactAddress      = n.contactInfo?.address      || ''
       form.contactEmail        = n.contactInfo?.email        || ''
@@ -1926,7 +1930,7 @@ async function save() {
           price:       p.price,
           period:      p.period,
           highlighted: p.highlighted,
-          features:    p.featuresRaw.split(',').map((f: string) => f.trim()).filter(Boolean),
+          features:    p.featuresRaw.split('\n').map((f: string) => f.trim()).filter(Boolean),
         })),
         contactInfo: {
           address:      form.contactAddress,
