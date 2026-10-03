@@ -1353,8 +1353,11 @@ function showToast(msg: string) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
-  max-height: 620px;
+  max-height: min(620px, calc(100vh - 420px));
+  min-height: 280px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
   padding: 4px 6px 4px 4px;
   margin: -4px -6px -4px -4px;
 }
