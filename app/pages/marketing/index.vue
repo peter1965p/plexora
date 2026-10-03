@@ -476,9 +476,14 @@
     <div class="card" style="margin-top:24px">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-bolt" style="margin-right:8px;color:var(--accent)"></i>Automatisierungen</span>
-        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddAutomation">
+        <div style="display:flex;gap:8px">
+          <NuxtLink to="/funnels" class="btn-secondary" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;text-decoration:none">
+            <i class="ti ti-route"></i> Funnel-Editor
+          </NuxtLink>
+          <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddAutomation">
           <i class="ti ti-plus"></i> Neue Automatisierung
         </button>
+        </div>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">

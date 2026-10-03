@@ -53,7 +53,7 @@ async function assertSafeWebhookUrl(rawUrl: string) {
 // ActiveCampaign-Ersatz: kein Opt-in/Unsubscribe-Unterbau nötig, da es sich um eine
 // Reaktion auf eine Handlung des Leads selbst handelt (Formular abgeschickt), nicht
 // um einen Newsletter-Verteiler-Versand.
-async function sendTemplateEmail(userId: string, templateId: string, toEmail: string, data: Record<string, any>) {
+export async function sendTemplateEmail(userId: string, templateId: string, toEmail: string, data: Record<string, any>) {
   const dynamo = getDynamoClient()
   const [templateRes, brandingRes] = await Promise.all([
     dynamo.send(new GetCommand({ TableName: 'plexora-newsletter-templates', Key: { tenantId: userId, templateId } })),
@@ -82,7 +82,7 @@ async function sendTemplateEmail(userId: string, templateId: string, toEmail: st
 
 // Lead-Status direkt im CRM-Kontakt setzen — kein GSI auf E-Mail vorhanden, aber die
 // Query bleibt auf die Tenant-Partition beschränkt (kein Full-Table-Scan).
-async function setContactLeadStatus(userId: string, email: string, leadStatus: string) {
+export async function setContactLeadStatus(userId: string, email: string, leadStatus: string) {
   const dynamo = getDynamoClient()
   const res = await dynamo.send(new QueryCommand({
     TableName: 'plexora-contacts',
@@ -103,7 +103,7 @@ async function setContactLeadStatus(userId: string, email: string, leadStatus: s
 // Verlinkt die öffentliche Termine-Buchungsseite der Kunden-Website (Nexora) des
 // Tenants — dort läuft bereits die komplette Google-Calendar/Meet-Buchung, hier wird
 // sie dem Lead nur direkt nach seiner Anfrage per E-Mail angeboten.
-async function sendBookingLink(userId: string, toEmail: string, data: Record<string, any>, appointmentTypeId?: string) {
+export async function sendBookingLink(userId: string, toEmail: string, data: Record<string, any>, appointmentTypeId?: string) {
   const tenant = await getTenantByEmail(userId)
   const domain = tenant?.customDomain
   if (!domain) return

@@ -1,6 +1,7 @@
 import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { fireAutomations } from '../../../utils/automations'
+import { startSequences } from '../../../utils/sequences'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -32,7 +33,8 @@ export default defineEventHandler(async (event) => {
     }
   }))
 
-  fireAutomations(form.userId || 'demo-user', 'form_submitted', { ...(body.data || {}), formTitle: form.title || '' })
+  const leadData = { ...(body.data || {}), formTitle: form.title || '' }
+  fireAutomations(form.userId || 'demo-user', 'form_submitted', leadData)
 
   // ── Auto-Lead: Kontakt anlegen wenn E-Mail vorhanden ──
   const data = body.data || {}
@@ -87,6 +89,12 @@ export default defineEventHandler(async (event) => {
         created:       new Date().toISOString(),
       }
     }))
+  }
+
+  const sequenceOwner = form.userId || 'demo-user'
+  await startSequences(sequenceOwner, 'form_submitted', { ...leadData, email: emailKey ? data[emailKey] : '' })
+  if (emailKey && data[emailKey]) {
+    await startSequences(sequenceOwner, 'new_lead', { ...leadData, email: data[emailKey], name: `${data[firstNameKey as string] || ''} ${data[lastNameKey as string] || ''}`.trim() })
   }
 
   return { success: true, message: form.successMsg }
