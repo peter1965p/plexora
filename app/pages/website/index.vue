@@ -1246,6 +1246,9 @@
           <!-- PAT -->
           <div style="margin-bottom:12px">
             <label class="field-label">GitHub Personal Access Token (PAT) <span v-if="form.githubPatConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+            <div v-if="form.githubPatConfigured && form.githubPatMasked" style="font-size:11px;font-family:monospace;color:var(--text-muted);margin-bottom:6px">
+              Aktuell: {{ form.githubPatMasked }}
+            </div>
             <div style="display:flex;gap:8px">
               <div style="flex:1;position:relative">
                 <input v-model="form.githubPat" class="field-input" :placeholder="form.githubPatConfigured ? 'Unverändert lassen zum Beibehalten' : 'github_pat_...'"
@@ -1257,7 +1260,7 @@
                 </button>
               </div>
               <button class="accent-btn" style="height:36px;padding:0 16px;font-size:12px;flex-shrink:0;white-space:nowrap"
-                :disabled="!form.githubPat.trim() || form.githubLoading" @click="loadGithubRepos">
+                :disabled="(!form.githubPat.trim() && !form.githubPatConfigured) || form.githubLoading" @click="loadGithubRepos">
                 <i class="ti" :class="form.githubLoading ? 'ti-loader-2' : 'ti-refresh'" style="margin-right:4px"></i>
                 {{ form.githubLoading ? 'Laden...' : 'Repos laden' }}
               </button>
@@ -1267,8 +1270,8 @@
               Nur "Read-only" auf Public Repositories nötig — kein Schreibzugriff.
             </div>
             <div v-if="form.githubPatConfigured && !form.githubPat.trim()" style="margin-top:4px;font-size:11px;color:var(--text-muted)">
-              <i class="ti ti-alert-triangle" style="margin-right:4px;color:#f59e0b"></i>
-              Der PAT wird aus Sicherheitsgründen nie angezeigt — zum Neuladen (z.B. neues Repo aufnehmen) hier erneut einfügen.
+              <i class="ti ti-info-circle" style="margin-right:4px"></i>
+              "Repos laden" nutzt das hinterlegte PAT. Nur bei einem neuen/anderen Token hier erneut einfügen.
             </div>
           </div>
 
@@ -1727,6 +1730,7 @@ const form = reactive({
   plexiWelcome:    'Hallo! Wie kann ich dir helfen?',
   githubPat:       '',
   githubPatConfigured: false,
+  githubPatMasked: '',
   githubTitle:     'PROJEKTE',
   githubShowForks: false,
   githubRepos:     [] as string[],
@@ -1814,6 +1818,7 @@ onMounted(async () => {
       form.plexiEnabled        = n.plexiEnabled    ?? false
       form.plexiWelcome        = n.plexiWelcome     || 'Hallo! Wie kann ich dir helfen?'
       form.githubPatConfigured = n.githubPatConfigured ?? false
+      form.githubPatMasked     = n.githubPatMasked     || ''
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
       form.githubRepos         = n.githubRepos    || []
@@ -2309,35 +2314,23 @@ function onPageDragEnd() { draggedPageIndex.value = null; dragOverPageIndex.valu
 
 // ── GitHub ────────────────────────────────────────────────────────────────────
 async function loadGithubRepos() {
-  if (!form.githubPat.trim()) return
+  if (!form.githubPat.trim() && !form.githubPatConfigured) return
   form.githubLoading = true
   form.githubLoaded = false
   form.githubError = ''
   try {
-    const repos = await $fetch<any[]>('https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member', {
-      headers: {
-        Authorization: `Bearer ${form.githubPat.trim()}`,
-        Accept: 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
+    const res = await $fetch<{ repos: any[] }>(useApiUrl('/api/nexora/github-repos'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: { githubPat: form.githubPat.trim() },
     })
-    form.githubAvailable = repos
-      .filter((r: any) => !r.private)
-      .map((r: any) => ({ name: r.name, description: r.description || '', language: r.language || '', stars: r.stargazers_count }))
+    form.githubAvailable = res.repos || []
     form.githubLoaded = true
     if (form.githubAvailable.length === 0) {
       form.githubError = 'Keine öffentlichen Repos gefunden. Prüfe, ob das PAT Zugriff auf die richtigen Repos/Organisationen hat.'
     }
   } catch (err: any) {
-    const status = err?.response?.status
-    const ghMessage = err?.data?.message || err?.response?._data?.message
-    form.githubError = ghMessage
-      ? `GitHub: ${ghMessage}`
-      : status === 401
-        ? 'GitHub PAT ungültig oder abgelaufen.'
-        : status === 403
-          ? 'Zugriff verweigert (Rate-Limit erreicht oder PAT benötigt SSO-Autorisierung für die Organisation).'
-          : 'Fehler beim Laden der Repos.'
+    form.githubError = err?.data?.message || err?.data?.statusMessage || 'Fehler beim Laden der Repos.'
   }
   form.githubLoading = false
 }

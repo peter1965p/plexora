@@ -53,6 +53,7 @@ export default defineEventHandler(async (event) => {
       clientsShowText: item.clientsShowText ?? false,
       githubEnabled:  item.githubEnabled  ?? false,
       githubPatConfigured: !!item.githubPatEncrypted,
+      githubPatMasked: item.githubPatMasked || '',
       githubRepos:    item.githubRepos    || [],
       githubTitle:    item.githubTitle    || 'PROJEKTE',
       githubShowForks: item.githubShowForks ?? false,
