@@ -1286,6 +1286,17 @@
             <span style="font-size:12px;color:var(--text-muted)">Forks anzeigen</span>
           </div>
 
+          <!-- Card shadow toggle -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <button @click="form.githubCardShadow = !form.githubCardShadow"
+              style="width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s"
+              :style="form.githubCardShadow ? 'background:var(--accent)' : 'background:var(--border)'">
+              <span style="position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
+                :style="form.githubCardShadow ? 'left:18px' : 'left:2px'"></span>
+            </button>
+            <span style="font-size:12px;color:var(--text-muted)">Schatten auf den Projekt-Kacheln</span>
+          </div>
+
           <!-- Repo selection -->
           <div v-if="form.githubAvailable.length > 0">
             <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">
@@ -1733,6 +1744,7 @@ const form = reactive({
   githubPatMasked: '',
   githubTitle:     'PROJEKTE',
   githubShowForks: false,
+  githubCardShadow: true,
   githubRepos:     [] as string[],
   githubAvailable: [] as { name: string; description: string; language: string; stars: number }[],
   githubLoading:   false,
@@ -1821,6 +1833,7 @@ onMounted(async () => {
       form.githubPatMasked     = n.githubPatMasked     || ''
       form.githubTitle         = n.githubTitle    || 'PROJEKTE'
       form.githubShowForks     = n.githubShowForks ?? false
+      form.githubCardShadow    = n.githubCardShadow ?? true
       form.githubRepos         = n.githubRepos    || []
       form.sectionOrder        = n.sectionOrder   || ['stack', 'clients', 'github', 'services', 'contact']
       form.navOrder            = n.navOrder       || ['start', 'leistungen', 'about', 'kontakt', 'shop', 'blog', 'vehicles', 'menu', 'properties', 'termine']
@@ -1982,6 +1995,7 @@ async function save() {
         plexiEnabled:   form.plexiEnabled,
         plexiWelcome:   form.plexiWelcome,
         githubShowForks: form.githubShowForks,
+        githubCardShadow: form.githubCardShadow,
         githubRepos:    form.githubRepos,
         sectionOrder:   form.sectionOrder,
         navOrder:       form.navOrder,

@@ -57,6 +57,7 @@ export default defineEventHandler(async (event) => {
       githubRepos:    item.githubRepos    || [],
       githubTitle:    item.githubTitle    || 'PROJEKTE',
       githubShowForks: item.githubShowForks ?? false,
+      githubCardShadow: item.githubCardShadow ?? true,
       blogEnabled:    item.blogEnabled    ?? false,
       blogTitle:      item.blogTitle      || 'Blog',
       shopEnabled:    item.shopEnabled    ?? false,

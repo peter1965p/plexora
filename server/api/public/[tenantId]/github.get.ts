@@ -76,14 +76,15 @@ export default defineEventHandler(async (event) => {
   const selected = res.Item.githubRepos    || []   // [] = alle, sonst Array von repo-Namen
   const title    = res.Item.githubTitle    || 'PROJEKTE'
   const showForks = res.Item.githubShowForks ?? false
+  const cardShadow = res.Item.githubCardShadow ?? true
 
-  if (!res.Item.githubPatEncrypted) return { enabled: true, repos: [], title }
+  if (!res.Item.githubPatEncrypted) return { enabled: true, repos: [], title, cardShadow }
 
   let pat: string
   try {
     pat = decryptSecret(res.Item.githubPatEncrypted)
   } catch {
-    return { enabled: true, repos: [], title }
+    return { enabled: true, repos: [], title, cardShadow }
   }
 
   try {
@@ -104,6 +105,7 @@ export default defineEventHandler(async (event) => {
     return {
       enabled: true,
       title,
+      cardShadow,
       repos: repos.map((r, i) => ({
         name:        r.name,
         description: r.description || '',
@@ -118,6 +120,6 @@ export default defineEventHandler(async (event) => {
       })),
     }
   } catch {
-    return { enabled: true, repos: [], title }
+    return { enabled: true, repos: [], title, cardShadow }
   }
 })
