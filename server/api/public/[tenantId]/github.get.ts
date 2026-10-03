@@ -27,28 +27,31 @@ function isBadgeImage(url: string): boolean {
   return BADGE_HOSTS.some(h => url.includes(h))
 }
 
-async function extractReadmeImage(fullName: string, defaultBranch: string, pat: string): Promise<string | null> {
-  try {
-    const raw = await $fetch<string>(`https://api.github.com/repos/${fullName}/readme`, {
-      headers: {
-        Authorization: `Bearer ${pat}`,
-        Accept: 'application/vnd.github.raw',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-    })
-    const matches = [...raw.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g), ...raw.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)]
-    for (const m of matches) {
-      let url = m[1]
-      if (isBadgeImage(url)) continue
-      if (!/^https?:\/\//i.test(url)) {
-        url = `https://raw.githubusercontent.com/${fullName}/${defaultBranch}/${url.replace(/^\.?\//, '')}`
-      }
-      return url
-    }
-    return null
-  } catch {
-    return null
+async function fetchReadmeText(fullName: string, pat: string): Promise<string | null> {
+  const headers = { Accept: 'application/vnd.github.raw', 'X-GitHub-Api-Version': '2022-11-28' }
+  const url = `https://api.github.com/repos/${fullName}/readme`
+  for (const auth of [`Bearer ${pat}`, null]) {
+    try {
+      const res = await fetch(url, { headers: auth ? { ...headers, Authorization: auth } : headers })
+      if (res.ok) return await res.text()
+    } catch {}
   }
+  return null
+}
+
+async function extractReadmeImage(fullName: string, defaultBranch: string, pat: string): Promise<string | null> {
+  const raw = await fetchReadmeText(fullName, pat)
+  if (!raw) return null
+  const matches = [...raw.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g), ...raw.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)]
+  for (const m of matches) {
+    let url = m[1]
+    if (isBadgeImage(url)) continue
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://raw.githubusercontent.com/${fullName}/${defaultBranch}/${url.replace(/^\.?\//, '')}`
+    }
+    return url
+  }
+  return null
 }
 
 export default defineEventHandler(async (event) => {
