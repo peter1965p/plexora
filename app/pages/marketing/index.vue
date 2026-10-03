@@ -473,40 +473,44 @@
     </div>
 
     <!-- AUTOMATISIERUNGEN -->
-    <div class="card" style="margin-top:24px">
-      <div class="card-header">
-        <span class="card-title"><i class="ti ti-bolt" style="margin-right:8px;color:var(--accent)"></i>Automatisierungen</span>
-        <div style="display:flex;gap:8px">
-          <NuxtLink to="/funnels" class="btn-secondary" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;text-decoration:none">
-            <i class="ti ti-route"></i> Funnel-Editor
-          </NuxtLink>
-          <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddAutomation">
-          <i class="ti ti-plus"></i> Neue Automatisierung
-        </button>
+    <div class="auto-block">
+      <div class="auto-head">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="auto-icon"><i class="ti ti-bolt"></i></div>
+          <div>
+            <div class="auto-title">Automatisierungen <span class="auto-count">{{ automations.length }}</span></div>
+            <div class="auto-sub">Wenn etwas passiert, läuft automatisch eine Aktion ab.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Funnel-Editor</NuxtLink>
+          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Neue Automatisierung</button>
         </div>
       </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">
-          Wenn etwas passiert, löst automatisch eine Aktion aus — z.B. ein Webhook an Zapier, Make
-          oder ActiveCampaign, oder eine Benachrichtigungs-E-Mail.
+
+      <div v-if="!automations.length" class="auto-empty">
+        <i class="ti ti-bolt-off"></i>
+        <div class="auto-empty-title">Noch keine Automatisierung aktiv</div>
+        <div class="auto-empty-sub">Lass Plexora z.B. nach jeder Formular-Abgabe automatisch eine Terminbestätigung oder einen Termin-Link schicken.</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Erste Automatisierung</button>
+          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Mehrstufigen Funnel bauen</NuxtLink>
         </div>
-        <div v-if="!automations.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
-          Noch keine Automatisierungen angelegt.
-        </div>
-        <div v-for="a in automations" :key="a.automationId" style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px">
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-size:13px">{{ a.name }}</div>
-            <div style="font-size:11px;color:var(--text-muted)">
-              Wenn <strong>{{ triggerLabel(a.trigger) }}</strong> → <strong>{{ actionLabel(a) }}</strong>
+      </div>
+
+      <div v-else class="auto-list">
+        <div v-for="a in automations" :key="a.automationId" class="auto-row" :class="{ off: !a.enabled }">
+          <div class="auto-row-main">
+            <div class="auto-row-name">{{ a.name }}</div>
+            <div class="auto-flow">
+              <span class="auto-chip trig"><i class="ti ti-bolt"></i> {{ triggerLabel(a.trigger) }}</span>
+              <i class="ti ti-arrow-right auto-arrow"></i>
+              <span class="auto-chip act"><i class="ti ti-player-play"></i> {{ actionLabel(a) }}</span>
             </div>
           </div>
-          <button @click="toggleAutomation(a)"
-            style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s"
-            :style="a.enabled ? 'background:var(--accent)' : 'background:var(--border)'">
-            <span style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
-              :style="a.enabled ? 'left:19px' : 'left:3px'"></span>
-          </button>
-          <button class="icon-btn" style="color:var(--danger)" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
+          <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? 'Aktiv' : 'Pausiert' }}</span>
+          <button class="fn-toggle" :class="{ on: a.enabled }" :title="a.enabled ? 'Pausieren' : 'Aktivieren'" @click="toggleAutomation(a)"><span></span></button>
+          <button class="auto-del" title="Löschen" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
         </div>
       </div>
     </div>
@@ -1227,6 +1231,40 @@ function showToast(msg: string) {
 </script>
 
 <style scoped>
+.auto-block { margin-top: 24px; padding: 22px; border-radius: 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, var(--bg-elevated)), var(--bg-elevated)); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+.auto-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.auto-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #f59e0b)); box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent); }
+.auto-title { font-size: 17px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.auto-count { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--accent); color: #fff; }
+.auto-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.auto-btn { height: 34px; padding: 0 14px; border-radius: 9px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #fff; background: var(--accent); display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent); }
+.auto-btn:hover { filter: brightness(1.07); }
+.auto-btn-ghost { height: 34px; padding: 0 14px; border-radius: 9px; font-size: 12px; font-weight: 600; color: var(--text); background: var(--bg); border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.auto-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 36px 20px; border: 2px dashed color-mix(in srgb, var(--accent) 35%, var(--border)); border-radius: 14px; background: var(--bg); text-align: center; }
+.auto-empty > i { font-size: 34px; color: var(--accent); }
+.auto-empty-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.auto-empty-sub { font-size: 12px; color: var(--text-muted); max-width: 440px; }
+.auto-list { display: flex; flex-direction: column; gap: 10px; }
+.auto-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); border-left: 4px solid var(--accent); box-shadow: 0 4px 14px rgba(0,0,0,.05); transition: transform .15s, box-shadow .15s; }
+.auto-row:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,.09); }
+.auto-row.off { opacity: .55; border-left-color: var(--border); }
+.auto-row-main { flex: 1; min-width: 0; }
+.auto-row-name { font-weight: 800; font-size: 14px; color: var(--text); margin-bottom: 6px; }
+.auto-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.auto-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
+.auto-chip.trig { background: color-mix(in srgb, #f59e0b 16%, transparent); color: #b45309; }
+.auto-chip.act { background: color-mix(in srgb, #10b981 16%, transparent); color: #047857; }
+.auto-arrow { color: var(--text-muted); font-size: 14px; }
+.auto-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.auto-status.on { background: color-mix(in srgb, #10b981 18%, transparent); color: #047857; }
+.auto-status.off { background: var(--border); color: var(--text-muted); }
+.auto-del { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #ef4444; cursor: pointer; flex-shrink: 0; }
+.auto-del:hover { background: color-mix(in srgb, #ef4444 12%, transparent); }
+.fn-toggle { width: 38px; height: 22px; border-radius: 11px; border: none; cursor: pointer; position: relative; background: var(--border); flex-shrink: 0; transition: background .2s; }
+.fn-toggle span { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+.fn-toggle.on { background: var(--accent); }
+.fn-toggle.on span { left: 19px; }
+
 .mkt-page { display: flex; flex-direction: column; gap: 24px; }
 
 /* STATS */
