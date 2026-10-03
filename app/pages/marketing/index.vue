@@ -1,8 +1,14 @@
 <template>
   <div class="mkt-page">
 
+    <div class="mkt-tabs">
+      <button class="mkt-tab" :class="{ active: tab === 'campaigns' }" @click="setTab('campaigns')"><i class="ti ti-speakerphone"></i> Kampagnen <span class="mkt-tab-count">{{ campaigns.length }}</span></button>
+      <button class="mkt-tab" :class="{ active: tab === 'automations' }" @click="setTab('automations')"><i class="ti ti-bolt"></i> Automatisierungen <span class="mkt-tab-count">{{ automations.length }}</span></button>
+      <button class="mkt-tab" :class="{ active: tab === 'mail' }" @click="setTab('mail')"><i class="ti ti-mail"></i> Versand-Protokoll <span class="mkt-tab-count">{{ mailLog.length }}</span></button>
+    </div>
+
     <!-- STATS -->
-    <div class="mkt-stats">
+    <div v-if="tab === 'campaigns'" class="mkt-stats">
       <div class="mkt-stat-card">
         <div class="mkt-stat-glow"></div>
         <div class="mkt-stat-icon"><i class="ti ti-speakerphone"></i></div>
@@ -42,7 +48,7 @@
     </div>
 
     <!-- HEADER -->
-    <div class="mkt-header">
+    <div v-if="tab === 'campaigns'" class="mkt-header">
       <div class="mkt-header-left">
         <h2 class="mkt-title">{{ t.marketing.campaigns }}</h2>
         <span class="mkt-count">{{ campaigns.length }}</span>
@@ -65,7 +71,7 @@
 
     <!-- EMPTY -->
     <!-- AUTOMATISIERUNGEN -->
-    <div class="auto-block">
+    <div v-if="tab === 'automations'" class="auto-block">
       <div class="auto-head">
         <div style="display:flex;align-items:center;gap:14px">
           <div class="auto-icon"><i class="ti ti-bolt"></i></div>
@@ -107,6 +113,7 @@
       </div>
     </div>
 
+    <div v-if="tab === 'campaigns'">
     <div v-if="!campaigns.length" class="mkt-empty">
       <div class="mkt-empty-icon"><i class="ti ti-speakerphone"></i></div>
       <div class="mkt-empty-title">{{ t.marketing.noCampaigns }}</div>
@@ -185,6 +192,8 @@
           </button>
         </div>
       </div>
+    </div>
+
     </div>
 
     <!-- MODAL ERSTELLEN/BEARBEITEN -->
@@ -516,23 +525,45 @@
     </div>
 
     <!-- VERSAND-PROTOKOLL -->
-    <div class="card" style="margin-top:24px">
-      <div class="card-header">
-        <span class="card-title"><i class="ti ti-mail-check" style="margin-right:8px;color:var(--accent)"></i>Versand-Protokoll</span>
-        <button class="btn-secondary" style="height:28px;font-size:12px;padding:0 12px" @click="loadMailLog"><i class="ti ti-refresh"></i> Aktualisieren</button>
-      </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:6px">
-        <div v-if="!mailLog.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Noch keine Mails verschickt.</div>
-        <div v-for="m in mailLog" :key="m.mailId" style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px">
-          <span style="width:130px;color:var(--text-muted);flex-shrink:0">{{ new Date(m.created).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) }}</span>
-          <span style="flex:1;min-width:0">
-            <strong>{{ m.subject }}</strong><br>
-            <span style="color:var(--text-muted)">an {{ m.to }} · {{ mailKindLabel(m.kind) }}</span>
-          </span>
-          <span v-if="m.status === 'sent'" class="badge badge-success" style="font-size:10px">Gesendet</span>
-          <span v-else class="badge badge-danger" style="font-size:10px" :title="m.error">Fehler</span>
+    <div v-if="tab === 'mail'" class="mail-app">
+      <aside class="mail-folders">
+        <div class="mail-acc">
+          <span><i class="ti ti-mail"></i> Versand</span>
+          <button class="mail-icon-btn" title="Aktualisieren" @click="loadMailLog"><i class="ti ti-refresh"></i></button>
         </div>
-      </div>
+        <button v-for="f in mailFolders" :key="f.key" class="mail-folder" :class="{ active: mailFolder === f.key, sep: f.sep }" @click="mailFolder = f.key">
+          <i class="ti" :class="f.icon"></i> {{ f.label }} <span class="mail-fcount">{{ mailCounts[f.key] || 0 }}</span>
+        </button>
+      </aside>
+
+      <section class="mail-list">
+        <div class="mail-search"><i class="ti ti-search"></i><input v-model="mailSearch" placeholder="Empfänger oder Betreff suchen" /></div>
+        <div v-if="!filteredMails.length" class="mail-empty">Keine Mails in diesem Ordner.</div>
+        <button v-for="m in filteredMails" :key="m.mailId" class="mail-item" :class="{ active: selectedMailId === m.mailId }" @click="selectedMailId = m.mailId">
+          <div class="mail-item-top">
+            <span class="mail-dot" :class="m.status"></span>
+            <span class="mail-to">{{ m.to }}</span>
+            <span class="mail-time">{{ fmtMailTime(m.created) }}</span>
+          </div>
+          <div class="mail-subj">{{ m.subject }}</div>
+          <div class="mail-kind">{{ mailKindLabel(m.kind) }}</div>
+        </button>
+      </section>
+
+      <section class="mail-read">
+        <div v-if="!selectedMail" class="mail-empty">Mail auswählen, um Details zu sehen.</div>
+        <template v-else>
+          <div class="mail-read-subj">{{ selectedMail.subject }}</div>
+          <div class="mail-meta">
+            <div><span>An</span>{{ selectedMail.to }}</div>
+            <div><span>Art</span>{{ mailKindLabel(selectedMail.kind) }}</div>
+            <div><span>Zeit</span>{{ new Date(selectedMail.created).toLocaleString('de-DE') }}</div>
+            <div><span>Status</span><b :class="selectedMail.status">{{ selectedMail.status === 'sent' ? 'Versendet' : 'Fehlgeschlagen' }}</b></div>
+          </div>
+          <div v-if="selectedMail.error" class="mail-error"><i class="ti ti-alert-triangle"></i> {{ selectedMail.error }}</div>
+          <div class="mail-body">{{ selectedMail.preview || 'Keine Vorschau gespeichert (ältere Mail).' }}</div>
+        </template>
+      </section>
     </div>
 
     <!-- NEUE AUTOMATISIERUNG MODAL -->
@@ -856,6 +887,48 @@ function copyQrUrl() {
 }
 
 const route = useRoute()
+const router = useRouter()
+const tab = ref<'campaigns' | 'automations' | 'mail'>((['campaigns', 'automations', 'mail'] as const).includes(route.query.tab as any) ? (route.query.tab as any) : 'campaigns')
+function setTab(t: 'campaigns' | 'automations' | 'mail') {
+  tab.value = t
+  router.replace({ query: { ...route.query, tab: t } })
+}
+
+const mailFolder = ref('all')
+const mailSearch = ref('')
+const selectedMailId = ref<string | null>(null)
+const mailFolders = [
+  { key: 'all', label: 'Alle Mails', icon: 'ti-inbox' },
+  { key: 'sent', label: 'Versendet', icon: 'ti-send' },
+  { key: 'failed', label: 'Fehlgeschlagen', icon: 'ti-alert-circle' },
+  { key: 'automation', label: 'Automatisierungen', icon: 'ti-bolt', sep: true },
+  { key: 'booking_confirmation', label: 'Terminbestätigungen', icon: 'ti-calendar-check' },
+  { key: 'internal', label: 'Intern', icon: 'ti-bell' },
+]
+const mailCounts = computed<Record<string, number>>(() => {
+  const c: Record<string, number> = { all: mailLog.value.length, sent: 0, failed: 0 }
+  for (const m of mailLog.value) {
+    if (m.status === 'sent') c.sent++
+    else c.failed++
+    c[m.kind] = (c[m.kind] || 0) + 1
+  }
+  return c
+})
+const filteredMails = computed(() => {
+  const q = mailSearch.value.trim().toLowerCase()
+  return mailLog.value.filter(m => {
+    const folderOk = mailFolder.value === 'all'
+      || (mailFolder.value === 'sent' && m.status === 'sent')
+      || (mailFolder.value === 'failed' && m.status !== 'sent')
+      || m.kind === mailFolder.value
+    const searchOk = !q || String(m.to).toLowerCase().includes(q) || String(m.subject).toLowerCase().includes(q)
+    return folderOk && searchOk
+  })
+})
+const selectedMail = computed(() => filteredMails.value.find(m => m.mailId === selectedMailId.value) || filteredMails.value[0] || null)
+function fmtMailTime(iso: string) {
+  return new Date(iso).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })
+}
 const showModal = ref(false)
 onMounted(() => { if (route.query.new) showModal.value = true })
 const editing = ref<any>(null)
@@ -1231,6 +1304,57 @@ function showToast(msg: string) {
 </script>
 
 <style scoped>
+.mkt-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; overflow-x: auto; }
+.mkt-tab { display: inline-flex; align-items: center; gap: 7px; padding: 11px 16px; margin-bottom: -1px; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.mkt-tab:hover { color: var(--text); }
+.mkt-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.mkt-tab-count { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--border); color: var(--text-muted); }
+.mkt-tab.active .mkt-tab-count { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+
+.mail-app { display: grid; grid-template-columns: 210px 340px 1fr; height: 600px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg-elevated); box-shadow: 0 8px 26px rgba(0,0,0,.07); margin-top: 16px; }
+.mail-folders { background: var(--bg); border-right: 1px solid var(--border); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.mail-acc { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 12px; font-weight: 800; font-size: 13px; color: var(--text); }
+.mail-acc span { display: flex; align-items: center; gap: 7px; }
+.mail-icon-btn { width: 26px; height: 26px; border-radius: 7px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
+.mail-icon-btn:hover { background: var(--border); color: var(--text); }
+.mail-folder { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; text-align: left; }
+.mail-folder:hover { background: var(--border); }
+.mail-folder.active { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.mail-folder.sep { margin-top: 12px; }
+.mail-folder.sep::before { content: ''; }
+.mail-fcount { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--text-muted); }
+.mail-folder.active .mail-fcount { color: var(--accent); }
+
+.mail-list { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.mail-search { display: flex; align-items: center; gap: 8px; margin: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text-muted); font-size: 13px; }
+.mail-search input { flex: 1; border: none; outline: none; background: transparent; color: var(--text); font-size: 12px; }
+.mail-item { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 11px 14px; border: none; border-bottom: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text); }
+.mail-item:hover { background: var(--bg); }
+.mail-item.active { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 3px 0 0 var(--accent); }
+.mail-item-top { display: flex; align-items: center; gap: 8px; }
+.mail-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+.mail-dot.failed { background: #ef4444; }
+.mail-to { font-size: 12px; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mail-time { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+.mail-subj { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 16px; }
+.mail-kind { font-size: 10px; color: var(--text-muted); padding-left: 16px; }
+.mail-empty { padding: 30px; text-align: center; color: var(--text-muted); font-size: 12px; }
+
+.mail-read { padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.mail-read-subj { font-size: 18px; font-weight: 800; color: var(--text); }
+.mail-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; font-size: 12px; color: var(--text); padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; }
+.mail-meta > div { display: flex; flex-direction: column; gap: 2px; }
+.mail-meta span { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); font-weight: 700; }
+.mail-meta b.sent { color: #047857; }
+.mail-meta b.failed { color: #b91c1c; }
+.mail-error { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 9px; background: color-mix(in srgb, #ef4444 12%, transparent); color: #b91c1c; font-size: 12px; }
+.mail-body { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; padding: 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); }
+
+@media (max-width: 1100px) {
+  .mail-app { grid-template-columns: 170px 1fr; }
+  .mail-read { grid-column: 1 / -1; border-top: 1px solid var(--border); }
+}
+
 .auto-block { margin-top: 24px; padding: 22px; border-radius: 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, var(--bg-elevated)), var(--bg-elevated)); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
 .auto-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .auto-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #f59e0b)); box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent); }

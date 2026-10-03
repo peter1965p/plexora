@@ -47,6 +47,7 @@ export async function sendMail(input: MailInput): Promise<'sent' | 'failed'> {
         subject: input.subject,
         status,
         error,
+        preview: (input.text || input.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 600),
         created: new Date().toISOString(),
       },
     }))
