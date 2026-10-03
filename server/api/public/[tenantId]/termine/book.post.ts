@@ -2,6 +2,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
+import { sendMail } from '../../../../utils/mailer'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
@@ -82,6 +83,28 @@ export default defineEventHandler(async (event) => {
     updatedAt: now,
   }
   await dynamo.send(new PutCommand({ TableName: 'plexora-termine-bookings', Item: item }))
+
+  const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+  const companyName = tenantItem.companyName || 'Wir'
+  const details = channel === 'phone'
+    ? `Wir rufen dich unter ${customerPhone} an.`
+    : googleMeetLink
+      ? `Video-Gespräch über Google Meet: <a href="${googleMeetLink}">${googleMeetLink}</a>`
+      : 'Den Video-Link erhältst du separat.'
+  await sendMail({
+    userId: tenantItem.email,
+    kind: 'booking_confirmation',
+    from: `${companyName} <termine@plexora.eu>`,
+    to: customerEmail,
+    subject: `Terminbestätigung: ${typeItem.name} am ${dateLabel}`,
+    html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+      <p>Hallo ${customerName},</p>
+      <p>dein Termin ist bestätigt:</p>
+      <p><strong>${typeItem.name}</strong><br>${dateLabel}, ${startTime} – ${endTime} Uhr (${durationMinutes} Min.)</p>
+      <p>${details}</p>
+      <p>Viele Grüße<br>${companyName}</p>
+    </div>`,
+  })
 
   return {
     booking: {

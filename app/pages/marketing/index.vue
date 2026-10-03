@@ -511,6 +511,26 @@
       </div>
     </div>
 
+    <!-- VERSAND-PROTOKOLL -->
+    <div class="card" style="margin-top:24px">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-mail-check" style="margin-right:8px;color:var(--accent)"></i>Versand-Protokoll</span>
+        <button class="btn-secondary" style="height:28px;font-size:12px;padding:0 12px" @click="loadMailLog"><i class="ti ti-refresh"></i> Aktualisieren</button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:6px">
+        <div v-if="!mailLog.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Noch keine Mails verschickt.</div>
+        <div v-for="m in mailLog" :key="m.mailId" style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px">
+          <span style="width:130px;color:var(--text-muted);flex-shrink:0">{{ new Date(m.created).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) }}</span>
+          <span style="flex:1;min-width:0">
+            <strong>{{ m.subject }}</strong><br>
+            <span style="color:var(--text-muted)">an {{ m.to }} · {{ mailKindLabel(m.kind) }}</span>
+          </span>
+          <span v-if="m.status === 'sent'" class="badge badge-success" style="font-size:10px">Gesendet</span>
+          <span v-else class="badge badge-danger" style="font-size:10px" :title="m.error">Fehler</span>
+        </div>
+      </div>
+    </div>
+
     <!-- NEUE AUTOMATISIERUNG MODAL -->
     <div v-if="showAutomationModal" class="modal-overlay" @click.self="showAutomationModal=false">
       <div class="modal-card">
@@ -674,6 +694,7 @@ async function copyLink(c: any) {
 const automations = ref<any[]>([])
 const emailTemplates = ref<any[]>([])
 const appointmentTypes = ref<any[]>([])
+const mailLog = ref<any[]>([])
 const showAutomationModal = ref(false)
 const savingAutomation = ref(false)
 const newAutomation = reactive({
@@ -699,7 +720,16 @@ async function loadAppointmentTypes() {
     appointmentTypes.value = res.types || []
   } catch {}
 }
-onMounted(() => { loadAutomations(); loadEmailTemplates(); loadAppointmentTypes() })
+async function loadMailLog() {
+  try {
+    const res = await $fetch<{ mails: any[] }>(useApiUrl('/api/mail-log'), { headers: authHeaders })
+    mailLog.value = res.mails || []
+  } catch {}
+}
+function mailKindLabel(kind: string) {
+  return kind === 'booking_confirmation' ? 'Terminbestätigung' : kind === 'internal' ? 'Interne Benachrichtigung' : 'Automatisierung'
+}
+onMounted(() => { loadAutomations(); loadEmailTemplates(); loadAppointmentTypes(); loadMailLog() })
 
 function triggerLabel(trigger: string): string {
   return trigger === 'form_submitted' ? 'Formular abgeschickt' : 'Neuer Lead (mit E-Mail)'

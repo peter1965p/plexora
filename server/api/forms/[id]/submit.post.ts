@@ -44,9 +44,8 @@ export default defineEventHandler(async (event) => {
   const firstNameKey = Object.keys(data).find(k =>
     k.toLowerCase().includes('vorname') || k.toLowerCase().includes('first')
   )
-  const lastNameKey = Object.keys(data).find(k =>
-    k.toLowerCase().includes('nachname') || k.toLowerCase().includes('last') || k.toLowerCase().includes('name')
-  )
+  const lastNameKey = Object.keys(data).find(k => k !== firstNameKey && k.toLowerCase().includes('nachname'))
+    ?? Object.keys(data).find(k => k !== firstNameKey && (k.toLowerCase().includes('last') || k.toLowerCase().includes('name')))
   const phoneKey = Object.keys(data).find(k =>
     k.toLowerCase().includes('telefon') || k.toLowerCase().includes('phone') || k.toLowerCase().includes('tel')
   )
@@ -94,7 +93,7 @@ export default defineEventHandler(async (event) => {
   const sequenceOwner = form.userId || 'demo-user'
   await startSequences(sequenceOwner, 'form_submitted', { ...leadData, formId, email: emailKey ? data[emailKey] : '' })
   if (emailKey && data[emailKey]) {
-    await startSequences(sequenceOwner, 'new_lead', { ...leadData, formId, email: data[emailKey], name: `${data[firstNameKey as string] || ''} ${data[lastNameKey as string] || ''}`.trim() })
+    await startSequences(sequenceOwner, 'new_lead', { ...leadData, formId, email: data[emailKey], name: [...new Set([data[firstNameKey as string], data[lastNameKey as string]].filter(Boolean))].join(' ') })
   }
 
   return { success: true, message: form.successMsg }

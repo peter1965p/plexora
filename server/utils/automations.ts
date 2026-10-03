@@ -2,7 +2,7 @@ import { QueryCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { compileNewsletterHtml } from './newsletterHtml'
 import { getTenantByEmail } from './ai/keys'
-import { Resend } from 'resend'
+import { sendMail } from './mailer'
 import { lookup } from 'dns/promises'
 import { isIP } from 'net'
 
@@ -71,10 +71,11 @@ export async function sendTemplateEmail(userId: string, templateId: string, toEm
     apiBase,
   })
 
-  const resend = new Resend(useRuntimeConfig().resendApiKey as string)
-  await resend.emails.send({
-    from:    `${branding.brandName || 'Plexora'} <automation@plexora.eu>`,
-    to:      toEmail,
+  await sendMail({
+    userId,
+    kind: 'automation',
+    from: `${branding.brandName || 'Plexora'} <automation@plexora.eu>`,
+    to: toEmail,
     subject: fillPlaceholders(template.name || 'Nachricht', data),
     html,
   })
@@ -113,8 +114,9 @@ export async function sendBookingLink(userId: string, toEmail: string, data: Rec
   const name = data.name || ''
   const companyName = tenant?.companyName || 'uns'
 
-  const resend = new Resend(useRuntimeConfig().resendApiKey as string)
-  await resend.emails.send({
+  await sendMail({
+    userId,
+    kind: 'automation',
     from:    `${companyName} <automation@plexora.eu>`,
     to:      toEmail,
     subject: 'Jetzt Termin vereinbaren',
@@ -155,10 +157,11 @@ async function runAction(userId: string, automation: any, data: Record<string, a
     return
   }
   if (automation.action === 'email' && automation.emailTo) {
-    const resend = new Resend(useRuntimeConfig().resendApiKey as string)
     const subject = fillPlaceholders(automation.emailSubject || 'Automatisierung ausgelöst', data)
     const body = Object.entries(data).map(([k, v]) => `${k}: ${v}`).join('\n')
-    await resend.emails.send({
+    await sendMail({
+      userId,
+      kind: 'internal',
       from: 'Plexora Automatisierung <automation@plexora.eu>',
       to: automation.emailTo,
       subject,
