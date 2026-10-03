@@ -62,7 +62,8 @@ async function findContactStatus(userId: string, email: string): Promise<string>
     FilterExpression: 'email = :e',
     ExpressionAttributeValues: { ':u': userId, ':e': email },
   }))
-  return (res.Items || [])[0]?.leadStatus || ''
+  const newest = [...(res.Items || [])].sort((a, b) => String(b.created).localeCompare(String(a.created)))[0]
+  return newest?.leadStatus || ''
 }
 
 async function saveRun(run: any, patch: Record<string, any>) {

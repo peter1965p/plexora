@@ -91,14 +91,14 @@ export async function setContactLeadStatus(userId: string, email: string, leadSt
     FilterExpression: 'email = :e',
     ExpressionAttributeValues: { ':u': userId, ':e': email },
   }))
-  const contact = (res.Items || [])[0]
-  if (!contact) return
-  await dynamo.send(new UpdateCommand({
-    TableName: 'plexora-contacts',
-    Key: { userId, contactId: contact.contactId },
-    UpdateExpression: 'SET leadStatus = :s',
-    ExpressionAttributeValues: { ':s': leadStatus },
-  }))
+  for (const contact of res.Items || []) {
+    await dynamo.send(new UpdateCommand({
+      TableName: 'plexora-contacts',
+      Key: { userId, contactId: contact.contactId },
+      UpdateExpression: 'SET leadStatus = :s',
+      ExpressionAttributeValues: { ':s': leadStatus },
+    }))
+  }
 }
 
 // Verlinkt die öffentliche Termine-Buchungsseite der Kunden-Website (Nexora) des
