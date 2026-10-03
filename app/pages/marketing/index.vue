@@ -64,6 +64,49 @@
     </div>
 
     <!-- EMPTY -->
+    <!-- AUTOMATISIERUNGEN -->
+    <div class="auto-block">
+      <div class="auto-head">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="auto-icon"><i class="ti ti-bolt"></i></div>
+          <div>
+            <div class="auto-title">Automatisierungen <span class="auto-count">{{ automations.length }}</span></div>
+            <div class="auto-sub">Wenn etwas passiert, läuft automatisch eine Aktion ab.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Funnel-Editor</NuxtLink>
+          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Neue Automatisierung</button>
+        </div>
+      </div>
+
+      <div v-if="!automations.length" class="auto-empty">
+        <i class="ti ti-bolt-off"></i>
+        <div class="auto-empty-title">Noch keine Automatisierung aktiv</div>
+        <div class="auto-empty-sub">Lass Plexora z.B. nach jeder Formular-Abgabe automatisch eine Terminbestätigung oder einen Termin-Link schicken.</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Erste Automatisierung</button>
+          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Mehrstufigen Funnel bauen</NuxtLink>
+        </div>
+      </div>
+
+      <div v-else class="auto-list">
+        <div v-for="a in automations" :key="a.automationId" class="auto-row" :class="{ off: !a.enabled }">
+          <div class="auto-row-main">
+            <div class="auto-row-name">{{ a.name }}</div>
+            <div class="auto-flow">
+              <span class="auto-chip trig"><i class="ti ti-bolt"></i> {{ triggerLabel(a.trigger) }}</span>
+              <i class="ti ti-arrow-right auto-arrow"></i>
+              <span class="auto-chip act"><i class="ti ti-player-play"></i> {{ actionLabel(a) }}</span>
+            </div>
+          </div>
+          <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? 'Aktiv' : 'Pausiert' }}</span>
+          <button class="fn-toggle" :class="{ on: a.enabled }" :title="a.enabled ? 'Pausieren' : 'Aktivieren'" @click="toggleAutomation(a)"><span></span></button>
+          <button class="auto-del" title="Löschen" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="!campaigns.length" class="mkt-empty">
       <div class="mkt-empty-icon"><i class="ti ti-speakerphone"></i></div>
       <div class="mkt-empty-title">{{ t.marketing.noCampaigns }}</div>
@@ -468,49 +511,6 @@
               <div class="mkt-preview-html" v-html="manualPreviewHtml"></div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- AUTOMATISIERUNGEN -->
-    <div class="auto-block">
-      <div class="auto-head">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div class="auto-icon"><i class="ti ti-bolt"></i></div>
-          <div>
-            <div class="auto-title">Automatisierungen <span class="auto-count">{{ automations.length }}</span></div>
-            <div class="auto-sub">Wenn etwas passiert, läuft automatisch eine Aktion ab.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Funnel-Editor</NuxtLink>
-          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Neue Automatisierung</button>
-        </div>
-      </div>
-
-      <div v-if="!automations.length" class="auto-empty">
-        <i class="ti ti-bolt-off"></i>
-        <div class="auto-empty-title">Noch keine Automatisierung aktiv</div>
-        <div class="auto-empty-sub">Lass Plexora z.B. nach jeder Formular-Abgabe automatisch eine Terminbestätigung oder einen Termin-Link schicken.</div>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Erste Automatisierung</button>
-          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Mehrstufigen Funnel bauen</NuxtLink>
-        </div>
-      </div>
-
-      <div v-else class="auto-list">
-        <div v-for="a in automations" :key="a.automationId" class="auto-row" :class="{ off: !a.enabled }">
-          <div class="auto-row-main">
-            <div class="auto-row-name">{{ a.name }}</div>
-            <div class="auto-flow">
-              <span class="auto-chip trig"><i class="ti ti-bolt"></i> {{ triggerLabel(a.trigger) }}</span>
-              <i class="ti ti-arrow-right auto-arrow"></i>
-              <span class="auto-chip act"><i class="ti ti-player-play"></i> {{ actionLabel(a) }}</span>
-            </div>
-          </div>
-          <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? 'Aktiv' : 'Pausiert' }}</span>
-          <button class="fn-toggle" :class="{ on: a.enabled }" :title="a.enabled ? 'Pausieren' : 'Aktivieren'" @click="toggleAutomation(a)"><span></span></button>
-          <button class="auto-del" title="Löschen" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
         </div>
       </div>
     </div>
