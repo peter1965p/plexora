@@ -90,7 +90,9 @@ export default defineEventHandler(async (event) => {
     ? `Wir rufen dich unter ${customerPhone} an.`
     : googleMeetLink
       ? `Video-Gespräch über Google Meet: <a href="${googleMeetLink}">${googleMeetLink}</a>`
-      : 'Den Video-Link erhältst du separat.'
+      : tenantItem.videoFallbackLink
+        ? `Video-Gespräch: <a href="${tenantItem.videoFallbackLink}">${tenantItem.videoFallbackLink}</a>`
+        : 'Den Video-Link erhältst du separat.'
   await sendMail({
     userId: tenantItem.email,
     kind: 'booking_confirmation',

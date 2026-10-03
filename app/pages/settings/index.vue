@@ -1196,6 +1196,83 @@
       </div>
     </div>
 
+  <!-- VIDEO | KALENDER -->
+  <div v-if="tab === 'video'" style="display:flex;flex-direction:column;gap:16px;max-width:860px">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-video" style="margin-right:8px;color:var(--accent)"></i>Video & Kalender</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">
+        Lege fest, wie deine Video-Termine stattfinden. Verbundene Kalender erzeugen automatisch einen Meeting-Link pro Buchung.
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="vid-icon" style="background:#4285f41a;color:#4285f4"><i class="ti ti-brand-google"></i></div>
+          <div>
+            <div style="font-weight:700;font-size:14px">Google Calendar & Meet</div>
+            <div style="font-size:12px;color:var(--text-muted)">Termin im Kalender plus Meet-Link</div>
+          </div>
+        </div>
+        <span v-if="video.googleConnected" class="badge badge-success">Verbunden</span>
+        <span v-else class="badge">Nicht verbunden</span>
+      </div>
+      <div v-if="video.googleConnected" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-size:12px;color:var(--text-muted)">Verbunden als <strong>{{ video.googleEmail }}</strong></div>
+        <button class="btn-secondary" style="height:30px;font-size:12px" :disabled="video.disconnecting" @click="disconnectGoogle">
+          <i class="ti" :class="video.disconnecting ? 'ti-loader-2 spin' : 'ti-plug-off'"></i> Trennen
+        </button>
+      </div>
+      <div v-else>
+        <button class="accent-btn" style="height:32px;font-size:12px" @click="connectGoogle">
+          <i class="ti ti-brand-google" style="margin-right:6px"></i> Google verbinden
+        </button>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:12px;opacity:.7">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="vid-icon" style="background:#2d8cff1a;color:#2d8cff"><i class="ti ti-video"></i></div>
+          <div>
+            <div style="font-weight:700;font-size:14px">Zoom</div>
+            <div style="font-size:12px;color:var(--text-muted)">Meetings direkt über dein Zoom-Konto</div>
+          </div>
+        </div>
+        <span class="badge">Bald verfügbar</span>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:12px;opacity:.7">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="vid-icon" style="background:#5b5fc71a;color:#5b5fc7"><i class="ti ti-brand-teams"></i></div>
+          <div>
+            <div style="font-weight:700;font-size:14px">Microsoft Teams</div>
+            <div style="font-size:12px;color:var(--text-muted)">Meetings über Microsoft 365</div>
+          </div>
+        </div>
+        <span class="badge">Bald verfügbar</span>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-weight:700;font-size:14px">Standard-Videolink</div>
+      <div style="font-size:12px;color:var(--text-muted)">
+        Dein fester Raum, z.B. ein Zoom-Persönlicher-Link oder Jitsi-Raum. Wird in Bestätigungsmails verwendet, wenn kein Google-Meet-Link erzeugt wurde.
+      </div>
+      <div style="display:flex;gap:8px">
+        <input v-model="video.fallbackLink" placeholder="https://..." style="flex:1" />
+        <button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink">
+          <i class="ti" :class="video.saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+        </button>
+      </div>
+      <div v-if="video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</div>
+    </div>
+  </div>
+
   <!-- TEAM -->
     <div v-if="tab === 'team'" class="card">
       <div class="card-header">
@@ -1616,6 +1693,7 @@ const BASE_TABS = [
   { key: 'security',    label: 'Sicherheit',       icon: 'ti-shield-lock'     },
   { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
   { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
+  { key: 'video',       label: 'Video | Kalender', icon: 'ti-video'           },
   { key: 'categories',  label: 'Kategorien',       icon: 'ti-tags'            },
   { key: 'licenses',    label: 'Lizenzen',         icon: 'ti-key'             },
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
@@ -2573,4 +2651,48 @@ async function removeTeamMember(email: string) {
 }
 
 watch(tab, v => { if (v === 'team') loadTeamMembers() })
+
+const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', saving: false, disconnecting: false, msg: '' })
+async function loadVideoSettings() {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<any>(useApiUrl('/api/video/settings'), { headers: await useAuthHeader() })
+    video.googleConnected = !!res.googleConnected
+    video.googleEmail = res.googleEmail || ''
+    video.fallbackLink = res.videoFallbackLink || ''
+  } catch {}
+}
+watch(tab, v => { if (v === 'video') loadVideoSettings() })
+async function connectGoogle() {
+  const { useAuthUser } = await import('~/composables/useAuth')
+  const u = await useAuthUser()
+  window.location.href = useApiUrl(`/api/termine/google-auth?token=${encodeURIComponent(u.idToken || '')}`)
+}
+async function disconnectGoogle() {
+  if (!confirm('Google Calendar wirklich trennen?')) return
+  video.disconnecting = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/termine/google-disconnect'), { method: 'POST', headers: await useAuthHeader() })
+    await loadVideoSettings()
+  } catch {
+    video.msg = 'Trennen fehlgeschlagen.'
+  } finally {
+    video.disconnecting = false
+  }
+}
+async function saveFallbackLink() {
+  video.saving = true
+  video.msg = ''
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/video/settings'), { method: 'POST', headers: await useAuthHeader(), body: { videoFallbackLink: video.fallbackLink } })
+    video.msg = 'Gespeichert.'
+  } catch (e: any) {
+    video.msg = e?.data?.message || 'Speichern fehlgeschlagen.'
+  } finally {
+    video.saving = false
+  }
+}
+
 </script>
