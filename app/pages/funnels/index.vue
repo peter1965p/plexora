@@ -46,6 +46,7 @@
       <div class="fn-bar">
         <input v-model="editName" class="field-input" placeholder="Name der Sequenz" style="flex:1;max-width:320px" />
         <div class="fn-palette">
+          <span class="fn-hint" style="align-self:center;margin:0 4px">Knoten wählen, dann Schritt einfügen:</span>
           <button v-for="p in palette" :key="p.kind" class="fn-pal-btn" :style="{ '--c': KINDS[p.kind].color }" @click="addNode(p.kind)">
             <i class="ti" :class="KINDS[p.kind].icon"></i> {{ p.label }}
           </button>
@@ -228,24 +229,73 @@ function defaultData(kind: string): Record<string, any> {
   }
 }
 
+function outgoing(id: string) {
+  return edges.value.filter(e => e.source === id)
+}
+
+function relayout() {
+  const trigger = nodes.value.find(n => n.data.kind === 'trigger')
+  if (!trigger) return
+  const depth = new Map<string, number>([[trigger.id, 0]])
+  const queue = [trigger.id]
+  while (queue.length) {
+    const id = queue.shift() as string
+    for (const e of outgoing(id)) {
+      if (!depth.has(e.target)) {
+        depth.set(e.target, depth.get(id)! + 1)
+        queue.push(e.target)
+      }
+    }
+  }
+  const maxDepth = Math.max(0, ...depth.values())
+  for (const n of nodes.value) if (!depth.has(n.id)) depth.set(n.id, maxDepth + 1)
+
+  const rows = new Map<number, any[]>()
+  for (const n of nodes.value) {
+    const d = depth.get(n.id)!
+    rows.set(d, [...(rows.get(d) || []), n])
+  }
+  for (const [d, row] of rows) {
+    row.forEach((n, i) => {
+      n.position = { x: 260 + (i - (row.length - 1) / 2) * 260, y: 40 + d * 150 }
+    })
+  }
+}
+
 function addNode(kind: string) {
-  const last = nodes.value[nodes.value.length - 1]
   const id = crypto.randomUUID()
-  nodes.value.push({
-    id,
-    type: 'seq',
-    position: { x: last ? last.position.x : 200, y: last ? last.position.y + 140 : 40 },
-    data: { kind, ...defaultData(kind) },
-  })
+  const parent = selectedNode.value || nodes.value.find(n => n.data.kind === 'trigger')
+  nodes.value.push({ id, type: 'seq', position: { x: 0, y: 0 }, data: { kind, ...defaultData(kind) } })
+
+  if (parent && parent.data.kind !== 'end') {
+    const handle = parent.data.kind === 'condition' ? 'yes' : null
+    const existing = edges.value.find(e => e.source === parent.id && (e.sourceHandle ?? null) === handle)
+    if (existing) {
+      edges.value = edges.value.filter(e => e !== existing)
+      edges.value.push({ id: crypto.randomUUID(), source: parent.id, target: id, sourceHandle: handle, type: 'smoothstep', markerEnd: 'arrowclosed' })
+      edges.value.push({ id: crypto.randomUUID(), source: id, target: existing.target, sourceHandle: null, type: 'smoothstep', markerEnd: 'arrowclosed' })
+    } else {
+      edges.value.push({ id: crypto.randomUUID(), source: parent.id, target: id, sourceHandle: handle, type: 'smoothstep', markerEnd: 'arrowclosed' })
+    }
+  }
+  relayout()
   selectedId.value = id
 }
 
 function removeSelected() {
   if (!selectedNode.value) return
   const id = selectedNode.value.id
-  nodes.value = nodes.value.filter(n => n.id !== id)
+  const incoming = edges.value.filter(e => e.target === id)
+  const out = edges.value.filter(e => e.source === id)
   edges.value = edges.value.filter(e => e.source !== id && e.target !== id)
+  if (out.length === 1) {
+    for (const inc of incoming) {
+      edges.value.push({ id: crypto.randomUUID(), source: inc.source, target: out[0].target, sourceHandle: inc.sourceHandle ?? null, type: 'smoothstep', markerEnd: 'arrowclosed' })
+    }
+  }
+  nodes.value = nodes.value.filter(n => n.id !== id)
   selectedId.value = null
+  relayout()
 }
 
 function toFlowNodes(graph: any) {
