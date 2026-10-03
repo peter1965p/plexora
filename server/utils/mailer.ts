@@ -6,7 +6,7 @@ import { notifySystem } from './notifications'
 
 export interface MailInput {
   userId: string
-  kind: 'automation' | 'booking_confirmation' | 'internal'
+  kind: 'automation' | 'booking_confirmation' | 'booking_cancelled' | 'internal'
   from: string
   to: string
   subject: string

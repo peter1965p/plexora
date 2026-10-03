@@ -186,3 +186,19 @@ export async function loadTenantAndType(tenantId: string, typeId: string) {
   }
   return { tenantItem: tenantRes.Item, typeItem: typeRes.Item }
 }
+
+// Löscht den Termin im verbundenen Google-Kalender. Fehler werden nur geloggt,
+// die Stornierung in Plexora soll deswegen nicht scheitern (z. B. wenn der Eintrag schon weg ist).
+export async function deleteGoogleCalendarEvent(tenantItem: any, eventId: string): Promise<void> {
+  if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted || !eventId) return
+  try {
+    const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
+    const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
+    await $fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+  } catch (e) {
+    console.error('Google-Termin konnte nicht gelöscht werden', eventId, e)
+  }
+}
