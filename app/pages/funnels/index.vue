@@ -274,7 +274,14 @@ function addNode(kind: string) {
   const parent = selectedNode.value || nodes.value.find(n => n.data.kind === 'trigger')
   nodes.value.push({ id, type: 'seq', position: { x: 0, y: 0 }, data: { kind, ...defaultData(kind) } })
 
-  if (parent && parent.data.kind !== 'end') {
+  if (parent && parent.data.kind === 'end') {
+    const incoming = edges.value.find(e => e.target === parent.id)
+    if (incoming) {
+      edges.value = edges.value.filter(e => e !== incoming)
+      edges.value.push({ id: crypto.randomUUID(), source: incoming.source, target: id, sourceHandle: incoming.sourceHandle ?? null, type: 'smoothstep', markerEnd: 'arrowclosed' })
+    }
+    edges.value.push({ id: crypto.randomUUID(), source: id, target: parent.id, sourceHandle: null, type: 'smoothstep', markerEnd: 'arrowclosed' })
+  } else if (parent) {
     const handle = parent.data.kind === 'condition' ? 'yes' : null
     const existing = edges.value.find(e => e.source === parent.id && (e.sourceHandle ?? null) === handle)
     if (existing) {
