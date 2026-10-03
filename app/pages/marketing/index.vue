@@ -529,7 +529,7 @@
       <aside class="mail-folders">
         <div class="mail-acc">
           <span><i class="ti ti-mail"></i> Versand</span>
-          <button class="mail-icon-btn" title="Aktualisieren" @click="loadMailLog"><i class="ti ti-refresh"></i></button>
+          <button class="mail-icon-btn" title="Aktualisieren" :disabled="mailLoading" @click="loadMailLog"><i class="ti" :class="mailLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i></button>
         </div>
         <button v-for="f in mailFolders" :key="f.key" class="mail-folder" :class="{ active: mailFolder === f.key, sep: f.sep }" @click="mailFolder = f.key">
           <i class="ti" :class="f.icon"></i> {{ f.label }} <span class="mail-fcount">{{ mailCounts[f.key] || 0 }}</span>
@@ -755,11 +755,18 @@ async function loadAppointmentTypes() {
     appointmentTypes.value = res.types || []
   } catch {}
 }
+const mailLoading = ref(false)
 async function loadMailLog() {
+  mailLoading.value = true
   try {
     const res = await $fetch<{ mails: any[] }>(useApiUrl('/api/mail-log'), { headers: authHeaders })
     mailLog.value = res.mails || []
-  } catch {}
+    showToast(`Protokoll aktualisiert: ${mailLog.value.length} Mails`)
+  } catch {
+    showToast('Protokoll konnte nicht geladen werden')
+  } finally {
+    mailLoading.value = false
+  }
 }
 function mailKindLabel(kind: string) {
   return kind === 'booking_confirmation' ? 'Terminbestätigung' : kind === 'internal' ? 'Interne Benachrichtigung' : 'Automatisierung'
