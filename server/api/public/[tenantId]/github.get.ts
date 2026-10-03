@@ -16,6 +16,39 @@ interface GithubRepo {
   updated_at: string
   fork: boolean
   private: boolean
+  default_branch: string
+}
+
+// Badge-/Shield-Bilder (Build-Status, Lizenz, npm-Version, ...) sind in fast jedem README
+// die ERSTEN Bilder — die wollen wir nicht als "Projekt-Screenshot" anzeigen.
+const BADGE_HOSTS = ['shields.io', 'badge.fury.io', 'travis-ci', 'codecov.io', 'coveralls.io', 'github.com/workflows', 'actions/workflows', 'img.shields.io']
+
+function isBadgeImage(url: string): boolean {
+  return BADGE_HOSTS.some(h => url.includes(h))
+}
+
+async function extractReadmeImage(fullName: string, defaultBranch: string, pat: string): Promise<string | null> {
+  try {
+    const raw = await $fetch<string>(`https://api.github.com/repos/${fullName}/readme`, {
+      headers: {
+        Authorization: `Bearer ${pat}`,
+        Accept: 'application/vnd.github.raw',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    })
+    const matches = [...raw.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g), ...raw.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)]
+    for (const m of matches) {
+      let url = m[1]
+      if (isBadgeImage(url)) continue
+      if (!/^https?:\/\//i.test(url)) {
+        url = `https://raw.githubusercontent.com/${fullName}/${defaultBranch}/${url.replace(/^\.?\//, '')}`
+      }
+      return url
+    }
+    return null
+  } catch {
+    return null
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -66,10 +99,12 @@ export default defineEventHandler(async (event) => {
     if (!showForks) repos = repos.filter(r => !r.fork)
     if (selected.length > 0) repos = repos.filter(r => selected.includes(r.name))
 
+    const images = await Promise.all(repos.map(r => extractReadmeImage(r.full_name, r.default_branch || 'main', pat)))
+
     return {
       enabled: true,
       title,
-      repos: repos.map(r => ({
+      repos: repos.map((r, i) => ({
         name:        r.name,
         description: r.description || '',
         url:         r.html_url,
@@ -79,6 +114,7 @@ export default defineEventHandler(async (event) => {
         forks:       r.forks_count,
         topics:      r.topics || [],
         updatedAt:   r.updated_at,
+        imageUrl:    images[i] || '',
       })),
     }
   } catch {
