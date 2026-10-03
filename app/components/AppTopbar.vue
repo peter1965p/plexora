@@ -69,6 +69,18 @@
         </div>
       </div>
     </div>
+
+    <!-- Splash: Erinnerung an einen anstehenden Termin -->
+    <Teleport to="body">
+      <div v-if="splashQueue.length" class="termin-splash-overlay" @click.self="dismissSplash">
+        <div class="termin-splash-card">
+          <div class="termin-splash-icon"><i class="ti ti-calendar-event"></i></div>
+          <div class="termin-splash-kicker">{{ splashQueue[0].title }}</div>
+          <div class="termin-splash-message">{{ splashQueue[0].message }}</div>
+          <button class="accent-btn" style="margin-top:20px;width:100%;justify-content:center" @click="dismissSplash">Verstanden</button>
+        </div>
+      </div>
+    </Teleport>
   </header>
 </template>
 
@@ -143,7 +155,22 @@ async function loadNotifications() {
     userId.value = u.userId
     const res = await $fetch(useApiUrl(`/api/notifications?userId=${u.userId}`), { headers: await useAuthHeader() }) as any
     notifications.value = res.notifications || []
+    // Neue, ungelesene Terminerinnerungen einmal pro Sitzung als Splash anzeigen
+    for (const n of notifications.value) {
+      if (n.type === 'termin_reminder' && !n.read && !shownSplashIds.has(n.notificationId)) {
+        shownSplashIds.add(n.notificationId)
+        splashQueue.value.push(n)
+      }
+    }
   } catch {}
+}
+
+const splashQueue    = ref<any[]>([])
+const shownSplashIds = new Set<string>()
+
+async function dismissSplash() {
+  const n = splashQueue.value.shift()
+  if (n) await markRead(n)
 }
 
 async function markRead(n: any) {
@@ -186,3 +213,55 @@ onMounted(() => {
   })
 })
 </script>
+<style scoped>
+.termin-splash-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 20, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+}
+.termin-splash-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.5);
+  padding: 28px 24px 24px;
+  text-align: center;
+  animation: termin-splash-in .25s ease-out;
+}
+.termin-splash-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+.termin-splash-kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.termin-splash-message {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+@keyframes termin-splash-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+</style>

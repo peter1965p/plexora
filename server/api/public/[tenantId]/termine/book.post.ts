@@ -83,6 +83,19 @@ export default defineEventHandler(async (event) => {
     updatedAt: now,
   }
   await dynamo.send(new PutCommand({ TableName: 'plexora-termine-bookings', Item: item }))
+  await dynamo.send(new PutCommand({
+    TableName: 'plexora-notifications',
+    Item: {
+      notificationId: randomUUID(),
+      userId: tenantItem.email,
+      type: 'termin_booked',
+      title: 'Neuer Termin gebucht',
+      message: `${customerName} – ${typeItem.name} am ${date} um ${startTime} Uhr`,
+      bookingId,
+      read: false,
+      created: now,
+    },
+  }))
 
   const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
   const companyName = tenantItem.companyName || 'Wir'

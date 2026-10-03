@@ -106,7 +106,7 @@
     <div v-else-if="activeTab === 'termine'">
       <!-- Google-Kalender: alles, was direkt in Google Calendar eingetragen wurde (nicht nur über
            Plexora gebuchte Termine) — separat, weil es eine andere Quelle als plexora-termine-bookings ist. -->
-      <div v-if="settingsForm.googleConnected" class="card" style="margin-bottom:16px">
+      <div v-if="settingsForm.googleConnected" class="card gcal-float" style="margin-bottom:16px;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08),0 18px 40px -12px rgba(0,0,0,.25);transform:translateY(-2px)">
         <div class="card-header">
           <span class="card-title"><i class="ti ti-brand-google" style="margin-right:8px;color:var(--accent)"></i>Aus Google Kalender</span>
           <button class="icon-btn" title="Aktualisieren" :disabled="loadingGoogleEvents" @click="loadGoogleEvents">
@@ -118,15 +118,15 @@
           Keine Termine in den nächsten 30 Tagen in deinem Google-Kalender.
         </div>
         <div v-else style="display:flex;flex-direction:column;gap:6px">
-          <div v-for="ev in googleEvents" :key="ev.id"
-            style="display:flex;align-items:center;gap:16px;padding:10px 4px;border-bottom:0.5px solid var(--border);flex-wrap:wrap">
+          <div v-for="ev in googleEvents" :key="ev.id" class="gcal-event"
+            style="display:flex;align-items:center;gap:16px;padding:10px 14px 10px 12px;border-radius:10px;border-left:4px solid var(--accent);background:var(--surface-2, rgba(127,127,127,.06));box-shadow:0 1px 3px rgba(0,0,0,.08);flex-wrap:wrap">
             <div style="width:150px;flex-shrink:0;font-size:12px;color:var(--text-muted)">{{ formatGoogleEventTime(ev) }}</div>
             <div style="flex:1;min-width:160px;font-size:13px;font-weight:600">{{ ev.summary }}</div>
             <a v-if="ev.meetLink" :href="ev.meetLink" target="_blank" class="icon-btn" title="Meet-Link öffnen"><i class="ti ti-video"></i></a>
             <a :href="ev.htmlLink" target="_blank" class="icon-btn" title="In Google Calendar öffnen"><i class="ti ti-external-link"></i></a>
           </div>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:10px">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:12px">
           Nur Anzeige — manuell in Google eingetragene Termine landen nicht automatisch in Plexora und umgekehrt.
         </div>
       </div>
@@ -259,6 +259,7 @@
                 </div>
                 <div class="auth-field"><label>Mindest-Vorlauf (Stunden)</label><input v-model.number="settingsForm.termineMinNoticeHours" type="number" min="0" /></div>
                 <div class="auth-field"><label>Max. Vorausbuchung (Tage)</label><input v-model.number="settingsForm.termineMaxAdvanceDays" type="number" min="1" /></div>
+                <div class="auth-field"><label>Erinnerung vor dem Termin (Minuten, 0 = aus)</label><input v-model.number="settingsForm.termineReminderMinutes" type="number" min="0" /></div>
               </div>
             </div>
 
@@ -555,6 +556,7 @@ const settingsForm = reactive({
   termineSlotStepMinutes: 30,
   termineMinNoticeHours: 2,
   termineMaxAdvanceDays: 60,
+  termineReminderMinutes: 60,
   googleConnected: false,
   googleEmail: '',
 })
@@ -626,5 +628,13 @@ onMounted(async () => {
   .termine-settings-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.gcal-event {
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.gcal-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -4px rgba(0,0,0,.2);
 }
 </style>

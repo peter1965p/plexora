@@ -23,6 +23,7 @@ const PUBLIC_PATTERNS = [
   /^\/api\/forms\/[^/]+\/submit$/,
   /^\/api\/newsletter\/cron\/run-automations$/,
   /^\/api\/sequences\/cron\/sweep$/,
+  /^\/api\/termine\/cron\/reminders$/,
 ]
 
 export default defineEventHandler(async (event) => {
