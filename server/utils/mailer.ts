@@ -2,6 +2,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
+import { notifySystem } from './notifications'
 
 export interface MailInput {
   userId: string
@@ -52,6 +53,17 @@ export async function sendMail(input: MailInput): Promise<'sent' | 'failed'> {
       },
     }))
   } catch {}
+
+  if (status === 'failed') {
+    await notifySystem({
+      userId: input.userId,
+      type: 'mail_failed',
+      title: 'E-Mail konnte nicht gesendet werden',
+      message: `An ${input.to}: „${input.subject}“${error ? ` – ${error}` : ''}`,
+      level: 'error',
+      link: '/marketing?tab=protokoll',
+    })
+  }
 
   return status
 }

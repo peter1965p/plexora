@@ -112,6 +112,8 @@ export async function sendDueTerminReminders() {
           title: `Termin in ${Math.max(0, Math.round(minutesUntil))} Min.`,
           message: `${b.customerName} – ${b.typeName} um ${b.startTime} Uhr`,
           bookingId: b.bookingId,
+          level: 'warning',
+          link: '/termine',
           read: false,
           created: new Date().toISOString(),
         },

@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     await getDynamoClient().send(new UpdateCommand({
       TableName: 'plexora-nexora',
       Key: { tenantId },
-      UpdateExpression: 'SET googleConnected = :c, googleEmail = :e, googleRefreshTokenEncrypted = :t',
+      UpdateExpression: 'SET googleConnected = :c, googleEmail = :e, googleRefreshTokenEncrypted = :t REMOVE googleAuthNotifiedAt',
       ExpressionAttributeValues: {
         ':c': true,
         ':e': userInfo?.email || '',

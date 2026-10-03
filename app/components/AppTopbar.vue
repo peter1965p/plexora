@@ -25,9 +25,11 @@
             </div>
             <div v-for="n in notifications" :key="n.notificationId"
               style="padding:14px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s"
-              :style="n.type === 'inkasso_warning' ? 'border-left:3px solid #E05C5C' : 'border-left:3px solid var(--accent)'"
+              :style="notifyStyle(n)"
               @click="markRead(n)">
-              <div style="font-size:13px;font-weight:600;margin-bottom:4px">{{ n.title }}</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+                <i class="ti" :class="notifyIcon(n)" :style="{ color: notifyColor(n) }"></i>{{ n.title }}
+              </div>
               <div style="font-size:12px;color:var(--text-muted);line-height:1.4">{{ n.message }}</div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:6px">{{ new Date(n.created).toLocaleString('de-DE') }}</div>
             </div>
@@ -168,6 +170,23 @@ async function loadNotifications() {
 const splashQueue    = ref<any[]>([])
 const shownSplashIds = new Set<string>()
 
+function notifyColor(n: any) {
+  if (n.level === 'error' || n.type === 'inkasso_warning') return '#E05C5C'
+  if (n.level === 'warning') return '#E0A030'
+  return 'var(--accent)'
+}
+function notifyStyle(n: any) {
+  return `border-left:3px solid ${notifyColor(n)}`
+}
+function notifyIcon(n: any) {
+  if (n.type === 'mail_failed') return 'ti-mail-x'
+  if (n.type === 'google_auth_failed') return 'ti-plug-off'
+  if (n.type === 'termin_booked') return 'ti-calendar-plus'
+  if (n.type === 'termin_reminder') return 'ti-calendar-event'
+  if (n.type === 'inkasso_warning') return 'ti-alert-triangle'
+  return 'ti-bell'
+}
+
 async function dismissSplash() {
   const n = splashQueue.value.shift()
   if (n) await markRead(n)
@@ -181,6 +200,7 @@ async function markRead(n: any) {
     })
     notifications.value = notifications.value.filter(x => x.notificationId !== n.notificationId)
     if (n.invoiceId) navigateTo('/finance')
+    else if (n.link) navigateTo(n.link)
   } catch {}
   showNotifications.value = false
 }

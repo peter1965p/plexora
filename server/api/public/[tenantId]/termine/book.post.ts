@@ -92,6 +92,8 @@ export default defineEventHandler(async (event) => {
       title: 'Neuer Termin gebucht',
       message: `${customerName} – ${typeItem.name} am ${date} um ${startTime} Uhr`,
       bookingId,
+      level: 'info',
+      link: '/termine',
       read: false,
       created: now,
     },

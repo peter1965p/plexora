@@ -1,8 +1,49 @@
-import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { GetCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { decryptSecret } from './crypto'
+import { notifySystem } from './notifications'
 
 const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+
+// Holt ein Access-Token über den Refresh-Token. Schlägt das fehl (z. B. Zugriff im Google-Konto
+// entzogen), bekommt der Inhaber eine Glocken-Nachricht – höchstens einmal pro Tag.
+async function refreshGoogleAccessToken(tenantItem: any, refreshToken: string): Promise<string> {
+  const config = useRuntimeConfig()
+  try {
+    const tokenRes = await $fetch<any>('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      body: {
+        client_id: config.googleClientId,
+        client_secret: config.googleClientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      },
+    })
+    const accessToken = tokenRes.access_token as string
+    if (!accessToken) throw new Error('Kein Access-Token von Google erhalten')
+    return accessToken
+  } catch (e) {
+    const cutoff = new Date(Date.now() - 24 * 3600_000).toISOString()
+    try {
+      await getDynamoClient().send(new UpdateCommand({
+        TableName: 'plexora-nexora',
+        Key: { tenantId: tenantItem.tenantId },
+        UpdateExpression: 'SET googleAuthNotifiedAt = :now',
+        ConditionExpression: 'attribute_not_exists(googleAuthNotifiedAt) OR googleAuthNotifiedAt < :cutoff',
+        ExpressionAttributeValues: { ':now': new Date().toISOString(), ':cutoff': cutoff },
+      }))
+      await notifySystem({
+        userId: tenantItem.email,
+        type: 'google_auth_failed',
+        title: 'Google-Verbindung abgelaufen',
+        message: 'Termine können nicht mehr in deinen Google-Kalender geschrieben werden. Bitte verbinde Google neu.',
+        level: 'warning',
+        link: '/termine',
+      })
+    } catch {}
+    throw e
+  }
+}
 
 export function toMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(':').map(Number)
@@ -75,19 +116,9 @@ export async function createGoogleCalendarEvent(tenantItem: any, opts: {
 }): Promise<{ eventId: string; meetLink: string } | null> {
   if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return null
 
-  const config = useRuntimeConfig()
   const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
 
-  const tokenRes = await $fetch<any>('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    body: {
-      client_id: config.googleClientId,
-      client_secret: config.googleClientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    },
-  })
-  const accessToken = tokenRes.access_token as string
+  const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
   if (!accessToken) return null
 
   // Nur bei Video-Terminen einen Meet-Link anfordern — beim Telefontermin braucht's keinen.
@@ -121,19 +152,9 @@ export async function listGoogleCalendarEvents(tenantItem: any, opts: { timeMin:
 }>> {
   if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return []
 
-  const config = useRuntimeConfig()
   const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
 
-  const tokenRes = await $fetch<any>('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    body: {
-      client_id: config.googleClientId,
-      client_secret: config.googleClientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    },
-  })
-  const accessToken = tokenRes.access_token as string
+  const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
   if (!accessToken) return []
 
   const res = await $fetch<any>('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
