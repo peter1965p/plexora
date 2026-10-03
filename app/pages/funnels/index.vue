@@ -92,6 +92,12 @@
               <option value="new_lead">Neuer Lead (mit E-Mail)</option>
               <option value="form_submitted">Formular abgeschickt</option>
             </select>
+            <label class="fn-lab">Formular</label>
+            <select v-model="selectedNode.data.formId" class="form-select">
+              <option value="">Alle Formulare</option>
+              <option v-for="f in forms" :key="f.formId" :value="f.formId">{{ f.title }}</option>
+            </select>
+            <div class="fn-hint">Nur Abgaben dieses Formulars starten die Sequenz.</div>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'send_email_template'">
@@ -180,6 +186,7 @@ const LEAD_STATUSES: Record<string, string> = { new: 'Neu', contacted: 'Kontakti
 const sequences = ref<any[]>([])
 const runCounts = ref<Record<string, any>>({})
 const emailTemplates = ref<any[]>([])
+const forms = ref<any[]>([])
 const appointmentTypes = ref<any[]>([])
 
 const editing = ref(false)
@@ -413,6 +420,10 @@ async function removeSequence(s: any) {
 
 onMounted(async () => {
   loadSequences()
+  try {
+    const f = await $fetch<{ forms: any[] }>(useApiUrl('/api/forms'), { headers: authHeaders })
+    forms.value = f.forms || []
+  } catch {}
   try {
     const t = await $fetch<{ templates: any[] }>(useApiUrl('/api/newsletter/templates'), { headers: authHeaders })
     emailTemplates.value = t.templates || []

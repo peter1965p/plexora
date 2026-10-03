@@ -129,6 +129,7 @@ export async function startSequences(userId: string, trigger: string, data: Reco
     const triggerNode = graph.nodes.find(n => n.type === 'trigger')
     const first = triggerNode && nextNode(graph, triggerNode.id, null)
     if (!first) continue
+    if (triggerNode?.data?.formId && triggerNode.data.formId !== data.formId) continue
 
     const active = await dynamo.send(new QueryCommand({
       TableName: 'plexora-sequence-runs',
