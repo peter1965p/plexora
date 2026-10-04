@@ -134,13 +134,13 @@ export async function sendBookingLink(userId: string, toEmail: string, data: Rec
   })
 }
 
-async function runAction(userId: string, automation: any, data: Record<string, any>) {
+async function runAction(userId: string, automation: any, data: Record<string, any>, opts: { bookingTypeId?: string } = {}) {
   if (automation.action === 'send_email_template' && automation.templateId && data.email) {
     await sendTemplateEmail(userId, automation.templateId, data.email, data)
     return
   }
   if (automation.action === 'send_booking_link' && data.email) {
-    await sendBookingLink(userId, data.email, data, automation.appointmentTypeId)
+    await sendBookingLink(userId, data.email, data, automation.appointmentTypeId || opts.bookingTypeId)
     return
   }
   if (automation.action === 'set_lead_status' && automation.leadStatus && data.email) {
@@ -172,7 +172,7 @@ async function runAction(userId: string, automation: any, data: Record<string, a
 
 // Fire-and-forget — eine Automatisierung darf den eigentlichen Vorgang (Lead anlegen,
 // Formular speichern) niemals verzögern oder zum Scheitern bringen.
-export async function fireAutomations(userId: string, trigger: AutomationTrigger, data: Record<string, any>) {
+export async function fireAutomations(userId: string, trigger: AutomationTrigger, data: Record<string, any>, opts: { bookingTypeId?: string } = {}) {
   try {
     const dynamo = getDynamoClient()
     const res = await dynamo.send(new QueryCommand({
@@ -183,7 +183,7 @@ export async function fireAutomations(userId: string, trigger: AutomationTrigger
       ExpressionAttributeValues: { ':u': userId, ':t': trigger, ':e': true },
     }))
     for (const automation of res.Items || []) {
-      runAction(userId, automation, data).catch(() => {})
+      runAction(userId, automation, data, opts).catch(() => {})
     }
   } catch {
     // Automatisierungen sind best-effort — ein Fehler hier darf nie nach außen durchschlagen.

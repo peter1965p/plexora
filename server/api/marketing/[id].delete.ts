@@ -1,6 +1,7 @@
 import { DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { assertOwner } from '../../utils/ownership'
+import { deleteCampaignAppointmentType } from '../../utils/campaignAppointments'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
@@ -15,6 +16,8 @@ export default defineEventHandler(async (event) => {
   const existing = scan.Items?.[0]
   if (!existing) throw createError({ statusCode: 404, message: 'Kampagne nicht gefunden' })
   await assertOwner(event, existing)
+
+  if (existing.appointmentTypeId) await deleteCampaignAppointmentType(existing.userId, existing.appointmentTypeId)
 
   await client.send(new DeleteCommand({
     TableName: 'plexora-marketing',

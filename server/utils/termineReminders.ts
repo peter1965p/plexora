@@ -2,6 +2,7 @@ import { ScanCommand, GetCommand, UpdateCommand, PutCommand } from '@aws-sdk/lib
 import { randomUUID } from 'crypto'
 import { getDynamoClient } from './dynamodb'
 import { sendMail } from './mailer'
+import { deleteExpiredCampaigns } from './campaignAppointments'
 
 // Wandelt Datum + Uhrzeit in der Zeitzone des Tenants in einen UTC-Zeitstempel um.
 // Lambda läuft in UTC, die Buchungen sind aber lokale Uhrzeiten (meist Europe/Berlin).
@@ -121,6 +122,9 @@ export async function sendDueTerminReminders() {
       result.sent++
     }
   } while (lastKey)
+
+  // Abgelaufene Kampagnen samt Kampagnen-Terminart entfernen
+  await deleteExpiredCampaigns().catch(() => {})
 
   return result
 }

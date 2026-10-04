@@ -2,6 +2,7 @@ import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { fireAutomations } from '../../../utils/automations'
 import { startSequences } from '../../../utils/sequences'
+import { findCampaignAppointmentTypeId } from '../../../utils/campaignAppointments'
 import { randomUUID } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -55,9 +56,10 @@ export default defineEventHandler(async (event) => {
     const lastName  = lastNameKey  ? data[lastNameKey]  : (form.title || 'Lead')
     const phone     = phoneKey     ? data[phoneKey]     : ''
 
+    const campaignTypeId = await findCampaignAppointmentTypeId(form.userId || 'demo-user', formId || '')
     fireAutomations(form.userId || 'demo-user', 'new_lead', {
       name: `${firstName} ${lastName}`.trim(), email: data[emailKey], phone, formTitle: form.title || '',
-    })
+    }, { bookingTypeId: campaignTypeId })
 
     await client.send(new PutCommand({
       TableName: 'plexora-contacts',

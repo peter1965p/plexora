@@ -334,6 +334,24 @@
               </div>
               <div class="auth-field"><label>utm_campaign</label><input v-model="form.utmCampaign" placeholder="beratung-2026" /></div>
             </div>
+
+            <div v-if="!editing" style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
+              <div class="settings-label" style="margin-bottom:6px">Kampagnen-Termin</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                Wird automatisch zusammen mit der Kampagne angelegt. Er erscheint nicht auf der allgemeinen Terminseite,
+                sondern nur über den Link in der Bestätigungsmail. Mit Ablauf der Kampagne wird er wieder entfernt.
+              </div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px;cursor:pointer">
+                <input type="checkbox" v-model="form.appointmentEnabled" /> Kampagnen-Termin anlegen
+              </label>
+              <template v-if="form.appointmentEnabled">
+                <div class="auth-field"><label>Terminname</label><input v-model="form.appointmentName" placeholder="Kostenlose AI Beratung" /></div>
+                <div class="auth-row">
+                  <div class="auth-field"><label>Dauer (Min.)</label><input v-model.number="form.appointmentDurationMinutes" type="number" min="15" step="15" /></div>
+                  <div class="auth-field"><label>Läuft ab am</label><input v-model="form.endsAt" type="date" /></div>
+                </div>
+              </template>
+            </div>
           </div>
 
           <!-- Live-Vorschau -->
@@ -946,6 +964,8 @@ const form = reactive({
   bgImageUrl: '', bgColor: '#050815',
   contentTitle: '', contentItems: ['', '', '', ''] as string[],
   utmSource: '', utmMedium: 'social', utmCampaign: '',
+  appointmentEnabled: true, appointmentName: '', appointmentDurationMinutes: 30,
+  endsAt: new Date(Date.now() + 90 * 86400_000).toISOString().slice(0, 10),
 })
 
 const selectedForm = computed(() => forms.value.find((f: any) => f.formId === form.formId) || null)

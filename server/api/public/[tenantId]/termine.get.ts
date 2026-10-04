@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Termine nicht aktiviert' })
   }
 
+  const requestedType = String(getQuery(event).type || '')
   const typesRes = await dynamo.send(new QueryCommand({
     TableName: 'plexora-termine-types',
     KeyConditionExpression: 'tenantId = :t',
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
   }))
 
   const types = (typesRes.Items || [])
-    .filter(t => t.active)
+    .filter(t => t.active && (!t.campaignId || t.typeId === requestedType))
     .map(t => ({ typeId: t.typeId, name: t.name, durationMinutes: t.durationMinutes }))
 
   return {

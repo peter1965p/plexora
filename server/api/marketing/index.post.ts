@@ -2,6 +2,7 @@ import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { createCampaignAppointmentType, defaultCampaignEnd } from '../../utils/campaignAppointments'
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
@@ -26,6 +27,17 @@ export default defineEventHandler(async (event) => {
     utmCampaign:    body.utmCampaign || '',
     active:         true,
     created:        new Date().toISOString(),
+    endsAt:         body.endsAt ? new Date(body.endsAt).toISOString() : defaultCampaignEnd(),
+  }
+
+  // Kampagnen-Termin: nur über den Kampagnen-Link buchbar, verschwindet mit der Kampagne
+  if (body.appointmentEnabled !== false && campaign.formId) {
+    const typeId = await createCampaignAppointmentType(campaign.userId, {
+      campaignId: campaign.campaignId,
+      name: body.appointmentName || campaign.headline || campaign.name,
+      durationMinutes: body.appointmentDurationMinutes,
+    })
+    if (typeId) (campaign as any).appointmentTypeId = typeId
   }
 
   await client.send(new PutCommand({ TableName: 'plexora-marketing', Item: campaign }))
