@@ -198,7 +198,8 @@ export async function listGoogleCalendarEvents(tenantItem: any, opts: { timeMin:
         htmlLink: e.htmlLink || '',
         calendarId,
       }))
-    } catch {
+    } catch (e: any) {
+      console.error('Google-Kalender konnte nicht geladen werden', calendarId, e?.data || e?.message || e)
       return []
     }
   }))
