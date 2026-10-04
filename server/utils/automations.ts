@@ -140,7 +140,8 @@ async function runAction(userId: string, automation: any, data: Record<string, a
     return
   }
   if (automation.action === 'send_booking_link' && data.email) {
-    await sendBookingLink(userId, data.email, data, automation.appointmentTypeId || opts.bookingTypeId)
+    // Kampagnen-Termin hat Vorrang vor der festen Terminart der Automatisierung
+    await sendBookingLink(userId, data.email, data, opts.bookingTypeId || automation.appointmentTypeId)
     return
   }
   if (automation.action === 'set_lead_status' && automation.leadStatus && data.email) {

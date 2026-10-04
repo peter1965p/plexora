@@ -35,7 +35,8 @@ export default defineEventHandler(async (event) => {
   }))
 
   const leadData = { ...(body.data || {}), formTitle: form.title || '' }
-  fireAutomations(form.userId || 'demo-user', 'form_submitted', leadData)
+  const campaignTypeId = await findCampaignAppointmentTypeId(form.userId || 'demo-user', formId || '')
+  fireAutomations(form.userId || 'demo-user', 'form_submitted', leadData, { bookingTypeId: campaignTypeId })
 
   // ── Auto-Lead: Kontakt anlegen wenn E-Mail vorhanden ──
   const data = body.data || {}
@@ -56,7 +57,6 @@ export default defineEventHandler(async (event) => {
     const lastName  = lastNameKey  ? data[lastNameKey]  : (form.title || 'Lead')
     const phone     = phoneKey     ? data[phoneKey]     : ''
 
-    const campaignTypeId = await findCampaignAppointmentTypeId(form.userId || 'demo-user', formId || '')
     fireAutomations(form.userId || 'demo-user', 'new_lead', {
       name: `${firstName} ${lastName}`.trim(), email: data[emailKey], phone, formTitle: form.title || '',
     }, { bookingTypeId: campaignTypeId })
