@@ -212,6 +212,25 @@
                   <i class="ti" :class="googleDisconnecting ? 'ti-loader-2 spin' : 'ti-plug-off'"></i>
                 </button>
               </div>
+              <div v-if="settingsForm.googleConnected" style="margin-top:14px">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Aktive Kalender — der oberste nimmt neue Termine auf, alle werden in der Terminliste angezeigt.</div>
+                <div v-if="googleCalendarError" style="font-size:12px;color:#e05c5c">{{ googleCalendarError }}</div>
+                <div v-else style="display:flex;flex-direction:column;gap:8px" :style="savingGoogleCalendar ? 'opacity:.6;pointer-events:none' : ''">
+                  <div v-for="c in googleCalendars" :key="c.id" style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px">
+                    <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                      <span :style="`width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0`"></span>
+                      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.summary }}</span>
+                      <span v-if="c.primary" style="font-size:11px;color:var(--text-muted);flex-shrink:0">Hauptkalender</span>
+                    </span>
+                    <button @click="toggleGoogleCalendar(c.id)"
+                      style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
+                      :style="settingsForm.googleCalendarIds.includes(c.id) ? 'background:var(--accent)' : 'background:var(--border)'">
+                      <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
+                        :style="settingsForm.googleCalendarIds.includes(c.id) ? 'left:21px' : 'left:3px'"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div v-else style="display:flex;flex-direction:column;gap:10px">
                 <div style="font-size:12px;color:var(--text-muted)">Verbinde dein Google-Konto, damit jede Buchung automatisch als Termin mit Meet-Link in deinem Kalender erscheint.</div>
                 <button class="accent-btn" style="align-self:flex-start" @click="connectGoogle">
@@ -559,6 +578,7 @@ const settingsForm = reactive({
   termineReminderMinutes: 60,
   googleConnected: false,
   googleEmail: '',
+  googleCalendarIds: [] as string[],
 })
 
 const googleDisconnecting = ref(false)
@@ -578,6 +598,48 @@ async function disconnectGoogle() {
     alert('Fehler beim Trennen.')
   } finally {
     googleDisconnecting.value = false
+  }
+}
+
+const googleCalendars      = ref<Array<{ id: string; summary: string; primary: boolean; color: string }>>([])
+const googleCalendarError  = ref('')
+const savingGoogleCalendar = ref(false)
+
+async function loadGoogleCalendars() {
+  try {
+    const res = await $fetch<any>(useApiUrl('/api/termine/google-calendars'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
+    googleCalendars.value = res.calendars || []
+    googleCalendarError.value = res.error || ''
+    settingsForm.googleCalendarIds = res.selectedIds || []
+  } catch {}
+}
+
+// Schalter: Kalender ein-/ausblenden. Mindestens einer bleibt aktiv.
+async function toggleGoogleCalendar(calendarId: string) {
+  const current = settingsForm.googleCalendarIds
+  const next = current.includes(calendarId)
+    ? current.filter(id => id !== calendarId)
+    : [...current, calendarId]
+  if (!next.length) return
+  // Reihenfolge wie in der Kalenderliste, der oberste aktive nimmt neue Termine auf
+  const ordered = googleCalendars.value.map(c => c.id).filter(id => next.includes(id))
+  await saveGoogleCalendars(ordered)
+}
+
+async function saveGoogleCalendars(calendarIds: string[]) {
+  savingGoogleCalendar.value = true
+  try {
+    await $fetch(useApiUrl('/api/termine/google-calendar'), {
+      method: 'PUT',
+      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
+      body: { calendarIds },
+    })
+    settingsForm.googleCalendarIds = calendarIds
+    await loadGoogleEvents()
+  } catch {
+    alert('Kalender konnte nicht gespeichert werden.')
+  } finally {
+    savingGoogleCalendar.value = false
   }
 }
 
@@ -610,7 +672,7 @@ onMounted(async () => {
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
-  await Promise.all([loadTypes(), loadBookings(), loadSettings(), loadGoogleEvents()])
+  await Promise.all([loadTypes(), loadBookings(), loadSettings(), loadGoogleEvents(), loadGoogleCalendars()])
 
   const route = useRoute()
   if (route.query.google === 'error') alert('Google-Verbindung fehlgeschlagen. Bitte erneut versuchen.')

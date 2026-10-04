@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   if (item.status === 'cancelled' && !wasCancelled) {
     const tenant = (await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))).Item
     if (tenant) {
-      await deleteGoogleCalendarEvent(tenant, existing.Item.googleEventId || '')
+      await deleteGoogleCalendarEvent(tenant, existing.Item.googleEventId || '', existing.Item.googleCalendarId || '')
       if (item.customerEmail) {
         const companyName = tenant.companyName || 'Wir'
         const dateLabel = new Date(item.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })

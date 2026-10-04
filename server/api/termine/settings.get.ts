@@ -38,6 +38,8 @@ export default defineEventHandler(async (event) => {
       termineReminderMinutes: item?.termineReminderMinutes  ?? 60,
       googleConnected:        item?.googleConnected         ?? false,
       googleEmail:            item?.googleEmail             || '',
+      googleCalendarId:       item?.googleCalendarId       || 'primary',
+      googleCalendarIds:      item?.googleCalendarIds      || [],
     },
   }
 })

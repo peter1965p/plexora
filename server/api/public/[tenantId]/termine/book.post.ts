@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
   const notes = String(body.notes || '')
 
   let googleEventId = ''
+  let googleCalendarId = ''
   let googleMeetLink = ''
   try {
     const googleEvent = await createGoogleCalendarEvent(tenantItem, {
@@ -55,6 +56,7 @@ export default defineEventHandler(async (event) => {
     })
     if (googleEvent) {
       googleEventId = googleEvent.eventId
+      googleCalendarId = googleEvent.calendarId
       googleMeetLink = googleEvent.meetLink
     }
   } catch (e) {
@@ -78,6 +80,7 @@ export default defineEventHandler(async (event) => {
     status: 'confirmed',
     source: 'public',
     googleEventId,
+    googleCalendarId,
     googleMeetLink,
     createdAt: now,
     updatedAt: now,
