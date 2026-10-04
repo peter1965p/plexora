@@ -228,10 +228,22 @@ export async function deleteGoogleCalendarEvent(tenantItem: any, eventId: string
   try {
     const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
     const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
-    await $fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId || activeCalendarIds(tenantItem)[0])}/events/${encodeURIComponent(eventId)}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
+    // Ältere Buchungen haben keine Kalender-ID gespeichert: dann alle aktiven Kalender und den Hauptkalender prüfen
+    const candidates = calendarId
+      ? [calendarId]
+      : [...new Set([...activeCalendarIds(tenantItem), 'primary'])]
+    for (const cal of candidates) {
+      try {
+        await $fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal)}/events/${encodeURIComponent(eventId)}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        return
+      } catch (e: any) {
+        // 404/410: Termin liegt nicht in diesem Kalender – nächsten probieren
+        if (![404, 410].includes(e?.statusCode || e?.status)) throw e
+      }
+    }
   } catch (e) {
     console.error('Google-Termin konnte nicht gelöscht werden', eventId, e)
   }
