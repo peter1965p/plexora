@@ -17,6 +17,28 @@
       </p>
     </section>
 
+    <section class="lp-section">
+      <h2 class="lp-section-h">2. Google-Kalender-Anbindung</h2>
+      <p class="lp-text">
+        Optional kannst du in Plexora dein Google-Konto verbinden, damit Termine über die Terminbuchung
+        automatisch in deinem Google Kalender angelegt, angezeigt und bei Stornierung wieder gelöscht werden.
+        Dabei verarbeitet Plexora folgende Daten aus deinem Google-Konto: deine Google-E-Mail-Adresse,
+        Titel, Datum und Uhrzeit der Termine in den von dir ausgewählten Kalendern sowie den von Google erzeugten Meet-Link.
+        Die Daten werden ausschließlich benutzt, um diese Termine anzulegen, anzuzeigen und zu löschen.
+        Sie werden nicht für Werbung verwendet, nicht an Dritte verkauft oder weitergegeben und nicht zum Training von KI-Modellen genutzt.
+      </p>
+      <p class="lp-text">
+        Der Zugriffs-Token wird verschlüsselt (AES-256-GCM) gespeichert. Über „Trennen“ in den Termin-Einstellungen
+        wird der Zugriff in Plexora gelöscht. Zusätzlich kannst du den Zugriff jederzeit in deinem Google-Konto unter
+        „Sicherheit → Drittanbieter-Zugriff“ entziehen.
+      </p>
+      <p class="lp-text">
+        Die Nutzung von Informationen, die Plexora von Google-APIs erhält, entspricht der
+        <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" style="color:#ea580c">Google-API-Nutzungsrichtlinie</a>,
+        einschließlich der Anforderungen zur eingeschränkten Nutzung (Limited Use).
+      </p>
+    </section>
+
     <div class="datenschutz-content" v-html="datenschutzHtml"></div>
   </div>
 </template>
