@@ -74,14 +74,17 @@ export const useAppStore = defineStore("app", {
       if (this.themeLoaded) return;
       try {
         const { useAuthHeader } = await import('~/composables/useAuth');
-        const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"), { headers: await useAuthHeader() });
+        const headers = await useAuthHeader();
+        // Ausgeloggt (z. B. Login-Seite): Defaults bleiben aktiv, aber nicht als "geladen" merken,
+        // sonst wird das Theme nach dem Login nie geholt.
+        if (!headers.Authorization) return;
+        const res = await $fetch<{ theme: any }>(useApiUrl("/api/settings/theme"), { headers });
         const t = res?.theme || {};
         if (t.theme && t.theme in THEMES) this.setTheme(t.theme as ThemeKey);
         if (t.accent && t.accentRgb) this.setAccent(t.accent, t.accentRgb);
-      } catch {
-        // Defaults bleiben aktiv (u.a. für ausgeloggte Besucher auf öffentlichen Seiten)
-      } finally {
         this.themeLoaded = true;
+      } catch {
+        // Defaults bleiben aktiv; beim nächsten Seitenwechsel wird erneut versucht
       }
     },
     async saveTheme() {
