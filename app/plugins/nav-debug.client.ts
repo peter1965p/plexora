@@ -33,12 +33,30 @@ export default defineNuxtPlugin((nuxtApp) => {
   const router = useRouter()
   router.beforeEach((to, from) => { record('route', `${from.fullPath.slice(0, 30)} -> ${to.fullPath.slice(0, 30)}`) })
 
+  // Verursacher: jeder Aufruf von router.push/replace mit vollem Aufrufort (Dateiname:Zeile)
+  const callerStack = () => String(new Error().stack || '').split('\n').slice(3, 12)
+    .map(l => l.trim().replace(/https?:\/\/[^/]+\/_nuxt\//, '').replace(/^at /, '')).join(' | ')
+  for (const fn of ['push', 'replace'] as const) {
+    const orig = (router as any)[fn].bind(router)
+    ;(router as any)[fn] = (...a: any[]) => {
+      const target = typeof a[0] === 'string' ? a[0] : JSON.stringify(a[0])
+      record(`CALL router.${fn}`, String(target).slice(0, 60))
+      const log = read(); if (log.length) { log[log.length - 1].stack = callerStack(); try { localStorage.setItem(KEY, JSON.stringify(log)) } catch {} }
+      return orig(...a)
+    }
+  }
+
+  // Tastendruck und Seite verlassen
+  window.addEventListener('keydown', (e) => { if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r')) record('KEY', e.key) }, true)
+  window.addEventListener('beforeunload', () => record('beforeunload', ''))
+  document.addEventListener('visibilitychange', () => record('visibility', document.visibilityState))
+
   // Anzeige: Kasten mit dem Protokoll, sobald die Seite geladen ist
   nuxtApp.hook('app:mounted', () => {
     const box = document.createElement('div')
     box.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:2147483647;max-width:min(760px,96vw);max-height:60vh;overflow:auto;background:#111;color:#9f9;font:11px/1.4 monospace;padding:8px;border:1px solid #9f9;border-radius:6px;white-space:pre-wrap'
     const render = () => {
-      box.textContent = 'NAV-DEBUG (schliessen: Klick)\n' + read().map(e => `${e.t} ${e.type} ${e.url} ${e.detail}${e.stack ? '\n    ' + e.stack : ''}`).join('\n')
+      box.textContent = 'NAV-DEBUG (schliessen: Klick)\n' + read().slice(-25).map(e => `${e.t} ${e.type} ${e.url} ${e.detail}${e.stack ? '\n    ' + e.stack : ''}`).join('\n')
     }
     render()
     box.addEventListener('click', () => box.remove())
