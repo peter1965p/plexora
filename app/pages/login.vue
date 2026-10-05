@@ -134,7 +134,8 @@
           </span>
         </div>
 
-        <template v-if="!needsConfirm">
+        <!-- Google-Login vorübergehend ausgeblendet: Anmeldung über Google-Redirect noch nicht stabil -->
+        <template v-if="!needsConfirm && GOOGLE_LOGIN_ENABLED">
           <div class="auth-divider"><span>oder</span></div>
           <button class="auth-btn-outline" :disabled="loading" @click="loginWithGoogle">
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
@@ -156,6 +157,7 @@
 </template>
 
 <script setup lang="ts">
+const GOOGLE_LOGIN_ENABLED = false
 import {
   signIn,
   signOut,
