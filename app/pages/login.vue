@@ -135,8 +135,6 @@
         </div>
 
         <template v-if="!needsConfirm">
-          <!-- Google-Login vorübergehend ausgeblendet: Anmeldung über Google-Redirect noch nicht stabil -->
-          <template v-if="GOOGLE_LOGIN_ENABLED">
           <div class="auth-divider"><span>oder</span></div>
           <button class="auth-btn-outline" :disabled="loading" @click="loginWithGoogle">
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
@@ -147,7 +145,6 @@
             </svg>
             Mit Google anmelden
           </button>
-          </template>
           <button v-if="!isRegister" class="auth-btn-outline" :disabled="loading" @click="loginWithPasskey">
             <i class="ti ti-fingerprint" style="font-size:17px"></i>
             Mit Passkey anmelden
@@ -159,7 +156,6 @@
 </template>
 
 <script setup lang="ts">
-const GOOGLE_LOGIN_ENABLED = true
 import {
   signIn,
   signOut,

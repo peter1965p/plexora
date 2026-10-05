@@ -75,18 +75,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Zentrierte Ladekarte über die volle Seite, unabhängig vom Standard-Layout */
-.auth-wrap {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: #0b0f19;
-  z-index: 1000;
-}
-
 /* Boot-Screen-artiger Puls, wie bei einem Linux-Splash (z.B. CachyOS) —
    nur auf dieser Anmelde-Ladeseite, nicht global auf .auth-logo. */
 .auth-logo-boot {
