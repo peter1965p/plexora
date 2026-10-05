@@ -30,12 +30,6 @@ export default defineNuxtPlugin(() => {
         },
       })
     }
-    // Kommt der Google-Login-Code auf einer anderen Seite als /auth/callback an (z. B. Startseite),
-    // wird die Anmeldung dort nie abgeschlossen. Deshalb wird der Code an die Callback-Seite weitergereicht.
-    const params = new URLSearchParams(window.location.search)
-    if (params.has('code') && params.has('state') && !window.location.pathname.startsWith('/auth/callback')) {
-      window.location.replace(`/auth/callback${window.location.search}`)
-    }
   } catch(e) {
     console.warn('Amplify config error:', e)
   }
