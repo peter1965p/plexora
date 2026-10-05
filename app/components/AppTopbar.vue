@@ -133,7 +133,7 @@ onMounted(async () => {
 
   document.addEventListener('click', (e) => {
     if (!(e.target as Element).closest('.topbar-user')) showMenu.value = false
-    if (quickRef.value && !(e.target as Element).closest(quickRef.value as any)) showQuick.value = false
+    if (quickRef.value && !quickRef.value.contains(e.target as Node)) showQuick.value = false
   })
 })
 
