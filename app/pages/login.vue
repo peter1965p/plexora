@@ -159,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-const GOOGLE_LOGIN_ENABLED = false
+const GOOGLE_LOGIN_ENABLED = true
 import {
   signIn,
   signOut,
