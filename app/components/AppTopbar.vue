@@ -16,7 +16,10 @@
         <div v-if="showNotifications" style="position:absolute;top:44px;right:0;width:360px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden">
           <div style="padding:14px 16px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
             <span style="font-weight:700;font-size:14px">Benachrichtigungen</span>
-            <button v-if="notifications.length" class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto" @click="markAllRead">Alle gelesen</button>
+            <span v-if="notifications.length" style="display:flex;gap:6px">
+              <button class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto" @click="markAllRead">Alle gelesen</button>
+              <button class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto;color:#E05C5C" @click="deleteAll">Alle löschen</button>
+            </span>
           </div>
           <div style="max-height:380px;overflow-y:auto">
             <div v-if="!notifications.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
@@ -25,10 +28,12 @@
             </div>
             <div v-for="n in notifications" :key="n.notificationId"
               style="padding:14px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s"
-              :style="notifyStyle(n)"
+              :style="[notifyStyle(n), n.read ? 'opacity:.55' : '']"
               @click="markRead(n)">
               <div style="font-size:13px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px">
-                <i class="ti" :class="notifyIcon(n)" :style="{ color: notifyColor(n) }"></i>{{ n.title }}
+                <i class="ti" :class="notifyIcon(n)" :style="{ color: notifyColor(n) }"></i>
+                <span style="flex:1">{{ n.title }}</span>
+                <button class="icon-btn" title="Löschen" style="width:24px;height:24px;flex-shrink:0" @click.stop="deleteNotification(n)"><i class="ti ti-trash" style="font-size:13px"></i></button>
               </div>
               <div style="font-size:12px;color:var(--text-muted);line-height:1.4">{{ n.message }}</div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:6px">{{ new Date(n.created).toLocaleString('de-DE') }}</div>
@@ -189,16 +194,23 @@ function notifyIcon(n: any) {
 
 async function dismissSplash() {
   const n = splashQueue.value.shift()
-  if (n) await markRead(n)
+  if (!n) return
+  // Nur als gelesen markieren, nicht zur Zielseite navigieren
+  try {
+    await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), { method: 'PATCH', headers: await authHeaders() })
+    n.read = true
+  } catch {}
+}
+
+async function authHeaders() {
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  return await useAuthHeader()
 }
 
 async function markRead(n: any) {
   try {
-    await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), {
-      method: 'PATCH',
-      body: { userId: userId.value }
-    })
-    notifications.value = notifications.value.filter(x => x.notificationId !== n.notificationId)
+    await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), { method: 'PATCH', headers: await authHeaders() })
+    n.read = true
     if (n.invoiceId) navigateTo('/finance')
     else if (n.link) navigateTo(n.link)
   } catch {}
@@ -206,16 +218,30 @@ async function markRead(n: any) {
 }
 
 async function markAllRead() {
+  const headers = await authHeaders()
   for (const n of notifications.value) {
     try {
-      await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), {
-        method: 'PATCH',
-        body: { userId: userId.value }
-      })
+      await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), { method: 'PATCH', headers })
+      n.read = true
     } catch {}
   }
-  notifications.value = []
-  showNotifications.value = false
+}
+
+async function deleteNotification(n: any) {
+  try {
+    await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), { method: 'DELETE', headers: await authHeaders() })
+    notifications.value = notifications.value.filter(x => x.notificationId !== n.notificationId)
+  } catch {}
+}
+
+async function deleteAll() {
+  const headers = await authHeaders()
+  for (const n of [...notifications.value]) {
+    try {
+      await $fetch(useApiUrl(`/api/notifications/${n.notificationId}`), { method: 'DELETE', headers })
+      notifications.value = notifications.value.filter(x => x.notificationId !== n.notificationId)
+    } catch {}
+  }
 }
 
 // Alle 60 Sekunden neu laden
