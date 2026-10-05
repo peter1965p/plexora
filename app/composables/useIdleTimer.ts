@@ -28,7 +28,6 @@ export function useIdleTimer() {
   }
 
   async function doLogout() {
-    ;(window as any).__plxLog?.('idle-doLogout', `remaining=${remainingSeconds.value} timeout=${timeoutSeconds.value}`, true)
     if (interval) clearInterval(interval)
     let isRealUser = false
     try { await signOut(); isRealUser = true } catch {}
