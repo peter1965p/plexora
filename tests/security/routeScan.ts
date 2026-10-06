@@ -3,7 +3,9 @@ import { join, relative } from 'node:path'
 import { isPublicRoute } from '../../server/utils/routePolicy'
 
 // Hilfsfunktionen, die eine Anmeldung erzwingen (401 ohne Token). Neue Helfer hier eintragen.
-export const AUTH_HELPERS = ['requireAuth', 'requireAdmin', 'requireTenantId', 'requireMailSender', 'requireOwner', 'draftContext', 'verifyBearerToken', 'verifyToken']
+// getUserId (server/utils/queryByUser.ts) und assertOwner (server/utils/ownership.ts) verlangen seit Block d selbst eine Anmeldung;
+// tests/security/strict-helpers.test.ts beweist das.
+export const AUTH_HELPERS = ['requireAuth', 'requireAdmin', 'requireTenantId', 'requireMailSender', 'requireOwner', 'draftContext', 'verifyBearerToken', 'verifyToken', 'getUserId', 'assertOwner']
 const AUTH_RE = new RegExp(`\\b(${AUTH_HELPERS.join('|')})\\s*\\(|statusCode:\\s*401`)
 
 export interface RouteInfo { key: string; method: string; path: string; file: string; auth: boolean }

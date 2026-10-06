@@ -2,6 +2,7 @@ import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { resolveUserId } from './tenant'
 import { trackDemoRequest } from './demoTracker'
+import { requireAuth } from './verifyAuth'
 
 export async function queryByUser(table: string, userId: string, event?: any) {
   const effectiveId = await resolveUserId(userId)
@@ -25,6 +26,9 @@ export async function queryByUser(table: string, userId: string, event?: any) {
   return result.Items || []
 }
 
+// Kennung des angemeldeten Nutzers aus dem verifizierten Token. Ohne Anmeldung gibt es 401 – kein Rückfall auf 'demo-user'.
 export function getUserId(event: any): string {
-  return event.context.auth?.email || 'demo-user'
+  const email = requireAuth(event).email
+  if (!email) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
+  return email
 }
