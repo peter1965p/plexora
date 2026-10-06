@@ -35,6 +35,46 @@ else
   ok "Bot-Schutz an der Test-Kampagne aus (Formular bleibt ohne Token erreichbar)"
 fi
 
+echo "== Lead-Seite: Vertrauenspunkte, Datenschutzzeile, Overlays (Standardwerte, Grenzen, Whitelist)"
+check_decor() { # $1 = Beschriftung, $2 = JSON der Landingpage-Schnittstelle
+  local out; out="$(PLX_JSON="$2" python3 - "$1" <<'PY'
+import json,re,sys,os
+label=sys.argv[1]
+try: d=json.loads(os.environ.get("PLX_JSON",""))
+except Exception:
+    print("FEHLER|"+label+": Antwort ist kein JSON"); sys.exit(0)
+c=d.get("campaign")
+if not isinstance(c,dict):
+    print("FEHLER|"+label+": keine Kampagne in der Antwort"); sys.exit(0)
+src=open("server/utils/publicView.ts",encoding="utf-8").read()
+allowed=set(re.findall(r"'([A-Za-z]+)'", src[src.index("PUBLIC_CAMPAIGN_FIELDS"):src.index("] as const")]))
+errs=[]
+extra=sorted(set(c)-allowed)
+if extra: errs.append("nicht freigegebene Felder: "+",".join(extra))
+t=c.get("trustItems"); p=c.get("privacyLine"); o=c.get("overlays")
+if not isinstance(t,list) or len(t)>8: errs.append("trustItems fehlt oder mehr als 8")
+else:
+    for i in t:
+        if len(i.get("text",""))>60 or not re.fullmatch(r"[a-z-]+",i.get("icon","")): errs.append("Vertrauenspunkt ungültig")
+if not isinstance(p,dict) or "on" not in p or len(p.get("text",""))>120: errs.append("privacyLine ungültig")
+if not isinstance(o,list) or len(o)>8: errs.append("overlays fehlt oder mehr als 8")
+else:
+    if sum(1 for x in o if x.get("anim","none")!="none")>2: errs.append("mehr als 2 animierte Overlays")
+    for x in o:
+        if len(x.get("text",""))>24 or not re.fullmatch(r"#[0-9a-fA-F]{6}",x.get("color","")): errs.append("Overlay ungültig")
+raw=json.dumps(d)
+if re.search(r"userId|notifyEmail|\"scope\"",raw): errs.append("Besitzerdaten in der Antwort")
+if errs: print("FEHLER|"+label+": "+"; ".join(sorted(set(errs))))
+else:
+    stored_default = isinstance(t,list) and [x["text"] for x in t]==["Anfrage 100 % kostenlos","SSL gesichert","Antwort in 24 h"]
+    print(f"OK|{label}: {len(t)} Vertrauenspunkte{' (Standard)' if stored_default else ''}, Datenschutzzeile {'an' if p['on'] else 'aus'}, {len(o)} Overlay(s), nur freigegebene Felder")
+PY
+)"
+  [[ "${out%%|*}" == "OK" ]] && ok "${out#*|}" || bad "${out#*|}"
+}
+check_decor "Kampagne $CAMPAIGN" "$LP"
+LP2="$(curl -s -m 25 "$API/api/marketing/public/ai.beratung")"; [[ -n "$LP2" ]] && check_decor "Kurzlink-Kampagne ai.beratung" "$LP2"
+
 echo "== Lead-Formular (nur Preflight, kein Absenden)"
 PF="$(curl -s -i -m 25 -X OPTIONS "$API/api/forms/$FORM_ID/submit" -H 'Origin: https://app.plexora.eu' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type')"
 echo "$PF" | head -1 | grep -qE ' (200|204)' && ok "Preflight für POST /api/forms/<id>/submit" || bad "Preflight für Formular-Absenden"
