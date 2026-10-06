@@ -1426,6 +1426,106 @@
       </div>
     </div>
 
+    <!-- ── SICHERUNG ── -->
+    <div v-if="tab === 'backup'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-database-export" style="margin-right:8px;color:var(--accent)"></i>Sicherung</span>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:18px;max-width:760px">
+        <div style="background:#f59e0b14;border:1px solid #f59e0b55;border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6">
+          <strong><i class="ti ti-alert-triangle"></i> Sicherungen enthalten Kundendaten.</strong>
+          Bewahre die Datei sicher auf: nicht in ein Git-Repository legen und nicht unverschlüsselt weitergeben.
+          Sie ist mit deiner Passphrase verschlüsselt (AES-256-GCM). Die Passphrase wird nie gespeichert – ohne sie ist die Datei nicht lesbar.
+        </div>
+
+        <div v-if="isDemo" style="font-size:13px;color:var(--text-muted)"><i class="ti ti-lock"></i> Im Demo-Zugang sind Sicherungen deaktiviert.</div>
+
+        <template v-else>
+          <div v-if="isAdmin" style="border:1px solid var(--border);border-radius:10px;padding:14px">
+            <strong style="font-size:13px"><i class="ti ti-server-2" style="color:var(--accent)"></i> Gesamtsicherung</strong>
+            <div style="font-size:12px;color:var(--text-muted);margin:6px 0 10px">Alle Plattform-Tabellen (ohne flüchtige Zähler und Entwürfe) und alle Bilder und Dateien aus dem Datei-Speicher. Nur für Plattform-Administratoren. Zahlungsschlüssel im Klartext sind nicht enthalten.</div>
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="backupBusy" @click="openBackupDialog('full')"><i class="ti ti-player-play"></i> Sicherung starten</button>
+          </div>
+
+          <div style="border:1px solid var(--border);border-radius:10px;padding:14px">
+            <strong style="font-size:13px"><i class="ti ti-user-down" style="color:var(--accent)"></i> Meine Daten exportieren</strong>
+            <div style="font-size:12px;color:var(--text-muted);margin:6px 0 10px">
+              Kontakte, Firmen, Deals, Verträge, Projekte, Support, Finanzen, HR, Kampagnen, Termine und Einstellungen <em>ohne</em> Schlüssel und Tokens – nur Daten deines eigenen Kontos. Nur der Inhaber des Kontos kann den Export starten.
+              Dateien (Bilder) sind nur enthalten, wenn deine Daten darauf verweisen (z. B. Kampagnenbilder, Produktfotos).
+            </div>
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="backupBusy" @click="openBackupDialog('tenant')"><i class="ti ti-player-play"></i> Export starten</button>
+          </div>
+
+          <div v-if="backupCurrent" style="border:1px solid var(--border);border-radius:10px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <strong>{{ backupKindLabel(backupCurrent.kind) }}</strong>
+              <span class="badge" :class="backupCurrent.status === 'done' ? 'badge-success' : backupCurrent.status === 'failed' ? 'badge-danger' : ''">{{ backupStatusLabel(backupCurrent.status) }}</span>
+            </div>
+            <div v-if="backupCurrent.status === 'queued' || backupCurrent.status === 'running'" style="margin-top:10px">
+              <div style="height:8px;border-radius:6px;background:var(--border);overflow:hidden"><div :style="`height:100%;width:${backupPercent(backupCurrent)}%;background:var(--accent);transition:width .4s`"></div></div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ backupCurrent.step || 'wartet auf den Start' }} · {{ backupCurrent.progress?.done || 0 }} / {{ backupCurrent.progress?.total || '…' }} Tabellen</div>
+            </div>
+            <div v-if="backupCurrent.error" style="font-size:12px;color:#ef4444;margin-top:8px">{{ backupCurrent.error }}</div>
+            <table v-if="backupCurrent.tables && Object.keys(backupCurrent.tables).length" style="width:100%;font-size:12px;margin-top:10px;border-collapse:collapse">
+              <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px 0">Tabelle</th><th>Einträge</th><th>Größe</th><th>Zählvergleich</th></tr></thead>
+              <tbody>
+                <tr v-for="(t, name) in backupCurrent.tables" :key="name" v-show="t.rows > 0 || backupCurrent.status === 'done'">
+                  <td style="padding:3px 0">{{ String(name).replace('plexora-', '') }}</td><td>{{ t.rows }}</td><td>{{ backupBytes(t.bytes) }}</td>
+                  <td :style="t.verified === t.rows ? 'color:#22c55e' : t.verified < 0 ? '' : 'color:#f59e0b'">{{ t.verified < 0 ? '…' : t.verified === t.rows ? 'gleich' : 'Abweichung' }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-if="backupCurrent.files" style="font-size:12px;color:var(--text-muted);margin-top:6px">Dateien: {{ backupCurrent.files.count }} ({{ backupBytes(backupCurrent.files.bytes) }})</div>
+            <div v-if="backupCurrent.warnings?.length" style="font-size:12px;color:#f59e0b;margin-top:6px">Hinweise: {{ backupCurrent.warnings.join(' · ') }}</div>
+          </div>
+
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px">Letzte Sicherungen <span style="font-weight:400;color:var(--text-muted);font-size:12px">– die Dateien laufen nach 7 Tagen automatisch ab</span></div>
+            <div v-if="!backupJobs.length" style="font-size:12px;color:var(--text-muted)">Noch keine Sicherung.</div>
+            <table v-else style="width:100%;font-size:12px;border-collapse:collapse">
+              <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px 0">Zeit</th><th>Art</th><th>Größe</th><th>Von</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr v-for="j in backupJobs" :key="j.jobId" style="border-top:0.5px solid var(--border)">
+                  <td style="padding:6px 0">{{ new Date(j.createdAt).toLocaleString('de-DE') }}</td>
+                  <td>{{ backupKindLabel(j.kind) }}</td><td>{{ j.sizeBytes ? backupBytes(j.sizeBytes) : '–' }}</td><td>{{ j.by }}</td>
+                  <td>{{ backupStatusLabel(j.status) }}</td>
+                  <td style="text-align:right;white-space:nowrap">
+                    <button v-if="j.downloadable" class="theme-opt" title="Herunterladen (Link 10 Minuten gültig)" @click="downloadBackup(j)"><i class="ti ti-download"></i></button>
+                    <button v-if="j.status === 'done' || j.status === 'failed'" class="theme-opt" title="Löschen" @click="deleteBackup(j)"><i class="ti ti-trash"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+
+        <div style="border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;line-height:1.7">
+          <strong style="font-size:13px"><i class="ti ti-key"></i> So öffnest du die Datei</strong>
+          <ol style="margin:8px 0 0 18px;padding:0">
+            <li>Datei herunterladen (der Link ist 10 Minuten gültig, die Datei endet auf <code>.plxbak</code>).</li>
+            <li>Entschlüsseln (fragt die Passphrase verdeckt ab): <code>node scripts/aws/decrypt-backup.mjs plexora-sicherung-….plxbak</code> – das Skript liegt im Plexora-Repository und braucht nur Node.</li>
+            <li>Die entstandene ZIP-Datei entpacken: <code>unzip plexora-sicherung-….zip</code>. Darin liegen je Tabelle eine JSON-Datei plus Tabellendefinition, die Dateien unter <code>files/</code> und <code>MANIFEST.txt</code> mit Anzahl, Größe und SHA-256.</li>
+          </ol>
+          <div style="margin-top:10px"><strong>Wiederherstellen</strong> geht bewusst nicht per Klick: Auf der Kommandozeile zeigt <code>python3 scripts/aws/restore-table.py &lt;Ordner&gt; &lt;Tabelle&gt; --dry-run</code> zuerst, was passieren würde.</div>
+          <div style="margin-top:8px;color:var(--text-muted)">Verschlüsselte Felder (z. B. gespeicherte Anbieter-Schlüssel) bleiben ohne den <code>NUXT_ENCRYPTION_KEY</code> unlesbar. Bewahre diesen Schlüssel getrennt von den Sicherungen auf.</div>
+        </div>
+      </div>
+
+      <!-- Passphrase-Dialog -->
+      <div v-if="backupDialog" class="modal-overlay" @click.self="closeBackupDialog">
+        <div class="modal" style="max-width:480px">
+          <div class="modal-header"><span class="modal-title">{{ backupKindLabel(backupDialog.kind) }} starten</span><button class="icon-btn" @click="closeBackupDialog"><i class="ti ti-x"></i></button></div>
+          <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.6">Wähle eine Passphrase (mindestens 12 Zeichen). Sie verschlüsselt die Datei und wird <strong>nicht gespeichert</strong> – notiere sie dir an einem sicheren Ort.</div>
+            <div class="auth-field"><label>Passphrase</label><input v-model="backupPass" type="password" autocomplete="new-password" placeholder="mindestens 12 Zeichen" /></div>
+            <div class="auth-field"><label>Passphrase wiederholen</label><input v-model="backupPass2" type="password" autocomplete="new-password" @keydown.enter="startBackup" /></div>
+            <div v-if="backupPassError" style="font-size:12px;color:#ef4444">{{ backupPassError }}</div>
+            <button class="accent-btn" style="height:36px" :disabled="!!backupPassError || backupBusy || !backupPass" @click="startBackup"><i class="ti" :class="backupBusy ? 'ti-loader-2 spin' : 'ti-player-play'"></i> Sicherung starten</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── BOT-SCHUTZ (Cloudflare Turnstile) ── -->
     <div v-if="tab === 'botprotection'" class="card">
       <div class="card-header">
@@ -1809,7 +1909,7 @@ const tabs = computed(() => {
   const extra = store.licenseModules?.includes('nexora')
     ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
     : []
-  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }]
+  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }, { key: 'backup', label: 'Sicherung', icon: 'ti-database-export' }]
   const integrityExtra = isAdmin.value
     ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
     : []
@@ -1930,6 +2030,70 @@ function copyNexoraKey() {
   nexoraCopied.value = true
   setTimeout(() => { nexoraCopied.value = false }, 2000)
 }
+
+// ── Sicherung (Gesamtsicherung für Admins, Export der eigenen Daten für Inhaber) ──
+interface BackupJobView { jobId: string; kind: 'full' | 'tenant'; status: 'queued' | 'running' | 'done' | 'failed'; step?: string; progress?: { done: number; total: number }; tables?: Record<string, { rows: number; bytes: number; verified: number }>; files?: { count: number; bytes: number }; sizeBytes?: number; warnings?: string[]; error?: string; createdAt: string; by: string; downloadable: boolean }
+const backupJobs = ref<BackupJobView[]>([])
+const backupDialog = ref<{ kind: 'full' | 'tenant' } | null>(null)
+const backupPass = ref(''); const backupPass2 = ref(''); const backupBusy = ref(false)
+let backupTimer: ReturnType<typeof setInterval> | null = null
+
+const backupKindLabel = (k: string) => (k === 'full' ? 'Gesamtsicherung' : 'Export meiner Daten')
+const backupStatusLabel = (s: string) => ({ queued: 'wartet', running: 'läuft', done: 'fertig', failed: 'fehlgeschlagen' } as Record<string, string>)[s] || s
+const backupBytes = (n?: number) => (n == null ? '–' : n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`)
+const backupPercent = (j: BackupJobView) => (j.progress && j.progress.total ? Math.round((j.progress.done / j.progress.total) * 100) : 3)
+// Der angezeigte Auftrag: der laufende, sonst der neueste
+const backupCurrent = computed(() => backupJobs.value.find(j => j.status === 'queued' || j.status === 'running') || backupJobs.value[0] || null)
+const backupPassError = computed(() => {
+  if (!backupPass.value && !backupPass2.value) return ''
+  if (backupPass.value.length < 12) return 'Mindestens 12 Zeichen.'
+  if (backupPass.value !== backupPass2.value) return 'Die beiden Eingaben stimmen nicht überein.'
+  return ''
+})
+
+async function loadBackups() {
+  if (isDemo.value) return
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res: any = await $fetch(useApiUrl('/api/backup/jobs'), { headers: await useAuthHeader() })
+    backupJobs.value = res.jobs || []
+  } catch { /* Tab zeigt dann eine leere Liste – kein harter Fehler */ }
+  const running = backupJobs.value.some(j => j.status === 'queued' || j.status === 'running')
+  if (running && !backupTimer) backupTimer = setInterval(loadBackups, 3000)
+  if (!running && backupTimer) { clearInterval(backupTimer); backupTimer = null }
+}
+function openBackupDialog(kind: 'full' | 'tenant') { backupPass.value = ''; backupPass2.value = ''; backupDialog.value = { kind } }
+function closeBackupDialog() { backupDialog.value = null; backupPass.value = ''; backupPass2.value = '' }
+async function startBackup() {
+  if (!backupDialog.value || backupPassError.value || !backupPass.value || backupBusy.value) return
+  backupBusy.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/backup/jobs'), { method: 'POST', headers: await useAuthHeader(), body: { kind: backupDialog.value.kind, passphrase: backupPass.value, passphraseConfirm: backupPass2.value } })
+    closeBackupDialog()
+    showSettingsToast('Sicherung gestartet.')
+    await loadBackups()
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Start fehlgeschlagen'), true)
+  } finally { backupBusy.value = false }     // Die Passphrase wird in keinem Fall aufbewahrt
+}
+async function downloadBackup(j: BackupJobView) {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res: any = await $fetch(useApiUrl(`/api/backup/jobs/${j.jobId}/download`), { method: 'POST', headers: await useAuthHeader() })
+    window.location.href = res.url
+  } catch (e: any) { showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Download fehlgeschlagen'), true) }
+}
+async function deleteBackup(j: BackupJobView) {
+  if (!confirm('Diese Sicherung wirklich löschen?')) return
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl(`/api/backup/jobs/${j.jobId}`), { method: 'DELETE', headers: await useAuthHeader() })
+    await loadBackups()
+  } catch (e: any) { showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'), true) }
+}
+watch(tab, v => { if (v === 'backup') loadBackups() })
+onBeforeUnmount(() => { if (backupTimer) clearInterval(backupTimer) })
 
 // ── Bot-Schutz (Cloudflare Turnstile) ──────────────────────────────────
 const botInfo = reactive({ secretConfigured: false, secretMasked: '', protectedCampaigns: 0, defaultHostnames: [] as string[] })
