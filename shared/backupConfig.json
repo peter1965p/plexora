@@ -59,6 +59,10 @@
    "mode": "owner",
    "attr": "userId"
   },
+  "plexora-documents": {
+   "mode": "skip",
+   "reason": "Tabelle existiert noch nicht (Portal-Dokumente, Route fängt den Fehler ab); bei Anlage Mandantenbezug festlegen"
+  },
   "plexora-drafts": {
    "mode": "skip",
    "reason": "flüchtige Entwürfe (laufen nach 30 Tagen ab)"

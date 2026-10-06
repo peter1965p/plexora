@@ -16,7 +16,9 @@ BUCKET = "plexora-files"
 POOL = "eu-central-1_lM7sN6LvC"
 # Felder, die im Klartext in der Datenbank stehen und NICHT in die Sicherung gehören (z. B. Zahlungs-Schlüssel in plexora-settings).
 # Verschlüsselte Felder (AES-GCM, "...Encrypted") bleiben drin: ohne NUXT_ENCRYPTION_KEY sind sie unlesbar.
-SECRET_FIELDS = {"stripeSecretKey", "stripeWebhookSecret", "paypalSecret", "mollieApiKey", "customApiKey"}
+_CFG = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "shared", "backupConfig.json"), encoding="utf-8"))   # gleiche Quelle wie der Server (server/utils/backup/config.ts)
+SECRET_FIELDS = set(_CFG["alwaysDropFields"])
+S3_EXCLUDES = _CFG["s3"]["excludedPrefixes"]
 SENSITIVE = re.compile(r"(secret|token|password|passwort|authorization|apikey|api_key|private|credential|client_secret)", re.I)
 
 def aws(*args, text=False):
@@ -61,6 +63,8 @@ def main():
 
     # 1) DynamoDB
     tables = [t for t in aws("dynamodb", "list-tables")["TableNames"] if t.startswith("plexora-")]
+    unclassified = [t for t in tables if t not in _CFG["tables"]]
+    if unclassified: notes.append("WARNUNG: Tabellen ohne Eintrag in shared/backupConfig.json (werden gesichert, aber nicht klassifiziert): " + ", ".join(unclassified))
     for t in tables:
         items, token = [], None
         while True:
@@ -85,7 +89,7 @@ def main():
     # 2) S3 (ohne lambda/ und lambda-deploy/)
     os.makedirs(f"{root}/files", exist_ok=True)
     r = subprocess.run(["aws", "s3", "sync", f"s3://{BUCKET}", f"{root}/files", "--region", REGION, "--only-show-errors",
-                        "--exclude", "lambda/*", "--exclude", "lambda-deploy/*"], capture_output=True, text=True)
+                        *[a for p in S3_EXCLUDES for a in ("--exclude", p + "*")]], capture_output=True, text=True)
     if r.returncode != 0: notes.append("S3-Sync mit Fehlern: " + r.stderr.strip()[:200])
 
     # 3) Lambda: Code der live-Version + Konfiguration (nur Namen der Umgebungsvariablen)

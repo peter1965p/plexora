@@ -20,11 +20,11 @@ export default defineEventHandler(async (event) => {
   if (kind !== 'full' && kind !== 'tenant') throw createError({ statusCode: 400, message: 'Ungültige Art der Sicherung' })
   if (kind === 'full' && !(auth.groups || []).includes('admins')) throw createError({ statusCode: 403, message: 'Die Gesamtsicherung ist nur für Plattform-Administratoren.' })
   if (kind === 'tenant' && (await resolveUserId(owner)).toLowerCase() !== owner.toLowerCase()) throw createError({ statusCode: 403, message: 'Den Export der Daten kann nur der Inhaber des Kontos starten.' })
-  const passError = validatePassphrase(body.passphrase, body.passphraseConfirm)
+  const passError = validatePassphrase(body.passphrase, typeof body.passphraseConfirm === 'string' ? body.passphraseConfirm : '')
   if (passError) throw createError({ statusCode: 400, message: passError })
   if (!backupBucket() || !workerFunction()) throw createError({ statusCode: 503, message: 'Die Sicherung ist noch nicht eingerichtet (scripts/aws/setup-backup.sh).' })
-  if (!(await checkRateLimit('backup-start', owner.toLowerCase(), MAX_STARTS_PER_HOUR, 3600))) throw createError({ statusCode: 429, message: `Höchstens ${MAX_STARTS_PER_HOUR} Sicherungen pro Stunde. Bitte später erneut versuchen.` })
   if (await runningJob(owner)) throw createError({ statusCode: 409, message: 'Es läuft bereits eine Sicherung. Bitte warten, bis sie fertig ist.' })
+  if (!(await checkRateLimit('backup-start', owner.toLowerCase(), MAX_STARTS_PER_HOUR, 3600))) throw createError({ statusCode: 429, message: `Höchstens ${MAX_STARTS_PER_HOUR} Sicherungen pro Stunde. Bitte später erneut versuchen.` })
 
   const ip = ipOf(event)
   const job = await createJob(owner, kind, owner, ip)
