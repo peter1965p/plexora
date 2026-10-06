@@ -3,6 +3,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { createCampaignAppointmentType, defaultCampaignEnd } from '../../utils/campaignAppointments'
+import { deleteOwnDraftQuietly } from '../../utils/drafts/context'
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
@@ -41,5 +42,7 @@ export default defineEventHandler(async (event) => {
   }
 
   await client.send(new PutCommand({ TableName: 'plexora-marketing', Item: campaign }))
+  // Aus dem Entwurf ist jetzt eine echte Kampagne geworden: Entwurf entfernen (best effort)
+  await deleteOwnDraftQuietly(event, 'marketing-campaign')
   return { success: true, campaign }
 })

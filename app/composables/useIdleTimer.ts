@@ -1,5 +1,6 @@
 import { signOut } from 'aws-amplify/auth'
 
+const SESSION_EXPIRING_SECONDS = 20 // Sekunden vor Ablauf: Ereignis 'plx:session-expiring'
 const WARNING_THRESHOLD = 60 // Sekunden, ab denen Badge+Modal warnen
 const ACTIVITY_THROTTLE_MS = 1000
 
@@ -24,6 +25,8 @@ export function useIdleTimer() {
   function tick() {
     if (!enabled.value) return
     if (remainingSeconds.value > 0) remainingSeconds.value--
+    // Formulare (Entwurfs-Autosave) können kurz vor der Abmeldung noch speichern
+    if (remainingSeconds.value === SESSION_EXPIRING_SECONDS && typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('plx:session-expiring'))
     if (remainingSeconds.value === 0) doLogout()
   }
 

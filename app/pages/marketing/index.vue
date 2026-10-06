@@ -201,7 +201,15 @@
       <div class="modal-card" style="max-width:960px;width:95vw;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
           <span class="card-title">{{ editing ? t.marketing.editCampaign : t.marketing.newCampaignTitle }}</span>
+          <span v-if="!editing && draft.statusText.value" class="draft-status" :class="draft.status.value">{{ draft.statusText.value }}</span>
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
+        </div>
+        <div v-if="!editing && draft.candidate.value" class="draft-restore">
+          <span><i class="ti ti-history"></i> Entwurf vom {{ draft.candidateTime.value }} wiederherstellen?</span>
+          <span style="display:flex;gap:8px">
+            <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px" @click="draft.restore()">Wiederherstellen</button>
+            <button class="icon-btn" style="font-size:12px;padding:4px 12px;height:auto" @click="draft.discard()">Verwerfen</button>
+          </span>
         </div>
         <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
@@ -677,6 +685,7 @@
 </template>
 
 <script setup lang="ts">
+import { MARKETING_CAMPAIGN_DRAFT_FIELDS } from '~~/shared/draftFields'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { t, lang } = useLang()
 
@@ -955,7 +964,7 @@ function fmtMailTime(iso: string) {
   return new Date(iso).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })
 }
 const showModal = ref(false)
-onMounted(() => { if (route.query.new) showModal.value = true })
+
 const editing = ref<any>(null)
 const saving  = ref(false)
 const form = reactive({
@@ -967,6 +976,22 @@ const form = reactive({
   appointmentEnabled: true, appointmentName: '', appointmentDurationMinutes: 30,
   endsAt: new Date(Date.now() + 90 * 86400_000).toISOString().slice(0, 10),
 })
+
+// ── Entwurfs-Autosave für "Neue Kampagne" (nicht beim Bearbeiten) ──
+const draft = useDraftAutosave({
+  formType: 'marketing-campaign',
+  form,
+  fields: MARKETING_CAMPAIGN_DRAFT_FIELDS,
+  applyData: (d) => {
+    const items = Array.isArray(d.contentItems) ? (d.contentItems as string[]) : []
+    Object.assign(form, d, { contentItems: [...items, '', '', '', ''].slice(0, 4) })
+  },
+})
+watch(showModal, (open) => {
+  if (open && !editing.value) void draft.begin()
+  else if (!open) draft.stop()
+})
+onMounted(() => { if (route.query.new) showModal.value = true })
 
 const selectedForm = computed(() => forms.value.find((f: any) => f.formId === form.formId) || null)
 const campaignUrl  = computed(() => {
@@ -1025,6 +1050,7 @@ async function save() {
         body: { slug: form.slug, formId: savedFormId, utmSource: form.utmSource, utmMedium: form.utmMedium, utmCampaign: form.utmCampaign }
       }).catch(() => {})
     }
+    if (!editing.value) await draft.clear()
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
     showModal.value = false
@@ -1704,4 +1730,7 @@ function showToast(msg: string) {
   max-height: 360px; overflow-y: auto; background: #fff;
 }
 
+.draft-status { margin-left:auto; margin-right:12px; font-size:12px; color:var(--text-muted) }
+.draft-status.offline { color:#E0A030 }
+.draft-restore { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 24px 8px; padding:10px 14px; border-radius:10px; font-size:13px; background:color-mix(in srgb, var(--accent) 12%, transparent); border:0.5px solid color-mix(in srgb, var(--accent) 35%, transparent) }
 </style>
