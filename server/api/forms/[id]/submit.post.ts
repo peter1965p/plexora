@@ -4,8 +4,10 @@ import { fireAutomations } from '../../../utils/automations'
 import { startSequences } from '../../../utils/sequences'
 import { findCampaignAppointmentTypeId } from '../../../utils/campaignAppointments'
 import { randomUUID } from 'crypto'
+import { enforcePublicRateLimit } from '../../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
+  await enforcePublicRateLimit(event, 'forms-submit')
   const formId = getRouterParam(event, 'id')
   const body   = await readBody(event)
   const query  = getQuery(event)

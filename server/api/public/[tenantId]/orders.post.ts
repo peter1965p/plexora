@@ -1,9 +1,11 @@
 import { QueryCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { enforcePublicRateLimit } from '../../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, { 'Access-Control-Allow-Origin': '*' })
+  await enforcePublicRateLimit(event, 'orders')
 
   const tenantId = getRouterParam(event, 'tenantId') || ''
   const body     = await readBody(event)

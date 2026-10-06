@@ -1,8 +1,10 @@
 import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
+  await enforcePublicRateLimit(event, 'portal-comment')
   const token  = getRouterParam(event, 'token')
   const body   = await readBody(event)
   const client = getDynamoClient()

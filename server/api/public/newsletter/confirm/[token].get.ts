@@ -1,6 +1,6 @@
 import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
-import { checkRateLimit } from '../../../../utils/rateLimit'
+import { checkRateLimit, clientIp } from '../../../../utils/rateLimit'
 import { renderNewsletterStatusPage } from '../../../../utils/newsletterPage'
 import { sendAutomationEmail } from '../../../../utils/newsletterAutomation'
 
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
 
   const token = getRouterParam(event, 'token') || ''
-  const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+  const ip = clientIp(event)
   const ok = await checkRateLimit('confirm-ip', ip, 30, 3600)
   if (!ok) {
     return renderNewsletterStatusPage('Zu viele Versuche', 'Bitte versuche es später erneut.', false)

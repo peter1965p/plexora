@@ -3,12 +3,14 @@ import { getDynamoClient } from '../../../../utils/dynamodb'
 import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
 import { sendMail } from '../../../../utils/mailer'
+import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
     'Access-Control-Allow-Origin': '*',
     'Cache-Control': 'no-store',
   })
+  await enforcePublicRateLimit(event, 'termine-book')
 
   const tenantId = getRouterParam(event, 'tenantId') || ''
   const body = await readBody(event)

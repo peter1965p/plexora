@@ -1,6 +1,6 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
-import { checkRateLimit } from '../../../utils/rateLimit'
+import { checkRateLimit, clientIp } from '../../../utils/rateLimit'
 import { trackSiteVisit } from '../../../utils/siteAnalyticsTracker'
 
 export default defineEventHandler(async (event) => {
@@ -19,9 +19,7 @@ export default defineEventHandler(async (event) => {
   const path     = String(body?.path || '/').slice(0, 200)
   const referrer = String(body?.referrer || '')
 
-  const ip = getHeader(event, 'cf-connecting-ip')
-    || getHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim()
-    || ''
+  const ip = clientIp(event)
 
   // Grobe Drossel gegen Skript-Missbrauch (eigene aufgeblasene Zahlen) — großzügig,
   // da echte Nutzer beim schnellen Klicken durch die Seite locker über kleinere Limits kämen.

@@ -1,6 +1,6 @@
 import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
-import { checkRateLimit } from '../../../../utils/rateLimit'
+import { checkRateLimit, clientIp } from '../../../../utils/rateLimit'
 import { buildConfirmEmailHtml } from '../../../../utils/newsletterEmail'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Ungültige E-Mail-Adresse' })
   }
 
-  const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+  const ip = clientIp(event)
   const [ipOk, emailOk] = await Promise.all([
     checkRateLimit('signup-ip', ip, 10, 3600),
     checkRateLimit('signup-email', email, 3, 3600),

@@ -2,8 +2,10 @@ import { PutCommand, GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { enforcePublicRateLimit } from '../../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
+  await enforcePublicRateLimit(event, 'jobs-apply')
   const campaignId = getRouterParam(event, 'id')
   const body       = await readBody(event)
   const dynamo     = getDynamoClient()
