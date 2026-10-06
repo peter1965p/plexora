@@ -673,6 +673,10 @@ onMounted(() => {
 })
 
 function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.value = '', 3500) }
+// Servermeldung (z. B. "Im Demo-Zugang ist der E-Mail-Versand deaktiviert.") statt rohem Netzwerkfehler anzeigen
+function apiErrorMessage(e: any, fallback = 'Aktion fehlgeschlagen'): string {
+  return e?.data?.message || e?.statusMessage || fallback
+}
 
 function addItem() { newInv.items.push(emptyItem()) }
 function removeItem(idx: number) { if (newInv.items.length > 1) newInv.items.splice(idx, 1) }
@@ -693,8 +697,10 @@ function applyCatalogItem(item: any, value: string) {
 // ── Rechnungen ────────────────────────────────────────
 async function addInvoice(sendMailFlag: boolean) {
   saving.value = true
+  let created = false
   try {
     const inv = await $fetch(useApiUrl('/api/finance'), { method: 'POST', headers: authHeaders, body: { ...newInv, userId } }) as any
+    created = true
     await refresh()
     if (sendMailFlag && inv.invoice?.invoiceId && newInv.clientEmail) {
       await $fetch(useApiUrl(`/api/finance/${inv.invoice.invoiceId}/send`), {
@@ -706,6 +712,14 @@ async function addInvoice(sendMailFlag: boolean) {
     }
     showAdd.value = false
     Object.assign(newInv, { client: '', clientEmail: '', items: [emptyItem()], dueDate: '', status: 'pending' })
+  } catch (e: any) {
+    if (created) {
+      // Rechnung existiert, nur der Versand ist fehlgeschlagen
+      showToast(`Rechnung gespeichert, aber nicht gesendet: ${apiErrorMessage(e, 'Versand fehlgeschlagen')}`)
+      showAdd.value = false
+    } else {
+      showToast(`Fehler: ${apiErrorMessage(e, 'Rechnung konnte nicht gespeichert werden')}`)
+    }
   } finally { saving.value = false }
 }
 
@@ -767,6 +781,8 @@ async function sendMail(invoice: any) {
     })
     await refresh()
     showToast(`Rechnungskopie an ${invoice.client || invoice.clientEmail} gesendet!`)
+  } catch (e: any) {
+    showToast(`Nicht gesendet: ${apiErrorMessage(e, 'Versand fehlgeschlagen')}`)
   } finally { sending.value = null }
 }
 
@@ -836,7 +852,7 @@ async function sendDunning(invoice: any) {
     }) as any
     await refresh()
     showToast(res.message || 'Mahnung gesendet!')
-  } catch (e: any) { showToast('Fehler: ' + e.message) }
+  } catch (e: any) { showToast('Nicht gesendet: ' + apiErrorMessage(e, 'Mahnung fehlgeschlagen')) }
   finally { dunning.value = null }
 }
 
