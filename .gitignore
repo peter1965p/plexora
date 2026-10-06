@@ -28,3 +28,6 @@ lambda*.zip
 # Lokale Claude-Code-/Tooling-Artefakte, keine Projektdateien
 .claude/
 .playwright-mcp/
+
+# interne Sicherheits-Bestandsaufnahme (nicht committen)
+docs/security/route-inventar-demo-user.md
