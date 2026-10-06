@@ -5,13 +5,16 @@ import { randomUUID } from 'crypto'
 import { createCampaignAppointmentType, defaultCampaignEnd } from '../../utils/campaignAppointments'
 import { deleteOwnDraftQuietly } from '../../utils/drafts/context'
 import { assertBotProtectionAllowed } from '../../utils/botGuard'
+import { parseDecorInput } from '../../utils/leadDecorApi'
 import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
   const client = getDynamoClient()
 
+  const decor = parseDecorInput(event, body)     // Vertrauenspunkte, Datenschutzzeile, Overlays (nur wenn mitgeschickt; Demo 403, ungültig 400)
   const campaign = {
+    ...decor,
     userId:         await resolveUserId(requireAuth(event).email),
     campaignId:     randomUUID(),
     name:           body.name || '',

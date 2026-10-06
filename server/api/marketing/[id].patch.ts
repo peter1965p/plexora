@@ -2,6 +2,7 @@ import { UpdateCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { assertOwner } from '../../utils/ownership'
 import { assertBotProtectionAllowed } from '../../utils/botGuard'
+import { parseDecorInput } from '../../utils/leadDecorApi'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
@@ -18,6 +19,11 @@ export default defineEventHandler(async (event) => {
   if (!existing) throw createError({ statusCode: 404, message: 'Kampagne nicht gefunden' })
   await assertOwner(event, existing)
 
+  // Vertrauenspunkte, Datenschutzzeile, Overlays: nur wenn mitgeschickt (sonst bleibt der gespeicherte Wert, auch für andere Editoren)
+  const decor = parseDecorInput(event, body)
+  const decorSet = Object.keys(decor).map(k => `, ${k} = :${k}`).join('')
+  const decorValues = Object.fromEntries(Object.entries(decor).map(([k, v]) => [`:${k}`, v]))
+
   // Bot-Schutz: ohne Angabe bleibt der gespeicherte Wert (andere Editoren speichern über dieselbe Route)
   const turnstileEnabled = body.turnstileEnabled === undefined
     ? existing.turnstileEnabled === true
@@ -26,7 +32,7 @@ export default defineEventHandler(async (event) => {
   await client.send(new UpdateCommand({
     TableName: 'plexora-marketing',
     Key: { userId: existing.userId, campaignId },
-    UpdateExpression: 'SET #nm = :nm, slug = :sl, formId = :fi, headline = :hl, subtext = :st, headerImageUrl = :hi, accentColor = :ac, bgImageUrl = :bi, bgColor = :bc, contentTitle = :ct, contentItems = :ci, utmSource = :us, utmMedium = :um, utmCampaign = :uc, active = :av, customTemplateHtml = :cth, templatePresetKey = :tpk, turnstileEnabled = :tse',
+    UpdateExpression: 'SET #nm = :nm, slug = :sl, formId = :fi, headline = :hl, subtext = :st, headerImageUrl = :hi, accentColor = :ac, bgImageUrl = :bi, bgColor = :bc, contentTitle = :ct, contentItems = :ci, utmSource = :us, utmMedium = :um, utmCampaign = :uc, active = :av, customTemplateHtml = :cth, templatePresetKey = :tpk, turnstileEnabled = :tse' + decorSet,
     ExpressionAttributeNames: { '#nm': 'name' },
     ExpressionAttributeValues: {
       ':nm': body.name || '',
@@ -48,6 +54,7 @@ export default defineEventHandler(async (event) => {
       // damit das einfache Basis-Modal ein gespeichertes Template nicht versehentlich löscht.
       ':cth': body.customTemplateHtml !== undefined ? body.customTemplateHtml : (existing.customTemplateHtml || ''),
       ':tse': turnstileEnabled,
+      ...decorValues,
       ':tpk': body.templatePresetKey !== undefined ? body.templatePresetKey : (existing.templatePresetKey || ''),
     }
   }))

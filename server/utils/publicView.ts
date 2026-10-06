@@ -10,6 +10,8 @@ export function pick<T extends Record<string, any>>(obj: T | null | undefined, k
 
 /** Landingpage (marketing/public/[slug]): was die Lead-Seite zum Darstellen braucht */
 export const PUBLIC_CAMPAIGN_FIELDS = [
+  // neu, bewusst einzeln freigegeben (werden in der Route noch einmal bereinigt): Vertrauenspunkte, Datenschutzzeile, Overlays
+  'trustItems', 'privacyLine', 'overlays',
   'campaignId', 'name', 'slug', 'formId', 'headline', 'subtext', 'headerImageUrl', 'logoUrl', 'imageStyles',
   'bgImageUrl', 'bgColor', 'accentColor', 'contentTitle', 'contentItems', 'customTemplateHtml', 'templatePresetKey',
   'utmSource', 'utmMedium', 'utmCampaign',
