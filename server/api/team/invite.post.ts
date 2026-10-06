@@ -1,16 +1,30 @@
-import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId, invalidateTenantCache } from '../../utils/tenant'
+import { requireMailSender, validRecipient } from '../../utils/mailGuard'
+import { sendMail } from '../../utils/mailer'
 import { randomUUID } from 'crypto'
-import { Resend } from 'resend'
+
+const ALLOWED_ROLES = ['member', 'admin']
 
 export default defineEventHandler(async (event) => {
-  const { inviteeEmail, role = 'member' } = await readBody(event)
-  const inviterEmail = event.context.auth?.email || ''
-  if (!inviterEmail || !inviteeEmail) throw createError({ statusCode: 400, message: 'Anmeldung + inviteeEmail erforderlich' })
+  // Anmeldung Pflicht (401), Demo-Konto gesperrt (403): die Route versendet Mails über die Plattform-Domain
+  const auth = requireMailSender(event)
+  const inviterEmail = auth.email
 
+  const body = (await readBody(event)) || {}
+  const inviteeEmail = validRecipient(body.inviteeEmail)
+  if (!inviteeEmail) throw createError({ statusCode: 400, message: 'Bitte eine gültige E-Mail-Adresse angeben.' })
+  const role = body.role === undefined ? 'member' : body.role
+  if (!ALLOWED_ROLES.includes(role)) throw createError({ statusCode: 400, message: 'Ungültige Rolle.' })
+
+  // Besitzerprüfung: nur der Inhaber des Kontos lädt ein. Ein eingeladenes Mitglied sieht alle Daten des Inhabers
+  // und darf daher nicht selbst weitere Personen hereinholen.
   const tenantId = await resolveUserId(inviterEmail)
-  const dynamo   = getDynamoClient()
+  if (tenantId !== inviterEmail) throw createError({ statusCode: 403, message: 'Nur der Inhaber des Kontos kann Mitglieder einladen.' })
+  if (inviteeEmail.toLowerCase() === inviterEmail.toLowerCase()) throw createError({ statusCode: 400, message: 'Du kannst dich nicht selbst einladen.' })
+
+  const dynamo = getDynamoClient()
 
   // Prüfen ob schon Mitglied
   const existing = await dynamo.send(new GetCommand({
@@ -35,11 +49,10 @@ export default defineEventHandler(async (event) => {
 
   invalidateTenantCache(inviteeEmail)
 
-  const config  = useRuntimeConfig()
-  const resend  = new Resend(config.resendApiKey as string)
-  const appUrl  = 'https://app.plexora.eu'
-
-  await resend.emails.send({
+  const appUrl = 'https://app.plexora.eu'
+  const status = await sendMail({
+    userId: tenantId,
+    kind: 'internal',
     from: 'team@plexora.eu',
     to: inviteeEmail,
     subject: 'Du wurdest zu Plexora eingeladen',
@@ -54,6 +67,13 @@ export default defineEventHandler(async (event) => {
       </div>
     `,
   })
+
+  if (status === 'failed') {
+    // Die Einladung ist ohne Mail nutzlos: wieder entfernen, damit der Inhaber es erneut versuchen kann
+    await dynamo.send(new DeleteCommand({ TableName: 'plexora-team-members', Key: { tenantId, memberEmail: inviteeEmail } }))
+    invalidateTenantCache(inviteeEmail)
+    throw createError({ statusCode: 502, message: 'Die Einladungs-Mail konnte nicht gesendet werden. Bitte später erneut versuchen.' })
+  }
 
   return { success: true }
 })
