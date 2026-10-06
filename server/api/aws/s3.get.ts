@@ -1,12 +1,16 @@
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3'
-import { requireAuth } from '../../utils/verifyAuth'
+import { requireAdmin } from '../../utils/verifyAuth'
+import { PUBLIC_S3_PREFIXES } from '../../utils/s3Policy'
 
 const BUCKET = 'plexora-files'
 
 export default defineEventHandler(async (event) => {
-  requireAuth(event)
+  requireAdmin(event)
   const query = getQuery(event)
   const prefix = (query.prefix as string) || ''
+  // Die Dateiverwaltung zeigt nur die öffentlichen Bild-Präfixe (nie lambda/, lambda-deploy/ oder Sicherungen)
+  if (prefix === '') return { bucket: BUCKET, prefix: '', folders: PUBLIC_S3_PREFIXES.map(p => ({ name: p, prefix: `${p}/` })), files: [] }
+  if (!/^[a-z0-9-]+\/.*$/.test(prefix) || prefix.includes('..') || !(PUBLIC_S3_PREFIXES as readonly string[]).includes(prefix.split('/')[0])) throw createError({ statusCode: 403, statusMessage: 'Präfix nicht erlaubt' })
 
   const client = new S3Client({ region: 'eu-central-1' })
 
