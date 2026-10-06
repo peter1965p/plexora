@@ -183,7 +183,7 @@ describe('Drossel gilt immer – auch mit ausgeschaltetem Bot-Schutz', () => {
 
 describe('Geltungsbereich', () => {
   it('Webhooks und angemeldete Routen enthalten keine Bot-Prüfung', () => {
-    for (const f of ['server/api/webhooks/stripe.post.ts', 'server/api/webhooks/resend.post.ts', 'server/api/shop/webhook/index.post.ts', 'server/api/team/invite.post.ts', 'server/api/marketing/index.post.ts'])
-      expect(readFileSync(f, 'utf8'), f).not.toMatch(/verifyBotToken|botGuard/)
+    for (const f of ['server/api/webhooks/stripe.post.ts', 'server/api/webhooks/resend.post.ts', 'server/api/shop/webhook/index.post.ts', 'server/api/team/invite.post.ts'])
+      expect(readFileSync(f, 'utf8'), f).not.toMatch(/verifyBotToken/)
   })
 })

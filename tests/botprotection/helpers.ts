@@ -56,20 +56,30 @@ export function fakeDynamo() {
         return { Attributes: { count: db.counters.get(k) } }
       }
       if (t === 'plexora-settings') {
+        if (n === 'GetCommand' && i.Key.settingId === 'branding') return {}
         if (n === 'GetCommand') return { Item: db.settings.get(`${i.Key.settingId}|${i.Key.scope}`) }
         if (n === 'PutCommand') { db.settings.set(`${i.Item.settingId}|${i.Item.scope}`, i.Item); return {} }
       }
       if (t === 'plexora-marketing') {
+        if (n === 'ScanCommand') { const v = i.ExpressionAttributeValues[':s'] ?? i.ExpressionAttributeValues[':id']; return { Items: db.campaigns.filter(c => c.campaignId === v || c.slug === v || c.formId === v) } }
         if (n === 'QueryCommand') {
           const u = i.ExpressionAttributeValues[':u'] ?? i.ExpressionAttributeValues[':uid']
           let rows = db.campaigns.filter(c => c.userId === u)
           if (i.ExpressionAttributeValues[':t'] === true) rows = rows.filter(c => c.turnstileEnabled === true)
           if (i.ExpressionAttributeValues[':f']) rows = rows.filter(c => c.formId === i.ExpressionAttributeValues[':f'])
+          if (i.ExpressionAttributeValues[':c']) rows = rows.filter(c => c.campaignId === i.ExpressionAttributeValues[':c'])
           if (i.ExpressionAttributeValues[':cid']) rows = rows.filter(c => c.campaignId === i.ExpressionAttributeValues[':cid'])
           return i.Select === 'COUNT' ? { Count: rows.length } : { Items: rows }
         }
         if (n === 'PutCommand') { db.campaigns.push(i.Item); return {} }
+        if (n === 'UpdateCommand') {
+          const c = db.campaigns.find(x => x.userId === i.Key.userId && x.campaignId === i.Key.campaignId)
+          if (c) { c.turnstileEnabled = i.ExpressionAttributeValues[':tse']; c.name = i.ExpressionAttributeValues[':nm'] }
+          return {}
+        }
       }
+      if (t === 'plexora-forms' && n === 'ScanCommand') return { Items: db.forms.filter(f => f.formId === i.ExpressionAttributeValues[':fid']) }
+      if (t === 'plexora-termine-types' && n === 'QueryCommand') return { Items: db.types.filter(x => x.tenantId === i.ExpressionAttributeValues[':t']) }
       if (t === 'plexora-forms' && n === 'GetCommand') return { Item: db.forms.find(f => f.formId === i.Key.formId) }
       if (t === 'plexora-termine-types' && n === 'GetCommand') return { Item: db.types.find(x => x.typeId === i.Key.typeId && x.tenantId === i.Key.tenantId) }
       if (t === 'plexora-nexora' && n === 'GetCommand') return { Item: db.nexora.find(x => x.tenantId === i.Key.tenantId) }

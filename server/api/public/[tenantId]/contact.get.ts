@@ -1,5 +1,6 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { contactIsProtected, widgetConfig } from '../../../utils/botGuard'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
@@ -20,7 +21,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const ci = res.Item.contactInfo || {}
+  const guard = await contactIsProtected(String(res.Item.email || ''))
   return {
+    botProtection: await widgetConfig(guard.ownerScope, guard.protected),
     email:        ci.email        || '',
     phone:        ci.phone        || '',
     address:      ci.address      || '',

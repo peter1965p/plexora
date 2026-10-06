@@ -2,6 +2,7 @@ import { ScanCommand, QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
 import { pick, PUBLIC_CAMPAIGN_FIELDS, PUBLIC_FORM_FIELDS, PUBLIC_BRANDING_FIELDS } from '../../../utils/publicView'
+import { widgetConfig, formIsProtected } from '../../../utils/botGuard'
 
 export default defineEventHandler(async (event) => {
   const slug   = getRouterParam(event, 'slug') as string
@@ -54,5 +55,7 @@ export default defineEventHandler(async (event) => {
     campaign: pick(campaign, PUBLIC_CAMPAIGN_FIELDS),
     form: form ? pick(form, PUBLIC_FORM_FIELDS) : null,
     branding: pick(branding, PUBLIC_BRANDING_FIELDS),
+    // Bot-Schutz-Widget: nur Sitekey und Modus, und nur wenn der Server das Formular auch prüft
+    botProtection: await widgetConfig(String(campaign.userId || ''), await formIsProtected(String(campaign.userId || ''), String(campaign.formId || ''))),
   }
 })

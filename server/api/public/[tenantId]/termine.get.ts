@@ -1,5 +1,6 @@
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { campaignTypeIsProtected, widgetConfig } from '../../../utils/botGuard'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
@@ -30,7 +31,13 @@ export default defineEventHandler(async (event) => {
     .filter(t => t.active && (!t.campaignId || t.typeId === requestedType))
     .map(t => ({ typeId: t.typeId, name: t.name, durationMinutes: t.durationMinutes }))
 
+  // Bot-Schutz-Widget nur für die angeforderte Kampagnen-Terminart, wenn der Server sie auch prüft
+  const reqType = (typesRes.Items || []).find(t => t.active && t.typeId === requestedType && t.campaignId)
+  const guard = reqType ? await campaignTypeIsProtected(String(res.Item.email || ''), String(reqType.campaignId)) : null
+  const botProtection = guard ? await widgetConfig(guard.ownerScope, guard.protected) : null
+
   return {
+    botProtection,
     title:       res.Item.termineTitle || 'Termine',
     description: res.Item.termineDescription || '',
     avatarUrl:   res.Item.termineAvatarUrl || '',

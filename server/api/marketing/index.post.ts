@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { createCampaignAppointmentType, defaultCampaignEnd } from '../../utils/campaignAppointments'
 import { deleteOwnDraftQuietly } from '../../utils/drafts/context'
+import { assertBotProtectionAllowed } from '../../utils/botGuard'
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
     utmCampaign:    body.utmCampaign || '',
     active:         true,
     created:        new Date().toISOString(),
+    turnstileEnabled: await assertBotProtectionAllowed(await resolveUserId(event.context.auth?.email || 'demo-user'), body.turnstileEnabled),
     endsAt:         body.endsAt ? new Date(body.endsAt).toISOString() : defaultCampaignEnd(),
   }
 

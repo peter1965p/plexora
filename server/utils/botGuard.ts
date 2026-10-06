@@ -97,3 +97,21 @@ export async function contactIsProtected(ownerEmail: string): Promise<{ protecte
   const s = await getBotSettings(ownerScope)
   return { protected: s.contactProtection, ownerScope }
 }
+
+// Widget-Daten für die öffentliche Seite: nur Sitekey und Modus (nie das Secret). null = kein Widget anzeigen.
+// Spiegelt die Entscheidung des Servers: Widget nur, wenn der Hauptschalter an ist, Schlüssel da sind und der Schutz greift.
+export async function widgetConfig(ownerScope: string, protectedHere: boolean): Promise<{ siteKey: string; mode: string } | null> {
+  if (!protectedHere || !ownerScope) return null
+  const s = await getBotSettings(ownerScope)
+  if (!s.enabled || !hasKeys(s)) return null
+  return { siteKey: s.siteKey, mode: s.mode }
+}
+
+// Schalter „Bot-Schutz aktiv“ an einer Kampagne: einschalten nur, wenn der Inhaber Sitekey und Secret hinterlegt hat.
+export async function assertBotProtectionAllowed(ownerScope: string, wanted: unknown): Promise<boolean> {
+  if (wanted !== true) return false
+  if (!hasKeys(await getBotSettings(ownerScope))) {
+    throw createError({ statusCode: 400, message: 'Bot-Schutz lässt sich erst aktivieren, wenn unter Einstellungen → Bot-Schutz Sitekey und Secret hinterlegt sind.' })
+  }
+  return true
+}
