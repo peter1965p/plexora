@@ -1,6 +1,7 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
+import { pick, PUBLIC_COMPANY_FIELDS } from '../../utils/publicView'
 
 const DEFAULTS = {
   legalName: '',
@@ -32,7 +33,9 @@ export default defineEventHandler(async (event) => {
       TableName: 'plexora-settings',
       Key: { settingId: 'company', scope }
     }))
-    return { company: { ...DEFAULTS, ...result.Item } }
+    const company = { ...DEFAULTS, ...result.Item }
+    // Ohne Anmeldung (Impressum/Datenschutz-Seite): nur Anbieterkennzeichnung, keine Bankdaten oder interne Felder
+    return { company: email ? company : { ...pick(DEFAULTS, PUBLIC_COMPANY_FIELDS), ...pick(company, PUBLIC_COMPANY_FIELDS) } }
   } catch {
     return { company: DEFAULTS }
   }

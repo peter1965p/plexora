@@ -1,6 +1,7 @@
 import { ScanCommand, QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
+import { pick, PUBLIC_CAMPAIGN_FIELDS, PUBLIC_FORM_FIELDS, PUBLIC_BRANDING_FIELDS } from '../../../utils/publicView'
 
 export default defineEventHandler(async (event) => {
   const slug   = getRouterParam(event, 'slug') as string
@@ -48,5 +49,10 @@ export default defineEventHandler(async (event) => {
     } catch {}
   }
 
-  return { campaign, form, branding }
+  // Öffentliche Antwort nur aus Positivlisten: kein Besitzer (userId/scope), keine Benachrichtigungsadresse
+  return {
+    campaign: pick(campaign, PUBLIC_CAMPAIGN_FIELDS),
+    form: form ? pick(form, PUBLIC_FORM_FIELDS) : null,
+    branding: pick(branding, PUBLIC_BRANDING_FIELDS),
+  }
 })
