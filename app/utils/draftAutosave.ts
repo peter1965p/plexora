@@ -56,7 +56,7 @@ export class DraftAutosaver {
     this.opts = { ...opts, debounceMs: opts.debounceMs ?? 3000, now: opts.now ?? (() => Date.now()) }
   }
 
-  private get storageKey() { return `plx_draft:${this.opts.userKey}:${this.opts.formType}` }
+  private get storageKey() { return `${LOCAL_DRAFT_PREFIX}${this.opts.userKey}:${this.opts.formType}` }
   private setStatus(s: DraftStatus) { this.status = s; this.opts.onStatus?.(s, this.savedAt) }
 
   /** Nur die erlaubten Felder des Formulars */
@@ -191,4 +191,32 @@ export class DraftAutosaver {
     this.cancelTimer()
     this.active = false
   }
+}
+
+/** Präfix aller lokalen Entwurfskopien */
+export const LOCAL_DRAFT_PREFIX = 'plx_draft:'
+
+export interface EnumerableStore extends KeyValueStore {
+  readonly length: number
+  key(index: number): string | null
+}
+
+/**
+ * Löscht alle lokalen Entwurfskopien (nur Schlüssel mit dem Präfix plx_draft:).
+ * Wird bei Abmeldung und Inaktivitäts-Abmeldung aufgerufen, damit auf einem geteilten Rechner
+ * keine Formularinhalte zurückbleiben. Die Kopie auf dem Server bleibt für die Wiederherstellung erhalten.
+ */
+export function clearLocalDrafts(storage?: EnumerableStore | null): number {
+  let removed = 0
+  try {
+    const store = storage ?? (typeof localStorage !== 'undefined' ? localStorage : null)
+    if (!store) return 0
+    const keys: string[] = []
+    for (let i = 0; i < store.length; i++) {
+      const k = store.key(i)
+      if (k && k.startsWith(LOCAL_DRAFT_PREFIX)) keys.push(k)
+    }
+    for (const k of keys) { store.removeItem(k); removed++ }
+  } catch { /* gesperrter Speicher: nichts zu löschen */ }
+  return removed
 }

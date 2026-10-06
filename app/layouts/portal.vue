@@ -51,6 +51,7 @@ onMounted(async () => {
 })
 
 async function logout() {
+  clearLocalDrafts()
   await signOut()
   navigateTo('/login')
 }

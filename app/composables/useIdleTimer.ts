@@ -32,6 +32,7 @@ export function useIdleTimer() {
 
   async function doLogout() {
     if (interval) clearInterval(interval)
+    clearLocalDrafts() // keine Formularinhalte im Browser zurücklassen (Server-Kopie bleibt)
     let isRealUser = false
     try { await signOut(); isRealUser = true } catch {}
     if (typeof window !== 'undefined') {

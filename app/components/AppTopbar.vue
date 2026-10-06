@@ -143,6 +143,9 @@ onMounted(async () => {
 })
 
 async function logout() {
+  // Offene Entwürfe noch auf den Server sichern (keepalive), danach lokale Kopien entfernen
+  window.dispatchEvent(new CustomEvent('plx:session-expiring'))
+  clearLocalDrafts()
   try { await signOut() } catch {}
   await router.push('/login')
   router.go(0)

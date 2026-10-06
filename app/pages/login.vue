@@ -203,6 +203,7 @@ async function login() {
   loading.value = true;
   error.value = "";
   try {
+    clearLocalDrafts() // anderer Nutzer meldet sich an: lokale Entwurfskopien des vorherigen entfernen
     try { await signOut() } catch {}
     await signIn({ username: email.value, password: password.value });
     // forceRefresh stellt sicher dass die Middleware den frischen Token sieht
@@ -284,6 +285,7 @@ async function loginWithPasskey() {
   loading.value = true;
   error.value = "";
   try {
+    clearLocalDrafts() // anderer Nutzer meldet sich an: lokale Entwurfskopien des vorherigen entfernen
     try { await signOut() } catch {}
     const result = await signIn({
       username: email.value,
