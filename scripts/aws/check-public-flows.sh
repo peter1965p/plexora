@@ -22,6 +22,19 @@ TYPE_ID="$(echo "$LP" | python3 -c 'import json,sys; print(json.load(sys.stdin)[
 expect 200 "Seite app.plexora.eu/lead/<Kampagne>" -H 'Accept: text/html' "https://app.plexora.eu/lead/$CAMPAIGN"
 expect 200 "Kurzlink-Variante /ai.beratung (Slug)" "$API/api/marketing/public/ai.beratung"
 
+# Bot-Schutz (Turnstile): öffentliche Ausgaben enthalten höchstens Sitekey + Modus, nie ein Secret.
+# Ist die Test-Kampagne geschützt (botProtection gesetzt), kann dieses Skript kein Token lösen: dann wird nur geprüft,
+# dass ein Absenden OHNE Token mit 403 abgewiesen wird (kein Lead entsteht, weil die Prüfung vor dem Speichern läuft).
+BOT="$(echo "$LP" | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin).get("botProtection")))' 2>/dev/null || echo null)"
+echo "$LP" | grep -qiE 'secret|encrypted' && bad "Landingpage-Ausgabe enthält ein Secret-Feld" || ok "Landingpage-Ausgabe ohne Secret-Felder"
+CT="$(curl -s -m 25 "$API/api/public/$TENANT/contact")"
+echo "$CT" | grep -qiE 'secret|encrypted' && bad "Kontakt-Ausgabe enthält ein Secret-Feld" || ok "Kontakt-Ausgabe ohne Secret-Felder"
+if [[ "$BOT" != "null" && -n "$FORM_ID" ]]; then
+  expect 403 "Bot-Schutz aktiv: Absenden ohne Token wird abgewiesen (kein Lead)" -X POST "$API/api/forms/$FORM_ID/submit" -H 'Content-Type: application/json' -d '{"data":{"E-Mail":"check-public-flows@invalid.example"}}'
+else
+  ok "Bot-Schutz an der Test-Kampagne aus (Formular bleibt ohne Token erreichbar)"
+fi
+
 echo "== Lead-Formular (nur Preflight, kein Absenden)"
 PF="$(curl -s -i -m 25 -X OPTIONS "$API/api/forms/$FORM_ID/submit" -H 'Origin: https://app.plexora.eu' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type')"
 echo "$PF" | head -1 | grep -qE ' (200|204)' && ok "Preflight für POST /api/forms/<id>/submit" || bad "Preflight für Formular-Absenden"
