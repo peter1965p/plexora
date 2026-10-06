@@ -1,6 +1,7 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { verifyToken } from '../../utils/verifyAuth'
+import { createOAuthState, STATE_COOKIE, STATE_TTL_SECONDS } from '../../utils/oauthState'
 
 // Wird per echter Browser-Navigation aufgerufen (window.location.href, für den
 // Google-Consent-Redirect), daher kommt hier kein Authorization-Header an — die
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
   const tenantId = res.Items?.[0]?.tenantId as string | undefined
   if (!tenantId) throw createError({ statusCode: 404, message: 'Tenant nicht gefunden' })
 
+  const { state, nonce } = createOAuthState(tenantId, auth.userId)
   const redirectUri = `${config.public.apiBase}/api/termine/google-callback`
   const params = new URLSearchParams({
     client_id: config.googleClientId as string,
@@ -36,8 +38,10 @@ export default defineEventHandler(async (event) => {
     scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/userinfo.email',
     access_type: 'offline',
     prompt: 'consent',
-    state: tenantId,
+    // Signierter, 10 Minuten gültiger state, gebunden an dieses Browser-Cookie (statt der nackten Mandanten-ID)
+    state,
   })
+  setCookie(event, STATE_COOKIE, nonce, { httpOnly: true, secure: true, sameSite: 'lax', path: '/api/termine', maxAge: STATE_TTL_SECONDS })
 
   return sendRedirect(event, `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`)
 })

@@ -1,17 +1,22 @@
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { encryptSecret } from '../../utils/crypto'
+import { verifyOAuthState, STATE_COOKIE } from '../../utils/oauthState'
 
 const FRONTEND_URL = 'https://www.plexora.eu/termine'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const code = query.code as string | undefined
-  const tenantId = query.state as string | undefined
 
-  if (!code || !tenantId) {
+  // Der Mandant kommt NUR aus dem signierten state, der zu diesem Browser (Cookie) gehört – nie als nackte ID aus der Adresse
+  const verified = verifyOAuthState(query.state, getCookie(event, STATE_COOKIE))
+  deleteCookie(event, STATE_COOKIE, { path: '/api/termine' })
+  if (!code || !verified) {
+    if (code) console.warn('[google-oauth] Rücksprung abgewiesen: state ungültig, abgelaufen oder nicht zu diesem Browser gehörig')
     return sendRedirect(event, `${FRONTEND_URL}?google=error`)
   }
+  const tenantId = verified.tenantId
 
   const config = useRuntimeConfig()
   const redirectUri = `${config.public.apiBase}/api/termine/google-callback`
