@@ -29,6 +29,8 @@
         <!-- Banner Card -->
         <div v-if="campaign?.headerImageUrl" class="lp-banner-card">
           <img :src="campaign.headerImageUrl" />
+          <!-- Overlays (Sticker) nur über dem Hero-Bild, nie über Formular oder Button -->
+          <LeadOverlays :overlays="overlays" />
         </div>
 
         <!-- Content Block -->
@@ -43,10 +45,8 @@
         </div>
 
         <!-- Trust badges -->
-        <div class="lp-trust">
-          <div class="lp-trust-item"><i class="ti ti-shield-check"></i> 100% kostenlos</div>
-          <div class="lp-trust-item"><i class="ti ti-lock"></i> SSL gesichert</div>
-          <div class="lp-trust-item"><i class="ti ti-clock"></i> Antwort in 24h</div>
+        <div v-if="trustItems.length" class="lp-trust">
+          <div v-for="t in trustItems" :key="t.id" class="lp-trust-item"><i class="ti" :class="TRUST_ICONS[t.icon]"></i> {{ t.text }}</div>
         </div>
       </div>
 
@@ -93,8 +93,8 @@
                 <span v-else>{{ form.submitLabel || 'Jetzt anfragen' }} <i class="ti ti-arrow-right" style="margin-left:6px"></i></span>
               </button>
 
-              <div class="lp-privacy">
-                <i class="ti ti-lock"></i> Deine Daten sind sicher. Keine Weitergabe an Dritte.
+              <div v-if="privacyLine.on" class="lp-privacy">
+                <i class="ti ti-lock"></i> {{ privacyLine.text }}
               </div>
             </div>
 
@@ -121,6 +121,7 @@
 
 <script setup lang="ts">
 import { mountTurnstile, type TurnstileHandle } from '~/utils/turnstile'
+import { resolveTrustItems, resolvePrivacyLine, resolveOverlays, TRUST_ICONS } from '~~/shared/leadDecor'
 import { buildLeadTemplateDataClient, renderCampaignHtmlClient } from '~/utils/campaignTemplateClient'
 
 definePageMeta({ layout: 'default' })
@@ -146,6 +147,10 @@ const brandFirst = computed(() => branding.value.brandName.slice(0, -2))
 const brandLast  = computed(() => branding.value.brandName.slice(-2))
 
 const accent = computed(() => campaign.value?.accentColor || '#6C3FE8')
+// Vertrauenspunkte, Datenschutzzeile und Overlays: Standardwerte, wenn die Kampagne nichts gespeichert hat; nur reiner Text, Icons/Formen als IDs
+const trustItems = computed(() => resolveTrustItems(campaign.value?.trustItems).filter(t => t.on))
+const privacyLine = computed(() => resolvePrivacyLine(campaign.value?.privacyLine))
+const overlays = computed(() => resolveOverlays(campaign.value?.overlays))
 
 const contentItems = computed<string[]>(() => {
   const raw = campaign.value?.contentItems
@@ -413,6 +418,8 @@ watch(customHtml, () => { nextTick(wireCustomLeadForm) }, { immediate: true })
 
 /* BANNER CARD */
 .lp-banner-card {
+  position: relative;
+  container-type: inline-size;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.12);
