@@ -57,6 +57,27 @@ echo "== Nexora-Website"
 expect 200 "www.paeffgen-it.de/termine" -H 'Accept: text/html' "https://www.paeffgen-it.de/termine${TYPE_ID:+?type=$TYPE_ID}"
 expect 200 "www.paeffgen-it.de/" -H 'Accept: text/html' "https://www.paeffgen-it.de/"
 
+echo "== Dateien im Bucket (öffentliche Bilder laden, Deploy-Zips sind nicht öffentlich)"
+S3="https://plexora-files.s3.eu-central-1.amazonaws.com"
+img_status() { curl -s -o /dev/null -I -m 20 -w '%{http_code}' "$1"; }
+IMG_URLS="$( { echo "$LP"; echo '---'; echo "$TY"; } | python3 -c '
+import sys,json
+a,b=sys.stdin.read().split("\n---\n")
+urls=[]
+try:
+    d=json.loads(a); c=d.get("campaign") or {}; urls+=[c.get("headerImageUrl"),c.get("bgImageUrl"),c.get("logoUrl"),(d.get("branding") or {}).get("logoUrl")]
+except Exception: pass
+try: urls.append(json.loads(b).get("avatarUrl"))
+except Exception: pass
+print("\n".join(u for u in urls if u and u.startswith("https://plexora-files")))
+' 2>/dev/null)"
+if [[ -z "$IMG_URLS" ]]; then ok "keine Bild-URLs auf Landingpage/Terminseite zu prüfen"; else
+  while IFS= read -r u; do [[ -z "$u" ]] && continue; c="$(img_status "$u")"; [[ "$c" == "200" ]] && ok "Bild lädt (200): ${u#$S3/}" || bad "Bild lädt nicht ($c): ${u#$S3/}"; done <<< "$IMG_URLS"
+fi
+for k in lambda/lambda-new.zip lambda-deploy/lambda-new.zip; do
+  c="$(img_status "$S3/$k")"; [[ "$c" == "403" ]] && ok "Deploy-Zip nicht öffentlich: $k (403)" || bad "Deploy-Zip öffentlich erreichbar: $k ($c, erwartet 403) – scripts/aws/secure-bucket.sh --apply ausführen"
+done
+
 echo "== Schutz"
 expect 401 "Entwürfe ohne Token" "$API/api/drafts/marketing-campaign"
 expect 401 "Cron-Route ohne Secret" -X POST "$API/api/termine/cron/reminders"
