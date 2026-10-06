@@ -41,6 +41,7 @@ export const PUBLIC_RULES: PublicRule[] = [
   { pattern: /^\/api\/analytics\/vitals$/, methods: ['POST'], reason: 'Web-Vitals-Messung öffentlicher Seiten (anonym)' },
   { pattern: /^\/api\/termine\/google-callback$/, methods: ['GET'], reason: 'OAuth-Rücksprung von Google (Bindung des state an die Sitzung folgt in Block d)' },
   { pattern: /^\/api\/shop\/webhook$/, methods: ['POST'], reason: 'Stripe-Webhook des Shops mit Signaturprüfung' },
+  { pattern: /^\/api\/internal\/backup\/run$/, methods: ['POST'], reason: 'Interner Aufruf der Lambda plexora-backup-worker (Secret-Header, timingSafeEqual, nur für einen bereits angelegten Auftrag); kein Browser-Zugriff' },
   { pattern: /^\/api\/team\/accept$/, methods: ['POST'], reason: 'Einladung annehmen: Token + E-Mail aus dem Einladungslink' },
 ]
 

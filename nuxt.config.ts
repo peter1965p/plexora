@@ -68,6 +68,8 @@ export default defineNuxtConfig({
     googleClientSecret: "",
     authEnforce: "",
     newsletterCronSecret: "",
+    backupBucket: "",
+    backupWorkerFunction: "",
     public: {
       apiBase: "",
       stripePublishableKey: "",
