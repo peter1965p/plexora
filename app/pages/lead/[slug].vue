@@ -82,6 +82,10 @@
                 </div>
               </template>
 
+              <TurnstileWidget v-if="botProtection" ref="turnstileRef" v-model="turnstileToken"
+                :site-key="botProtection.siteKey" :mode="botProtection.mode" style="margin:4px 0 12px" />
+              <div v-if="errorMsg" role="alert" style="margin-bottom:10px;font-size:13px;color:#f87171">{{ errorMsg }}</div>
+
               <button class="lp-submit-btn" :disabled="sending"
                 :style="`background:${accent};box-shadow:0 4px 24px ${accent}55`"
                 @click="submit">
@@ -116,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import { mountTurnstile, type TurnstileHandle } from '~/utils/turnstile'
 import { buildLeadTemplateDataClient, renderCampaignHtmlClient } from '~/utils/campaignTemplateClient'
 
 definePageMeta({ layout: 'default' })
@@ -132,6 +137,8 @@ const utmTerm     = route.query.utm_term     as string || ''
 const { data: publicData, pending: loading } = await useFetch(useApiUrl(`/api/marketing/public/${slug}`))
 const campaign = computed(() => (publicData.value as any)?.campaign || null)
 const form     = computed(() => (publicData.value as any)?.form || null)
+// Bot-Schutz: Widget nur, wenn der Server das Formular auch prüft (Sitekey + Modus, nie ein Secret)
+const botProtection = computed<{ siteKey: string; mode: string } | null>(() => (publicData.value as any)?.botProtection || null)
 
 const { branding } = useBranding()
 watchEffect(() => { if ((publicData.value as any)?.branding) Object.assign(branding.value, (publicData.value as any).branding) })
@@ -173,17 +180,30 @@ const formData  = reactive<Record<string, string | boolean>>({})
 const sending   = ref(false)
 const submitted = ref(false)
 const successMsg = ref('Vielen Dank!')
+const errorMsg  = ref('')
+const turnstileToken = ref('')
+const turnstileRef = ref<{ reset: () => void } | null>(null)
+
+const TOKEN_PENDING = 'Bitte warten Sie einen Moment, bis die Sicherheitsprüfung abgeschlossen ist, und senden Sie dann erneut.'
+function submitErrorMessage(e: any) {
+  return e?.data?.message || e?.data?.statusMessage || 'Da ist etwas schiefgelaufen. Bitte versuchen Sie es erneut.'
+}
 
 async function submit() {
+  errorMsg.value = ''
+  if (botProtection.value && !turnstileToken.value) { errorMsg.value = TOKEN_PENDING; return }
   sending.value = true
   try {
     const formId = form.value?.formId || slug
     const res = await $fetch(useApiUrl(`/api/forms/${formId}/submit`), {
       method: 'POST',
-      body: { data: { ...formData }, utmSource, utmMedium, utmCampaign, utmContent, utmTerm }
+      body: { data: { ...formData }, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, ...(botProtection.value ? { turnstileToken: turnstileToken.value } : {}) }
     }) as any
     successMsg.value = res.message || 'Vielen Dank!'
     submitted.value  = true
+  } catch (e: any) {
+    errorMsg.value = submitErrorMessage(e)
+    turnstileRef.value?.reset()          // Token ist nur einmal gültig
   } finally {
     sending.value = false
   }
@@ -200,12 +220,30 @@ const customHtml = computed(() => {
 })
 const customRoot = ref<HTMLElement | null>(null)
 
+// Bot-Schutz im frei gestalteten Template: Widget wird vor dem Absende-Button eingehängt
+let customToken = ''
+let customTurnstile: TurnstileHandle | null = null
+
+async function mountCustomTurnstile(formEl: HTMLFormElement) {
+  const cfg = botProtection.value
+  if (!cfg || formEl.querySelector('.plx-turnstile')) return
+  const box = document.createElement('div')
+  box.className = 'plx-turnstile'
+  box.style.margin = '8px 0 12px'
+  const btn = formEl.querySelector('button[type="submit"]')
+  btn?.parentElement?.insertBefore(box, btn)
+  try { customTurnstile = await mountTurnstile(box, cfg, (t) => { customToken = t }) }
+  catch { box.textContent = 'Die Sicherheitsprüfung konnte nicht geladen werden. Bitte Seite neu laden oder Werbeblocker deaktivieren.'; box.style.color = '#ef4444' }
+}
+
 async function submitCustomLeadForm(formEl: HTMLFormElement) {
   const inputsEl  = formEl.querySelector('.plx-form-inputs') as HTMLElement | null
   const successEl = formEl.querySelector('#plx-lead-form-success') as HTMLElement | null
   const errorEl   = formEl.querySelector('#plx-lead-form-error') as HTMLElement | null
   const submitBtn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement | null
+  const showError = (msg: string) => { if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block' } }
   if (errorEl) errorEl.style.display = 'none'
+  if (botProtection.value && !customToken) { showError(TOKEN_PENDING); return }
   if (submitBtn) submitBtn.disabled = true
   try {
     const fd = new FormData(formEl)
@@ -219,12 +257,13 @@ async function submitCustomLeadForm(formEl: HTMLFormElement) {
     const formId = form.value?.formId || slug
     const res = await $fetch(useApiUrl(`/api/forms/${formId}/submit`), {
       method: 'POST',
-      body: { data, utmSource, utmMedium, utmCampaign, utmContent, utmTerm }
+      body: { data, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, ...(botProtection.value ? { turnstileToken: customToken } : {}) }
     }) as any
     if (inputsEl) inputsEl.style.display = 'none'
     if (successEl) { successEl.textContent = res.message || 'Vielen Dank!'; successEl.style.display = 'block' }
-  } catch {
-    if (errorEl) { errorEl.textContent = 'Da ist etwas schiefgelaufen. Bitte versuche es erneut.'; errorEl.style.display = 'block' }
+  } catch (e: any) {
+    showError(submitErrorMessage(e))
+    customTurnstile?.reset()             // Token ist nur einmal gültig
   } finally {
     if (submitBtn) submitBtn.disabled = false
   }
@@ -235,6 +274,7 @@ function wireCustomLeadForm() {
   if (!formEl || (formEl as any)._plxWired) return
   ;(formEl as any)._plxWired = true
   formEl.addEventListener('submit', (e) => { e.preventDefault(); submitCustomLeadForm(formEl) })
+  mountCustomTurnstile(formEl)
 }
 
 watch(customHtml, () => { nextTick(wireCustomLeadForm) }, { immediate: true })

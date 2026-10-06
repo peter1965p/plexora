@@ -1426,6 +1426,97 @@
       </div>
     </div>
 
+    <!-- ── BOT-SCHUTZ (Cloudflare Turnstile) ── -->
+    <div v-if="tab === 'botprotection'" class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>Bot-Schutz (Turnstile)</span>
+        <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || botSaving" @click="saveBotProtection">
+          <i class="ti" :class="botSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+        </button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:18px;max-width:680px">
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
+          Schützt Formulare vor Spam-Einträgen mit <strong>Cloudflare Turnstile</strong>. Das Widget erscheint nur dort, wo der Schutz eingeschaltet ist:
+          bei Marketing-Kampagnen (Schalter im Kampagnen-Formular) und auf dem Kontaktformular Ihrer Website.
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;line-height:1.7">
+          <strong style="font-size:13px">So erzeugen Sie die Schlüssel</strong>
+          <ol style="margin:8px 0 0 18px;padding:0">
+            <li>Bei <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener" style="color:var(--accent)">dash.cloudflare.com</a> anmelden → <em>Turnstile</em> → <em>Widget hinzufügen</em>.</li>
+            <li>Unter <em>Hostnamen</em> die Seiten eintragen, auf denen die Formulare stehen: <code>app.plexora.eu</code>, <code>www.plexora.eu</code> und die Domain Ihrer Website (z. B. <code>www.paeffgen-it.de</code>).</li>
+            <li>Widget-Modus wählen (<em>Managed</em> oder <em>Invisible</em>) und das Widget erstellen.</li>
+            <li><strong>Sitekey</strong> (öffentlich) und <strong>Secret</strong> (geheim) hier eintragen. Das Secret wird verschlüsselt gespeichert und nie wieder angezeigt.</li>
+          </ol>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" v-model="bot.enabled" :disabled="isDemo" />
+          <span><strong>Bot-Schutz aktiv</strong> <span style="color:var(--text-muted);font-weight:400">(Hauptschalter – aus: alle Formulare ohne Prüfung)</span></span>
+        </label>
+
+        <div class="auth-field">
+          <label>Sitekey</label>
+          <input v-model="bot.siteKey" class="field-input" style="font-family:monospace;font-size:12px" placeholder="0x4AAAAAAA…" :disabled="isDemo" autocomplete="off" />
+        </div>
+
+        <div class="auth-field">
+          <label>Secret <span v-if="botInfo.secretConfigured" class="badge badge-success" style="font-size:10px;margin-left:6px">Hinterlegt</span></label>
+          <div style="position:relative">
+            <input v-model="bot.secret" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
+              :type="bot.secretVisible ? 'text' : 'password'" :placeholder="botInfo.secretMasked || 'Secret aus dem Cloudflare-Widget'" :disabled="isDemo" autocomplete="new-password" />
+            <button type="button" @click="bot.secretVisible = !bot.secretVisible"
+              style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+              <i class="ti" :class="bot.secretVisible ? 'ti-eye-off' : 'ti-eye'"></i>
+            </button>
+          </div>
+          <div v-if="botInfo.secretConfigured" style="font-size:11px;color:var(--text-muted);margin-top:4px">Leer lassen, um das gespeicherte Secret zu behalten.</div>
+        </div>
+
+        <div class="auth-field">
+          <label>Widget-Modus</label>
+          <select v-model="bot.mode" class="field-input" :disabled="isDemo">
+            <option value="managed">Managed (Cloudflare entscheidet, ob ein Klick nötig ist)</option>
+            <option value="invisible">Invisible (läuft unsichtbar im Hintergrund)</option>
+          </select>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" v-model="bot.contactProtection" :disabled="isDemo" />
+          <span><strong>Kontaktformular der Website schützen</strong> <span style="color:var(--text-muted);font-weight:400">(z. B. paeffgen-it.de/kontakt)</span></span>
+        </label>
+
+        <div class="auth-field">
+          <label>Weitere erlaubte Domains <span style="font-weight:400;color:var(--text-muted)">(optional, kommagetrennt)</span></label>
+          <input v-model="bot.hostnamesText" class="field-input" placeholder="www.meine-domain.de, shop.meine-domain.de" :disabled="isDemo" />
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+            Immer erlaubt: {{ botInfo.defaultHostnames.join(', ') }} und die Domain Ihrer Plexora-Website.
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:var(--text-muted)">
+          <i class="ti ti-speakerphone"></i>
+          <span v-if="botInfo.protectedCampaigns > 0"> {{ botInfo.protectedCampaigns }} Kampagne(n) nutzen den Bot-Schutz.</span>
+          <span v-else> Den Schutz für eine Kampagne schalten Sie im Kampagnen-Formular unter <em>Marketing</em> ein.</span>
+        </div>
+
+        <div style="background:#f59e0b14;border:1px solid #f59e0b55;border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6">
+          <strong><i class="ti ti-alert-triangle"></i> Datenschutz:</strong> Turnstile lädt ein Skript von Cloudflare und überträgt dabei technische Daten (u. a. IP-Adresse).
+          Ergänzen Sie Ihre Datenschutzerklärung um einen Absatz dazu.
+          <div style="margin-top:8px">
+            <button class="theme-opt" :disabled="isDemo" @click="insertTurnstilePrivacy">
+              <i class="ti ti-file-text"></i>
+              {{ hasTurnstilePrivacy(datenschutz.content) ? 'Absatz ist in der Datenschutzerklärung enthalten' : 'Absatz in die Datenschutzerklärung einfügen' }}
+            </button>
+          </div>
+        </div>
+
+        <div v-if="botInfo.secretConfigured">
+          <button class="theme-opt" :disabled="isDemo" @click="removeBotProtection"><i class="ti ti-trash"></i> Schlüssel entfernen</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── PLEXORA AI ── -->
     <div v-if="tab === 'ai'" class="card">
       <div class="card-header">
@@ -1562,6 +1653,7 @@
 </template>
 
 <script setup lang="ts">
+import { hasTurnstilePrivacy, withTurnstilePrivacy } from '~~/shared/turnstilePrivacy'
 import { marked } from 'marked'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore, THEMES } from '~/stores/app'
@@ -1717,7 +1809,7 @@ const tabs = computed(() => {
   const extra = store.licenseModules?.includes('nexora')
     ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
     : []
-  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }]
+  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }]
   const integrityExtra = isAdmin.value
     ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
     : []
@@ -1837,6 +1929,75 @@ function copyNexoraKey() {
   navigator.clipboard.writeText(nexora.value.apiKey)
   nexoraCopied.value = true
   setTimeout(() => { nexoraCopied.value = false }, 2000)
+}
+
+// ── Bot-Schutz (Cloudflare Turnstile) ──────────────────────────────────
+const botInfo = reactive({ secretConfigured: false, secretMasked: '', protectedCampaigns: 0, defaultHostnames: [] as string[] })
+const bot = reactive({ enabled: false, siteKey: '', secret: '', secretVisible: false, mode: 'managed', contactProtection: false, hostnamesText: '' })
+const botSaving = ref(false)
+
+function applyBotInfo(res: any) {
+  botInfo.secretConfigured = !!res.secretConfigured
+  botInfo.secretMasked = res.secretMasked || ''
+  botInfo.protectedCampaigns = res.protectedCampaigns || 0
+  botInfo.defaultHostnames = res.defaultHostnames || []
+  bot.enabled = !!res.enabled
+  bot.siteKey = res.siteKey || ''
+  bot.mode = res.mode || 'managed'
+  bot.contactProtection = !!res.contactProtection
+  bot.hostnamesText = (res.hostnames || []).join(', ')
+  bot.secret = ''
+}
+
+function insertTurnstilePrivacy() {
+  if (!datenschutz.content) { showSettingsToast('Die Datenschutzerklärung ist noch nicht geladen.', true); return }
+  datenschutz.content = withTurnstilePrivacy(datenschutz.content)
+  tab.value = 'datenschutz'
+  showSettingsToast('Absatz eingefügt – bitte Datenschutzerklärung speichern.')
+}
+
+async function loadBotProtection() {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    applyBotInfo(await $fetch(useApiUrl('/api/settings/bot-protection'), { headers: await useAuthHeader() }))
+  } catch { /* Tab bleibt leer, kein harter Fehler */ }
+}
+onMounted(() => loadBotProtection())
+
+async function saveBotProtection() {
+  botSaving.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch(useApiUrl('/api/settings/bot-protection'), {
+      method: 'POST',
+      headers: await useAuthHeader(),
+      body: {
+        siteKey: bot.siteKey.trim(),
+        ...(bot.secret.trim() ? { secret: bot.secret.trim() } : {}),
+        mode: bot.mode,
+        enabled: bot.enabled,
+        contactProtection: bot.contactProtection,
+        hostnames: bot.hostnamesText.split(',').map(h => h.trim()).filter(Boolean),
+      },
+    })
+    applyBotInfo(res)
+    showSettingsToast('Bot-Schutz gespeichert!')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+  } finally {
+    botSaving.value = false
+  }
+}
+
+async function removeBotProtection() {
+  if (!confirm('Sitekey und Secret wirklich entfernen?')) return
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    applyBotInfo(await $fetch(useApiUrl('/api/settings/bot-protection'), { method: 'POST', headers: await useAuthHeader(), body: { remove: true } }))
+    showSettingsToast('Schlüssel entfernt.')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Entfernen fehlgeschlagen'), true)
+  }
 }
 
 // ── Plexora AI: Multi-Provider BYOK ────────────────────────────────────

@@ -1,5 +1,6 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { TURNSTILE_PRIVACY_TEXT } from '../../../shared/turnstilePrivacy'
 
 const DEFAULT_CONTENT = `## 2. Allgemeines zur Datenverarbeitung
 
@@ -38,6 +39,9 @@ Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Ve
 Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.
 `
 
+// Standardtext inkl. Turnstile-Absatz (vor dem Abschnitt Cookies)
+const DEFAULT_WITH_TURNSTILE = DEFAULT_CONTENT.replace('## 8. Cookies', `${TURNSTILE_PRIVACY_TEXT}\n\n## 8. Cookies`)
+
 export default defineEventHandler(async () => {
   const client = getDynamoClient()
   try {
@@ -45,8 +49,8 @@ export default defineEventHandler(async () => {
       TableName: 'plexora-settings',
       Key: { settingId: 'datenschutz', scope: 'global' }
     }))
-    return { datenschutz: result.Item || { content: DEFAULT_CONTENT, updated: null } }
+    return { datenschutz: result.Item || { content: DEFAULT_WITH_TURNSTILE, updated: null } }
   } catch {
-    return { datenschutz: { content: DEFAULT_CONTENT, updated: null } }
+    return { datenschutz: { content: DEFAULT_WITH_TURNSTILE, updated: null } }
   }
 })

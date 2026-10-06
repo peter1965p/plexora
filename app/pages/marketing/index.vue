@@ -360,6 +360,24 @@
                 </div>
               </template>
             </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
+              <div class="settings-label" style="margin-bottom:6px">Bot-Schutz</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                Schützt das Formular dieser Kampagne (und die Terminbuchung) mit Cloudflare Turnstile vor Spam-Einträgen.
+              </div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"
+                :style="!botKeysReady ? 'opacity:.6;cursor:not-allowed' : ''">
+                <input type="checkbox" v-model="form.turnstileEnabled" :disabled="!botKeysReady && !form.turnstileEnabled" /> Bot-Schutz aktiv
+              </label>
+              <div v-if="!botKeysReady" style="font-size:12px;color:var(--text-muted);margin-top:6px">
+                <i class="ti ti-info-circle"></i> Erst nach Hinterlegen von Sitekey und Secret möglich:
+                <NuxtLink to="/settings" style="color:var(--accent)">Einstellungen → Bot-Schutz</NuxtLink>
+              </div>
+              <div v-else-if="form.turnstileEnabled && !botMainEnabled" style="font-size:12px;color:var(--text-muted);margin-top:6px">
+                <i class="ti ti-alert-triangle"></i> Der Hauptschalter unter Einstellungen → Bot-Schutz ist aus – der Schutz ruht derzeit.
+              </div>
+            </div>
           </div>
 
           <!-- Live-Vorschau -->
@@ -965,6 +983,18 @@ function fmtMailTime(iso: string) {
 }
 const showModal = ref(false)
 
+// Bot-Schutz: der Schalter ist nur nutzbar, wenn Sitekey und Secret hinterlegt sind (der Server prüft das ebenfalls)
+const botKeysReady = ref(false)
+const botMainEnabled = ref(false)
+async function loadBotStatus() {
+  try {
+    const res: any = await $fetch(useApiUrl('/api/settings/bot-protection'), { headers: authHeaders })
+    botKeysReady.value = !!(res.siteKey && res.secretConfigured)
+    botMainEnabled.value = !!res.enabled
+  } catch { botKeysReady.value = false }
+}
+onMounted(loadBotStatus)
+
 const editing = ref<any>(null)
 const saving  = ref(false)
 const form = reactive({
@@ -975,6 +1005,7 @@ const form = reactive({
   utmSource: '', utmMedium: 'social', utmCampaign: '',
   appointmentEnabled: true, appointmentName: '', appointmentDurationMinutes: 30,
   endsAt: new Date(Date.now() + 90 * 86400_000).toISOString().slice(0, 10),
+  turnstileEnabled: false,
 })
 
 // ── Entwurfs-Autosave für "Neue Kampagne" (nicht beim Bearbeiten) ──
@@ -1007,7 +1038,7 @@ const campaignUrl  = computed(() => {
 })
 
 function resetForm() {
-  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', bgImageUrl: '', bgColor: '#050815', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '' })
+  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', bgImageUrl: '', bgColor: '#050815', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '', turnstileEnabled: false })
 }
 
 function openAdd() { editing.value = null; resetForm(); showModal.value = true }
@@ -1026,6 +1057,7 @@ function openEdit(c: any) {
     bgImageUrl: c.bgImageUrl || '', bgColor: c.bgColor || '#050815',
     contentTitle: c.contentTitle || '', contentItems: items,
     utmSource: c.utmSource || '', utmMedium: c.utmMedium || 'social', utmCampaign: c.utmCampaign || '',
+    turnstileEnabled: c.turnstileEnabled === true,
   })
   showModal.value = true
 }
@@ -1055,6 +1087,8 @@ async function save() {
     await Promise.all([refresh(), refreshStats()])
     showModal.value = false
     showToast(editing.value ? 'Kampagne aktualisiert!' : 'Kampagne erstellt!')
+  } catch (e: any) {
+    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
   } finally {
     saving.value = false
   }
