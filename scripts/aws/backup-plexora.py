@@ -14,6 +14,9 @@ import argparse, datetime, hashlib, json, os, re, subprocess, sys, time, urllib.
 REGION = "eu-central-1"
 BUCKET = "plexora-files"
 POOL = "eu-central-1_lM7sN6LvC"
+# Felder, die im Klartext in der Datenbank stehen und NICHT in die Sicherung gehören (z. B. Zahlungs-Schlüssel in plexora-settings).
+# Verschlüsselte Felder (AES-GCM, "...Encrypted") bleiben drin: ohne NUXT_ENCRYPTION_KEY sind sie unlesbar.
+SECRET_FIELDS = {"stripeSecretKey", "stripeWebhookSecret", "paypalSecret", "mollieApiKey", "customApiKey"}
 SENSITIVE = re.compile(r"(secret|token|password|passwort|authorization|apikey|api_key|private|credential|client_secret)", re.I)
 
 def aws(*args, text=False):
@@ -65,6 +68,12 @@ def main():
             d = aws(*args)
             items += d.get("Items", []); token = d.get("LastEvaluatedKey")
             if not token: break
+        removed = 0
+        for it in items:
+            for fld in SECRET_FIELDS:
+                if fld in it and it[fld].get("S"):
+                    it[fld] = {"S": "***nicht gesichert***"}; removed += 1
+        if removed: notes.append(f"{t}: {removed} Klartext-Geheimnisfelder durch Platzhalter ersetzt (nach einer Wiederherstellung neu eintragen)")
         write(f"{root}/dynamodb/{t}.json", {"TableName": t, "Count": len(items), "Items": items})
         desc = aws("dynamodb", "describe-table", "--table-name", t)["Table"]
         try: ttl = aws("dynamodb", "describe-time-to-live", "--table-name", t).get("TimeToLiveDescription", {})
