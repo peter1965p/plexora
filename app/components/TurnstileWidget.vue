@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mountTurnstile, type TurnstileHandle } from '~/utils/turnstile'
 
-const props = defineProps<{ siteKey: string; mode?: string }>()
+const props = defineProps<{ siteKey: string; mode?: string; theme?: 'light' | 'dark' | 'auto' }>()
 const model = defineModel<string>({ default: '' })
 const el = ref<HTMLElement | null>(null)
 const failed = ref(false)
@@ -9,7 +9,7 @@ let handle: TurnstileHandle | null = null
 
 onMounted(async () => {
   if (!el.value) return
-  try { handle = await mountTurnstile(el.value, { siteKey: props.siteKey, mode: props.mode }, (t) => { model.value = t }) }
+  try { handle = await mountTurnstile(el.value, { siteKey: props.siteKey, mode: props.mode, theme: props.theme }, (t) => { model.value = t }) }
   catch { failed.value = true }
 })
 onBeforeUnmount(() => handle?.remove())

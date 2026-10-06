@@ -83,7 +83,7 @@
               </template>
 
               <TurnstileWidget v-if="botProtection" ref="turnstileRef" v-model="turnstileToken"
-                :site-key="botProtection.siteKey" :mode="botProtection.mode" style="margin:4px 0 12px" />
+                :site-key="botProtection.siteKey" :mode="botProtection.mode" theme="dark" style="margin:4px 0 12px" />
               <div v-if="errorMsg" role="alert" style="margin-bottom:10px;font-size:13px;color:#f87171">{{ errorMsg }}</div>
 
               <button class="lp-submit-btn" :disabled="sending"
@@ -232,7 +232,7 @@ async function mountCustomTurnstile(formEl: HTMLFormElement) {
   box.style.margin = '8px 0 12px'
   const btn = formEl.querySelector('button[type="submit"]')
   btn?.parentElement?.insertBefore(box, btn)
-  try { customTurnstile = await mountTurnstile(box, cfg, (t) => { customToken = t }) }
+  try { customTurnstile = await mountTurnstile(box, { ...cfg, theme: undefined }, (t) => { customToken = t }) }
   catch { box.textContent = 'Die Sicherheitsprüfung konnte nicht geladen werden. Bitte Seite neu laden oder Werbeblocker deaktivieren.'; box.style.color = '#ef4444' }
 }
 
