@@ -378,51 +378,22 @@
                 <i class="ti ti-alert-triangle"></i> Der Hauptschalter unter Einstellungen → Bot-Schutz ist aus – der Schutz ruht derzeit.
               </div>
             </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
+              <div class="settings-label" style="margin-bottom:6px">Vertrauenspunkte, Datenschutzzeile &amp; Sticker</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                Bestimmt, was unter dem Hero-Bild und unter dem Button der Lead-Seite steht, und welche Sticker auf dem Hero-Bild liegen. Ohne Änderung bleibt alles wie bisher.
+              </div>
+              <LeadDecorEditor :model-value="decor" :has-hero="!!form.headerImageUrl" :custom-template="!!editing?.customTemplateHtml"
+                @update:model-value="(v: any) => Object.assign(decor, v)" @touched="decorTouched = true" />
+            </div>
           </div>
 
           <!-- Live-Vorschau -->
           <div style="position:sticky;top:0">
             <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.livePreview }}</div>
-            <!-- Mini Landing Page Preview -->
-            <div style="border-radius:12px;overflow:hidden;border:0.5px solid var(--border);min-height:320px;position:relative"
-              :style="form.bgImageUrl
-                ? `background:url('${form.bgImageUrl}') center/cover no-repeat`
-                : `background:${form.bgColor || '#050815'}`">
-              <!-- Overlay -->
-              <div style="position:absolute;inset:0;background:rgba(5,8,21,0.65);pointer-events:none"></div>
-              <!-- Content -->
-              <div style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;min-height:320px;align-items:center">
-                <!-- Hero links -->
-                <div style="padding:8px 4px">
-                  <div style="font-size:11px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.2">{{ form.headline || 'Deine Headline' }}</div>
-                  <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:10px">{{ form.subtext || 'Dein Subtext' }}</div>
-                  <div v-for="(item, i) in form.contentItems.filter(Boolean).slice(0,3)" :key="i"
-                    style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-                    <span :style="`width:14px;height:14px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;background:${form.accentColor}22;color:${form.accentColor};border:1px solid ${form.accentColor}44;flex-shrink:0`">✓</span>
-                    <span style="font-size:10px;color:rgba(255,255,255,0.8)">{{ item }}</span>
-                  </div>
-                </div>
-                <!-- Form rechts -->
-                <div style="background:rgba(15,20,40,0.75);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px">
-                  <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:8px">{{ form.headline || 'Anfrage' }}</div>
-                  <div v-for="field in (selectedForm?.fields || []).slice(0,3)" :key="field.id"
-                    style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 8px;font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px">
-                    {{ field.label }}{{ field.required ? ' *' : '' }}
-                  </div>
-                  <div v-if="(selectedForm?.fields || []).length > 3" style="font-size:9px;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:4px">+ {{ (selectedForm?.fields || []).length - 3 }} weitere...</div>
-                  <button :style="`width:100%;background:${form.accentColor};color:#fff;border:none;padding:6px;border-radius:6px;font-size:10px;font-weight:700;cursor:default`">
-                    {{ selectedForm?.submitLabel || 'Jetzt anfragen' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <!-- Banner Vorschau (Card) -->
-            <div v-if="form.headerImageUrl" style="margin-top:8px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border);height:60px;position:relative">
-              <img :src="form.headerImageUrl" style="width:100%;height:100%;object-fit:cover;display:block" />
-              <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center">
-                <span style="font-size:10px;color:rgba(255,255,255,0.7)">Card-Banner</span>
-              </div>
-            </div>
+            <!-- Live-Vorschau der Lead-Seite (Desktop und Handy) inkl. Vertrauenspunkten, Datenschutzzeile und Stickern -->
+            <LeadPreview v-model:mode="previewMode" :campaign="previewCampaign" :form="selectedForm" />
             <div v-if="form.formId" style="margin-top:8px;background:var(--bg-elevated);border-radius:8px;padding:10px;font-size:11px">
               <div style="color:var(--text-muted);margin-bottom:3px">Link:</div>
               <div style="color:var(--accent);word-break:break-all;font-size:10px">{{ campaignUrl }}</div>
@@ -703,6 +674,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveTrustItems, resolvePrivacyLine, resolveOverlays } from '~~/shared/leadDecor'
 import { MARKETING_CAMPAIGN_DRAFT_FIELDS } from '~~/shared/draftFields'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { t, lang } = useLang()
@@ -995,6 +967,12 @@ async function loadBotStatus() {
 }
 onMounted(loadBotStatus)
 
+// Vertrauenspunkte, Datenschutzzeile, Overlays: Standardwerte; gesendet wird nur, was der Nutzer wirklich geändert hat (sonst bleibt alles wie vorher)
+const decor = reactive<{ trustItems: any[]; privacyLine: any; overlays: any[] }>({ trustItems: resolveTrustItems(undefined), privacyLine: resolvePrivacyLine(undefined), overlays: [] })
+const decorTouched = ref(false)
+const previewMode = ref<'desktop' | 'mobile'>('desktop')
+function loadDecor(c?: any) { Object.assign(decor, { trustItems: resolveTrustItems(c?.trustItems), privacyLine: resolvePrivacyLine(c?.privacyLine), overlays: resolveOverlays(c?.overlays) }); decorTouched.value = false }
+
 const editing = ref<any>(null)
 const saving  = ref(false)
 const form = reactive({
@@ -1024,6 +1002,7 @@ watch(showModal, (open) => {
 })
 onMounted(() => { if (route.query.new) showModal.value = true })
 
+const previewCampaign = computed(() => ({ ...form, trustItems: decor.trustItems, privacyLine: decor.privacyLine, overlays: decor.overlays }))
 const selectedForm = computed(() => forms.value.find((f: any) => f.formId === form.formId) || null)
 const campaignUrl  = computed(() => {
   if (!form.formId) return ''
@@ -1041,7 +1020,7 @@ function resetForm() {
   Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', bgImageUrl: '', bgColor: '#050815', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '', turnstileEnabled: false })
 }
 
-function openAdd() { editing.value = null; resetForm(); showModal.value = true }
+function openAdd() { editing.value = null; resetForm(); loadDecor(); showModal.value = true }
 
 function openEdit(c: any) {
   editing.value = c
@@ -1059,13 +1038,15 @@ function openEdit(c: any) {
     utmSource: c.utmSource || '', utmMedium: c.utmMedium || 'social', utmCampaign: c.utmCampaign || '',
     turnstileEnabled: c.turnstileEnabled === true,
   })
+  loadDecor(c)
   showModal.value = true
 }
 
 async function save() {
   saving.value = true
   try {
-    const payload = { ...form, contentItems: form.contentItems.filter(Boolean), userId: userId.value }
+    const payload: Record<string, any> = { ...form, contentItems: form.contentItems.filter(Boolean), userId: userId.value }
+    if (decorTouched.value) Object.assign(payload, { trustItems: decor.trustItems, privacyLine: decor.privacyLine, overlays: decor.overlays })
     if (editing.value) {
       await $fetch(useApiUrl(`/api/marketing/${editing.value.campaignId}`), { method: 'PATCH', headers: authHeaders, body: payload })
     } else {
