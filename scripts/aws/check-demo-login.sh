@@ -2,20 +2,18 @@
 # Prüft live, dass das Demo-Login (demo@plexora.eu) nach den Sicherheitsänderungen weiter funktioniert:
 # Anmeldung bei Cognito, dann Lesezugriff auf jedes Modul (Dashboard-relevante Listen) und Gegenprobe ohne Token (401).
 # Das Passwort steht öffentlich auf plexora.eu, wird aber nicht im Repo gespeichert: DEMO_PASSWORD=… scripts/aws/check-demo-login.sh
+# Die Anmeldung läuft per SRP über scripts/aws/demo-login-token.mjs (der App-Client erlaubt kein USER_PASSWORD_AUTH).
 # Tokens und Passwort werden nie ausgegeben.
 set -uo pipefail
 API="${API:-https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com}"
 REGION="eu-central-1"
-CLIENT_ID="${COGNITO_CLIENT_ID:-1aa9chqqkgr9dp232cgpa4nanb}"
-USERNAME="${DEMO_USERNAME:-demo-plexora}"
 FAIL=0
 ok()  { printf '  \033[32mOK\033[0m   %s\n' "$1"; }
 bad() { printf '  \033[31mFEHLER\033[0m %s\n' "$1"; FAIL=1; }
 [[ -n "${DEMO_PASSWORD:-}" ]] || { echo "DEMO_PASSWORD fehlt (Passwort des Demo-Kontos als Umgebungsvariable übergeben)"; exit 2; }
 
 echo "== Anmeldung (Cognito)"
-TOKEN="$(aws cognito-idp initiate-auth --no-sign-request --region "$REGION" --auth-flow USER_PASSWORD_AUTH --client-id "$CLIENT_ID" \
-  --auth-parameters "USERNAME=$USERNAME,PASSWORD=$DEMO_PASSWORD" --query 'AuthenticationResult.IdToken' --output text 2>/dev/null || true)"
+TOKEN="$(DEMO_USERNAME="${DEMO_USERNAME:-demo@plexora.eu}" node scripts/aws/demo-login-token.mjs 2>/dev/null || true)"
 if [[ -z "$TOKEN" || "$TOKEN" == "None" ]]; then bad "Anmeldung des Demo-Kontos fehlgeschlagen"; exit 1; fi
 ok "Demo-Login erfolgreich (Token erhalten, nicht angezeigt)"
 EMAIL="$(python3 - "$TOKEN" <<'PY'
