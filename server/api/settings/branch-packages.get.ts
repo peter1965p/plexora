@@ -1,10 +1,11 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { requireAuth } from '../../utils/verifyAuth'
 
 interface BranchModule { key: string; status: 'active' | 'disabled' }
 
 export default defineEventHandler(async (event) => {
-  const email = event.context.auth?.email || ''
+  const email = requireAuth(event).email || ''
   if (!email) return { branchModules: [] }
   const res = await getDynamoClient().send(new ScanCommand({
     TableName: 'plexora-nexora',

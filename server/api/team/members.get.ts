@@ -1,10 +1,12 @@
 import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
-  const email = event.context.auth?.email || ''
-  if (!email) return { members: [] }
+  // Anmeldung ist Pflicht; der Mandant kommt nur aus dem Token (der Parameter ?userId= der Oberfläche wird ignoriert)
+  const email = requireAuth(event).email || ''
+  if (!email) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
 
   const tenantId = await resolveUserId(email)
   const dynamo = getDynamoClient()
@@ -15,5 +17,7 @@ export default defineEventHandler(async (event) => {
     ExpressionAttributeValues: { ':t': tenantId },
   }))
 
-  return { members: res.Items || [] }
+  // Der Einladungs-Token ist ein Geheimnis (er schaltet die Einladung frei) und gehört nicht in die Antwort
+  const members = (res.Items || []).map(({ inviteToken, ...rest }: any) => ({ ...rest, invitePending: !!inviteToken && rest.status === 'invited' }))
+  return { members }
 })

@@ -1,10 +1,14 @@
 import { DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId, invalidateTenantCache } from '../../utils/tenant'
+import { requireAuth } from '../../utils/verifyAuth'
+import { isDemoAccount } from '../../utils/mailGuard'
 
 export default defineEventHandler(async (event) => {
   const memberEmail  = decodeURIComponent(getRouterParam(event, 'email') || '')
-  const requesterEmail = event.context.auth?.email || ''
+  const auth = requireAuth(event)
+  const requesterEmail = auth.email || ''
+  if (isDemoAccount(auth)) throw createError({ statusCode: 403, message: 'Im Demo-Zugang können keine Mitglieder entfernt werden.' })
 
   if (!memberEmail || !requesterEmail) throw createError({ statusCode: 400, message: 'Parameter fehlen' })
 

@@ -2,11 +2,9 @@
 // Diese Liste darf nur SCHRUMPFEN: Wird eine Route abgesichert (oder in routePolicy.ts als öffentlich begründet),
 // muss ihr Eintrag hier gelöscht und LEGACY_MAX gesenkt werden (der Test erzwingt das). Neue Einträge sind nicht erlaubt.
 // Stand 07.10.2026: abgebaut wird in Block b2 (Verwaltungsrouten) und Block d (Rückfall je Modul).
-export const LEGACY_MAX = 83
+export const LEGACY_MAX = 74
 
 export const LEGACY_ROUTES: string[] = [
-  'GET /api/automotive/pricetag-templates/presets',
-  'GET /api/campaigns/presets',
   'DELETE /api/companies/[id]',
   'PATCH /api/companies/[id]',
   'GET /api/companies',
@@ -59,7 +57,6 @@ export const LEGACY_ROUTES: string[] = [
   'PATCH /api/marketing/[id]',
   'GET /api/marketing',
   'POST /api/marketing',
-  'POST /api/marketing/update-redirects',
   'DELETE /api/notifications/[id]',
   'PATCH /api/notifications/[id]',
   'GET /api/notifications',
@@ -72,20 +69,14 @@ export const LEGACY_ROUTES: string[] = [
   'PATCH /api/projects/[id]',
   'GET /api/projects',
   'POST /api/projects',
-  'GET /api/settings/branch-packages',
   'POST /api/settings/branding',
   'POST /api/settings/company',
-  'GET /api/settings/invoice-presets',
   'GET /api/settings/invoice-template',
   'PUT /api/settings/invoice-template',
-  'GET /api/settings/invoice',
-  'POST /api/settings/invoice',
   'PATCH /api/shop/products/[id]',
   'POST /api/shop/products',
   'POST /api/support/[id]/comment',
   'PATCH /api/support/[id]',
   'GET /api/support',
   'POST /api/support',
-  'DELETE /api/team/[email]',
-  'GET /api/team/members',
 ]
