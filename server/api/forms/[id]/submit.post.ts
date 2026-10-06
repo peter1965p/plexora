@@ -93,9 +93,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const sequenceOwner = form.userId || 'demo-user'
-  await startSequences(sequenceOwner, 'form_submitted', { ...leadData, formId, email: emailKey ? data[emailKey] : '' })
+  await startSequences(sequenceOwner, 'form_submitted', { ...leadData, formId, campaignAppointmentTypeId: campaignTypeId, email: emailKey ? data[emailKey] : '' })
   if (emailKey && data[emailKey]) {
-    await startSequences(sequenceOwner, 'new_lead', { ...leadData, formId, email: data[emailKey], name: [...new Set([data[firstNameKey as string], data[lastNameKey as string]].filter(Boolean))].join(' ') })
+    await startSequences(sequenceOwner, 'new_lead', { ...leadData, formId, campaignAppointmentTypeId: campaignTypeId, email: data[emailKey], name: [...new Set([data[firstNameKey as string], data[lastNameKey as string]].filter(Boolean))].join(' ') })
   }
 
   return { success: true, message: form.successMsg }

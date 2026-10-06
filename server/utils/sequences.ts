@@ -101,7 +101,8 @@ async function advanceRun(run: any, graph: SeqGraph) {
       if (node.type === 'send_email_template') {
         if (node.data.templateId) await sendTemplateEmail(run.userId, node.data.templateId, run.email, run.data)
       } else if (node.type === 'send_booking_link') {
-        await sendBookingLink(run.userId, run.email, run.data, node.data.appointmentTypeId || undefined)
+        // Kampagnen-Terminart (aus dem Formular der Kampagne) hat Vorrang vor der festen Terminart des Schritts
+        await sendBookingLink(run.userId, run.email, run.data, run.data?.campaignAppointmentTypeId || node.data.appointmentTypeId || undefined)
       } else if (node.type === 'set_lead_status') {
         if (node.data.leadStatus) await setContactLeadStatus(run.userId, run.email, node.data.leadStatus)
       }
