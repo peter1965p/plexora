@@ -2,13 +2,14 @@ import { Resend } from 'resend'
 import { GetCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { assertOwner } from '../../../utils/ownership'
+import { requireMailSender, validRecipient } from '../../../utils/mailGuard'
 import { resolveUserId } from '../../../utils/tenant'
 import { renderInvoiceTemplateToPdf } from '../../../utils/invoiceTemplate'
 import { getPresetHtml } from '../../../utils/invoicePresets'
 
 export default defineEventHandler(async (event) => {
+  requireMailSender(event) // Anmeldung Pflicht, Demo-Konto gesperrt
   const invoiceId = getRouterParam(event, 'id')
-  const body      = await readBody(event)
   const dynamo    = getDynamoClient()
   const config    = useRuntimeConfig()
 
@@ -21,6 +22,10 @@ export default defineEventHandler(async (event) => {
   const invoice = scan.Items?.[0]
   if (!invoice) throw createError({ statusCode: 404, message: 'Rechnung nicht gefunden' })
   await assertOwner(event, invoice)
+
+  // Empfänger ausschließlich aus der Rechnung, nie aus dem Request (verhindert Versand an beliebige Dritte)
+  const toEmail = validRecipient(invoice.clientEmail)
+  if (!toEmail) throw createError({ statusCode: 422, message: 'Die Rechnung hat keine gültige Empfänger-Adresse (Kunden-E-Mail).' })
 
   const tenantUserId = await resolveUserId(invoice.userId)
 
@@ -63,7 +68,6 @@ export default defineEventHandler(async (event) => {
   const pdfBuffer = await renderInvoiceTemplateToPdf(templateHtml, invoice, branding, company, invoiceSettings, paymentPrefs)
 
   // Mail via Resend senden
-  const toEmail  = body.toEmail || invoice.clientEmail
   const subject  = `Rechnung ${invoice.number || invoiceId?.slice(0,8).toUpperCase()} von ${branding.brandName}`
   const resend   = new Resend(config.resendApiKey as string)
 

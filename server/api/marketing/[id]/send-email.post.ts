@@ -2,16 +2,18 @@ import { Resend } from 'resend'
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
+import { requireMailSender } from '../../../utils/mailGuard'
 import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey, replacePlaceholders, textToHtmlParagraphs } from '../../../utils/marketingEmail'
 
 export default defineEventHandler(async (event) => {
+  const auth = requireMailSender(event) // Anmeldung Pflicht, Demo-Konto gesperrt
   const campaignId = getRouterParam(event, 'id')
   const body = await readBody(event)
   const { subject, tone = 'freundlich', contactFilter = {}, mode = 'ai', manualSubject, manualBody } = body || {}
 
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
-  const tenantId = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const tenantId = await resolveUserId(auth.email) // Mandant aus dem Token; Empfänger sind ausschließlich dessen Kontakte
 
   // Load campaign (tenantId = partition key "userId", campaignId = sort key)
   const campaignRes = await dynamo.send(new QueryCommand({

@@ -2,6 +2,7 @@ import { ScanCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { assertOwner } from '../../../utils/ownership'
+import { requireMailSender, validRecipient } from '../../../utils/mailGuard'
 import PDFDocument from 'pdfkit'
 
 const DUNNING_LEVELS: Record<number, { status: string, label: string, fee: number, text: string }> = {
@@ -64,6 +65,7 @@ async function generateDunningPDF(invoice: any, dunning: any, branding: any): Pr
 }
 
 export default defineEventHandler(async (event) => {
+  requireMailSender(event) // Anmeldung Pflicht, Demo-Konto gesperrt
   const invoiceId = getRouterParam(event, 'id')
   const body      = await readBody(event)
   const dynamo    = getDynamoClient()
@@ -92,6 +94,7 @@ export default defineEventHandler(async (event) => {
 
   const level   = body.level || 1
   const dunning = dunningConfig[level]
+  if (!dunning) throw createError({ statusCode: 400, message: 'Ungültige Mahnstufe' })
 
   // Branding laden
   let branding = { brandName: 'Plexora', brandTagline: 'Business Platform' }
@@ -104,7 +107,7 @@ export default defineEventHandler(async (event) => {
   const pdfBuffer = await generateDunningPDF(invoice, dunning, branding)
 
   // Mail senden
-  const toEmail   = invoice.clientEmail
+  const toEmail   = validRecipient(invoice.clientEmail) // nur aus der Rechnung, keine Mehrfach-/Fremdadressen
   const fromEmail = 'billing@plexora.eu'
   const subject   = `${dunning.label}: Rechnung ${invoice.number} — ${branding.brandName}`
   const boundary  = `----=_Part_${Date.now()}`
