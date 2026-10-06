@@ -1,9 +1,10 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
-  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const userId = await resolveUserId(requireAuth(event).email)
   const today  = new Date().toISOString().slice(0, 10)
 
   const db = getDynamoClient()

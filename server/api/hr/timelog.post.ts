@@ -2,10 +2,11 @@ import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
-  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const userId = await resolveUserId(requireAuth(event).email)
   const start  = body.clockIn  ? new Date(`${body.date}T${body.clockIn}`)  : null
   const end    = body.clockOut ? new Date(`${body.date}T${body.clockOut}`) : null
   const minutes = (start && end) ? Math.round((end.getTime() - start.getTime()) / 60000) : (Number(body.minutes) || 0)
