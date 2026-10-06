@@ -1,11 +1,12 @@
-import { demoGuard } from '../../utils/demoGuard'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
+import { requireAuth } from '../../utils/verifyAuth'
+import { assertNotDemo } from '../../utils/demoPolicy'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  demoGuard(body?.userId)
+  assertNotDemo(requireAuth(event))
   const email = event.context.auth?.email
   if (!email) throw createError({ statusCode: 401, message: 'Unauthorized' })
 

@@ -1,15 +1,15 @@
-import { demoGuard } from '../../utils/demoGuard'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
 import { requireAuth } from '../../utils/verifyAuth'
 import { isDemoAccount } from '../../utils/mailGuard'
+import { assertNotDemo } from '../../utils/demoPolicy'
 
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
   if (isDemoAccount(auth)) throw createError({ statusCode: 403, message: 'Im Demo-Zugang können keine Rechnungseinstellungen gespeichert werden.' })
   const body = await readBody(event)
-  demoGuard(body?.userId)
+  assertNotDemo(requireAuth(event))
   const client = getDynamoClient()
   const scope = await resolveUserId(auth.email)
   await client.send(new PutCommand({

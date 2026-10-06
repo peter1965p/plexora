@@ -2,9 +2,10 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
 import { getPresetHtml } from '../../utils/invoicePresets'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
-  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const userId = await resolveUserId(requireAuth(event).email)
   const dynamo = getDynamoClient()
 
   const res = await dynamo.send(new GetCommand({

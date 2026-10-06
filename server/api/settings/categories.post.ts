@@ -1,8 +1,8 @@
-import { demoGuard } from '../../utils/demoGuard'
 import { requireAuth } from '../../utils/verifyAuth'
 import { resolveUserId } from '../../utils/tenant'
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { assertNotDemo } from '../../utils/demoPolicy'
 
 const ALLOWED_AREAS = ['blog', 'shop', 'serviceUnits', 'articles']
 
@@ -12,7 +12,7 @@ const ALLOWED_AREAS = ['blog', 'shop', 'serviceUnits', 'articles']
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
   const body = await readBody(event)
-  demoGuard(body?.userId)
+  assertNotDemo(requireAuth(event))
 
   const area = body?.area as string
   const categories = body?.categories as string[]

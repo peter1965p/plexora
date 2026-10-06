@@ -1,12 +1,12 @@
-import { demoGuard } from '../../utils/demoGuard'
-import { requireAdmin } from '../../utils/verifyAuth'
+import { requireAdmin, requireAuth } from '../../utils/verifyAuth'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { assertNotDemo } from '../../utils/demoPolicy'
 
 export default defineEventHandler(async (event) => {
   requireAdmin(event)
   const body = await readBody(event)
-  demoGuard(body?.userId)
+  assertNotDemo(requireAuth(event))
   const client = getDynamoClient()
   await client.send(new PutCommand({
     TableName: 'plexora-settings',

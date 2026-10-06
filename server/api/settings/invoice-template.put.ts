@@ -1,11 +1,12 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
-import { demoGuard } from '../../utils/demoGuard'
+import { requireAuth } from '../../utils/verifyAuth'
+import { assertNotDemo } from '../../utils/demoPolicy'
 
 export default defineEventHandler(async (event) => {
-  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
-  demoGuard(userId)
+  const userId = await resolveUserId(requireAuth(event).email)
+  assertNotDemo(requireAuth(event))
 
   const body   = await readBody(event)
   const html   = String(body.html || '')
