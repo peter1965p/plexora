@@ -1,0 +1,357 @@
+{
+ "_hinweis": "Einzige Quelle für Tabellen, Ausschlüsse und Datei-Präfixe der Sicherung. Genutzt vom Server (server/utils/backup/*) und von scripts/aws/backup-plexora.py. tests/security/backup-config.test.ts erzwingt, dass jede im Code verwendete Tabelle hier steht.",
+ "tables": {
+  "plexora-ai-usage": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-applications": {
+   "mode": "via",
+   "parent": "plexora-campaigns",
+   "parentField": "campaignId",
+   "childField": "campaignId"
+  },
+  "plexora-articles": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-automations": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-backup-jobs": {
+   "mode": "skip",
+   "reason": "Verwaltungstabelle der Sicherungen selbst"
+  },
+  "plexora-bank-txn": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-blog": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-campaigns": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-cashbook": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-companies": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-contacts": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-contracts": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-customers": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-deals": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-drafts": {
+   "mode": "skip",
+   "reason": "flüchtige Entwürfe (laufen nach 30 Tagen ab)"
+  },
+  "plexora-email-sends": {
+   "mode": "via",
+   "parent": "plexora-marketing",
+   "parentField": "campaignId",
+   "childField": "campaignId"
+  },
+  "plexora-finance": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-forms": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-gastro-orders": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-gastro-staff": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-gastro-tips": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-handwerk-aufmasse": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-handwerk-baustellen": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-hr": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-hr-timelog": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-invoice-templates": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-leave": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-licenses": {
+   "mode": "owner",
+   "attr": "customerEmail"
+  },
+  "plexora-mail-log": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-marketing": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-menu": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-meta": {
+   "mode": "platform",
+   "reason": "Plattform-Statistik (Besucher, Bots), kein Mandantenbezug"
+  },
+  "plexora-newsletter-automation-rules": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-newsletter-campaigns": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-newsletter-ratelimit": {
+   "mode": "skip",
+   "reason": "flüchtige Drossel-Zähler (laufen selbst ab)"
+  },
+  "plexora-newsletter-sends": {
+   "mode": "via",
+   "parent": "plexora-newsletter-campaigns",
+   "parentField": "campaignId",
+   "childField": "campaignId"
+  },
+  "plexora-newsletter-subscribers": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-newsletter-templates": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-nexora": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-notifications": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-orders": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-pages": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-plugin-data": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-plugin-registry": {
+   "mode": "platform",
+   "reason": "Katalog der Branchen-Module und Plugins (Preise), kein Mandantenbezug"
+  },
+  "plexora-praxis-patienten": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-praxis-rezepte": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-praxis-termine": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-pricetag-templates": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-products": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-projects": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-properties": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-purchase-orders": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-renters": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-retail-closings": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-retail-sales": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-returns": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-sequence-runs": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-sequences": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-services": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-settings": {
+   "mode": "owner",
+   "attr": "scope",
+   "note": "nur Zeilen mit scope = Besitzer; globale Zeilen (scope=global) nur in der Gesamtsicherung"
+  },
+  "plexora-shortlinks": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-site-analytics": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-submissions": {
+   "mode": "via",
+   "parent": "plexora-forms",
+   "parentField": "formId",
+   "childField": "formId"
+  },
+  "plexora-suppliers": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-support": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-tables": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-team-members": {
+   "mode": "owner",
+   "attr": "tenantId",
+   "note": "tenantId ist hier die Besitzer-E-Mail"
+  },
+  "plexora-tenants": {
+   "mode": "owner",
+   "attr": "email"
+  },
+  "plexora-termine-bookings": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-termine-types": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-themes": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-timelog": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-user-profiles": {
+   "mode": "owner",
+   "attr": "email"
+  },
+  "plexora-users": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-vehicles": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-viewings": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
+  "plexora-workshop": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  }
+ },
+ "alwaysDropFields": [
+  "stripeSecretKey",
+  "stripeWebhookSecret",
+  "paypalSecret",
+  "mollieApiKey",
+  "customApiKey",
+  "clientSecret",
+  "password",
+  "passwordHash"
+ ],
+ "tenantExportDropFields": [
+  "secretEncrypted",
+  "secretMasked",
+  "githubPatEncrypted",
+  "googleRefreshTokenEncrypted",
+  "anthropicApiKeyEncrypted",
+  "anthropicApiKeyMasked",
+  "aiProviders",
+  "inviteToken",
+  "portalToken",
+  "confirmToken",
+  "unsubscribeToken"
+ ],
+ "s3": {
+  "excludedPrefixes": [
+   "lambda/",
+   "lambda-deploy/",
+   "backups/"
+  ],
+  "bucket": "plexora-files"
+ },
+ "tenantExport": {
+  "fileUrlPrefix": "https://plexora-files.s3.eu-central-1.amazonaws.com/"
+ }
+}
