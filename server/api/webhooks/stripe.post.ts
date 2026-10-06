@@ -5,6 +5,7 @@ import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGr
 import { getDynamoClient } from '../../utils/dynamodb'
 import { generateLicenseKey, TIER_MODULES, TIER_LABELS } from '../../utils/license'
 import { provisionModule } from '../../utils/moduleProvisioner'
+import { getCatalogEntry, verifyModulePurchase } from '../../utils/storeCatalog'
 import { randomUUID, randomBytes } from 'crypto'
 
 export default defineEventHandler(async (event) => {
@@ -131,7 +132,13 @@ export default defineEventHandler(async (event) => {
     // ── FALL 3: Modul-Kauf → Lizenz-Module aktualisieren ───────────────────
     if (metadata.type === 'module_purchase' && metadata.moduleKey && metadata.email) {
       const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id
-      try {
+      // Vor der Freischaltung: bezahlt, EUR und Betrag == aktueller Katalogpreis (Schutz vor manipulierten Sitzungen)
+      const entry = await getCatalogEntry(metadata.moduleKey, async (key) =>
+        (await dynamo.send(new GetCommand({ TableName: 'plexora-plugin-registry', Key: { key } }))).Item)
+      const verdict = verifyModulePurchase(session, entry)
+      if (!verdict.ok) {
+        console.error(`[module_purchase] ABGELEHNT ${metadata.moduleKey} für ${metadata.email} (Sitzung ${session.id}): ${verdict.reason}`)
+      } else try {
         const scan = await dynamo.send(new ScanCommand({
           TableName: 'plexora-licenses',
           FilterExpression: 'customerEmail = :e AND #st = :active',

@@ -449,11 +449,8 @@ async function checkout() {
     const u = await useAuthUser()
     const data = await $fetch<{ url: string }>(checkoutApiUrl, {
       method: 'POST',
-      body: {
-        moduleKey: buyItem.value.key,
-        name:      buyItem.value.name,
-        priceEur:  parseFloat(buyItem.value.price.replace('€', '')),
-      },
+      // Nur der Schlüssel wird gesendet: Name und Preis bestimmt der Server aus seinem Katalog
+      body: { moduleKey: buyItem.value.key },
       headers: { 'x-user-email': u.email || '', Authorization: `Bearer ${u.idToken || ''}` },
     })
     if (data.url) window.location.href = data.url
