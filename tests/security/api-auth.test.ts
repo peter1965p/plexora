@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { shouldAttachAuth } from '../../app/utils/apiAuth'
+import { shouldAttachAuth, shouldRedirectToLogin } from '../../app/utils/apiAuth'
 
 const API = 'https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com'
 describe('Zentrale Token-Regel im Frontend', () => {
@@ -22,5 +22,13 @@ describe('Zentrale Token-Regel im Frontend', () => {
     const src = readFileSync('app/plugins/api-auth.client.ts', 'utf8')
     expect(src).toContain('shouldAttachAuth')
     expect(src).toContain("headers.set('Authorization'")
+  })
+  it('abgelaufene Sitzung (401 "Anmeldung erforderlich" trotz gesendetem Token) führt zum Login, andere Fälle nicht', () => {
+    expect(shouldRedirectToLogin(401, 'Anmeldung erforderlich', true, '/dashboard')).toBe(true)
+    expect(shouldRedirectToLogin(401, 'Anmeldung erforderlich', false, '/dashboard')).toBe(false)   // kein Token gesendet (öffentliche Seite)
+    expect(shouldRedirectToLogin(401, 'Falsches Passwort', true, '/dashboard')).toBe(false)
+    expect(shouldRedirectToLogin(403, 'Anmeldung erforderlich', true, '/dashboard')).toBe(false)
+    expect(shouldRedirectToLogin(401, 'Anmeldung erforderlich', true, '/login')).toBe(false)        // keine Schleife
+    expect(shouldRedirectToLogin(401, 'Anmeldung erforderlich', true, '/auth/callback')).toBe(false)
   })
 })

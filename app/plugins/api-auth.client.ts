@@ -1,4 +1,4 @@
-import { shouldAttachAuth } from '~/utils/apiAuth'
+import { shouldAttachAuth, shouldRedirectToLogin } from '~/utils/apiAuth'
 import { useAuthUser } from '~/composables/useAuth'
 
 // Sicherheitsnetz für den Wegfall des demo-user-Rückfalls im Backend: jeder Aufruf der eigenen API (useFetch, $fetch)
@@ -22,6 +22,16 @@ export default defineNuxtPlugin(() => {
       const headers = new Headers(options.headers || {})
       headers.set('Authorization', `Bearer ${token}`)
       options.headers = headers
+    },
+    async onResponseError({ request, response, options }: any) {
+      const url = typeof request === 'string' ? request : request?.url
+      const isApi = apiBase ? String(url).startsWith(apiBase) : String(url).startsWith('/api/')
+      if (!isApi) return
+      const sent = new Headers(options?.headers || {}).has('authorization')
+      if (shouldRedirectToLogin(response?.status, response?._data?.message, sent, window.location.pathname)) {
+        cached = null
+        await navigateTo('/login?reason=expired')
+      }
     },
   })
 })
