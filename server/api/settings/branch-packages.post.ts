@@ -1,5 +1,8 @@
 import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { requireAuth } from '../../utils/verifyAuth'
+import { isDemoAccount } from '../../utils/mailGuard'
+import { decideBranchInstall } from '../../utils/branchAccess'
 
 interface BranchModule { key: string; status: 'active' | 'disabled' }
 
@@ -7,9 +10,10 @@ const ACTIONS = ['install', 'uninstall', 'enable', 'disable'] as const
 type Action = typeof ACTIONS[number]
 
 export default defineEventHandler(async (event) => {
-  const email = event.context.auth?.email || ''
-  if (!email) throw createError({ statusCode: 401 })
-  if (email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine Module verwalten' })
+  const auth = requireAuth(event)
+  const email = auth.email || ''
+  if (!email) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
+  if (isDemoAccount(auth)) throw createError({ statusCode: 403, message: 'Im Demo-Zugang können keine Module verwaltet werden.' })
 
   const body = await readBody(event)
   const packageKey = body?.packageKey as string
@@ -39,8 +43,12 @@ export default defineEventHandler(async (event) => {
   const idx = modules.findIndex(m => m.key === packageKey)
 
   if (action === 'install') {
-    if (idx === -1) modules.push({ key: packageKey, status: 'active' })
-    else modules[idx].status = 'active'
+    if (idx === -1) {
+      // Neues Paket: nur Admin, kostenloses Paket oder bezahlt (Lizenz). Kostenpflichtige Pakete laufen über Checkout + Webhook.
+      const decision = await decideBranchInstall({ email, groups: auth.groups, packageKey })
+      if (!decision.ok) throw createError({ statusCode: decision.status, message: decision.message })
+      modules.push({ key: packageKey, status: 'active' })
+    } else modules[idx].status = 'active'
   } else if (action === 'uninstall') {
     if (idx !== -1) modules.splice(idx, 1)
   } else if (action === 'disable') {
