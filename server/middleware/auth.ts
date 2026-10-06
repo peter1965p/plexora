@@ -1,39 +1,21 @@
 import { verifyBearerToken } from '../utils/verifyAuth'
+import { findPublicRule } from '../utils/routePolicy'
 
-// Pfade, die weiterhin ganz ohne Anmeldung erreichbar bleiben (öffentliche Buchungsseiten,
-// Webhooks mit eigener Signaturprüfung, Zahlungs-/Bewerbungs-Links mit UUID-Secret etc.)
-const PUBLIC_PREFIXES = [
-  '/api/public/',
-  '/api/webhooks/',
-  '/api/licenses/checkout',
-  '/api/licenses/validate',
-  '/api/pay/',
-  '/api/support/portal/',
-  '/api/jobs/',
-]
-
-// Nur der Formular-Submit selbst ist öffentlich (Endkunden füllen Formulare ohne
-// Login aus) — alle anderen /api/forms/*-Routen (Liste, Bearbeiten, Löschen,
-// Submissions einsehen) sind tenant-geschützt, daher kein Prefix-Eintrag dafür.
-//
-// /api/newsletter/cron/run-automations wird von einer EventBridge-Scheduled-Rule
-// aufgerufen (kein Cognito-Token möglich) — exakter Pfad statt Prefix, Route selbst
-// prüft zusätzlich einen Secret-Header (server/api/newsletter/cron/run-automations.post.ts).
-const PUBLIC_PATTERNS = [
-  /^\/api\/forms\/[^/]+\/submit$/,
-  /^\/api\/newsletter\/cron\/run-automations$/,
-  /^\/api\/sequences\/cron\/sweep$/,
-  /^\/api\/termine\/cron\/reminders$/,
-]
+// Welche Routen bewusst ohne Anmeldung erreichbar sind, steht mit Begründung in server/utils/routePolicy.ts
+// (gleiche Quelle wie der Routen-Test).
 
 export default defineEventHandler(async (event) => {
   const path = event.path || ''
   if (!path.startsWith('/api/')) return
-  if (PUBLIC_PREFIXES.some(p => path.startsWith(p))) return
-  if (PUBLIC_PATTERNS.some(r => r.test(path))) return
+  const method = (event.method || 'GET').toUpperCase()
+  const rule = findPublicRule(path, method)
+  // Bisherige öffentliche Routen: unverändert, Token wird nicht gelesen
+  if (rule && !rule.optionalAuth) return
 
   const auth = await verifyBearerToken(event)
   if (auth) event.context.auth = auth
+  // Öffentliche Routen mit optionalem Token (Entwürfe des Besitzers, Firmendaten angemeldeter Mandanten): nie ablehnen
+  if (rule) return
 
   // Etappenweiser Rollout: erst wenn das Frontend überall echte Tokens mitschickt,
   // wird hier hart durchgesetzt. Einzelne Routen (aws/*, licenses, admin/*) erzwingen
