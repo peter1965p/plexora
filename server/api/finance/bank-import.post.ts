@@ -2,6 +2,7 @@ import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { requireAuth } from '../../utils/verifyAuth'
 
 function parseBankCsv(csv: string): Array<{ date: string; description: string; amount: number }> {
   const lines = csv.replace(/\r/g, '').trim().split('\n').filter(Boolean)
@@ -30,7 +31,7 @@ function parseBankCsv(csv: string): Array<{ date: string; description: string; a
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
-  const userId = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const userId = await resolveUserId(requireAuth(event).email)
   const client = getDynamoClient()
 
   const rows = parseBankCsv(body.csv as string)

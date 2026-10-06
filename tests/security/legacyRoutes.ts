@@ -2,15 +2,9 @@
 // Diese Liste darf nur SCHRUMPFEN: Wird eine Route abgesichert (oder in routePolicy.ts als öffentlich begründet),
 // muss ihr Eintrag hier gelöscht und LEGACY_MAX gesenkt werden (der Test erzwingt das). Neue Einträge sind nicht erlaubt.
 // Stand 07.10.2026: abgebaut wird in Block b2 (Verwaltungsrouten) und Block d (Rückfall je Modul).
-export const LEGACY_MAX = 21
+export const LEGACY_MAX = 15
 
 export const LEGACY_ROUTES: string[] = [
-  'GET /api/finance/[id]/xrechnung',
-  'POST /api/finance/bank-import',
-  'POST /api/finance/bank-match',
-  'DELETE /api/finance/cashbook',
-  'POST /api/finance/cashbook',
-  'POST /api/finance',
   'POST /api/hr/campaigns',
   'POST /api/hr',
   'POST /api/hr/leave',

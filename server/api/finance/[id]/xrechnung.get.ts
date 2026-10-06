@@ -1,6 +1,7 @@
 import { resolveUserId } from '../../../utils/tenant'
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { requireAuth } from '../../../utils/verifyAuth'
 
 function x(s: string | undefined): string {
   return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -8,7 +9,7 @@ function x(s: string | undefined): string {
 
 export default defineEventHandler(async (event) => {
   const invoiceId = getRouterParam(event, 'id')
-  const userId    = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const userId    = await resolveUserId(requireAuth(event).email)
   const client    = getDynamoClient()
 
   const scan = await client.send(new ScanCommand({
