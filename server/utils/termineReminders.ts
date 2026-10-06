@@ -1,4 +1,5 @@
 import { ScanCommand, GetCommand, UpdateCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
+import { mailBlockReason } from './mailPolicy'
 import { randomUUID } from 'crypto'
 import { getDynamoClient } from './dynamodb'
 import { sendMail } from './mailer'
@@ -54,6 +55,8 @@ export async function sendDueTerminReminders() {
       result.checked++
       const tenant = await loadTenant(b.tenantId, tenantCache)
       if (!tenant) continue
+      // Feste Ausschlussregel: Demo-/Beispiel-/gesperrte Mandanten bekommen nie Erinnerungs-Mails
+      if (mailBlockReason(b.tenantId, tenant)) continue
 
       const reminderMinutes = Number(tenant.termineReminderMinutes ?? 60)
       if (reminderMinutes <= 0) continue

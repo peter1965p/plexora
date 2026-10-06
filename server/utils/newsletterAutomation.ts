@@ -2,6 +2,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { compileNewsletterHtml } from './newsletterHtml'
 import { Resend } from 'resend'
+import { mailBlockReason } from './mailPolicy'
 
 // Gemeinsamer Versand-Baustein für automatisierte Einzel-Mails (Willkommens-Mail,
 // verzögerte Follow-ups, Kampagnen-Erinnerungen) — genutzt vom Confirm-Hook (sofort)
@@ -13,6 +14,8 @@ export async function sendAutomationEmail(
   subscriber: { email: string; unsubscribeToken: string },
   templateId: string,
 ): Promise<boolean> {
+  // Feste Ausschlussregel: Demo-/Beispiel-Mandanten bekommen nie Automations-Mails
+  if (mailBlockReason(tenantId)) return false
   const dynamo = getDynamoClient()
   const [templateRes, settingsRes, brandingRes] = await Promise.all([
     dynamo.send(new GetCommand({ TableName: 'plexora-newsletter-templates', Key: { tenantId, templateId } })),

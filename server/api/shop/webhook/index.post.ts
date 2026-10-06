@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import { UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
+import { mailBlockReason } from '../../../utils/mailPolicy'
 
 export default defineEventHandler(async (event) => {
   const config  = useRuntimeConfig()
@@ -61,7 +62,7 @@ export default defineEventHandler(async (event) => {
             }))
           }
 
-          if (email) {
+          if (email && !mailBlockReason(String(order.sellerUserId || ''))) {
             try {
               const resend = new Resend(config.resendApiKey as string)
               await resend.emails.send({

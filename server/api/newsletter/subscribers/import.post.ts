@@ -5,6 +5,7 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 import { buildConfirmEmailHtml } from '../../../utils/newsletterEmail'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
+import { requireMailSender } from '../../../utils/mailGuard'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MAX_ROWS = 5000
@@ -12,7 +13,7 @@ const MAX_ROWS = 5000
 // CSV-Import erstellt IMMER nur pending-Subscriber, die sich per Double-Opt-In selbst
 // bestätigen müssen — kein Blind-Import ohne Einwilligung, exakt wie im Auftrag verlangt.
 export default defineEventHandler(async (event) => {
-  const auth     = requireAuth(event)
+  const auth     = requireMailSender(event)
   const tenantId = await resolveUserId(auth.email)
   const body     = await readBody(event)
   const rows: { email?: string; tags?: string[] }[] = Array.isArray(body?.subscribers) ? body.subscribers : []

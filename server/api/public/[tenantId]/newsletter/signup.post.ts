@@ -4,6 +4,7 @@ import { checkRateLimit, clientIp } from '../../../../utils/rateLimit'
 import { buildConfirmEmailHtml } from '../../../../utils/newsletterEmail'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
+import { mailBlockReason } from '../../../../utils/mailPolicy'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -33,6 +34,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const dynamo = getDynamoClient()
+  // Feste Ausschlussregel: nur bestehende, aktive Nicht-Demo-Mandanten dürfen Bestätigungsmails auslösen (gleiche Antwort wie sonst, kein Hinweis nach außen)
+  const tenantRow = (await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))).Item
+  if (!tenantRow || mailBlockReason(tenantId, tenantRow)) return { success: true }
   const existing = await dynamo.send(new GetCommand({
     TableName: 'plexora-newsletter-subscribers',
     Key: { tenantId, email },

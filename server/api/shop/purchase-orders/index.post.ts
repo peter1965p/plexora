@@ -4,9 +4,10 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 import { requireAuth } from '../../../utils/verifyAuth'
 import { resolveUserId } from '../../../utils/tenant'
 import { randomUUID } from 'crypto'
+import { requireMailSender } from '../../../utils/mailGuard'
 
 export default defineEventHandler(async (event) => {
-  const { email } = requireAuth(event)
+  const { email } = requireMailSender(event)
   const userId = await resolveUserId(email)
   const body   = await readBody(event)
   const dynamo = getDynamoClient()

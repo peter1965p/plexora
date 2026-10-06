@@ -5,6 +5,7 @@ import { getDynamoClient } from '../../../../utils/dynamodb'
 import { compileNewsletterHtml } from '../../../../utils/newsletterHtml'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
+import { requireMailSender } from '../../../../utils/mailGuard'
 
 const BATCH_SIZE = 100
 
@@ -14,7 +15,7 @@ const BATCH_SIZE = 100
 // Aufruf übersprungen — ein Netzwerkfehler oder Lambda-Timeout mitten im Versand
 // bedeutet also nur "Route nochmal aufrufen", nicht "alles nochmal von vorn".
 export default defineEventHandler(async (event) => {
-  const auth       = requireAuth(event)
+  const auth       = requireMailSender(event)
   const tenantId   = await resolveUserId(auth.email)
   const campaignId = getRouterParam(event, 'id') || ''
   const dynamo     = getDynamoClient()

@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { enforcePublicRateLimit } from '../../../utils/rateLimit'
+import { mailBlockReason } from '../../../utils/mailPolicy'
 
 export default defineEventHandler(async (event) => {
   await enforcePublicRateLimit(event, 'jobs-apply')
@@ -43,7 +44,8 @@ export default defineEventHandler(async (event) => {
     if (bs.Item?.brandName) brandName = bs.Item.brandName
   } catch {}
 
-  // Mail an Bewerber
+  // Mail an Bewerber (nicht für Demo-/Beispiel-Mandanten)
+  if (mailBlockReason(String(campaign.userId || ''))) return { success: true }
   try {
     const resend = new Resend(useRuntimeConfig().resendApiKey as string)
     await resend.emails.send({

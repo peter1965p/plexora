@@ -3,6 +3,7 @@ import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { requireAuth } from '../../utils/verifyAuth'
 import { resolveUserId } from '../../utils/tenant'
+import { requireMailSender } from '../../utils/mailGuard'
 
 const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string) => string }> = {
   'not-opened-3d': {
@@ -26,7 +27,7 @@ const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string)
 }
 
 export default defineEventHandler(async (event) => {
-  const { email } = requireAuth(event)
+  const { email } = requireMailSender(event)
   const userId = await resolveUserId(email)
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()

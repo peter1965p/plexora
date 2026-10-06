@@ -4,9 +4,10 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { compileNewsletterHtml } from '../../../../utils/newsletterHtml'
 import { Resend } from 'resend'
+import { requireMailSender } from '../../../../utils/mailGuard'
 
 export default defineEventHandler(async (event) => {
-  const auth       = requireAuth(event)
+  const auth       = requireMailSender(event)
   const tenantId   = await resolveUserId(auth.email)
   const campaignId = getRouterParam(event, 'id') || ''
   const dynamo     = getDynamoClient()

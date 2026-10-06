@@ -3,6 +3,7 @@ import { getDynamoClient } from './dynamodb'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 import { notifySystem } from './notifications'
+import { mailBlockReason, MAIL_BLOCK_TEXT } from './mailPolicy'
 
 export interface MailInput {
   userId: string
@@ -16,7 +17,19 @@ export interface MailInput {
 
 // Zentraler Versand: Resend meldet Fehler als Rückgabewert statt als Exception —
 // deshalb wird das Ergebnis geprüft und jeder Versand im Protokoll festgehalten.
-export async function sendMail(input: MailInput): Promise<'sent' | 'failed'> {
+export async function sendMail(input: MailInput): Promise<'sent' | 'failed' | 'skipped'> {
+  // Feste Ausschlussregel: Demo-/Beispiel-/gesperrte Mandanten lösen nie eine Mail aus (nur Protokolleintrag, kein Resend-Aufruf)
+  const blocked = mailBlockReason(input.userId)
+  if (blocked) {
+    try {
+      await getDynamoClient().send(new PutCommand({
+        TableName: 'plexora-mail-log',
+        Item: { userId: input.userId, mailId: randomUUID(), kind: input.kind, to: '(nicht gesendet)', subject: input.subject, status: 'skipped', error: MAIL_BLOCK_TEXT[blocked], preview: '', created: new Date().toISOString() },
+      }))
+    } catch {}
+    console.warn(`[mail] übersprungen (${blocked}) kind=${input.kind}`)
+    return 'skipped'
+  }
   const resend = new Resend(useRuntimeConfig().resendApiKey as string)
   let status: 'sent' | 'failed' = 'sent'
   let error = ''
