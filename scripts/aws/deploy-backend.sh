@@ -103,6 +103,15 @@ if ! python3 scripts/aws/check-route-modules.py "$API"; then
   exit 1
 fi
 
+# Der Sicherungs-Worker (Lambda plexora-backup-worker, siehe setup-backup.sh) läuft mit demselben Code wie die API
+WORKER="plexora-backup-worker"
+if [[ $CONFIG_ONLY -eq 0 ]] && aws lambda get-function --region "$REGION" --function-name "$WORKER" >/dev/null 2>&1; then
+  echo "== Sicherungs-Worker mit demselben Code aktualisieren"
+  aws lambda update-function-code --region "$REGION" --function-name "$WORKER" --s3-bucket "$BUCKET" --s3-key "$KEY" --s3-object-version "$VID" --query LastUpdateStatus --output text >/dev/null
+  aws lambda wait function-updated --region "$REGION" --function-name "$WORKER"
+  echo "   $WORKER aktualisiert"
+fi
+
 echo "== Alte Versionen aufräumen (behalte $KEEP)"
 IN_USE="$(alias_ver "$ALIAS") $(alias_ver "$PREV")"
 aws lambda list-versions-by-function --region "$REGION" --function-name "$FN" --query 'Versions[?Version!=`$LATEST`].Version' --output text \
