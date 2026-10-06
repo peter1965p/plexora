@@ -2583,10 +2583,13 @@ function moveNav(idx: number, dir: number) {
 async function saveNavOrder() {
   if (isDemo.value) return
   savingNav.value = true
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  const authHeadersNav = await useAuthHeader()
   await Promise.all(
     navPages.value.map((p, idx) =>
       $fetch(useApiUrl(`/api/pages/${p.slug}`), {
         method: 'PUT',
+        headers: authHeadersNav,
         body: { ...p, navOrder: idx }
       })
     )

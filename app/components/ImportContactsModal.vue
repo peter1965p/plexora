@@ -194,9 +194,12 @@ async function startImport() {
     const mapped = mapRow(r)
     if (!mapped.email) { errorCount.value++; progress.value++; continue }
 
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const authHeaders = await useAuthHeader()
     try {
       await $fetch(useApiUrl('/api/contacts'), {
         method: 'POST',
+        headers: authHeaders,
         body: {
           ...mapped,
           companyId: findCompanyId(mapped.company),
