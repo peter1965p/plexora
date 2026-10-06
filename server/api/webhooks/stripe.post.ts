@@ -92,11 +92,11 @@ export default defineEventHandler(async (event) => {
       }))
 
       // Stock reduzieren
-      if (metadata.productId) {
+      if (metadata.productId && metadata.productUserId) {
         try {
           await dynamo.send(new UpdateCommand({
             TableName: 'plexora-products',
-            Key: { userId: metadata.productUserId || 'demo-user', productId: metadata.productId },
+            Key: { userId: metadata.productUserId, productId: metadata.productId },
             UpdateExpression: 'SET stock = stock - :one',
             ExpressionAttributeValues: { ':one': 1 }
           }))

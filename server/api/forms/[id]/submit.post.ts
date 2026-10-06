@@ -20,9 +20,12 @@ export default defineEventHandler(async (event) => {
   }))
 
   if (!form) throw createError({ statusCode: 404, message: 'Form not found' })
+  // Ein Formular ohne Besitzer nimmt keine Leads an (früher: Ablage unter dem Demo-Nutzer)
+  const owner = String(form.userId || '')
+  if (!owner) throw createError({ statusCode: 404, message: 'Form not found' })
 
   // Bot-Schutz: ob geprüft wird, bestimmt die gespeicherte Kampagnen-Einstellung (nie der Request)
-  if (await formIsProtected(form.userId, formId || '')) await verifyBotToken(event, form.userId, body?.turnstileToken)
+  if (await formIsProtected(owner, formId || '')) await verifyBotToken(event, owner, body?.turnstileToken)
 
   const submissionId = randomUUID()
 
@@ -41,8 +44,8 @@ export default defineEventHandler(async (event) => {
   }))
 
   const leadData = { ...(body.data || {}), formTitle: form.title || '' }
-  const campaignTypeId = await findCampaignAppointmentTypeId(form.userId || 'demo-user', formId || '')
-  fireAutomations(form.userId || 'demo-user', 'form_submitted', leadData, { bookingTypeId: campaignTypeId })
+  const campaignTypeId = await findCampaignAppointmentTypeId(owner, formId || '')
+  fireAutomations(owner, 'form_submitted', leadData, { bookingTypeId: campaignTypeId })
 
   // ── Auto-Lead: Kontakt anlegen wenn E-Mail vorhanden ──
   const data = body.data || {}
@@ -63,14 +66,14 @@ export default defineEventHandler(async (event) => {
     const lastName  = lastNameKey  ? data[lastNameKey]  : (form.title || 'Lead')
     const phone     = phoneKey     ? data[phoneKey]     : ''
 
-    fireAutomations(form.userId || 'demo-user', 'new_lead', {
+    fireAutomations(owner, 'new_lead', {
       name: `${firstName} ${lastName}`.trim(), email: data[emailKey], phone, formTitle: form.title || '',
     }, { bookingTypeId: campaignTypeId })
 
     await client.send(new PutCommand({
       TableName: 'plexora-contacts',
       Item: {
-        userId:        form.userId || 'demo-user',
+        userId:        owner,
         contactId:     randomUUID(),
         firstName,
         lastName,
@@ -98,7 +101,7 @@ export default defineEventHandler(async (event) => {
     }))
   }
 
-  const sequenceOwner = form.userId || 'demo-user'
+  const sequenceOwner = owner
   await startSequences(sequenceOwner, 'form_submitted', { ...leadData, formId, campaignAppointmentTypeId: campaignTypeId, email: emailKey ? data[emailKey] : '' })
   if (emailKey && data[emailKey]) {
     await startSequences(sequenceOwner, 'new_lead', { ...leadData, formId, campaignAppointmentTypeId: campaignTypeId, email: data[emailKey], name: [...new Set([data[firstNameKey as string], data[lastNameKey as string]].filter(Boolean))].join(' ') })
