@@ -23,6 +23,7 @@ export const cloudflare = {
   },
   down: false,
 }
+const defaultRespond = cloudflare.respond
 
 export function installGlobals() {
   vi.stubGlobal('useRuntimeConfig', () => ({ encryptionKey: Buffer.alloc(32, 7).toString('base64'), public: {} }))
@@ -79,7 +80,7 @@ export function fakeDynamo() {
 
 export function resetDb() {
   db.settings.clear(); db.campaigns = []; db.forms = []; db.types = []; db.nexora = []; db.counters.clear(); db.writes = []
-  cloudflare.calls = []; cloudflare.down = false
+  cloudflare.calls = []; cloudflare.down = false; cloudflare.respond = defaultRespond
 }
 export const resolveUserIdFake = async (e: string) => members[e] || e
 export const authEv = (email: string, extra: any = {}, groups: string[] = ['customers']) =>

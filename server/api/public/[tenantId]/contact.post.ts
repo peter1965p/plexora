@@ -2,6 +2,7 @@ import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { enforcePublicRateLimit } from '../../../utils/rateLimit'
+import { contactIsProtected, verifyBotToken } from '../../../utils/botGuard'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, { 'Access-Control-Allow-Origin': '*' })
@@ -33,6 +34,10 @@ export default defineEventHandler(async (event) => {
   if (!tenant.Item || tenant.Item.status !== 'active') {
     throw createError({ statusCode: 404, message: 'Tenant nicht gefunden' })
   }
+
+  // Bot-Schutz für die Kontaktseite: Schalter aus den gespeicherten Einstellungen des Inhabers
+  const guard = await contactIsProtected(String(tenant.Item.email || ''))
+  if (guard.protected) await verifyBotToken(event, guard.ownerScope, body?.turnstileToken, tenant.Item.customDomain)
 
   // Name splitten
   const parts     = (body.name as string).trim().split(' ')

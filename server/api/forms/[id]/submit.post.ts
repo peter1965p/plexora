@@ -4,6 +4,7 @@ import { fireAutomations } from '../../../utils/automations'
 import { startSequences } from '../../../utils/sequences'
 import { findCampaignAppointmentTypeId } from '../../../utils/campaignAppointments'
 import { randomUUID } from 'crypto'
+import { formIsProtected, verifyBotToken } from '../../../utils/botGuard'
 import { enforcePublicRateLimit } from '../../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
@@ -19,6 +20,9 @@ export default defineEventHandler(async (event) => {
   }))
 
   if (!form) throw createError({ statusCode: 404, message: 'Form not found' })
+
+  // Bot-Schutz: ob geprüft wird, bestimmt die gespeicherte Kampagnen-Einstellung (nie der Request)
+  if (await formIsProtected(form.userId, formId || '')) await verifyBotToken(event, form.userId, body?.turnstileToken)
 
   const submissionId = randomUUID()
 

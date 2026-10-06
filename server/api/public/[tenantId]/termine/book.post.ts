@@ -4,6 +4,7 @@ import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCal
 import { randomUUID } from 'crypto'
 import { sendMail } from '../../../../utils/mailer'
 import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
+import { campaignTypeIsProtected, verifyBotToken } from '../../../../utils/botGuard'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
@@ -31,6 +32,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const { tenantItem, typeItem } = await loadTenantAndType(tenantId, typeId)
+
+  // Bot-Schutz nur für Kampagnen-Termine, deren Kampagne den Schalter an hat (Entscheidung aus gespeicherten Daten)
+  const guard = await campaignTypeIsProtected(String(tenantItem.email || ''), String(typeItem.campaignId || ''))
+  if (guard.protected) await verifyBotToken(event, guard.ownerScope, body?.turnstileToken, tenantItem.customDomain)
 
   const freeSlots = await computeFreeSlots(tenantId, tenantItem, typeItem, date)
   if (!freeSlots.includes(startTime)) {
