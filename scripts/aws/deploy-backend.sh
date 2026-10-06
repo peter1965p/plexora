@@ -37,12 +37,31 @@ if [[ $CONFIG_ONLY -eq 0 ]]; then
   ZIP="$(mktemp --suffix=.zip)"
   python3 - "$ZIP" <<'PY'
 import zipfile, os, sys
+# Nitro legt deduplizierte Pakete als symbolische Links ab (z. B. node_modules/base64-js -> .nitro/base64-js@1.5.1).
+# followlinks=True packt deren Inhalt als echte Dateien ein; ohne das fehlt das Paket auf der Lambda
+# ("Cannot find module 'base64-js'" beim Laden von pdfkit).
 base = '.output/server'
+names = set()
 with zipfile.ZipFile(sys.argv[1], 'w', zipfile.ZIP_DEFLATED) as z:
-    for root, _, files in os.walk(base):
+    for root, _, files in os.walk(base, followlinks=True):
         for f in files:
             if f.endswith('.map'): continue
-            p = os.path.join(root, f); z.write(p, os.path.relpath(p, base))
+            p = os.path.join(root, f); arc = os.path.relpath(p, base)
+            if arc in names: continue
+            names.add(arc); z.write(p, arc)
+# Prüfung: jeder Link in node_modules muss im Zip mit Inhalt vorhanden sein
+nm = os.path.join(base, 'node_modules')
+missing = []
+for entry in os.listdir(nm):
+    path = os.path.join(nm, entry)
+    subs = [os.path.join(path, d) for d in os.listdir(path)] if entry.startswith('@') and os.path.isdir(path) else [path]
+    for sp in subs:
+        if os.path.islink(sp):
+            rel = os.path.relpath(sp, base)
+            if not any(n.startswith(rel + '/') for n in names): missing.append(rel)
+if missing:
+    print('FEHLER: Links ohne Inhalt im Zip:', ', '.join(missing)); sys.exit(1)
+print(f'   Zip: {len(names)} Dateien, alle node_modules-Links aufgelöst')
 PY
   echo "== Hochladen (S3, versioniert)"
   VID="$(aws s3api put-object --bucket "$BUCKET" --key "$KEY" --body "$ZIP" --query VersionId --output text)"
@@ -73,6 +92,12 @@ a="$(curl -s -o /dev/null -w '%{http_code}' "$API/api/settings/agb")"
 d="$(curl -s -o /dev/null -w '%{http_code}' "$API/api/drafts/marketing-campaign")"
 echo "   /api/settings/agb: $a (erwartet 200) · /api/drafts/marketing-campaign ohne Token: $d (erwartet 401)"
 if [[ "$a" != "200" || "$d" != "401" ]]; then
+  echo "FEHLER: Rolle zurück auf Version $CUR ..."
+  aws lambda update-alias --region "$REGION" --function-name "$FN" --name "$ALIAS" --function-version "$CUR" >/dev/null
+  exit 1
+fi
+echo "== Modulprüfung: jede geschützte Route ohne Token darf nicht abstürzen"
+if ! python3 scripts/aws/check-route-modules.py "$API"; then
   echo "FEHLER: Rolle zurück auf Version $CUR ..."
   aws lambda update-alias --region "$REGION" --function-name "$FN" --name "$ALIAS" --function-version "$CUR" >/dev/null
   exit 1
