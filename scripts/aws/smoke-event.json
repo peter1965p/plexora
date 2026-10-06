@@ -1,0 +1,13 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/api/settings/agb",
+  "rawQueryString": "",
+  "headers": { "host": "smoke.test", "accept": "application/json" },
+  "requestContext": {
+    "accountId": "000000000000", "apiId": "smoke", "domainName": "smoke.test", "stage": "$default",
+    "requestId": "smoke", "time": "01/Jan/2026:00:00:00 +0000", "timeEpoch": 1767225600000,
+    "http": { "method": "GET", "path": "/api/settings/agb", "protocol": "HTTP/1.1", "sourceIp": "127.0.0.1", "userAgent": "smoke-test" }
+  },
+  "isBase64Encoded": false
+}
