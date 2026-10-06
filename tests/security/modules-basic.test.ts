@@ -13,6 +13,8 @@ const MODULES = [
   { name: 'contacts',  table: 'plexora-contacts',  body: { firstName: 'Max', lastName: 'Muster', email: 'max@muster.de' } },
   { name: 'deals',     table: 'plexora-deals',     body: { name: 'Deal', value: 100, stage: 'neu' } },
   { name: 'contracts', table: 'plexora-contracts', body: { title: 'Vertrag' } },
+  { name: 'projects',  table: 'plexora-projects',  body: { name: 'Projekt' } },
+  { name: 'support',   table: 'plexora-support',   body: { subject: 'Frage', description: 'Text' } },
 ] as const
 
 for (const m of MODULES) {

@@ -2,12 +2,13 @@ import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const client = getDynamoClient()
   const ticket = {
-    userId:      await resolveUserId(event.context.auth?.email || 'demo-user'),
+    userId:      await resolveUserId(requireAuth(event).email),
     ticketId:    randomUUID(),
     title:       body.title,
     client:      body.client,
