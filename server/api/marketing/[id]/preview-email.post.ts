@@ -2,15 +2,20 @@ import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
 import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey } from '../../../utils/marketingEmail'
+import { requireAuth } from '../../../utils/verifyAuth'
+import { isDemoAccount } from '../../../utils/mailGuard'
 
 export default defineEventHandler(async (event) => {
+  // Anmeldung ist Pflicht; das öffentlich bekannte Demo-Konto löst keine KI-Aufrufe aus (Kosten)
+  const auth = requireAuth(event)
+  if (isDemoAccount(auth)) throw createError({ statusCode: 403, message: 'Im Demo-Zugang ist die KI-Vorschau deaktiviert.' })
   const campaignId = getRouterParam(event, 'id')
   const body = await readBody(event)
   const { subject, tone = 'freundlich', contactFilter = {} } = body || {}
 
   const config = useRuntimeConfig()
   const dynamo = getDynamoClient()
-  const tenantId = await resolveUserId(event.context.auth?.email || 'demo-user')
+  const tenantId = await resolveUserId(auth.email)
 
   const campaignRes = await dynamo.send(new QueryCommand({
     TableName: 'plexora-marketing',

@@ -2,11 +2,9 @@
 // Diese Liste darf nur SCHRUMPFEN: Wird eine Route abgesichert (oder in routePolicy.ts als öffentlich begründet),
 // muss ihr Eintrag hier gelöscht und LEGACY_MAX gesenkt werden (der Test erzwingt das). Neue Einträge sind nicht erlaubt.
 // Stand 07.10.2026: abgebaut wird in Block b2 (Verwaltungsrouten) und Block d (Rückfall je Modul).
-export const LEGACY_MAX = 9
+export const LEGACY_MAX = 7
 
 export const LEGACY_ROUTES: string[] = [
-  'POST /api/marketing/[id]/preview-email',
-  'POST /api/marketing',
   'POST /api/pages',
   'POST /api/settings/branding',
   'POST /api/settings/company',

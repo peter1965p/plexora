@@ -5,13 +5,14 @@ import { randomUUID } from 'crypto'
 import { createCampaignAppointmentType, defaultCampaignEnd } from '../../utils/campaignAppointments'
 import { deleteOwnDraftQuietly } from '../../utils/drafts/context'
 import { assertBotProtectionAllowed } from '../../utils/botGuard'
+import { requireAuth } from '../../utils/verifyAuth'
 
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
   const client = getDynamoClient()
 
   const campaign = {
-    userId:         await resolveUserId(event.context.auth?.email || 'demo-user'),
+    userId:         await resolveUserId(requireAuth(event).email),
     campaignId:     randomUUID(),
     name:           body.name || '',
     slug:           body.slug || '',
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
     utmCampaign:    body.utmCampaign || '',
     active:         true,
     created:        new Date().toISOString(),
-    turnstileEnabled: await assertBotProtectionAllowed(await resolveUserId(event.context.auth?.email || 'demo-user'), body.turnstileEnabled),
+    turnstileEnabled: await assertBotProtectionAllowed(await resolveUserId(requireAuth(event).email), body.turnstileEnabled),
     endsAt:         body.endsAt ? new Date(body.endsAt).toISOString() : defaultCampaignEnd(),
   }
 
