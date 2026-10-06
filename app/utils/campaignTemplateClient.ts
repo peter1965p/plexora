@@ -1,6 +1,7 @@
 // Client-seitige Kopie von server/utils/campaignTemplate.ts, damit die Live-Vorschau im
 // Editor ohne Server-Roundtrip läuft. Struktur MUSS mit der Server-Version synchron bleiben.
 import Handlebars from 'handlebars'
+import { trustItemsHtml, privacyLineHtml } from '../../shared/leadDecor'
 
 const esc = (s: any) => Handlebars.Utils.escapeExpression(String(s ?? ''))
 
@@ -11,7 +12,7 @@ const esc = (s: any) => Handlebars.Utils.escapeExpression(String(s ?? ''))
 // /api/forms/[id]/submit.post.ts erkennt E-Mail/Name/Telefon per Substring-Match auf dem
 // Schlüssel — bei einem technischen name/id-Attribut würde dieser Auto-Lead-Erkennung
 // brechen, sobald Formularfelder keine sprechenden IDs haben.
-function renderLeadFormHtml(form: any): string {
+function renderLeadFormHtml(form: any, privacyLine?: unknown): string {
   if (!form) return '<div class="plx-no-form"><i class="ti ti-file-off"></i><span>Formular nicht gefunden</span></div>'
   const fields = Array.isArray(form.fields) ? form.fields : []
   const fieldsHtml = fields.map((f: any) => {
@@ -38,7 +39,7 @@ function renderLeadFormHtml(form: any): string {
       <div class="plx-form-inputs">
         <div id="plx-lead-form-fields" class="plx-fields">${fieldsHtml}</div>
         <button type="submit" class="plx-submit-btn"><span class="plx-submit-label">${esc(form.submitLabel || 'Absenden')}</span></button>
-        <div class="plx-privacy"><i class="ti ti-lock"></i> Deine Daten sind sicher. Keine Weitergabe an Dritte.</div>
+        ${privacyLineHtml(privacyLine)}
       </div>
       <div id="plx-lead-form-success" class="plx-form-success" style="display:none"></div>
       <div id="plx-lead-form-error" class="plx-form-error" style="display:none"></div>
@@ -98,7 +99,9 @@ export function buildLeadTemplateDataClient(campaign: any, form: any, branding: 
       primaryColor: branding?.primaryColor || '#ea580c',
     },
     form: form ? { title: form.title || '', description: form.description || '', submitLabel: form.submitLabel || 'Absenden' } : null,
-    form_html: new Handlebars.SafeString(renderLeadFormHtml(form)),
+    // Vertrauenspunkte und Datenschutzzeile der Kampagne (Standardwerte, wenn nichts gespeichert ist) – Texte maskiert, Icons aus der Allowlist
+    trust_html: new Handlebars.SafeString(trustItemsHtml(campaign?.trustItems)),
+    form_html: new Handlebars.SafeString(renderLeadFormHtml(form, campaign?.privacyLine)),
   }
 }
 

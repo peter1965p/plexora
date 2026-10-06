@@ -33,11 +33,7 @@ export const STANDARD_LEAD_HTML = `<div class="lp-root">
         </div>
       {{/if}}
 
-      <div class="lp-trust">
-        <div class="lp-trust-item"><i class="ti ti-shield-check"></i> 100% kostenlos</div>
-        <div class="lp-trust-item"><i class="ti ti-lock"></i> SSL gesichert</div>
-        <div class="lp-trust-item"><i class="ti ti-clock"></i> Antwort in 24h</div>
-      </div>
+      {{{trust_html}}}
     </div>
 
     <div class="lp-form-col">
