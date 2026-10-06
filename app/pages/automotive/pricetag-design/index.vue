@@ -247,7 +247,7 @@ onMounted(async () => {
     const authHeaders = await useAuthHeader()
     const [tplRes, presetsRes, companyRes, brandingRes, vehiclesRes] = await Promise.all([
       $fetch<any>(useApiUrl('/api/automotive/pricetag-templates'), { headers: authHeaders }),
-      $fetch<any>(useApiUrl('/api/automotive/pricetag-templates/presets')),
+      $fetch<any>(useApiUrl('/api/automotive/pricetag-templates/presets'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/company'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/branding'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/automotive'), { headers: authHeaders }),

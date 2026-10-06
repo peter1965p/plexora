@@ -214,7 +214,7 @@ onMounted(async () => {
     const authHeaders = await useAuthHeader()
     const [tplRes, presetsRes, companyRes, brandingRes, invoiceRes] = await Promise.all([
       $fetch<any>(useApiUrl('/api/settings/invoice-template'), { headers: authHeaders }),
-      $fetch<any>(useApiUrl('/api/settings/invoice-presets')),
+      $fetch<any>(useApiUrl('/api/settings/invoice-presets'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/company'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/branding'), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/invoice'), { headers: authHeaders }),

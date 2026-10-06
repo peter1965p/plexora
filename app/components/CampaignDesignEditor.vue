@@ -357,7 +357,7 @@ onMounted(async () => {
     const authHeaders = await useAuthHeader()
     const [dataRes, presetsRes, brandingRes] = await Promise.all([
       $fetch<any>(useApiUrl(props.type === 'job' ? `/api/hr/campaigns/${props.campaignId}` : `/api/marketing/${props.campaignId}`), { headers: authHeaders }),
-      $fetch<any>(useApiUrl(`/api/campaigns/presets?type=${props.type}`)),
+      $fetch<any>(useApiUrl(`/api/campaigns/presets?type=${props.type}`), { headers: authHeaders }),
       $fetch<any>(useApiUrl('/api/settings/branding'), { headers: authHeaders }),
     ])
     campaign.value   = dataRes?.campaign || {}
