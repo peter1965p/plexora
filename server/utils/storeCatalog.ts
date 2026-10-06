@@ -41,16 +41,22 @@ export async function getCatalogEntry(moduleKey: unknown, lookup: RegistryLookup
 export interface PaidSession {
   payment_status?: string | null
   currency?: string | null
-  amount_subtotal?: number | null
+  amount_subtotal?: number | null   // Summe der Positionen VOR Rabatten und Steuern
+  amount_total?: number | null      // Endbetrag nach Rabatten/Steuern (wird bewusst nicht verglichen)
 }
+
+// 'paid' = bezahlt; 'no_payment_required' = Rabatt bis 0 EUR (z. B. 100-Prozent-Gutschein), der Auftrag stammt dann
+// trotzdem aus unserer Sitzung mit Katalogpreis. 'unpaid' (Zahlung noch offen) schaltet nichts frei.
+const ACCEPTED_PAYMENT_STATUS = ['paid', 'no_payment_required']
 
 /**
  * Prüfung im Stripe-Webhook, bevor ein Modul freigeschaltet wird:
- * bezahlt, Währung EUR, Betrag (vor Rabatten und Steuern) gleich dem aktuellen Katalogpreis.
+ * bezahlt (oder 100 % Rabatt), Währung EUR, Betrag vor Rabatten und Steuern gleich dem aktuellen Katalogpreis.
+ * Rabatte und Steuern ändern amount_total, nicht amount_subtotal, und führen deshalb nicht zur Ablehnung.
  */
 export function verifyModulePurchase(session: PaidSession, entry: CatalogEntry | null): { ok: true } | { ok: false; reason: string } {
   if (!entry) return { ok: false, reason: 'Modul nicht im Katalog' }
-  if (session.payment_status !== 'paid') return { ok: false, reason: `Zahlungsstatus ${session.payment_status ?? 'unbekannt'}` }
+  if (!ACCEPTED_PAYMENT_STATUS.includes(session.payment_status || '')) return { ok: false, reason: `Zahlungsstatus ${session.payment_status ?? 'unbekannt'}` }
   if ((session.currency || '').toLowerCase() !== 'eur') return { ok: false, reason: `Währung ${session.currency ?? 'unbekannt'}` }
   const expected = toCents(entry.priceEur)
   if (session.amount_subtotal !== expected) return { ok: false, reason: `Betrag ${session.amount_subtotal ?? 'fehlt'} Cent, Katalog ${expected} Cent` }

@@ -57,7 +57,7 @@ describe('Webhook: Freischaltung nur bei passendem bezahltem Betrag', () => {
     expect(logged.join('\n')).toMatch(/\[module_purchase\] ABGELEHNT finance/)
   })
   it('nicht bezahlt, falsche Währung oder fehlender Betrag: abgelehnt', async () => {
-    for (const bad of [{ payment_status: 'unpaid' }, { payment_status: 'no_payment_required' }, { currency: 'usd' }, { amount_subtotal: null }, { amount_subtotal: 901 }]) {
+    for (const bad of [{ payment_status: 'unpaid' }, { payment_status: undefined }, { currency: 'usd' }, { amount_subtotal: null }, { amount_subtotal: 901 }, { amount_subtotal: 899 }]) {
       updates.length = 0
       await run(session(bad))
       expect(updates, JSON.stringify(bad)).toEqual([])
@@ -72,6 +72,31 @@ describe('Webhook: Freischaltung nur bei passendem bezahltem Betrag', () => {
     const meta = { type: 'module_purchase', moduleKey: 'plugin-x', email: 'kunde@firma.de' }
     await run(session({ metadata: meta, amount_subtotal: 100 })); expect(updates).toEqual([])
     await run(session({ metadata: meta, amount_subtotal: 2900 })); expect(updates.length).toBe(1)
+  })
+})
+
+describe('Rabattcodes und Gutscheine führen nicht zur Ablehnung', () => {
+  const meta = { type: 'module_purchase', moduleKey: 'finance', email: 'kunde@firma.de' }
+  it('Prozent-/Betragsrabatt: Endbetrag niedriger, Betrag vor Rabatt = Katalogpreis -> freigeschaltet', async () => {
+    await run(session({ metadata: meta, amount_subtotal: 1200, amount_total: 960 })) // 20 % Rabatt
+    expect(updates.length).toBe(1)
+    expect(logged.join('\n')).not.toMatch(/ABGELEHNT/)
+  })
+  it('100-Prozent-Gutschein: Status no_payment_required, Endbetrag 0 -> freigeschaltet', async () => {
+    await run(session({ metadata: meta, amount_subtotal: 1200, amount_total: 0, payment_status: 'no_payment_required' }))
+    expect(updates.length).toBe(1)
+  })
+  it('Steuer erhöht nur den Endbetrag -> freigeschaltet', async () => {
+    await run(session({ metadata: meta, amount_subtotal: 1200, amount_total: 1428 })) // 19 % Steuer
+    expect(updates.length).toBe(1)
+  })
+  it('ein Rabatt macht aber einen falschen Positionsbetrag nicht richtig (Preis vor Rabatt zählt)', async () => {
+    await run(session({ metadata: meta, amount_subtotal: 100, amount_total: 100 }))
+    expect(updates).toEqual([])
+  })
+  it('offene Zahlung (unpaid) schaltet nichts frei, auch nicht mit korrektem Betrag', async () => {
+    await run(session({ metadata: meta, amount_subtotal: 1200, payment_status: 'unpaid' }))
+    expect(updates).toEqual([])
   })
 })
 
