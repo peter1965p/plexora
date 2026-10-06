@@ -2,7 +2,7 @@
 
 Einzureichen unter: AWS Console → Service Quotas → AWS Lambda → "Concurrent executions" (Quota-Code L-B99A9384) → "Erhöhung auf Kontoebene beantragen".
 
-- Konto: 190934385265
+- Konto: <Konto-ID>
 - Region: eu-central-1 (Frankfurt)
 - Aktueller Wert: 10
 - Gewünschter Wert: 200
