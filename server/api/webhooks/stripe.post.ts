@@ -7,6 +7,7 @@ import { generateLicenseKey, TIER_MODULES, TIER_LABELS } from '../../utils/licen
 import { provisionModule } from '../../utils/moduleProvisioner'
 import { getCatalogEntry, verifyModulePurchase } from '../../utils/storeCatalog'
 import { randomUUID, randomBytes } from 'crypto'
+import { revealSecret } from '../../utils/paymentSecrets'
 
 export default defineEventHandler(async (event) => {
   const config  = useRuntimeConfig()
@@ -37,7 +38,7 @@ export default defineEventHandler(async (event) => {
       TableName: 'plexora-settings',
       Key: { settingId: 'payment', scope: 'global' }
     }))
-    if (ps.Item?.stripeWebhookSecret) webhookSecret = ps.Item.stripeWebhookSecret
+    if (ps.Item?.stripeWebhookSecret) webhookSecret = revealSecret(ps.Item.stripeWebhookSecret)
   } catch {}
 
   let stripeEvent: Stripe.Event

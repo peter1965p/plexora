@@ -2,6 +2,7 @@ import { requireAdmin, requireAuth } from '../../utils/verifyAuth'
 import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { assertNotDemo } from '../../utils/demoPolicy'
+import { sealSecret } from '../../utils/paymentSecrets'
 
 export default defineEventHandler(async (event) => {
   requireAdmin(event)
@@ -24,19 +25,19 @@ export default defineEventHandler(async (event) => {
       scope:            'global',
       activeGateway:    body.activeGateway    || 'stripe',
       // Stripe
-      stripeSecretKey:      body.stripeSecretKey      || existing.stripeSecretKey      || '',
+      stripeSecretKey:      sealSecret(body.stripeSecretKey) || existing.stripeSecretKey || '',
       stripePublishableKey: body.stripePublishableKey || '',
-      stripeWebhookSecret:  body.stripeWebhookSecret  || existing.stripeWebhookSecret  || '',
+      stripeWebhookSecret:  sealSecret(body.stripeWebhookSecret) || existing.stripeWebhookSecret || '',
       // PayPal
       paypalClientId:    body.paypalClientId    || '',
-      paypalSecret:      body.paypalSecret      || existing.paypalSecret      || '',
+      paypalSecret:      sealSecret(body.paypalSecret) || existing.paypalSecret || '',
       paypalSandbox:     body.paypalSandbox     ?? true,
       // Mollie
-      mollieApiKey:      body.mollieApiKey      || existing.mollieApiKey      || '',
+      mollieApiKey:      sealSecret(body.mollieApiKey) || existing.mollieApiKey || '',
       // Custom
       customName:        body.customName        || '',
       customApiUrl:      body.customApiUrl      || '',
-      customApiKey:      body.customApiKey      || existing.customApiKey      || '',
+      customApiKey:      sealSecret(body.customApiKey) || existing.customApiKey || '',
       updated:           new Date().toISOString(),
     }
   }))

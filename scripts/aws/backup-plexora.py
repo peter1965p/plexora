@@ -71,7 +71,8 @@ def main():
         removed = 0
         for it in items:
             for fld in SECRET_FIELDS:
-                if fld in it and it[fld].get("S"):
+                v = it.get(fld, {}).get("S", "")
+                if v and not re.fullmatch(r"[0-9a-f]{24}:[0-9a-f]{32}:[0-9a-f]+", v):   # AES-GCM-verschlüsselte Werte bleiben
                     it[fld] = {"S": "***nicht gesichert***"}; removed += 1
         if removed: notes.append(f"{t}: {removed} Klartext-Geheimnisfelder durch Platzhalter ersetzt (nach einer Wiederherstellung neu eintragen)")
         write(f"{root}/dynamodb/{t}.json", {"TableName": t, "Count": len(items), "Items": items})

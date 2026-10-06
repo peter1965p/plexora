@@ -3,6 +3,7 @@ import { UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { mailBlockReason } from '../../../utils/mailPolicy'
+import { revealSecret } from '../../../utils/paymentSecrets'
 
 export default defineEventHandler(async (event) => {
   const config  = useRuntimeConfig()
@@ -14,8 +15,8 @@ export default defineEventHandler(async (event) => {
   let webhookSecret = config.stripeWebhookSecret as string || ''
   try {
     const ps = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'payment', scope: 'global' } }))
-    if (ps.Item?.stripeSecretKey) stripeKey = ps.Item.stripeSecretKey
-    if (ps.Item?.stripeWebhookSecret) webhookSecret = ps.Item.stripeWebhookSecret
+    if (ps.Item?.stripeSecretKey) stripeKey = revealSecret(ps.Item.stripeSecretKey)
+    if (ps.Item?.stripeWebhookSecret) webhookSecret = revealSecret(ps.Item.stripeWebhookSecret)
   } catch {}
   const stripe = new Stripe(stripeKey)
 

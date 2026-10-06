@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../../../utils/dynamodb'
 import { resolveTenantEmail, resolveUserId } from '../../../../utils/tenant'
 import { randomUUID } from 'crypto'
 import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
+import { revealSecret } from '../../../../utils/paymentSecrets'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, { 'Access-Control-Allow-Origin': '*' })
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
   let stripeKey = useRuntimeConfig().stripeSecretKey as string
   try {
     const ps = await dynamo.send(new GetCommand({ TableName: 'plexora-settings', Key: { settingId: 'payment', scope: 'global' } }))
-    if (ps.Item?.stripeSecretKey) stripeKey = ps.Item.stripeSecretKey
+    if (ps.Item?.stripeSecretKey) stripeKey = revealSecret(ps.Item.stripeSecretKey)
   } catch {}
   const stripe = new Stripe(stripeKey)
 

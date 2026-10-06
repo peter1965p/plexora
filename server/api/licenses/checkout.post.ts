@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { TIER_MODULES, TIER_LABELS, TIER_PRICES } from '../../utils/license'
+import { revealSecret } from '../../utils/paymentSecrets'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
       TableName: 'plexora-settings',
       Key: { settingId: 'payment', scope: 'global' }
     }))
-    if (ps.Item?.stripeSecretKey) stripeKey = ps.Item.stripeSecretKey
+    if (ps.Item?.stripeSecretKey) stripeKey = revealSecret(ps.Item.stripeSecretKey)
   } catch {}
 
   const stripe = new Stripe(stripeKey)
