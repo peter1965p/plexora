@@ -114,3 +114,15 @@ describe('Platzierung auf der Seite (Desktop und Handy getrennt)', () => {
     expect(L.validateOverlays([...mk(1, 'image', 'pulse'), ...mk(1, 'page', 'spin'), ...mk(1, 'page', 'wiggle')]).ok).toBe(false)
   })
 })
+
+describe('Listen-Prüfung: geerbte Namen wie "constructor" sind keine gültigen Einträge', () => {
+  const INHERITED = ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf']
+  it('Form, Symbol, Animation und Platzierung nur aus der eigenen Liste: beim Lesen Standard, beim Speichern abgelehnt', () => {
+    for (const x of INHERITED) {
+      const [o] = L.resolveOverlays([{ shape: x, anim: x, place: x }]); expect(o.shape, x).toBe('star'); expect(o.anim, x).toBe('none'); expect(o.place, x).toBe('image')
+      expect(L.resolveTrustItems([{ icon: x, text: 'a' }])[0].icon, x).toBe('check')
+      expect(L.validateOverlays([{ shape: x }]).ok, `shape ${x}`).toBe(false); expect(L.validateOverlays([{ anim: x }]).ok, `anim ${x}`).toBe(false); expect(L.validateOverlays([{ place: x }]).ok, `place ${x}`).toBe(false)
+      expect(L.validateTrustItems([{ icon: x, text: 'a' }]).ok, `icon ${x}`).toBe(false)
+    }
+  })
+})

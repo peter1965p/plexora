@@ -51,6 +51,8 @@ export const DEFAULT_OVERLAY_COLOR = '#f59e0b'
 export const DEFAULT_OVERLAY: Omit<Overlay, 'id'> = { on: true, shape: 'star', text: '', color: DEFAULT_OVERLAY_COLOR, size: 22, rotate: 0, x: 70, y: 8, anim: 'none', textSize: 100, place: 'image', px: -40, py: -30, mx: -20, my: -60, hideMobile: false }
 
 // ── Bereinigung einzelner Werte ──
+/** Nur eigene Einträge einer Liste zählen (der Operator `in` würde auch geerbte Namen wie constructor oder __proto__ durchlassen) */
+const has = (list: object, k: unknown): k is string => typeof k === 'string' && Object.hasOwn(list, k)
 const clean = (v: unknown, max: number) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max)
 const HEX = /^#[0-9a-fA-F]{6}$/
 const num = (v: unknown, min: number, max: number, dflt: number) => { const n = Number(v); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : dflt }
@@ -59,17 +61,17 @@ const safeId = (v: unknown, fallback: string) => (typeof v === 'string' && /^[A-
 export function sanitizeTrustItem(raw: any, i: number): TrustItem | null {
   const text = clean(raw?.text, MAX_TRUST_TEXT)
   if (!text) return null
-  return { id: safeId(raw?.id, `t${i + 1}`), on: raw?.on !== false, icon: typeof raw?.icon === 'string' && raw.icon in TRUST_ICONS ? raw.icon : 'check', text }
+  return { id: safeId(raw?.id, `t${i + 1}`), on: raw?.on !== false, icon: has(TRUST_ICONS, raw?.icon) ? raw.icon : 'check', text }
 }
 export function sanitizeOverlay(raw: any, i: number): Overlay {
   return {
     id: safeId(raw?.id, `o${i + 1}`), on: raw?.on !== false,
-    shape: typeof raw?.shape === 'string' && raw.shape in OVERLAY_SHAPES ? raw.shape : 'star',
+    shape: has(OVERLAY_SHAPES, raw?.shape) ? raw.shape : 'star',
     text: clean(raw?.text, MAX_OVERLAY_TEXT),
     color: typeof raw?.color === 'string' && HEX.test(raw.color) ? raw.color : DEFAULT_OVERLAY_COLOR,
     size: Math.round(num(raw?.size, 8, 40, DEFAULT_OVERLAY.size)), rotate: Math.round(num(raw?.rotate, -180, 180, 0)),
     x: Math.round(num(raw?.x, 0, 92, DEFAULT_OVERLAY.x)), y: Math.round(num(raw?.y, 0, 92, DEFAULT_OVERLAY.y)),
-    anim: typeof raw?.anim === 'string' && raw.anim in OVERLAY_ANIMATIONS ? raw.anim : 'none',
+    anim: has(OVERLAY_ANIMATIONS, raw?.anim) ? raw.anim : 'none',
     textSize: Math.round(num(raw?.textSize, 50, 150, DEFAULT_OVERLAY.textSize)),
     place: raw?.place === 'page' ? 'page' : 'image',
     px: Math.round(num(raw?.px, -PAGE_X_LIMIT, PAGE_X_LIMIT, DEFAULT_OVERLAY.px)), py: Math.round(num(raw?.py, -PAGE_Y_LIMIT, PAGE_Y_LIMIT, DEFAULT_OVERLAY.py)),
@@ -106,7 +108,7 @@ export function validateTrustItems(input: unknown): Validated<TrustItem[]> {
   for (let i = 0; i < input.length; i++) {
     const r: any = input[i]
     if (String(r?.text ?? '').trim().length > MAX_TRUST_TEXT) return { ok: false, error: `Vertrauenspunkt ${i + 1}: höchstens ${MAX_TRUST_TEXT} Zeichen.` }
-    if (r?.icon !== undefined && !(typeof r.icon === 'string' && r.icon in TRUST_ICONS)) return { ok: false, error: `Vertrauenspunkt ${i + 1}: unbekanntes Symbol.` }
+    if (r?.icon !== undefined && !has(TRUST_ICONS, r.icon)) return { ok: false, error: `Vertrauenspunkt ${i + 1}: unbekanntes Symbol.` }
     const item = sanitizeTrustItem(r, i)
     if (!item) return { ok: false, error: `Vertrauenspunkt ${i + 1}: Text fehlt.` }
     out.push(item)
@@ -127,13 +129,13 @@ export function validateOverlays(input: unknown): Validated<Overlay[]> {
   const out: Overlay[] = []
   for (let i = 0; i < input.length; i++) {
     const r: any = input[i]
-    if (r?.shape !== undefined && !(typeof r.shape === 'string' && r.shape in OVERLAY_SHAPES)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Form.` }
+    if (r?.shape !== undefined && !has(OVERLAY_SHAPES, r.shape)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Form.` }
     if (String(r?.text ?? '').trim().length > MAX_OVERLAY_TEXT) return { ok: false, error: `Overlay ${i + 1}: Text höchstens ${MAX_OVERLAY_TEXT} Zeichen.` }
     if (r?.color !== undefined && !(typeof r.color === 'string' && HEX.test(r.color))) return { ok: false, error: `Overlay ${i + 1}: Farbe muss ein Hex-Wert wie #f59e0b sein.` }
-    if (r?.place !== undefined && !(typeof r.place === 'string' && r.place in OVERLAY_PLACES)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Platzierung.` }
+    if (r?.place !== undefined && !has(OVERLAY_PLACES, r.place)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Platzierung.` }
     if (r?.hideMobile !== undefined && typeof r.hideMobile !== 'boolean') return { ok: false, error: `Overlay ${i + 1}: "auf dem Handy ausblenden" muss an oder aus sein.` }
     for (const k of ['px', 'py', 'mx', 'my'] as const) if (r?.[k] !== undefined && !(typeof r[k] === 'number' && Number.isFinite(r[k]))) return { ok: false, error: `Overlay ${i + 1}: Position ${k} muss eine Zahl sein.` }
-    if (r?.anim !== undefined && !(typeof r.anim === 'string' && r.anim in OVERLAY_ANIMATIONS)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Animation.` }
+    if (r?.anim !== undefined && !has(OVERLAY_ANIMATIONS, r.anim)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Animation.` }
     out.push(sanitizeOverlay(r, i))
   }
   if (out.filter(o => o.anim !== 'none').length > MAX_ANIMATED_OVERLAYS) return { ok: false, error: `Höchstens ${MAX_ANIMATED_OVERLAYS} animierte Overlays.` }
