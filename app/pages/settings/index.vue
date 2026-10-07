@@ -2992,9 +2992,12 @@ async function loadVideoSettings() {
 }
 watch(tab, v => { if (v === 'video') loadVideoSettings() })
 async function connectGoogle() {
-  const { useAuthUser } = await import('~/composables/useAuth')
-  const u = await useAuthUser()
-  window.location.href = useApiUrl(`/api/termine/google-auth?token=${encodeURIComponent(u.idToken || '')}`)
+  const { useAuthHeader } = await import('~/composables/useAuth')
+  try {
+    // Das Anmeldetoken bleibt im Header; in die Adresse kommt nur ein 60 Sekunden gültiger Einmalwert
+    const r = await $fetch<{ url: string }>(useApiUrl('/api/termine/google-auth-start'), { method: 'POST', headers: await useAuthHeader() })
+    window.location.href = r.url
+  } catch (e: any) { alert(e?.data?.message || 'Die Verknüpfung konnte nicht gestartet werden.') }
 }
 async function disconnectGoogle() {
   if (!confirm('Google Calendar wirklich trennen?')) return

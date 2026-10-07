@@ -1,19 +1,18 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
-import { verifyToken } from '../../utils/verifyAuth'
+import { redeemTicket } from '../../utils/oneTimeTicket'
 import { createOAuthState, STATE_COOKIE, STATE_TTL_SECONDS } from '../../utils/oauthState'
 
-// Wird per echter Browser-Navigation aufgerufen (window.location.href, für den
-// Google-Consent-Redirect), daher kommt hier kein Authorization-Header an — die
-// Middleware kann requireAuth() nicht greifen lassen. Stattdessen wird das
-// Cognito-ID-Token selbst als Query-Param mitgegeben und hier verifiziert; die
-// E-Mail wird NICHT aus der Query übernommen, sondern aus dem verifizierten Token
-// gelesen (verhindert das Calendar-Hijack über eine erratene fremde E-Mail).
+// Wird per echter Browser-Navigation aufgerufen (window.location.href, für den Google-Consent-Redirect), daher kommt hier kein Authorization-Header an.
+// Statt des Anmeldetokens steht ein kurzlebiger Einmalwert (?ticket=) in der Adresse: er stammt aus einer angemeldeten POST-Anfrage
+// (/api/termine/google-auth-start), gilt nur für diesen Vorgang, 60 Sekunden und genau einmal. Ein Anmeldetoken (?token=) wird nicht mehr angenommen.
+// Die E-Mail kommt aus dem Einmalwert, nie aus der Adresse (verhindert das Calendar-Hijack über eine erratene fremde E-Mail).
 export default defineEventHandler(async (event) => {
-  const token = getQuery(event).token as string | undefined
-  if (!token) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
-  const auth = await verifyToken(token)
-  if (!auth) throw createError({ statusCode: 401, message: 'Anmeldung erforderlich' })
+  // Die Adresse enthält den Einmalwert: nie an Google oder andere Seiten weitergeben
+  setResponseHeader(event, 'Referrer-Policy', 'no-referrer')
+  setResponseHeader(event, 'Cache-Control', 'no-store')
+  const auth = await redeemTicket(getQuery(event).ticket, 'google-auth')
+  if (!auth) throw createError({ statusCode: 401, message: 'Der Link ist abgelaufen oder wurde schon benutzt. Bitte die Verknüpfung in Plexora neu starten.' })
   const email = auth.email
 
   const config = useRuntimeConfig()

@@ -1,18 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { installGlobals } from '../botprotection/helpers'
 
-const db = { nexora: [{ tenantId: 'T-CHEF', email: 'chef@firma.de' }], updates: [] as any[] }
+const db = { nexora: [{ tenantId: 'T-CHEF', email: 'chef@firma.de' }], updates: [] as any[], used: new Set<string>() }
 vi.mock('../../server/utils/dynamodb', () => ({
   getDynamoClient: () => ({
     async send(cmd: any) {
       const n = cmd.constructor.name; const i = cmd.input
       if (n === 'ScanCommand') return { Items: db.nexora.filter(x => x.email === i.ExpressionAttributeValues[':e']) }
+      if (n === 'UpdateCommand' && i.TableName === 'plexora-newsletter-ratelimit') {      // Einmalwert verbrauchen (bedingter Eintrag)
+        const k = i.Key.throttleKey
+        if (i.ConditionExpression && db.used.has(k)) { const e: any = new Error('cond'); e.name = 'ConditionalCheckFailedException'; throw e }
+        db.used.add(k); return {}
+      }
       if (n === 'UpdateCommand') { db.updates.push(i); return {} }
       return {}
     },
   }),
 }))
-vi.mock('../../server/utils/verifyAuth', () => ({ verifyToken: async (t: string) => (t === 'tok-chef' ? { userId: 'sub-chef', email: 'chef@firma.de', groups: [] } : null) }))
 installGlobals()
 const cookies = new Map<string, string>()
 const redirects: string[] = []
@@ -29,9 +33,10 @@ vi.stubGlobal('$fetch', async (url: string) => {
 })
 
 const { createOAuthState, verifyOAuthState } = await import('../../server/utils/oauthState')
+const { createTicket } = await import('../../server/utils/oneTimeTicket')
 const { default: start } = await import('../../server/api/termine/google-auth.get')
 const { default: callback } = await import('../../server/api/termine/google-callback.get')
-beforeEach(() => { cookies.clear(); redirects.length = 0; googleCalls.length = 0; db.updates = [] })
+beforeEach(() => { cookies.clear(); redirects.length = 0; googleCalls.length = 0; db.updates = []; db.used = new Set() })
 
 describe('state-Helfer', () => {
   it('Rundlauf: gültig mit passendem Cookie, liefert Mandant und Nutzer', () => {
@@ -55,13 +60,14 @@ describe('state-Helfer', () => {
 
 describe('Google-Rücksprung', () => {
   const fullFlow = async () => {
-    await start({ query: { token: 'tok-chef' }, headers: {}, context: {} } as any)
+    await start({ query: { ticket: createTicket({ userId: 'sub-chef', email: 'chef@firma.de' }, 'google-auth') }, headers: {}, context: {} } as any)
     const url = new URL(redirects[0])
     return { state: url.searchParams.get('state')!, nonce: cookies.get('plx_oauth_nonce')! }
   }
-  it('Start: ohne/mit ungültigem Token 401; gültig: signierter state (nicht die Mandanten-ID) + httpOnly-Cookie', async () => {
+  it('Start: ohne/mit ungültigem Einmalwert 401 (ein Anmeldetoken in der Adresse zählt nicht); gültig: signierter state (nicht die Mandanten-ID) + httpOnly-Cookie', async () => {
     await expect(start({ query: {}, headers: {}, context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
-    await expect(start({ query: { token: 'quatsch' }, headers: {}, context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
+    await expect(start({ query: { ticket: 'quatsch' }, headers: {}, context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
+    await expect(start({ query: { token: 'tok-chef' }, headers: {}, context: {} } as any)).rejects.toMatchObject({ statusCode: 401 })
     const { state, nonce } = await fullFlow()
     expect(state).not.toBe('T-CHEF'); expect(state).not.toContain('T-CHEF'); expect(nonce.length).toBeGreaterThan(10)
   })

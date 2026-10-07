@@ -583,8 +583,12 @@ const settingsForm = reactive({
 
 const googleDisconnecting = ref(false)
 
-function connectGoogle() {
-  window.location.href = useApiUrl(`/api/termine/google-auth?token=${encodeURIComponent(authToken.value)}`)
+async function connectGoogle() {
+  try {
+    // Das Anmeldetoken bleibt im Header; in die Adresse kommt nur ein 60 Sekunden gültiger Einmalwert
+    const r = await $fetch<{ url: string }>(useApiUrl('/api/termine/google-auth-start'), { method: 'POST', headers: { Authorization: `Bearer ${authToken.value}` } })
+    window.location.href = r.url
+  } catch (e: any) { alert(e?.data?.message || 'Die Verknüpfung konnte nicht gestartet werden.') }
 }
 
 async function disconnectGoogle() {
