@@ -78,16 +78,12 @@
         </div>
 
         <div class="lp-hero-visual">
-        <div class="lp-hero-shot lp-reveal">
+        <!-- Plexora von innen: fünf Schichten (Bild enthält deutschen Text). Klick öffnet die große Fassung, weil die Beschriftung im Hero klein ist. -->
+        <a class="lp-hero-art lp-reveal" href="/img/plexora-von-innen-2400.webp" target="_blank" rel="noopener" :title="t.hero.visualZoom">
           <div class="lp-hero-shot-glow"></div>
-          <div class="lp-browser-chrome">
-            <span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span>
-            <div class="lp-browser-url">app.plexora.eu/dashboard</div>
-          </div>
-          <img src="/screenshots/dashboard-light.png" alt="Plexora Dashboard" class="lp-hero-shot-img" loading="eager" />
-        </div>
-        <div class="lp-hero-float lp-hero-float-1 lp-reveal"><img src="/screenshots/seo-light.png" alt="Plexora SEO & Traffic Analytics" /></div>
-        <div class="lp-hero-float lp-hero-float-2 lp-reveal"><img src="/screenshots/modulstore-light.png" alt="Plexora Modul-Store" /></div>
+          <img src="/img/plexora-von-innen-1280.webp" srcset="/img/plexora-von-innen-1280.webp 1280w, /img/plexora-von-innen-2400.webp 2400w" sizes="(min-width: 1100px) 46vw, 92vw"
+            width="1280" height="720" :alt="t.hero.visualAlt" class="lp-hero-art-img" loading="eager" fetchpriority="high" />
+        </a>
         </div>
       </div>
     </section>
@@ -377,6 +373,8 @@ const i18n = {
     hero: {
       h1a: 'Eine Lizenz.',
       h1b: 'Alles drin.',
+      visualAlt: 'Plexora von innen: fünf Schichten einer Plattform – Module, KI-Schicht, Zugriff und Protokoll, Mandantentrennung und Infrastruktur auf AWS in Frankfurt.',
+      visualZoom: 'Bild in voller Größe öffnen',
       subL1a: 'Warum 100+', subL1b: 'Lizenzen zahlen,',
       subL2a: 'wenn es die', subL2b: 'eine für alles gibt?',
       ctaDemo: 'Demo ausprobieren ↗',
@@ -474,6 +472,8 @@ const i18n = {
     hero: {
       h1a: 'One License.',
       h1b: 'Everything Included.',
+      visualAlt: 'Plexora from the inside: five layers of one platform – modules, AI layer, access and audit log, tenant separation and infrastructure on AWS in Frankfurt (image text is in German).',
+      visualZoom: 'Open image in full size',
       subL1a: 'Why pay for', subL1b: '100+ tools',
       subL2a: 'when one', subL2b: 'covers everything?',
       ctaDemo: 'Try the Demo ↗',
@@ -931,55 +931,25 @@ onMounted(() => {
 .lp-demo-hint strong { color: #f0eef9; }
 .lp-demo-hint svg { color: #38bdf8; }
 
-/* HERO PRODUCT SHOT */
+/* HERO: Plexora von innen */
 .lp-hero-visual { max-width: 720px; margin: 56px auto 0; }
-.lp-hero-shot { position: relative; }
+.lp-hero-art { position: relative; display: block; }
 .lp-hero-shot-glow {
   position: absolute; inset: -40px -20px 0; z-index: -1;
   background: radial-gradient(ellipse 70% 60% at 50% 30%, rgba(234,88,12,0.28), transparent 70%);
   filter: blur(20px);
 }
-.lp-browser-chrome {
-  display: flex; align-items: center; gap: 8px;
-  background: #211d2b; border: 0.5px solid rgba(255,255,255,0.1);
-  border-bottom: none; border-radius: 14px 14px 0 0;
-  padding: 12px 16px;
-}
-.lp-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-.lp-dot-r { background: #ff5f57; }
-.lp-dot-y { background: #febc2e; }
-.lp-dot-g { background: #28c840; }
-.lp-browser-url {
-  margin: 0 auto; font-size: 11px; color: #8b8fa8;
-  background: rgba(255,255,255,0.05); border-radius: 6px; padding: 3px 14px;
-}
-.lp-hero-shot-img {
-  display: block; width: 100%; height: auto;
-  border: 0.5px solid rgba(255,255,255,0.1); border-radius: 0 0 14px 14px;
+.lp-hero-art-img {
+  display: block; width: 100%; height: auto; border-radius: 16px;
+  border: 0.5px solid rgba(255,255,255,0.1);
   box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
-}
-.lp-hero-float {
-  display: none;
-  position: absolute; width: 220px;
-  filter: drop-shadow(0 16px 30px rgba(0,0,0,0.5));
   transition: transform 0.3s;
 }
-.lp-hero-float img { display: block; width: 100%; height: auto; }
-.lp-hero-float:hover { transform: translateY(-4px) scale(1.02) rotate(0deg) !important; z-index: 5; }
-/* Abgerissene Papierkante unten */
-.lp-hero-float-1 {
-  top: -18px; left: -70px; transform: rotate(-6deg);
-  clip-path: polygon(0 0, 100% 0, 100% 88%, 93% 93%, 86% 87%, 79% 96%, 72% 89%, 65% 97%, 58% 88%, 51% 95%, 44% 89%, 37% 98%, 30% 90%, 23% 96%, 16% 88%, 9% 94%, 2% 89%, 0 92%);
-}
-/* Abgerissene Papierkante oben */
-.lp-hero-float-2 {
-  bottom: -24px; right: -60px; transform: rotate(5deg);
-  clip-path: polygon(0 12%, 5% 5%, 11% 11%, 18% 3%, 25% 10%, 32% 4%, 39% 11%, 46% 5%, 53% 12%, 60% 4%, 67% 10%, 74% 3%, 81% 11%, 88% 5%, 95% 10%, 100% 4%, 100% 100%, 0 100%);
-}
+.lp-hero-art:hover .lp-hero-art-img { transform: translateY(-3px) scale(1.01); }
+@media (prefers-reduced-motion: reduce) { .lp-hero-art-img { transition: none; } .lp-hero-art:hover .lp-hero-art-img { transform: none; } }
 
 @media (min-width: 1100px) {
   .lp-hero-visual { max-width: none; margin: 0; }
-  .lp-hero-float { display: block; }
 }
 
 /* HOW IT WORKS */
