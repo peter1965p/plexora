@@ -5,6 +5,7 @@ import { requireAuth } from '../../../utils/verifyAuth'
 import { resolveUserId } from '../../../utils/tenant'
 import { randomUUID } from 'crypto'
 import { requireMailSender } from '../../../utils/mailGuard'
+import { reserveMail } from '../../../utils/mailQuota'
 
 export default defineEventHandler(async (event) => {
   const { email } = requireMailSender(event)
@@ -50,7 +51,7 @@ export default defineEventHandler(async (event) => {
   }))
 
   // Mail an Lieferant wenn Email vorhanden
-  if (supplier.email) {
+  if (supplier.email && (await reserveMail({ tenantId: userId, pool: 'system', recipients: [String(supplier.email)], what: 'purchase-order' })).ok) {   // Tageslimit des Mandanten (Tarif)
     try {
       const resend = new Resend(useRuntimeConfig().resendApiKey as string)
       await resend.emails.send({

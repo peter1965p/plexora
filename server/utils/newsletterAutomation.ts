@@ -3,6 +3,7 @@ import { getDynamoClient } from './dynamodb'
 import { compileNewsletterHtml } from './newsletterHtml'
 import { Resend } from 'resend'
 import { mailBlockReason } from './mailPolicy'
+import { reserveMail } from './mailQuota'
 
 // Gemeinsamer Versand-Baustein für automatisierte Einzel-Mails (Willkommens-Mail,
 // verzögerte Follow-ups, Kampagnen-Erinnerungen) — genutzt vom Confirm-Hook (sofort)
@@ -16,6 +17,8 @@ export async function sendAutomationEmail(
 ): Promise<boolean> {
   // Feste Ausschlussregel: Demo-/Beispiel-Mandanten bekommen nie Automations-Mails
   if (mailBlockReason(tenantId)) return false
+  // Tageslimit für Massenmails (Tarif): bei Überschreitung wird diese Automations-Mail nicht gesendet
+  if (!(await reserveMail({ tenantId, pool: 'bulk', count: 1, what: 'automation' })).ok) return false
   const dynamo = getDynamoClient()
   const [templateRes, settingsRes, brandingRes] = await Promise.all([
     dynamo.send(new GetCommand({ TableName: 'plexora-newsletter-templates', Key: { tenantId, templateId } })),

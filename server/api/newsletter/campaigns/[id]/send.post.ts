@@ -6,6 +6,7 @@ import { compileNewsletterHtml } from '../../../../utils/newsletterHtml'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 import { requireMailSender } from '../../../../utils/mailGuard'
+import { assertMailQuota } from '../../../../utils/mailQuota'
 
 const BATCH_SIZE = 100
 
@@ -97,6 +98,14 @@ export default defineEventHandler(async (event) => {
   } while (sendsCursor)
 
   const pending = allSubscribers.filter(s => !alreadySent.has(s.subscriberId))
+
+  // Tageslimit für Massenmails (Tarif): die ganze Empfängerzahl wird vorab reserviert, ganz oder gar nicht. Bei Ablehnung geht die Kampagne zurück auf ihren vorigen Status.
+  try { await assertMailQuota({ tenantId, pool: 'bulk', count: pending.length, what: 'newsletter' }) } catch (e) {
+    if (campaign.status !== 'sending') {
+      await dynamo.send(new UpdateCommand({ TableName: 'plexora-newsletter-campaigns', Key: { tenantId, campaignId }, UpdateExpression: 'SET #s = :prev', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':prev': campaign.status || 'draft' } })).catch(() => {})
+    }
+    throw e
+  }
 
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-newsletter-campaigns',

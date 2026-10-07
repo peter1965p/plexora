@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { enforcePublicRateLimit } from '../../../utils/rateLimit'
 import { mailBlockReason } from '../../../utils/mailPolicy'
+import { reserveMail } from '../../../utils/mailQuota'
 
 export default defineEventHandler(async (event) => {
   await enforcePublicRateLimit(event, 'jobs-apply')
@@ -46,6 +47,8 @@ export default defineEventHandler(async (event) => {
 
   // Mail an Bewerber (nicht für Demo-/Beispiel-Mandanten)
   if (mailBlockReason(String(campaign.userId || ''))) return { success: true }
+  // Tageslimit des Mandanten (Tarif): die Bewerbung ist gespeichert, nur die Eingangsbestätigung entfällt bei Überschreitung
+  if (!(await reserveMail({ tenantId: String(campaign.userId || ''), pool: 'system', recipients: [String(body.email || '')], what: 'job-confirmation' })).ok) return { success: true }
   try {
     const resend = new Resend(useRuntimeConfig().resendApiKey as string)
     await resend.emails.send({

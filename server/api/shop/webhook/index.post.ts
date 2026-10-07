@@ -3,6 +3,7 @@ import { UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { mailBlockReason } from '../../../utils/mailPolicy'
+import { reserveMail } from '../../../utils/mailQuota'
 import { revealSecret } from '../../../utils/paymentSecrets'
 
 export default defineEventHandler(async (event) => {
@@ -63,7 +64,7 @@ export default defineEventHandler(async (event) => {
             }))
           }
 
-          if (email && !mailBlockReason(String(order.sellerUserId || ''))) {
+          if (email && !mailBlockReason(String(order.sellerUserId || '')) && (await reserveMail({ tenantId: String(order.sellerUserId || ''), pool: 'system', recipients: [String(email)], what: 'shop-order' })).ok) {   // Tageslimit des Verkäufers (Tarif)
             try {
               const resend = new Resend(config.resendApiKey as string)
               await resend.emails.send({

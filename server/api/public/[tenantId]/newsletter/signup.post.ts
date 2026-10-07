@@ -5,6 +5,7 @@ import { buildConfirmEmailHtml } from '../../../../utils/newsletterEmail'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 import { mailBlockReason } from '../../../../utils/mailPolicy'
+import { reserveMail } from '../../../../utils/mailQuota'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -68,6 +69,9 @@ export default defineEventHandler(async (event) => {
       createdAt:          existing.Item?.createdAt || now,
     },
   }))
+
+  // Tageslimit des Mandanten (Tarif, auch gegen Mail-Bombing fremder Adressen): ohne Bestätigungsmail bleibt die Anmeldung unbestätigt
+  if (!(await reserveMail({ tenantId: String(tenantRow.email || tenantId), pool: 'system', recipients: [email], what: 'newsletter-confirm' })).ok) return { success: true }
 
   try {
     const apiBase = useRuntimeConfig().public.apiBase as string

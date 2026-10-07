@@ -3,6 +3,7 @@ import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
 import { requireMailSender } from '../../../utils/mailGuard'
+import { assertMailQuota } from '../../../utils/mailQuota'
 import { generateEmailContent, buildEmailHtml, resolveAnthropicApiKey, replacePlaceholders, textToHtmlParagraphs } from '../../../utils/marketingEmail'
 
 export default defineEventHandler(async (event) => {
@@ -35,6 +36,9 @@ export default defineEventHandler(async (event) => {
   if (contactFilter.status) contacts = contacts.filter((c: any) => c.status === contactFilter.status)
   contacts = contacts.filter((c: any) => c.email)
   if (contacts.length === 0) return { sent: 0, total: 0, failed: [], message: 'Keine Kontakte mit E-Mail-Adresse gefunden' }
+
+  // Tageslimit für Massenmails (Tarif): die ganze Empfängerzahl wird vorab reserviert, es geht alles oder nichts (nie halb gesendet)
+  await assertMailQuota({ tenantId, pool: 'bulk', count: contacts.length, what: 'campaign-email' })
 
   const anthropicApiKey = mode === 'ai' ? await resolveAnthropicApiKey(tenantId, config.anthropicApiKey as string) : ''
 

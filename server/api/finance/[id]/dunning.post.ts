@@ -3,6 +3,8 @@ import { Resend } from 'resend'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { assertOwner } from '../../../utils/ownership'
 import { requireMailSender, validRecipient } from '../../../utils/mailGuard'
+import { assertMailQuota } from '../../../utils/mailQuota'
+import { resolveUserId } from '../../../utils/tenant'
 import PDFDocument from 'pdfkit'
 
 const DUNNING_LEVELS: Record<number, { status: string, label: string, fee: number, text: string }> = {
@@ -116,6 +118,7 @@ export default defineEventHandler(async (event) => {
   const total     = brutto + dunning.fee
 
   if (toEmail) {
+    await assertMailQuota({ tenantId: await resolveUserId(invoice.userId), pool: 'system', recipients: [toEmail], what: 'dunning' })   // Tageslimit des Mandanten (Tarif)
     const resend = new Resend(useRuntimeConfig().resendApiKey as string)
     await resend.emails.send({
       from: `${branding.brandName} <billing@plexora.eu>`,

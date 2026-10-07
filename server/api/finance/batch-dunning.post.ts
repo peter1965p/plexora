@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { requireAdmin } from '../../utils/verifyAuth'
+import { reserveMail } from '../../utils/mailQuota'
 
 export default defineEventHandler(async (event) => {
   requireAdmin(event)
@@ -94,6 +95,9 @@ export default defineEventHandler(async (event) => {
     const total       = brutto + (levelConfig.fee || 0)
 
     if (invoice.clientEmail) {
+      // Tageslimit des Mandanten (Tarif): bei Überschreitung bleibt die Mahnstufe unverändert, die Mahnung wird beim nächsten Lauf erneut versucht
+      const q = await reserveMail({ tenantId: String(invoice.userId), pool: 'system', recipients: [invoice.clientEmail], what: 'dunning-batch' })
+      if (!q.ok) { results.skipped++; continue }
       try {
         const subject = `${label}: Rechnung ${invoice.number || invoice.invoiceId?.slice(0,8)} — ${branding.brandName}`
         const payUrl  = `https://app.plexora.eu/pay/${invoice.invoiceId}`

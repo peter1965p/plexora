@@ -6,6 +6,7 @@ import { buildConfirmEmailHtml } from '../../../utils/newsletterEmail'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 import { requireMailSender } from '../../../utils/mailGuard'
+import { assertMailQuota } from '../../../utils/mailQuota'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MAX_ROWS = 5000
@@ -41,6 +42,9 @@ export default defineEventHandler(async (event) => {
       createdAt:         now,
     })
   }
+
+  // Tageslimit für Massenmails (Tarif): jede Adresse bekommt eine Bestätigungsmail; ganz oder gar nicht, bevor etwas gespeichert wird
+  await assertMailQuota({ tenantId, pool: 'bulk', count: subscribers.length, what: 'newsletter-import' })
 
   const dynamo = getDynamoClient()
   for (let i = 0; i < subscribers.length; i += 25) {

@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { requireAuth } from '../../utils/verifyAuth'
 import { resolveUserId } from '../../utils/tenant'
 import { requireMailSender } from '../../utils/mailGuard'
+import { reserveMail } from '../../utils/mailQuota'
 
 const FOLLOWUP_TEMPLATES: Record<string, { subject: string; body: (name: string) => string }> = {
   'not-opened-3d': {
@@ -69,6 +70,8 @@ export default defineEventHandler(async (event) => {
     if (!templateKey) continue
 
     const tmpl = FOLLOWUP_TEMPLATES[templateKey]
+    // Tageslimit für Massenmails (Tarif): erreicht = Rest folgt beim nächsten Lauf (die Nachfass-Stufe wird erst nach dem Senden gesetzt)
+    if (!(await reserveMail({ tenantId: userId, pool: 'bulk', count: 1, what: 'followup' })).ok) break
     try {
       await resend.emails.send({
         from: 'Plexora <marketing@plexora.eu>',

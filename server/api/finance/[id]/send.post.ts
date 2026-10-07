@@ -4,6 +4,7 @@ import { getDynamoClient } from '../../../utils/dynamodb'
 import { assertOwner } from '../../../utils/ownership'
 import { requireMailSender, validRecipient } from '../../../utils/mailGuard'
 import { resolveUserId } from '../../../utils/tenant'
+import { assertMailQuota } from '../../../utils/mailQuota'
 import { renderInvoiceTemplateToPdf } from '../../../utils/invoiceTemplate'
 import { getPresetHtml } from '../../../utils/invoicePresets'
 
@@ -70,6 +71,7 @@ export default defineEventHandler(async (event) => {
   // Mail via Resend senden
   const subject  = `Rechnung ${invoice.number || invoiceId?.slice(0,8).toUpperCase()} von ${branding.brandName}`
   const resend   = new Resend(config.resendApiKey as string)
+  await assertMailQuota({ tenantId: tenantUserId, pool: 'system', recipients: [toEmail], what: 'invoice' })   // Tageslimit des Mandanten (Tarif)
 
   await resend.emails.send({
     from: `${branding.brandName} <billing@plexora.eu>`,
