@@ -379,18 +379,10 @@
               </div>
             </div>
 
-            <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
-              <div class="settings-label" style="margin-bottom:6px">Vertrauenspunkte, Datenschutzzeile &amp; Sticker</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-                Bestimmt, was unter dem Hero-Bild und unter dem Button der Lead-Seite steht, und welche Sticker auf dem Hero-Bild liegen. Ohne Änderung bleibt alles wie bisher.
-              </div>
-              <LeadDecorEditor ref="decorEditor" :selected-id="selectedOverlayId" @select="selectedOverlayId = $event" :model-value="decor" :has-hero="!!form.headerImageUrl" :custom-template="!!editing?.customTemplateHtml"
-                @update:model-value="(v: any) => Object.assign(decor, v)" @touched="decorTouched = true" />
-            </div>
           </div>
 
           <!-- Live-Vorschau -->
-          <div style="position:sticky;top:0">
+          <div class="camp-side" style="position:sticky;top:0;max-height:78vh;overflow-y:auto;padding-right:4px">
             <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.livePreview }}</div>
             <!-- Live-Vorschau der Lead-Seite (Desktop und Handy) inkl. Vertrauenspunkten, Datenschutzzeile und Stickern -->
             <LeadPreview v-model:mode="previewMode" :campaign="previewCampaign" :form="selectedForm" :selected-overlay-id="selectedOverlayId"
@@ -398,6 +390,16 @@
             <div v-if="form.formId" style="margin-top:8px;background:var(--bg-elevated);border-radius:8px;padding:10px;font-size:11px">
               <div style="color:var(--text-muted);margin-bottom:3px">Link:</div>
               <div style="color:var(--accent);word-break:break-all;font-size:10px">{{ campaignUrl }}</div>
+            </div>
+
+            <!-- Vertrauenspunkte, Datenschutzzeile & Sticker: direkt unter der Vorschau, damit Änderungen sofort sichtbar sind -->
+            <div style="margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border)">
+              <div class="settings-label" style="margin-bottom:6px">Vertrauenspunkte, Datenschutzzeile &amp; Sticker</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                Bestimmt, was unter dem Hero-Bild und unter dem Button der Lead-Seite steht, und welche Sticker auf dem Hero-Bild liegen. Ohne Änderung bleibt alles wie bisher.
+              </div>
+              <LeadDecorEditor ref="decorEditor" :selected-id="selectedOverlayId" @select="selectedOverlayId = $event" :model-value="decor" :has-hero="!!form.headerImageUrl" :custom-template="!!editing?.customTemplateHtml"
+                @update:model-value="(v: any) => Object.assign(decor, v)" @touched="decorTouched = true" />
             </div>
           </div>
         </div>
