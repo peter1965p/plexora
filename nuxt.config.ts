@@ -70,6 +70,8 @@ export default defineNuxtConfig({
     authEnforce: "",
     // Tarif-/Modulprüfung (server/middleware/plan.ts): leer = nur protokollieren ("würde ablehnen"), "true" = durchsetzen (402/429). Umschalten: scripts/aws/set-enforce.sh plan on|off
     planEnforce: "",
+    // Willkommensmail nach dem Kauf mit Einmal-Link statt Start-Passwort ("true" erst, wenn das AWS-Recht AdminSetUserPassword gesetzt ist: scripts/aws/grant-set-password-right.sh)
+    welcomeLink: "",
     newsletterCronSecret: "",
     backupBucket: "",
     backupWorkerFunction: "",

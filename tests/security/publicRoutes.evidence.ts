@@ -118,6 +118,9 @@ export const EVIDENCE: Record<string, Evidence> = {
   'POST /api/pay/[invoiceId]/checkout': { kind: 'write', params: { invoiceId: 'x' }, body: {}, db: { 'plexora-finance': [INVOICE], 'plexora-settings': settings }, keys: ['url'], status: [200, 400, 500], writes: ['plexora-finance'], allow: ['stripe:'], note: 'legt eine Stripe-Sitzung für genau diese Rechnung an' },
   'POST /api/support/portal/[token]/comment': { kind: 'write', params: { token: SECRETS.portal }, body: { name: 'Kunde', text: 'Danke' }, db: { 'plexora-support': [TICKET] }, keys: ['success'], status: [200, 400], writes: ['plexora-support', 'plexora-newsletter-ratelimit'] },
 
+  'POST /api/auth/set-password': { kind: 'write', body: { token: 'A'.repeat(43), password: 'Ein-gutes-Passwort-42!' }, db: {}, keys: [], status: [400], writes: [], note: 'ohne gültiges Token passiert nichts (400 "ungültig oder abgelaufen"); gültige Tokens sind in tests/plans/set-password.test.ts belegt' },
+  'POST /api/auth/request-set-password': { kind: 'write', body: { email: 'kunde@x.de' }, db: {}, keys: ['success', 'message'], status: [200], writes: ['plexora-newsletter-ratelimit'], allow: ['cognito:'], note: 'antwortet immer gleich; sucht nur lesend ein wartendes Konto, ohne Konto wird nichts versendet' },
+
   // ── Nur mit Geheimnis oder Signatur: ohne beides kommt nichts heraus und nichts passiert ──
   'POST /api/newsletter/cron/run-automations': { kind: 'gated', status: [401], note: 'EventBridge-Secret im Header' },
   'POST /api/sequences/cron/sweep': { kind: 'gated', status: [401], note: 'EventBridge-Secret im Header' },

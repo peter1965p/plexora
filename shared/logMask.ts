@@ -10,8 +10,8 @@ export function maskLogText(text: unknown): string {
     .replace(UUID_RE, '[…]')
     .replace(LONG_TOKEN_RE, '[…]')
 }
-/** Vorschau fürs Protokoll: bei Einladungen leer (nur Adresse und Betreff), sonst Text ohne Tags und mit maskierten Links, höchstens 600 Zeichen */
+/** Vorschau fürs Protokoll: bei Einladungen und Passwort-Links ('welcome') leer (nur Adresse und Betreff), sonst Text ohne Tags und mit maskierten Links, höchstens 600 Zeichen */
 export function logPreview(kind: string, textOrHtml: string): string {
-  if (kind === 'team_invite') return ''
+  if (kind === 'team_invite' || kind === 'welcome') return ''
   return maskLogText(String(textOrHtml || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()).slice(0, 600)
 }
