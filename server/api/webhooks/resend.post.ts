@@ -1,8 +1,18 @@
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
+import { verifySvix } from '../../utils/svix'
 
+// Ereignisse von Resend (Zustellung, Öffnung, Klick, Bounce, Beschwerde). Jeder Aufruf muss die Svix-Signatur tragen (Secret NUXT_RESEND_WEBHOOK_SECRET).
+// Ohne gesetztes Secret oder bei falscher/fehlender/zu alter Signatur wird nichts verarbeitet (401): sonst könnte jeder, der Kampagnen- und Abonnenten-ID kennt,
+// Bounce-Ereignisse einspielen und damit Abonnenten stilllegen.
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const raw = (await readRawBody(event)) || ''
+  const secret = String(useRuntimeConfig().resendWebhookSecret || '')
+  if (!secret) console.error('[resend-webhook] NUXT_RESEND_WEBHOOK_SECRET ist nicht gesetzt: alle Aufrufe werden abgelehnt')
+  const ok = verifySvix({ id: getHeader(event, 'svix-id'), timestamp: getHeader(event, 'svix-timestamp'), signature: getHeader(event, 'svix-signature'), body: String(raw), secret })
+  if (!ok) throw createError({ statusCode: 401, message: 'Ungültige Signatur' })
+  let body: any
+  try { body = JSON.parse(String(raw)) } catch { throw createError({ statusCode: 400, message: 'Ungültige Nutzlast' }) }
   const { type, data } = body || {}
 
   if (!type || !data) return { ok: true }

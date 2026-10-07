@@ -17,7 +17,7 @@ export interface PublicRule {
 export const PUBLIC_RULES: PublicRule[] = [
   // ── Prefix-Regeln (waren schon in der Middleware) ──
   { prefix: '/api/public/', reason: 'Öffentliche Website-/Buchungs-/Newsletter-Schnittstellen; Tenant-ID bzw. Token im Pfad, Drossel und Bot-Schutz je Route' },
-  { prefix: '/api/webhooks/', reason: 'Webhooks: Stripe prüft die Signatur; der Resend-Webhook prüft sie NOCH NICHT (offene Lücke, im Nachweis tests/security/publicRoutes.evidence.ts als "gap" geführt)' },
+  { prefix: '/api/webhooks/', reason: 'Webhooks von Stripe und Resend, beide mit eigener Signaturprüfung (Stripe-Signatur bzw. Svix-Signatur mit Zeitfenster; ohne Secret wird abgelehnt)' },
   { prefix: '/api/licenses/checkout', reason: 'Kaufstrecke der Landingpage (Stripe-Sitzung anlegen)' },
   { prefix: '/api/licenses/validate', reason: 'Lizenzprüfung per Schlüssel durch Kundeninstallationen' },
   { prefix: '/api/pay/', reason: 'Zahlungslink einer Rechnung (UUID als Geheimnis)' },

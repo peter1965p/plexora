@@ -80,9 +80,9 @@ describe('Öffentliche Routen: keine Mandantendaten, nur Erlaubtes, keine Nebenw
 })
 
 describe('Dokumentierte Lücken dürfen nur schrumpfen', () => {
-  it('höchstens eine offene Lücke (Resend-Webhook), jede mit Begründung', () => {
+  it('es gibt keine offene Lücke mehr (der Resend-Webhook prüft jetzt die Signatur); eine neue müsste hier mit Begründung stehen', () => {
     const gaps = Object.entries(EVIDENCE).filter(([, e]) => e.kind === 'gated' && (e as any).gap)
-    expect(gaps.map(([k]) => k)).toEqual(['POST /api/webhooks/resend'])
+    expect(gaps.map(([k]) => k)).toEqual([])
     for (const [, e] of gaps) expect(String((e as any).gap).length).toBeGreaterThan(40)
   })
 })

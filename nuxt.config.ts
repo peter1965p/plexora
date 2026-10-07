@@ -61,6 +61,7 @@ export default defineNuxtConfig({
     sesSesRegion: "",
     awsRegion: "",
     resendApiKey: "",
+    resendWebhookSecret: "",
     adminEmail: "",
     anthropicApiKey: "",
     encryptionKey: "",
