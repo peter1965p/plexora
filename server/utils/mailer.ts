@@ -4,10 +4,11 @@ import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 import { notifySystem } from './notifications'
 import { mailBlockReason, MAIL_BLOCK_TEXT } from './mailPolicy'
+import { logPreview } from '../../shared/logMask'
 
 export interface MailInput {
   userId: string
-  kind: 'automation' | 'booking_confirmation' | 'booking_cancelled' | 'internal'
+  kind: 'automation' | 'booking_confirmation' | 'booking_cancelled' | 'internal' | 'team_invite'
   from: string
   to: string
   subject: string
@@ -61,7 +62,8 @@ export async function sendMail(input: MailInput): Promise<'sent' | 'failed' | 's
         subject: input.subject,
         status,
         error,
-        preview: (input.text || input.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 600),
+        // Das Protokoll ist für alle Konten des Mandanten lesbar: nie Links mit Pfad/Token im Klartext, bei Einladungen gar keine Vorschau
+        preview: logPreview(input.kind, input.text || input.html || ''),
         created: new Date().toISOString(),
       },
     }))
