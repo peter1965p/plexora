@@ -13,7 +13,7 @@ const profile = join(out, 'ff-profile'); mkdirSync(profile, { recursive: true })
 const prof = (dark) => { const d = join(profile, dark ? 'dark' : 'light'); mkdirSync(d, { recursive: true }); writeFileSync(join(d, 'user.js'), `user_pref("layout.css.prefers-color-scheme.content-override", ${dark ? 0 : 1});\nuser_pref("browser.shell.checkDefaultBrowser", false);\n`); return d }
 const ctx = { ...SAMPLE_CTX, inviterName: 'Maria Beispiel', inviterEmail: 'maria@beispiel-firma.de', inviteeEmail: 'neu@beispiel-firma.de', expiresAt: new Date('2026-10-14T12:00:00Z'), acceptUrl: 'https://app.plexora.eu/invite?token=3f2b6c1e-8a4d-4e0b-9d1c-7a5b2f9e0c11' }
 const LOGO = 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/0123456789abcdef/0123456789abcdef0123456789abcdef.png'
-const customLogo = { mode: 'custom', alt: 'Beispiel Firma', align: 'left', plate: true, plateColor: '#ffffff', file: 'mail-logos/0123456789abcdef/0123456789abcdef0123456789abcdef.png', w: 480, h: 160 }
+const customLogo = { mode: 'custom', alt: 'Beispiel Firma', align: 'left', plate: true, plateColor: '#ffffff', file: 'mail-logos/0123456789abcdef/0123456789abcdef0123456789abcdef.png', w: 500, h: 200 }
 
 const scenarios = {}
 for (const k of Object.keys(STYLE_PRESETS)) scenarios[`stil-${k}`] = { cfg: applyPreset(DEFAULT_INVITE, k), ctx }
