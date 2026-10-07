@@ -19,12 +19,12 @@ export default defineEventHandler(async (event) => {
       return { valid: false, reason: 'Lizenz ist abgelaufen' }
     }
 
+    // Bewusst ohne Kundendaten (E-Mail des Lizenznehmers): wer den Schlüssel kennt, erfährt nur Stufe, Module und Gültigkeit
     return {
       valid:         true,
       licenseKey:    lic.licenseKey,
       tier:          lic.tier,
       modules:       lic.modules || [],
-      customerEmail: lic.customerEmail,
       validFrom:     lic.validFrom,
       validUntil:    lic.validUntil || null,
     }
