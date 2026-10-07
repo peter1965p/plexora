@@ -1,6 +1,7 @@
 import { ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { assertOwner } from '../../../utils/ownership'
+import { requireAuth } from '../../../utils/verifyAuth'
 
 const ALLOWED_STATUSES = ['pending', 'overdue', 'paid', 'dunning_1', 'dunning_2', 'dunning_3']
 
@@ -8,6 +9,7 @@ const ALLOWED_STATUSES = ['pending', 'overdue', 'paid', 'dunning_1', 'dunning_2'
 // Mahnstufe wieder zurücksetzen) — bislang änderte sich der Status nur als Nebeneffekt
 // von /dunning (Mahnung senden) oder dem Bank-Import-Abgleich, es gab keinen direkten Weg.
 export default defineEventHandler(async (event) => {
+  requireAuth(event)       // zuerst die Anmeldung: anonyme Anfragen erfahren nichts über Status-Werte oder vorhandene Rechnungen
   const invoiceId = getRouterParam(event, 'id')
   const body      = await readBody(event)
   const status    = String(body.status || '')

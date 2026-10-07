@@ -1,6 +1,7 @@
 import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
+import { pick, BRANDING_ROW_FIELDS } from '../../utils/publicView'
 
 const DEFAULTS = {
   brandName:    'Plexora',
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
       TableName: 'plexora-settings',
       Key: { settingId: 'branding', scope }
     }))
-    return { branding: result.Item || DEFAULTS }
+    return { branding: result.Item ? pick(result.Item, BRANDING_ROW_FIELDS) : DEFAULTS }
   } catch {
     return { branding: DEFAULTS }
   }

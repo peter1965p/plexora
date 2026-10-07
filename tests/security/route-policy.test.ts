@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { listRoutes, classify, concretePath, type RouteInfo } from './routeScan'
+import { routeFiles, setupAnonEnv, callAnonymously } from './routeCall'
 import { LEGACY_ROUTES, LEGACY_MAX } from './legacyRoutes'
 import { PUBLIC_RULES, isPublicRoute } from '../../server/utils/routePolicy'
 
-const routes = listRoutes()
+// Entscheidung "verlangt Anmeldung" = die Route antwortet ohne Token tatsächlich mit 401/403 und ohne Nebenwirkung (echter Aufruf, siehe routeCall.ts)
+setupAnonEnv()
+const files = routeFiles(import.meta.glob('../../server/api/**/*.ts'))
+const dynamicAuth = new Map<string, boolean>()
+for (const f of files) dynamicAuth.set(f.key, (await callAnonymously(f)).ok)
+const routes = listRoutes().map(r => ({ ...r, auth: dynamicAuth.get(r.key) === true }))
 
 describe('Routen-Politik: jede API-Route hat eine Entscheidung', () => {
   const result = classify(routes, new Set(LEGACY_ROUTES))
@@ -16,6 +23,11 @@ describe('Routen-Politik: jede API-Route hat eine Entscheidung', () => {
     expect(result.staleLegacy, `Veraltete Altlast-Einträge entfernen:\n${result.staleLegacy.join('\n')}`).toEqual([])
     expect(LEGACY_ROUTES.length, 'Altlast-Liste ist größer als der festgeschriebene Höchstwert – nichts Neues hinzufügen, nur abbauen (LEGACY_MAX senken)').toBeLessThanOrEqual(LEGACY_MAX)
     expect(new Set(LEGACY_ROUTES).size).toBe(LEGACY_ROUTES.length)
+  })
+
+  it('verifyToken/verifyBearerToken liefern bei ungültigem Token null statt zu werfen und gelten nie als Anmeldung: keine Route darf sich darauf verlassen', () => {
+    const users = routes.filter(r => /\b(verifyToken|verifyBearerToken)\s*\(/.test(readFileSync(r.file, 'utf8')))
+    expect(users.map(r => r.key), 'Routen, die verifyToken nutzen, müssen ihr null selbst abfangen und in der Allowlist begründet sein').toEqual([])
   })
 
   it('der Test erkennt Routen insgesamt (Plausibilität)', () => {

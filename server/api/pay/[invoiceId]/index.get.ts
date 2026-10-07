@@ -1,6 +1,7 @@
 import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
+import { pick, PUBLIC_INVOICE_FIELDS, PUBLIC_BRANDING_FIELDS } from '../../../utils/publicView'
 
 export default defineEventHandler(async (event) => {
   const invoiceId = getRouterParam(event, 'invoiceId')
@@ -41,5 +42,6 @@ export default defineEventHandler(async (event) => {
     if (bs.Item) branding = { ...branding, ...bs.Item }
   } catch {}
 
-  return { invoice, gateway: stripeEnabled ? gateway : null, sepaEnabled, stripeEnabled, branding }
+  // Der Zahlende sieht nur, was die Zahlungsseite braucht: kein userId (Besitzer-E-Mail), keine internen Notizen oder Mahnverläufe, kein scope der Markeneinstellung
+  return { invoice: pick(invoice, PUBLIC_INVOICE_FIELDS), gateway: stripeEnabled ? gateway : null, sepaEnabled, stripeEnabled, branding: pick(branding, PUBLIC_BRANDING_FIELDS) }
 })

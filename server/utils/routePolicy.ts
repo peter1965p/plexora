@@ -17,7 +17,7 @@ export interface PublicRule {
 export const PUBLIC_RULES: PublicRule[] = [
   // ── Prefix-Regeln (waren schon in der Middleware) ──
   { prefix: '/api/public/', reason: 'Öffentliche Website-/Buchungs-/Newsletter-Schnittstellen; Tenant-ID bzw. Token im Pfad, Drossel und Bot-Schutz je Route' },
-  { prefix: '/api/webhooks/', reason: 'Webhooks von Stripe/Resend mit eigener Signaturprüfung' },
+  { prefix: '/api/webhooks/', reason: 'Webhooks: Stripe prüft die Signatur; der Resend-Webhook prüft sie NOCH NICHT (offene Lücke, im Nachweis tests/security/publicRoutes.evidence.ts als "gap" geführt)' },
   { prefix: '/api/licenses/checkout', reason: 'Kaufstrecke der Landingpage (Stripe-Sitzung anlegen)' },
   { prefix: '/api/licenses/validate', reason: 'Lizenzprüfung per Schlüssel durch Kundeninstallationen' },
   { prefix: '/api/pay/', reason: 'Zahlungslink einer Rechnung (UUID als Geheimnis)' },
@@ -35,6 +35,7 @@ export const PUBLIC_RULES: PublicRule[] = [
   { pattern: /^\/api\/pages\/[^/]+$/, methods: ['GET'], optionalAuth: true, reason: 'Veröffentlichte Seiten der Website; Entwürfe nur für den Besitzer' },
   { pattern: /^\/api\/pages$/, methods: ['GET'], optionalAuth: true, reason: 'Navigation der öffentlichen Seiten (Startseite, /p/…)' },
   { pattern: /^\/api\/settings\/(agb|datenschutz)$/, methods: ['GET'], reason: 'Rechtstexte, öffentlich anzeigbar' },
+  { pattern: /^\/api\/settings\/theme$/, methods: ['GET'], optionalAuth: true, reason: 'Darstellung (Hell/Dunkel, Akzentfarbe) wird bei jedem Seitenaufruf geladen, auch ausgeloggt; anonym kommen nur die festen Standardwerte zurück, angemeldet die Werte des eigenen Mandanten' },
   { pattern: /^\/api\/settings\/branding$/, methods: ['GET'], optionalAuth: true, reason: 'Markenname/-farbe für Login- und Landingseiten (anonym nur globale Werte)' },
   { pattern: /^\/api\/settings\/company$/, methods: ['GET'], optionalAuth: true, reason: 'Impressum/Anbieterkennzeichnung (anonym nur Pflichtangaben, keine Bankdaten)' },
   { pattern: /^\/api\/licenses\/(?!my$)[^/]+$/, methods: ['GET'], reason: 'Lizenzstatus per Schlüssel (nur Status, Stufe, Module, Gültigkeit)' },

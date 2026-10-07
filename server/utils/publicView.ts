@@ -26,3 +26,12 @@ export const PUBLIC_COMPANY_FIELDS = [
 
 /** Lizenzabfrage per Schlüssel: Status, Stufe und Module, keine Kundendaten */
 export const PUBLIC_LICENSE_FIELDS = ['status', 'tier', 'modules', 'validFrom', 'validUntil'] as const
+
+/** Stellenanzeige (jobs/[id]): was die öffentliche Seite zum Darstellen braucht, keine Besitzerdaten, keine internen Felder */
+export const PUBLIC_JOB_FIELDS = ['campaignId', 'title', 'companyName', 'logoUrl', 'headerImageUrl', 'type', 'department', 'location', 'description', 'requirements'] as const
+/** Zahlungsseite (pay/[invoiceId]): was der Zahlende sieht */
+export const PUBLIC_INVOICE_FIELDS = ['invoiceId', 'number', 'status', 'dueDate', 'client', 'amount', 'currency'] as const
+/** Blog-Beitrag auf der Kundenwebsite */
+export const PUBLIC_BLOG_FIELDS = ['postId', 'title', 'slug', 'excerpt', 'content', 'contentType', 'coverImageUrl', 'category', 'tags', 'publishedAt', 'updatedAt'] as const
+/** Markeneinstellungen (settings/branding): alle Felder, die die Oberfläche kennt – ohne scope (Besitzer), settingId, updated */
+export const BRANDING_ROW_FIELDS = ['brandName', 'brandTagline', 'primaryColor', 'portalTitle', 'logoUrl'] as const

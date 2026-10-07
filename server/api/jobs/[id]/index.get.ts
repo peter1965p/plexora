@@ -1,6 +1,7 @@
 import { ScanCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { resolveUserId } from '../../../utils/tenant'
+import { pick, PUBLIC_JOB_FIELDS, PUBLIC_BRANDING_FIELDS } from '../../../utils/publicView'
 
 export default defineEventHandler(async (event) => {
   const campaignId = getRouterParam(event, 'id')
@@ -22,5 +23,6 @@ export default defineEventHandler(async (event) => {
     } catch {}
   }
 
-  return { campaign, branding }
+  // Nur ausdrücklich freigegebene Felder: kein userId (Besitzer-E-Mail), keine internen Notizen, kein scope der Markeneinstellung
+  return { campaign: pick(campaign, PUBLIC_JOB_FIELDS), branding: pick(branding, PUBLIC_BRANDING_FIELDS) }
 })

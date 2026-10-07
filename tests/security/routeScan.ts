@@ -1,13 +1,9 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { isPublicRoute } from '../../server/utils/routePolicy'
 
-// Hilfsfunktionen, die eine Anmeldung erzwingen (401 ohne Token). Neue Helfer hier eintragen.
-// getUserId (server/utils/queryByUser.ts) und assertOwner (server/utils/ownership.ts) verlangen seit Block d selbst eine Anmeldung;
-// tests/security/strict-helpers.test.ts beweist das.
-export const AUTH_HELPERS = ['requireAuth', 'requireAdmin', 'requireTenantId', 'requireMailSender', 'requireOwner', 'draftContext', 'verifyBearerToken', 'verifyToken', 'getUserId', 'assertOwner']
-const AUTH_RE = new RegExp(`\\b(${AUTH_HELPERS.join('|')})\\s*\\(|statusCode:\\s*401`)
-
+// Ob eine Route eine Anmeldung verlangt, wird NICHT mehr im Quelltext gesucht (Zeichenketten wie "requireAuth" oder "statusCode: 401" sagen nichts darüber,
+// ob der Aufruf wirkt – z. B. schluckt settings/theme.get den 401 in einem try/catch). Entscheidend ist der echte Aufruf ohne Token: tests/security/routeCall.ts.
 export interface RouteInfo { key: string; method: string; path: string; file: string; auth: boolean }
 
 export function listRoutes(apiDir = 'server/api'): RouteInfo[] {
@@ -23,7 +19,7 @@ export function listRoutes(apiDir = 'server/api'): RouteInfo[] {
       let path = m ? m[1] : rel.replace(/\.ts$/, '')
       path = path.replace(/\/index$/, '').replace(/^index$/, '')
       const urlPath = '/api/' + path
-      out.push({ key: `${method} ${urlPath}`, method, path: urlPath, file: full, auth: AUTH_RE.test(readFileSync(full, 'utf8')) })
+      out.push({ key: `${method} ${urlPath}`, method, path: urlPath, file: full, auth: false })
     }
   }
   walk(apiDir)

@@ -1,5 +1,6 @@
 import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
+import { pick, PUBLIC_BLOG_FIELDS } from '../../../../utils/publicView'
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
@@ -22,5 +23,5 @@ export default defineEventHandler(async (event) => {
   const post = res.Items?.[0]
   if (!post) throw createError({ statusCode: 404, message: 'Post nicht gefunden' })
 
-  return { post }
+  return { post: pick(post, PUBLIC_BLOG_FIELDS) }
 })
