@@ -32,9 +32,9 @@ export const MODULE_RULES: ModuleRule[] = [
   { prefix: '/api/analytics', need: { module: 'analytics' }, note: 'Auswertungen' },
 
   // ── Zum Ausprobieren auch ohne Lizenz (mit Mengenbegrenzung) ──
-  { prefix: '/api/contacts', need: crm, note: 'CRM' },
-  { prefix: '/api/companies', need: crm, note: 'CRM' },
-  { prefix: '/api/deals', need: crm, note: 'CRM' },
+  { prefix: '/api/contacts', need: crm, note: 'Kontakte (CRM)' },
+  { prefix: '/api/companies', need: crm, note: 'Firmen (CRM)' },
+  { prefix: '/api/deals', need: crm, note: 'Deals (CRM)' },
   { prefix: '/api/support', need: { module: 'support', free: true }, note: 'Support-Tickets' },
   { prefix: '/api/projects', need: { module: 'projects', free: true }, note: 'Projekte' },
 
@@ -54,7 +54,7 @@ export const MODULE_RULES: ModuleRule[] = [
   { prefix: '/api/termine', need: { module: ['marketing', 'nexora'] }, note: 'Terminbuchung gehört zu Kampagnen und Website' },
   { prefix: '/api/nexora', need: { module: 'nexora' }, note: 'Website' },
   { prefix: '/api/pages', need: { module: 'nexora' }, note: 'Seiten der Website' },
-  { prefix: '/api/blog', need: { module: 'nexora' }, note: 'Blog' },
+  { prefix: '/api/blog', need: { module: 'nexora' }, note: 'Blog der Website' },
   { prefix: '/api/services', need: { module: 'nexora' }, note: 'Leistungen der Website' },
   { prefix: '/api/video', need: { module: 'nexora' }, note: 'Video der Website' },
   { prefix: '/api/ai', need: 'paid', note: 'KI-Assistent verursacht Kosten' },
@@ -82,4 +82,11 @@ export function findModuleRule(path: string, method = 'GET'): ModuleRule | undef
     // Präfix an Segmentgrenze (/api/hr trifft /api/hr/leave, nicht /api/hrx); Präfixe mit Bindestrich am Ende (gastro-) treffen jede Fortsetzung
     return !!r.prefix && (p === r.prefix || p.startsWith(r.prefix.endsWith('-') ? r.prefix : r.prefix + '/'))
   })
+}
+
+export function describeNeed(need: ModuleNeed): string {
+  if (need === 'none') return 'none'
+  if (need === 'paid') return 'paid'
+  if ('branch' in need) return `branch:${need.branch}`
+  return Array.isArray(need.module) ? need.module.join('|') : need.module
 }

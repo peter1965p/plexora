@@ -15,6 +15,9 @@ const STALE_MAX = 10 * 60_000
 const cache = new Map<string, { v: ResolvedPlan; ts: number }>()
 const ALL_MODULES = ['crm', 'support', 'finance', 'projects', 'contracts', 'hr', 'analytics', 'shop', 'forms', 'marketing', 'nexora', 'newsletter']
 
+/** NUXT_PLAN_ENFORCE=true: Tarif-/Mengenprüfungen lehnen ab; sonst nur Protokoll ("würde ablehnen") */
+export const planEnforced = () => { const v: any = useRuntimeConfig().planEnforce; return v === true || v === 'true' }
+
 export function invalidatePlanCache(tenantId?: string) { if (tenantId) cache.delete(tenantId); else cache.clear() }
 
 async function installedBranches(email: string): Promise<string[]> {
