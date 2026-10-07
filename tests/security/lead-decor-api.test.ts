@@ -92,4 +92,15 @@ describe('Öffentliche Schnittstelle: Whitelist und erneute Bereinigung', () => 
     expect(JSON.stringify(c)).not.toMatch(/chef@firma|geheim@|intern"/)
     expect(PUBLIC_CAMPAIGN_FIELDS.filter(f => ['trustItems', 'privacyLine', 'overlays'].includes(f))).toHaveLength(3)
   })
+  it('Seitenplatzierung: gespeichert wird geprüft (Platzierung, Lage je Ansicht, Handy-Schalter); öffentlich kommt sie bereinigt an, auch bei manipulierter Zeile', async () => {
+    const saved = await pt('chef@firma.de', { overlays: [{ id: 'a', shape: 'star', text: '450,- EUR', place: 'page', px: -42, py: 17, mx: 5, my: -80, hideMobile: true }] })
+    expect(saved).toBeDefined()
+    const upd = st.updates.at(-1)!; const stored = Object.values(upd.ExpressionAttributeValues).find((v: any) => Array.isArray(v) && v[0]?.shape === 'star') as any[]
+    expect(stored[0]).toMatchObject({ place: 'page', px: -42, py: 17, mx: 5, my: -80, hideMobile: true })
+    await expect(pt('chef@firma.de', { overlays: [{ place: 'popup' }] })).rejects.toMatchObject({ statusCode: 400 })
+    await expect(pt('chef@firma.de', { overlays: [{ px: '10' }] })).rejects.toMatchObject({ statusCode: 400 })
+    st.campaigns[0].overlays = [{ shape: 'star', place: '<script>', px: 1e9, py: 'calc(1)', mx: -1e9, my: null, hideMobile: 'x' }]
+    const o = (await pub()).overlays[0]
+    expect(o).toMatchObject({ place: 'image', px: 100, mx: -100, hideMobile: false }); expect(Number.isInteger(o.py) && Number.isInteger(o.my)).toBe(true)
+  })
 })

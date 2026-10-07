@@ -11,7 +11,7 @@ describe('Editor (Kampagnenformular)', () => {
   })
   it('alle Funktionen: Schalter, Text, Icon, Reihenfolge, hinzufügen, löschen; Overlays mit Form, Text, Farbe, Größe, Drehung, Position, Animation, Schalter', () => {
     for (const t of ['v-model="t.on"', 'v-model="t.icon"', 'v-model="t.text"', 'move(state.trustItems', 'addTrust', 'state.trustItems.splice', 'v-model="state.privacyLine.on"', 'v-model="state.privacyLine.text"',
-      'v-model="o.on"', 'v-model="o.shape"', 'v-model="o.text"', 'v-model="o.color"', 'v-model.number="o.size"', 'v-model.number="o.rotate"', 'v-model.number="o.textSize"', 'v-model.number="o.x"', 'v-model.number="o.y"', 'v-model="o.anim"', 'addOverlay'])
+      'v-model="o.on"', 'v-model="o.shape"', 'v-model="o.text"', 'v-model="o.color"', 'v-model.number="o.size"', 'v-model.number="o.rotate"', 'v-model.number="o.textSize"', 'v-model="o.place"', 'v-model="o.hideMobile"', 'v-model.number="o.x"', 'v-model.number="o.y"', 'v-model="o.anim"', 'addOverlay'])
       expect(editor, t).toContain(t)
   })
   it('Grenzen im Formular: maxlength aus den gemeinsamen Konstanten, Hinzufügen bei Höchstzahl gesperrt, nur zwei animierte wählbar', () => {
@@ -31,7 +31,7 @@ describe('Vorschau', () => {
   it('Desktop- und Handy-Ansicht, gleiche Bausteine wie die Seite (Vertrauenspunkte, Datenschutzzeile, Overlays im Hero-Bild)', () => {
     for (const t of ['Desktop', 'Handy', 'LeadOverlays', 'resolveTrustItems', 'resolvePrivacyLine', 'pv-mobile', 'pv-desktop', 'container-type: inline-size']) expect(preview, t).toContain(t)
     expect(preview.slice(preview.indexOf('pv-banner'), preview.indexOf('pv-banner') + 200)).toContain('LeadOverlays')
-    expect(preview.slice(preview.indexOf('class="pv-form"'))).not.toContain('<LeadOverlays')
+    expect(preview.slice(preview.indexOf('class="pv-form"'), preview.indexOf('<!-- Sticker frei auf der Seite'))).not.toContain('<LeadOverlays')
   })
 })
 
@@ -49,5 +49,26 @@ describe('Kampagnenformular', () => {
   it('gesendet wird nur, was der Nutzer geändert hat – sonst bleiben bestehende Kampagnen unverändert (Standardwerte)', () => {
     expect(mk).toMatch(/if \(decorTouched\.value\) Object\.assign\(payload, \{ trustItems: decor\.trustItems, privacyLine: decor\.privacyLine, overlays: decor\.overlays \}\)/)
     expect(mk).toContain('@touched="decorTouched = true"'); expect(mk).toMatch(/function loadDecor[\s\S]*decorTouched\.value = false/)
+  })
+})
+
+describe('Sticker frei auf der Seite (Editor und Vorschau)', () => {
+  it('Platzierung pro Sticker wählbar; Seitenlage getrennt für Desktop und Handy; "Auf dem Handy ausblenden"', () => {
+    for (const t of ['OVERLAY_PLACES', 'pageX(o)', 'pageY(o)', 'setPageX', 'setPageY', 'mobile', 'PAGE_X_LIMIT', 'PAGE_Y_LIMIT', 'Auf dem Handy ausblenden', 'Umschalter über der Vorschau']) expect(editor, t).toContain(t)
+    expect(editor).toMatch(/if \(view === 'mobile'\) \{ o\.mx = x; o\.my = y \} else \{ o\.px = x; o\.py = y \}/)
+  })
+  it('ohne Hero-Bild wird ein neuer Sticker gleich auf der Seite platziert (sonst wäre er unsichtbar); der Hinweis "ohne Hero-Bild" gilt nur für Hero-Sticker', () => {
+    expect(editor).toContain("place: props.hasHero ? 'image' : 'page'"); expect(editor).toContain('!hasHero && hasImageOverlay'); expect(preview).toContain("imageOverlays.length && !campaign.headerImageUrl")
+  })
+  it('die Vorschau hat eine Seitenebene über dem ganzen Rahmen, zieht in der gewählten Ansicht und warnt (ohne zu verbieten), wenn ein Sticker das Formular verdeckt', () => {
+    expect(preview).toMatch(/<LeadOverlays :overlays="overlays" layer="page" :view="mode" :content-ratio="mode === 'desktop' \? CONTENT_RATIO : 1" editable/)
+    for (const t of ['coversForm', 'getBoundingClientRect', 'pv-warn', 'blockiert keine Klicks', 'lo-dim']) expect(preview, t).toContain(t)
+    expect(preview).not.toMatch(/coversForm\.value = true[^;]*;\s*return/) // nur Warnung, kein Eingriff in die Lage
+  })
+  it('Vorschau-Desktop zeigt Seitenrand (Inhalt 70 %), damit Sticker auch neben den Inhalt gezogen werden können', () => {
+    expect(preview).toContain('const CONTENT_RATIO = 0.7'); expect(preview).toMatch(/\.pv-desktop \.pv-layout \{[^}]*width: 70%/)
+  })
+  it('Ansicht und Lage laufen von der Seite über den Editor-Zustand (touched, Prüfung beim Speichern)', () => {
+    expect(mk).toContain(':view="previewMode"'); expect(mk).toContain('decorEditor?.setOverlayPos(m.id, m.x, m.y, m.view)')
   })
 })

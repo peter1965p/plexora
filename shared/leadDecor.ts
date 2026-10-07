@@ -28,11 +28,17 @@ export const OVERLAY_SHAPES: Record<string, string> = {
   star: 'Stern', burst: 'Explosion / Smash', bolt: 'Blitz', flame: 'Flamme', arrow: 'Pfeil', percent: 'Prozent-Badge', check: 'Haken',
   heart: 'Herz', 'thumbs-up': 'Daumen hoch', crown: 'Krone', gift: 'Geschenk', rocket: 'Rakete', ribbon: 'Band',
 }
+/** Platzierung eines Stickers: auf dem Hero-Bild (Lage in % des Bildes) oder frei auf der Seite (Lage je Ansicht, Einheit siehe PAGE_*). */
+export const OVERLAY_PLACES: Record<string, string> = { image: 'Auf dem Hero-Bild', page: 'Auf der Seite' }
+/** Seitenplatzierung: Mittelpunkt des Stickers, gemessen von der Seitenmitte in Einheiten von 1 % der Inhaltsbreite (höchstens 1200 px). Grenzen für X und Y. */
+export const PAGE_X_LIMIT = 100
+export const PAGE_Y_LIMIT = 150
 export const OVERLAY_ANIMATIONS: Record<string, string> = { none: 'keine', pulse: 'pulsieren', wiggle: 'wackeln', spin: 'langsam drehen' }
 
 export interface TrustItem { id: string; on: boolean; icon: string; text: string }
 export interface PrivacyLine { on: boolean; text: string }
-export interface Overlay { id: string; on: boolean; shape: string; text: string; color: string; size: number; rotate: number; x: number; y: number; anim: string; textSize: number }
+export interface Overlay { id: string; on: boolean; shape: string; text: string; color: string; size: number; rotate: number; x: number; y: number; anim: string; textSize: number
+  place: 'image' | 'page'; px: number; py: number; mx: number; my: number; hideMobile: boolean }
 
 // ── Standardwerte (damit bestehende Kampagnen unverändert aussehen) ──
 export const DEFAULT_TRUST_ITEMS: readonly TrustItem[] = Object.freeze([
@@ -42,7 +48,7 @@ export const DEFAULT_TRUST_ITEMS: readonly TrustItem[] = Object.freeze([
 ])
 export const DEFAULT_PRIVACY_LINE: Readonly<PrivacyLine> = Object.freeze({ on: true, text: 'Deine Daten werden vertraulich behandelt.' })
 export const DEFAULT_OVERLAY_COLOR = '#f59e0b'
-export const DEFAULT_OVERLAY: Omit<Overlay, 'id'> = { on: true, shape: 'star', text: '', color: DEFAULT_OVERLAY_COLOR, size: 22, rotate: 0, x: 70, y: 8, anim: 'none', textSize: 100 }
+export const DEFAULT_OVERLAY: Omit<Overlay, 'id'> = { on: true, shape: 'star', text: '', color: DEFAULT_OVERLAY_COLOR, size: 22, rotate: 0, x: 70, y: 8, anim: 'none', textSize: 100, place: 'image', px: -40, py: -30, mx: -20, my: -60, hideMobile: false }
 
 // ── Bereinigung einzelner Werte ──
 const clean = (v: unknown, max: number) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max)
@@ -65,6 +71,10 @@ export function sanitizeOverlay(raw: any, i: number): Overlay {
     x: Math.round(num(raw?.x, 0, 92, DEFAULT_OVERLAY.x)), y: Math.round(num(raw?.y, 0, 92, DEFAULT_OVERLAY.y)),
     anim: typeof raw?.anim === 'string' && raw.anim in OVERLAY_ANIMATIONS ? raw.anim : 'none',
     textSize: Math.round(num(raw?.textSize, 50, 150, DEFAULT_OVERLAY.textSize)),
+    place: raw?.place === 'page' ? 'page' : 'image',
+    px: Math.round(num(raw?.px, -PAGE_X_LIMIT, PAGE_X_LIMIT, DEFAULT_OVERLAY.px)), py: Math.round(num(raw?.py, -PAGE_Y_LIMIT, PAGE_Y_LIMIT, DEFAULT_OVERLAY.py)),
+    mx: Math.round(num(raw?.mx, -PAGE_X_LIMIT, PAGE_X_LIMIT, DEFAULT_OVERLAY.mx)), my: Math.round(num(raw?.my, -PAGE_Y_LIMIT, PAGE_Y_LIMIT, DEFAULT_OVERLAY.my)),
+    hideMobile: raw?.hideMobile === true,
   }
 }
 
@@ -120,6 +130,9 @@ export function validateOverlays(input: unknown): Validated<Overlay[]> {
     if (r?.shape !== undefined && !(typeof r.shape === 'string' && r.shape in OVERLAY_SHAPES)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Form.` }
     if (String(r?.text ?? '').trim().length > MAX_OVERLAY_TEXT) return { ok: false, error: `Overlay ${i + 1}: Text höchstens ${MAX_OVERLAY_TEXT} Zeichen.` }
     if (r?.color !== undefined && !(typeof r.color === 'string' && HEX.test(r.color))) return { ok: false, error: `Overlay ${i + 1}: Farbe muss ein Hex-Wert wie #f59e0b sein.` }
+    if (r?.place !== undefined && !(typeof r.place === 'string' && r.place in OVERLAY_PLACES)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Platzierung.` }
+    if (r?.hideMobile !== undefined && typeof r.hideMobile !== 'boolean') return { ok: false, error: `Overlay ${i + 1}: "auf dem Handy ausblenden" muss an oder aus sein.` }
+    for (const k of ['px', 'py', 'mx', 'my'] as const) if (r?.[k] !== undefined && !(typeof r[k] === 'number' && Number.isFinite(r[k]))) return { ok: false, error: `Overlay ${i + 1}: Position ${k} muss eine Zahl sein.` }
     if (r?.anim !== undefined && !(typeof r.anim === 'string' && r.anim in OVERLAY_ANIMATIONS)) return { ok: false, error: `Overlay ${i + 1}: unbekannte Animation.` }
     out.push(sanitizeOverlay(r, i))
   }

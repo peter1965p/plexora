@@ -1,6 +1,6 @@
 // Zeichnungen der Overlay-Formen (fest eingebaut, viewBox 0 0 100 100). Es gibt keine freien SVGs und keine Uploads:
 // die Seite zeichnet nur diese Formen, ausgewählt über die ID aus shared/leadDecor.ts.
-import type { Overlay } from '../../shared/leadDecor'
+import { PAGE_X_LIMIT, PAGE_Y_LIMIT, type Overlay } from '../../shared/leadDecor'
 
 export interface Prim { tag: 'path' | 'polygon' | 'circle'; attrs: Record<string, string | number>; accent?: 'white' }
 
@@ -100,8 +100,47 @@ export function overlayTextLayout(o: Pick<Overlay, 'shape' | 'text' | 'size' | '
  * Neue Lage beim Ziehen in der Vorschau. left/top/bw/bh = angezeigte Lage und Größe des Stickers in Prozent der Bildfläche (W/H = Bildgröße in Pixeln),
  * dxPx/dyPx = Zugweg. Ergebnis: ganze Prozentwerte, begrenzt auf 0–92 (Grenzen des Servers) und so, dass der Sticker im Bild bleibt.
  */
+/** Ganze Zahl innerhalb [lo, hi]: wird nie über die Grenze hinausgerundet (sonst läge der Sticker bis zu einer halben Einheit außerhalb). */
+const snap = (v: number, lo: number, hi: number) => {
+  const c = Math.max(lo, Math.min(hi, v)), r = Math.round(c)
+  return r > hi ? Math.floor(hi) : r < lo ? Math.ceil(lo) : r
+}
+
 export function dragPosition(a: { left: number; top: number; bw: number; bh: number; dxPx: number; dyPx: number; W: number; H: number }) {
-  const clamp = (v: number, max: number) => Math.round(Math.max(0, Math.min(max, v)))
+  const clamp = (v: number, max: number) => snap(v, 0, Math.max(0, max))
   if (!(a.W > 0) || !(a.H > 0) || ![a.left, a.top, a.dxPx, a.dyPx].every(Number.isFinite)) return { x: clamp(a.left || 0, 92), y: clamp(a.top || 0, 92) }
   return { x: clamp(a.left + (a.dxPx / a.W) * 100, Math.min(92, 100 - a.bw)), y: clamp(a.top + (a.dyPx / a.H) * 100, Math.min(92, 100 - a.bh)) }
+}
+
+export type PageView = 'desktop' | 'mobile'
+
+/**
+ * Stil eines Stickers auf der Seitenebene. Einheit u = 1 % der Inhaltsbreite (CSS-Variable --lo-u, gesetzt von LeadOverlays).
+ * X/Y = Mittelpunkt des Stickers, gemessen von der Seitenmitte in u. Die Lage wird so begrenzt, dass der Sticker nie aus der Seite ragt.
+ * Mit view (Editor-Vorschau) gilt die Lage der gewählten Ansicht, ohne view (echte Seite) wählt eine Media-Query zwischen Desktop und Handy.
+ * Alle Werte sind Zahlen aus der Prüfung (shared/leadDecor.ts), nie Texte aus der Eingabe.
+ */
+export function pageBoxStyle(o: Overlay, view?: PageView): Record<string, string> {
+  const aspect = SHAPE_ASPECT[o.shape] || 1
+  const w = o.size, h = Number((o.size / aspect).toFixed(2))
+  const style: Record<string, string> = {
+    position: 'absolute', width: `calc(var(--lo-u) * ${w})`, aspectRatio: String(aspect), transform: `rotate(${o.rotate}deg)`,
+    left: `max(0px, min(calc(50% + var(--lo-u) * (var(--lo-x) - ${w / 2})), calc(100% - var(--lo-u) * ${w})))`,
+    top: `max(0px, min(calc(50% + var(--lo-u) * (var(--lo-y) - ${h / 2})), calc(100% - var(--lo-u) * ${h})))`,
+  }
+  if (view) { style['--lo-x'] = String(view === 'mobile' ? o.mx : o.px); style['--lo-y'] = String(view === 'mobile' ? o.my : o.py) }
+  else { style['--lo-px'] = String(o.px); style['--lo-py'] = String(o.py); style['--lo-mx'] = String(o.mx); style['--lo-my'] = String(o.my) }
+  return style
+}
+
+/**
+ * Neue Seitenlage beim Ziehen. cx/cy = aktueller Mittelpunkt in u, bw/bh = Größe des Stickers in Pixeln, W/H = Seitengröße in Pixeln, uPx = Pixel je u.
+ * Ergebnis: ganze Zahlen innerhalb der Server-Grenzen, und der Sticker bleibt auf der Seite.
+ */
+export function pageDragPosition(a: { cx: number; cy: number; bw: number; bh: number; dxPx: number; dyPx: number; W: number; H: number; uPx: number }) {
+  const lim = (limit: number, page: number, box: number) => Math.max(0, Math.min(limit, (page / 2 - box / 2) / (a.uPx || 1)))
+  const clamp = (v: number, l: number) => snap(v, -l, l)
+  const ok = a.uPx > 0 && a.W > 0 && a.H > 0 && [a.cx, a.cy, a.dxPx, a.dyPx].every(Number.isFinite)
+  if (!ok) return { x: clamp(Number.isFinite(a.cx) ? a.cx : 0, PAGE_X_LIMIT), y: clamp(Number.isFinite(a.cy) ? a.cy : 0, PAGE_Y_LIMIT) }
+  return { x: clamp(a.cx + a.dxPx / a.uPx, lim(PAGE_X_LIMIT, a.W, a.bw)), y: clamp(a.cy + a.dyPx / a.uPx, lim(PAGE_Y_LIMIT, a.H, a.bh)) }
 }

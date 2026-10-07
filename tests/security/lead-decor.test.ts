@@ -88,3 +88,29 @@ describe('Grenzen beim Speichern (streng, mit Meldung)', () => {
     expect(Object.keys(L.OVERLAY_ANIMATIONS)).toEqual(['none', 'pulse', 'wiggle', 'spin'])
   })
 })
+
+describe('Platzierung auf der Seite (Desktop und Handy getrennt)', () => {
+  it('bestehende Sticker (ohne neue Felder) bleiben auf dem Hero-Bild; Standard für die Seitenlage und Handy-Anzeige', () => {
+    const [o] = L.resolveOverlays([{ id: 'a', shape: 'star', text: '450,- EUR', x: 36, y: 0, size: 27 }])
+    expect(o.place).toBe('image'); expect(o.hideMobile).toBe(false); expect([o.x, o.y, o.size]).toEqual([36, 0, 27])
+    expect([o.px, o.py, o.mx, o.my]).toEqual([L.DEFAULT_OVERLAY.px, L.DEFAULT_OVERLAY.py, L.DEFAULT_OVERLAY.mx, L.DEFAULT_OVERLAY.my])
+  })
+  it('Platzierung nur aus der Liste; Lage nur als ganze Zahlen in den Grenzen; Schalter nur wahr/falsch', () => {
+    const [o] = L.resolveOverlays([{ place: 'page', px: 99999, py: -99999, mx: -101, my: 151.6, hideMobile: 'yes' }])
+    expect(o.place).toBe('page'); expect([o.px, o.py, o.mx, o.my]).toEqual([100, -150, -100, 150]); expect(o.hideMobile).toBe(false)
+    expect(L.resolveOverlays([{ place: '__proto__' }])[0].place).toBe('image'); expect(L.resolveOverlays([{ place: '<script>' }])[0].place).toBe('image')
+    expect(L.resolveOverlays([{ px: 'x; top:0', py: 'calc(1)' }])[0].px).toBe(L.DEFAULT_OVERLAY.px)
+    expect(L.resolveOverlays([{ hideMobile: true }])[0].hideMobile).toBe(true)
+  })
+  it('beim Speichern: unbekannte Platzierung, Nicht-Zahl und Nicht-Schalter werden mit Meldung abgelehnt; gültige Werte bleiben erhalten', () => {
+    for (const bad of [{ place: 'overlay' }, { place: 5 }, { px: '10' }, { py: NaN }, { mx: null }, { hideMobile: 'true' }, { hideMobile: 1 }]) { const v = L.validateOverlays([bad]); expect(v.ok, JSON.stringify(bad)).toBe(false) }
+    const ok = L.validateOverlays([{ place: 'page', px: -42, py: 17, mx: 5, my: -80, hideMobile: true }])
+    expect(ok.ok).toBe(true); if (ok.ok) expect(ok.value[0]).toMatchObject({ place: 'page', px: -42, py: 17, mx: 5, my: -80, hideMobile: true })
+  })
+  it('die Höchstzahl 8 und höchstens 2 animierte gelten für Hero- und Seitensticker zusammen', () => {
+    const mk = (n: number, place: string, anim = 'none') => Array.from({ length: n }, (_, i) => ({ id: `${place}${i}`, place, anim }))
+    expect(L.validateOverlays([...mk(4, 'image'), ...mk(5, 'page')]).ok).toBe(false)
+    expect(L.validateOverlays([...mk(4, 'image'), ...mk(4, 'page')]).ok).toBe(true)
+    expect(L.validateOverlays([...mk(1, 'image', 'pulse'), ...mk(1, 'page', 'spin'), ...mk(1, 'page', 'wiggle')]).ok).toBe(false)
+  })
+})

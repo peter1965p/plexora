@@ -116,6 +116,8 @@
       </div>
     </div>
 
+    <!-- Sticker, die frei auf der Seite liegen (nie klickbar, Formular und Button bleiben bedienbar) -->
+    <LeadOverlays :overlays="overlays" layer="page" />
   </div>
 </template>
 

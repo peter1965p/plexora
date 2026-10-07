@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { SHAPE_PRIMS, SHAPE_ASPECT, SHAPE_TEXT_BOX, overlayBoxStyle, overlayTextColor, overlayTextLayout, overlayTextLines, dragPosition } from '../../app/utils/leadShapes'
-import { OVERLAY_SHAPES, resolveOverlays } from '../../shared/leadDecor'
+import { SHAPE_PRIMS, SHAPE_ASPECT, SHAPE_TEXT_BOX, overlayBoxStyle, overlayTextColor, overlayTextLayout, overlayTextLines, dragPosition, pageBoxStyle, pageDragPosition } from '../../app/utils/leadShapes'
+import { OVERLAY_SHAPES, PAGE_X_LIMIT, PAGE_Y_LIMIT, resolveOverlays, validateOverlays } from '../../shared/leadDecor'
 
 const page = readFileSync('app/pages/lead/[slug].vue', 'utf8')
 const comp = readFileSync('app/components/LeadOverlays.vue', 'utf8')
@@ -51,8 +51,11 @@ describe('Lead-Seite', () => {
   it('Overlays stehen nur im Hero-Banner, nie in der Formularspalte oder am Button; die Standardwerte kommen aus shared/leadDecor.ts', () => {
     const banner = tpl.slice(tpl.indexOf('lp-banner-card'), tpl.indexOf('<!-- Content Block -->'))
     expect(banner).toContain('<LeadOverlays')
-    const formCol = tpl.slice(tpl.indexOf('lp-form-col'))
+    const pageLayer = tpl.indexOf('<!-- Sticker, die frei auf der Seite liegen')
+    const formCol = tpl.slice(tpl.indexOf('lp-form-col'), pageLayer)
     expect(formCol).not.toContain('LeadOverlays')
+    // Seitenebene: genau einmal, als letztes Kind des Wurzelelements (außerhalb von Hero und Formularspalte), ohne Bedienung
+    expect(tpl.match(/<LeadOverlays/g)?.length).toBe(2); expect(pageLayer).toBeGreaterThan(tpl.indexOf('lp-form-col')); expect(tpl.slice(pageLayer, pageLayer + 250)).toContain('layer="page"'); expect(tpl.slice(pageLayer, pageLayer + 250)).not.toContain('editable')
     for (const t of ['resolveTrustItems', 'resolvePrivacyLine', 'resolveOverlays', 'TRUST_ICONS']) expect(page).toContain(t)
     expect(page).toContain('container-type: inline-size')
   })
@@ -131,6 +134,64 @@ describe('Ziehen: nur im Editor, sonst unverändert', () => {
   })
   it('Ziehen läuft über den Editor-Zustand (touched, Prüfung beim Speichern) – nicht an ihm vorbei', () => {
     expect(ed).toContain('defineExpose({ setOverlayPos })'); expect(ed).toMatch(/function setOverlayPos[\s\S]*o\.x = x; o\.y = y/)
-    expect(mk).toContain('decorEditor?.setOverlayPos(m.id, m.x, m.y)'); expect(mk).not.toMatch(/decor\.overlays\.find/)
+    expect(mk).toContain('decorEditor?.setOverlayPos(m.id, m.x, m.y, m.view)'); expect(mk).not.toMatch(/decor\.overlays\.find/)
+  })
+})
+
+describe('Seitenebene: Lage und Größe', () => {
+  const o = resolveOverlays([{ shape: 'star', size: 20, place: 'page', px: -40, py: -30, mx: 12, my: 55, rotate: 15 }])[0]
+  it('Stil besteht nur aus Zahlen und CSS-Funktionen, der Sticker bleibt in der Seite (max/min-Begrenzung), Rotation und Größe in Einheiten u', () => {
+    const st = pageBoxStyle(o)
+    expect(st.width).toBe('calc(var(--lo-u) * 20)'); expect(st.transform).toBe('rotate(15deg)'); expect(st.position).toBe('absolute')
+    expect(st.left).toBe('max(0px, min(calc(50% + var(--lo-u) * (var(--lo-x) - 10)), calc(100% - var(--lo-u) * 20)))')
+    expect(st.top).toBe('max(0px, min(calc(50% + var(--lo-u) * (var(--lo-y) - 10)), calc(100% - var(--lo-u) * 20)))')
+    for (const v of Object.values(st)) expect(v).toMatch(/^[0-9a-z%(),.*+ \-]+$/)
+  })
+  it('echte Seite (ohne Ansicht): alle vier Lagen als Zahlen, die Media-Query wählt; Vorschau (mit Ansicht): nur die Lage der gewählten Ansicht', () => {
+    const auto = pageBoxStyle(o); expect([auto['--lo-px'], auto['--lo-py'], auto['--lo-mx'], auto['--lo-my']]).toEqual(['-40', '-30', '12', '55']); expect(auto['--lo-x']).toBeUndefined()
+    const d = pageBoxStyle(o, 'desktop'), m = pageBoxStyle(o, 'mobile')
+    expect([d['--lo-x'], d['--lo-y']]).toEqual(['-40', '-30']); expect([m['--lo-x'], m['--lo-y']]).toEqual(['12', '55']); expect(d['--lo-px']).toBeUndefined()
+  })
+  it('eingeschleuste Werte landen nie im Stil', () => {
+    const e = resolveOverlays([{ place: 'page', size: '20; background:url(x)', px: '1}</style>', py: 'expression(1)', mx: 'url(x)', my: ';', rotate: 'calc(1)' }])[0]
+    for (const v of [pageBoxStyle(e), pageBoxStyle(e, 'mobile')]) expect(JSON.stringify(v)).not.toMatch(/url|script|expression|style>|;/)
+  })
+  it('das Band (doppelt so breit wie hoch) rechnet die Höhe mit dem Seitenverhältnis', () => {
+    const r = resolveOverlays([{ shape: 'ribbon', size: 30, place: 'page' }])[0]; expect(pageBoxStyle(r).aspectRatio).toBe('2'); expect(pageBoxStyle(r).top).toContain('(var(--lo-y) - 7.5)')
+  })
+})
+
+describe('Ziehen auf der Seitenebene (Lage berechnen)', () => {
+  const base = { cx: 0, cy: 0, bw: 200, bh: 200, W: 1900, H: 1000, uPx: 12 }
+  it('Zugweg in Pixeln wird in ganze Einheiten u von der Seitenmitte umgerechnet', () => {
+    expect(pageDragPosition({ ...base, dxPx: 120, dyPx: -60 })).toEqual({ x: 10, y: -5 }); expect(pageDragPosition({ ...base, cx: -40, cy: 7, dxPx: -24, dyPx: 12 })).toEqual({ x: -42, y: 8 })
+  })
+  it('bleibt auf der Seite und innerhalb der Server-Grenzen, auch bei wildem Ziehen', () => {
+    const r = pageDragPosition({ ...base, dxPx: 99999, dyPx: 99999 })
+    expect(r.x).toBeLessThanOrEqual(PAGE_X_LIMIT); expect(r.y).toBeLessThanOrEqual(PAGE_Y_LIMIT)
+    expect(r.x * 12 + 100).toBeLessThanOrEqual(950 + 1e-9)   // rechter Rand des Stickers höchstens am Seitenrand
+    expect(r.y * 12 + 100).toBeLessThanOrEqual(500 + 1e-9)
+    expect(pageDragPosition({ ...base, dxPx: -99999, dyPx: -99999 })).toEqual({ x: -r.x, y: -r.y })
+    expect(pageDragPosition({ ...base, W: 300, H: 300, bw: 900, bh: 900, dxPx: 5, dyPx: 5 })).toEqual({ x: 0, y: 0 })   // Sticker größer als Seite: nie NaN/negativ-unsinnig
+  })
+  it('kaputte Eingaben ergeben gültige Zahlen', () => {
+    for (const a of [{ ...base, uPx: 0 }, { ...base, W: 0 }, { ...base, dxPx: NaN }, { ...base, cx: NaN }]) { const r = pageDragPosition({ dxPx: 5, dyPx: 5, ...a } as any); expect(Number.isInteger(r.x) && Number.isInteger(r.y)).toBe(true) }
+  })
+  it('Ergebnis passt immer durch die Prüfung des Servers', () => {
+    for (const dx of [-90000, -777, 0, 333, 90000]) { const { x, y } = pageDragPosition({ ...base, dxPx: dx, dyPx: dx / 3 }); const v = validateOverlays([{ shape: 'star', place: 'page', px: x, py: y, mx: x, my: y }]); expect(v.ok).toBe(true); if (v.ok) expect([v.value[0].px, v.value[0].py]).toEqual([x, y]) }
+  })
+})
+
+describe('Komponente: Seitenebene', () => {
+  it('Ebene "page" zeigt nur Seiten-Sticker, Ebene "image" nur Hero-Sticker; Standard ist das Hero-Bild', () => {
+    expect(comp).toMatch(/\(o\.place \|\| 'image'\) === \(props\.layer \|\| 'image'\)/)
+  })
+  it('Seitenebene klickt nie mit (pointer-events none), liegt über dem Inhalt, wird bei engen Bildschirmen auf die Handy-Lage umgeschaltet und kann auf dem Handy ausgeblendet werden', () => {
+    expect(comp).toMatch(/\.lo-layer \{[^}]*pointer-events: none/); expect(comp).toMatch(/\.lo \{ pointer-events: none; \}/); expect(comp).toContain('.lo-layer-page { container-type: inline-size; z-index: 3; }')
+    expect(comp).toMatch(/@media \(max-width: 900px\) \{ \.lo-page \{ --lo-x: var\(--lo-mx\); --lo-y: var\(--lo-my\); \} \.lo-hide-m \{ display: none; \} \}/)
+    expect(page).toMatch(/@media \(max-width: 900px\)/)   // gleicher Umschaltpunkt wie das einspaltige Layout der Lead-Seite
+  })
+  it('Seitenebene der echten Seite ist nicht bedienbar (kein editable)', () => {
+    expect(tpl).toMatch(/<LeadOverlays :overlays="overlays" layer="page" \/>/)
   })
 })

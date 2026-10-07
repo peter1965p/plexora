@@ -62,6 +62,10 @@ else:
     if sum(1 for x in o if x.get("anim","none")!="none")>2: errs.append("mehr als 2 animierte Overlays")
     for x in o:
         if len(x.get("text",""))>24 or not re.fullmatch(r"#[0-9a-fA-F]{6}",x.get("color","")): errs.append("Overlay ungültig")
+        if x.get("place") not in ("image","page") or not isinstance(x.get("hideMobile"),bool): errs.append("Overlay: Platzierung/Handy-Schalter ungültig")
+        for k,l in (("px",100),("mx",100),("py",150),("my",150)):
+            v=x.get(k)
+            if not isinstance(v,int) or isinstance(v,bool) or abs(v)>l: errs.append("Overlay: Lage "+k+" ungültig")
 raw=json.dumps(d)
 if re.search(r"userId|notifyEmail|\"scope\"",raw): errs.append("Besitzerdaten in der Antwort")
 if errs: print("FEHLER|"+label+": "+"; ".join(sorted(set(errs))))
