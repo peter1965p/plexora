@@ -4,7 +4,11 @@ import jpeg from 'jpeg-js'
 // Verarbeitung des Mail-Logos. Dem Upload wird nie vertraut: Der Typ wird an den Magic Bytes erkannt (nicht an Endung oder MIME-Angabe),
 // das Bild wird serverseitig dekodiert, verkleinert und NEU kodiert. Gespeichert wird nur dieses Ergebnis – EXIF (Standort, Kamera),
 // Textblöcke, Profile und alles, was in Metadaten oder hinter dem Bildende steckt, ist damit weg.
-export const MAX_LOGO_BYTES = 300 * 1024
+import { LOGO_UPLOAD_MAX_BYTES, LOGO_STORED_MAX_BYTES } from '../../shared/mailTemplate'
+
+/** Upload: bis 3 MB (Originale aus Grafikprogrammen sind oft groß); gespeichert wird das verkleinerte Ergebnis, höchstens 300 KB */
+export const MAX_LOGO_BYTES = LOGO_UPLOAD_MAX_BYTES
+export const MAX_LOGO_STORED_BYTES = LOGO_STORED_MAX_BYTES
 export const MAX_LOGO_DIM = 2000
 /** Anzeige in der Mail: höchstens 250 x 100 Pixel. Gespeichert wird in doppelter Auflösung (bis 500 x 200), damit es auf hochauflösenden Bildschirmen scharf bleibt. */
 export const LOGO_OUT_W = 500
@@ -92,7 +96,7 @@ export interface ProcessedLogo { type: LogoType; data: Buffer; width: number; he
 export function processLogo(buf: Buffer, fileName?: unknown): ProcessedLogo {
   assertSafeFileName(fileName)
   if (!buf || buf.length === 0) throw new LogoError('Die Datei ist leer.')
-  if (buf.length > MAX_LOGO_BYTES) throw new LogoError(`Die Datei ist zu groß (höchstens ${Math.round(MAX_LOGO_BYTES / 1024)} KB).`)
+  if (buf.length > MAX_LOGO_BYTES) throw new LogoError(`Die Datei ist zu groß (höchstens ${Math.round(MAX_LOGO_BYTES / 1048576)} MB).`)
   const type = detectLogoType(buf)
   if (!type) throw new LogoError('Das ist kein PNG oder JPG (geprüft am Dateiinhalt, nicht an der Endung). SVG, GIF und WebP sind nicht erlaubt.')
   // Polyglots und Tarnung: aktiver Inhalt irgendwo in der Datei oder Daten hinter dem Bildende
@@ -111,10 +115,11 @@ export function processLogo(buf: Buffer, fileName?: unknown): ProcessedLogo {
 
   const scale = Math.min(1, LOGO_OUT_W / img.width, LOGO_OUT_H / img.height)
   const out = scale < 1 ? downscale(img, Math.max(1, Math.round(img.width * scale)), Math.max(1, Math.round(img.height * scale))) : { data: Buffer.from(img.data), width: img.width, height: img.height }
-  let data: Buffer
+  let data: Buffer | undefined
   if (type === 'png') { const p = new PNG({ width: out.width, height: out.height }); Buffer.from(out.data).copy(p.data); data = PNG.sync.write(p, { colorType: 6 }) }
-  else data = Buffer.from(jpeg.encode({ data: out.data, width: out.width, height: out.height }, 85).data)
+  else data = Buffer.from(jpeg.encode({ data: out.data, width: out.width, height: out.height }, 85).data)   // höchstens 500 x 200: selbst Rauschen bleibt bei Qualität 85 unter 170 KB
+  if (data!.length > MAX_LOGO_STORED_BYTES) throw new LogoError(`Das Bild ist auch nach dem Verkleinern größer als ${Math.round(MAX_LOGO_STORED_BYTES / 1024)} KB (viele Details oder Farbverläufe). Bitte als JPG speichern oder ein einfacheres Logo nehmen.`)
   // Kleiner als die empfohlene Anzeigegröße: wird nie vergrößert, kann aber unscharf wirken
   const warning = img.width < LOGO_MIN_W || img.height < LOGO_MIN_H ? `Das Bild ist nur ${img.width} × ${img.height} Pixel groß (empfohlen: mindestens ${LOGO_MIN_W} × ${LOGO_MIN_H}, besser doppelt so groß). Es wird nicht vergrößert und kann unscharf wirken.` : undefined
-  return { type, data, width: out.width, height: out.height, origWidth: img.width, origHeight: img.height, warning }
+  return { type, data: data!, width: out.width, height: out.height, origWidth: img.width, origHeight: img.height, warning }
 }

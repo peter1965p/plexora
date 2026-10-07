@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   const b64 = typeof body?.fileBase64 === 'string' ? body.fileBase64.replace(/^data:[^;,]*;base64,/, '') : ''
-  if (!b64 || b64.length > Math.ceil(MAX_LOGO_BYTES * 4 / 3) + 16 || !/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) throw createError({ statusCode: 400, message: 'Bitte ein PNG oder JPG bis 300 KB auswählen.' })
+  if (!b64 || b64.length > Math.ceil(MAX_LOGO_BYTES * 4 / 3) + 16 || !/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) throw createError({ statusCode: 400, message: 'Bitte ein PNG oder JPG bis 3 MB auswählen.' })
   let out
   try { out = processLogo(Buffer.from(b64, 'base64'), body?.fileName) } catch (e: any) {
     if (e instanceof LogoError) throw createError({ statusCode: 400, message: e.message })

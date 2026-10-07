@@ -21,7 +21,7 @@ describe('Editor E-Mail-Vorlagen (Oberfläche)', () => {
   })
   it('Logo: nur PNG/JPG im Dateiauswahlfeld, Prüfung auf Größe, Optionen kein/Branding/eigenes, Alternativtext Pflicht, Platte mit Farbe', () => {
     expect(ed).toContain('accept="image/png,image/jpeg"'); expect(ed).not.toMatch(/image\/svg|image\/gif|image\/webp|\.svg|\.gif|\.webp/i)
-    for (const t of ["300 * 1024", 'value="none"', 'value="branding"', 'value="custom"', 'Der Alternativtext ist Pflicht', 'draft.logo.plate', 'draft.logo.plateColor']) expect(ed, t).toContain(t)
+    for (const t of ["LOGO_UPLOAD_MAX_BYTES", 'value="none"', 'value="branding"', 'value="custom"', 'Der Alternativtext ist Pflicht', 'draft.logo.plate', 'draft.logo.plateColor']) expect(ed, t).toContain(t)
   })
   it('Demo-Konto: alles gesperrt; Speichern ist nur ohne Fehler im Text möglich; Logo-Datei und Maße werden nicht vom Browser vorgegeben', () => {
     expect(ed).toContain('const canSave = computed(() => !props.disabled && !saving.value && Object.keys(fieldProblems.value).length === 0')

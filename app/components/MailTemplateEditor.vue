@@ -2,8 +2,9 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import {
   DEFAULT_INVITE, STYLE_PRESETS, FONT_LABELS, PLACEHOLDERS, PLACEHOLDER_LABELS, MAIL_LIMITS, SAMPLE_CTX, applyPreset, resolveInviteConfig, renderInviteMail, contrastWarnings,
-  unknownPlaceholders, containsLink, type InviteMailConfig,
+  unknownPlaceholders, containsLink, LOGO_UPLOAD_MAX_BYTES, type InviteMailConfig,
 } from '~~/shared/mailTemplate'
+import { plain } from '~/utils/plain'
 
 // Editor für die frei gestaltbare Einladungsmail (Einstellungen → E-Mail-Vorlagen). Die Vorschau nutzt EXAKT dieselbe Funktion wie der Server
 // (shared/mailTemplate.ts), steckt in einem Iframe ohne Skripte und zeigt Hell, Dunkel (invertiert wie bei automatischer Abdunkelung) und Handy.
@@ -14,7 +15,7 @@ const forbidden = ref(false)
 const saving = ref(false), testing = ref(false), uploading = ref(false)
 const msg = reactive({ text: '', ok: true, warn: false })
 const errorField = ref('')
-const draft = reactive<InviteMailConfig>(structuredClone(DEFAULT_INVITE) as InviteMailConfig)
+const draft = reactive<InviteMailConfig>(plain(DEFAULT_INVITE))
 const server = reactive({ customLogoUrl: '', brandingLogoUrl: '', customized: false })
 const view = reactive({ dark: false, mobile: false })
 const lastField = ref<'subject' | 'heading' | 'body' | 'buttonText' | 'footer'>('body')
@@ -26,7 +27,7 @@ const api = async <T>(path: string, opts: any = {}): Promise<T> => {
   const { useAuthHeader } = await import('~/composables/useAuth')
   return await $fetch<T>(useApiUrl(`/api/settings/mail-templates/${path}`), { ...opts, headers: await useAuthHeader() })
 }
-const apply = (cfg: InviteMailConfig) => { Object.assign(draft, structuredClone(cfg)) }
+const apply = (cfg: InviteMailConfig) => { Object.assign(draft, plain(cfg)) }
 
 async function load() {
   loading.value = true
@@ -75,7 +76,7 @@ function usePreset(key: string) { Object.assign(draft, applyPreset(resolveInvite
 
 async function save() {
   saving.value = true; errorField.value = ''
-  try { const r: any = await api('invite', { method: 'PUT', body: structuredClone(draft) }); apply(resolveInviteConfig(r.config)); server.customized = true; say('Vorlage gespeichert.') }
+  try { const r: any = await api('invite', { method: 'PUT', body: plain(draft) }); apply(resolveInviteConfig(r.config)); server.customized = true; say('Vorlage gespeichert.') }
   catch (e: any) { errorField.value = e?.data?.data?.field || ''; say(errText(e, 'Speichern fehlgeschlagen.'), false) }
   finally { saving.value = false }
 }
@@ -85,7 +86,7 @@ async function resetAll() {
 }
 async function sendTest() {
   testing.value = true
-  try { const r: any = await api('invite-test', { method: 'POST', body: { config: structuredClone(draft) } }); say(r.status === 'sent' ? `Testmail an ${r.to} gesendet. Der Link darin ist absichtlich nicht gültig.` : `Testmail nicht gesendet (${r.status}).`, r.status === 'sent') }
+  try { const r: any = await api('invite-test', { method: 'POST', body: { config: plain(draft) } }); say(r.status === 'sent' ? `Testmail an ${r.to} gesendet. Der Link darin ist absichtlich nicht gültig.` : `Testmail nicht gesendet (${r.status}).`, r.status === 'sent') }
   catch (e: any) { errorField.value = e?.data?.data?.field || ''; say(errText(e, 'Testmail fehlgeschlagen.'), false) }
   finally { testing.value = false }
 }
@@ -93,7 +94,7 @@ async function onFile(ev: Event) {
   const f = (ev.target as HTMLInputElement).files?.[0]; (ev.target as HTMLInputElement).value = ''
   if (!f) return
   if (!['image/png', 'image/jpeg'].includes(f.type)) return say('Nur PNG und JPG sind erlaubt (kein SVG, GIF oder WebP).', false)
-  if (f.size > 300 * 1024) return say('Die Datei ist zu groß (höchstens 300 KB).', false)
+  if (f.size > LOGO_UPLOAD_MAX_BYTES) return say('Die Datei ist zu groß (höchstens 3 MB).', false)
   uploading.value = true
   try {
     const b64: string = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(new Error('Datei nicht lesbar')); r.readAsDataURL(f) })
@@ -196,7 +197,7 @@ watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) sa
                 <label class="theme-opt" :class="{ off: disabled || uploading }"><i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-upload'"></i> {{ draft.logo.file ? 'Logo ersetzen' : 'Logo hochladen' }}
                   <input type="file" accept="image/png,image/jpeg" style="display:none" :disabled="disabled || uploading" @change="onFile" /></label>
                 <button v-if="draft.logo.file" type="button" class="theme-opt" :disabled="disabled" @click="removeLogo"><i class="ti ti-trash"></i> Entfernen</button>
-                <span class="mt-hint">PNG oder JPG, höchstens 300 KB und 2000 × 2000 Pixel. <strong>Empfohlen: mindestens 250 × 100 Pixel, besser 500 × 200</strong> (scharf auf hochauflösenden Bildschirmen). In der Mail wird es höchstens 250 × 100 Pixel groß gezeigt, ohne Metadaten neu gespeichert und nie vergrößert.</span>
+                <span class="mt-hint">PNG oder JPG, bis 3 MB und 2000 × 2000 Pixel; das Bild wird automatisch verkleinert (gespeichert höchstens 300 KB). <strong>Empfohlen: mindestens 250 × 100 Pixel, besser 500 × 200</strong> (scharf auf hochauflösenden Bildschirmen). In der Mail wird es höchstens 250 × 100 Pixel groß gezeigt, ohne Metadaten neu gespeichert und nie vergrößert.</span>
               </div>
               <div class="mt-colors">
                 <label :class="{ err: fieldProblems.alt }">Alternativtext (Pflicht) <span class="mt-count">{{ draft.logo.alt.length }}/{{ MAIL_LIMITS.alt }}</span><input v-model="draft.logo.alt" class="field-input" :maxlength="MAIL_LIMITS.alt" :disabled="disabled" /><span v-if="fieldProblems.alt" class="mt-err">{{ fieldProblems.alt }}</span></label>

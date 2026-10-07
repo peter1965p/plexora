@@ -16,6 +16,9 @@ export const LOGO_BASE = 'https://plexora-files.s3.eu-central-1.amazonaws.com/'
 export const LOGO_PREFIX = 'mail-logos'
 
 /** Größe des Logos in der Mail (CSS-Pixel): höchstens 250 x 100, Seitenverhältnis bleibt. Gespeichert wird in doppelter Auflösung (bis 500 x 200). */
+/** Höchstgröße der hochgeladenen Datei (wird serverseitig verkleinert und neu kodiert); das gespeicherte Ergebnis ist höchstens LOGO_STORED_MAX_BYTES groß */
+export const LOGO_UPLOAD_MAX_BYTES = 3 * 1024 * 1024
+export const LOGO_STORED_MAX_BYTES = 300 * 1024
 export const LOGO_DISPLAY_W = 250
 export const LOGO_DISPLAY_H = 100
 export const LOGO_STORE_W = 500

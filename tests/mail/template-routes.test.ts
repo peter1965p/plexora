@@ -92,6 +92,16 @@ describe('Logo-Upload: Ablage, Sicherheit, Rate-Limit', () => {
     for (const b of bad) { st.counters.clear(); const r = await up(OWNER, b); expect(r.code, JSON.stringify(b).slice(0, 80)).toBe(400); expect(r.message!.length).toBeGreaterThan(5) }
     expect(st.s3.size).toBe(0); expect(st.s3calls).toEqual([]); expect(st.settings.size).toBe(0)
   })
+  it('Original über 300 KB (wie das Logo mit 495 KB): Upload klappt, gespeichert wird höchstens 300 KB', async () => {
+    const d = Buffer.alloc(500 * 200 * 4); for (let i = 0; i < d.length; i++) d[i] = i % 4 === 3 ? 255 : Math.floor(Math.random() * 256)
+    const big = Buffer.from(jpeg.encode({ data: d, width: 500, height: 200 }, 100).data); expect(big.length).toBeGreaterThan(300 * 1024)
+    const r = await up(OWNER, { fileBase64: big.toString('base64'), fileName: 'logo250x100.jpg' }); expect(r.code).toBe(200)
+    expect([...st.s3.values()][0].body.length).toBeLessThanOrEqual(300 * 1024)
+  })
+  it('über 3 MB wird mit klarer Meldung abgelehnt', async () => {
+    const r = await up(OWNER, { fileBase64: Buffer.alloc(3 * 1024 * 1024 + 1000, 1).toString('base64'), fileName: 'x.png' })
+    expect(r.code).toBe(400); expect(r.message).toMatch(/3 MB/); expect(st.s3.size).toBe(0)
+  })
   it('EXIF-Standort ist nach dem Upload aus dem gespeicherten JPG entfernt', async () => {
     const j = Buffer.from(jpgB64(), 'base64'); const body = Buffer.concat([Buffer.from('Exif\0\0GPSLatitude=52.52 GPSLongitude=13.40 SecretCam')]); const seg = Buffer.alloc(4); seg[0] = 0xff; seg[1] = 0xe1; seg.writeUInt16BE(body.length + 2, 2)
     const withExif = Buffer.concat([j.subarray(0, 2), seg, body, j.subarray(2)])

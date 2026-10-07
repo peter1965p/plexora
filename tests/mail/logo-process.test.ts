@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { crc32 } from 'node:zlib'
 import { PNG } from 'pngjs'
 import jpeg from 'jpeg-js'
-import { processLogo, detectLogoType, assertSafeFileName, LogoError, MAX_LOGO_BYTES, LOGO_OUT_W, LOGO_OUT_H, LOGO_MIN_W, LOGO_MIN_H } from '../../server/utils/mailLogo'
+import { processLogo, detectLogoType, assertSafeFileName, LogoError, MAX_LOGO_BYTES, MAX_LOGO_STORED_BYTES, LOGO_OUT_W, LOGO_OUT_H, LOGO_MIN_W, LOGO_MIN_H } from '../../server/utils/mailLogo'
 
 // ── Testbilder selbst erzeugen ──
 const png = (w: number, h: number, fill: (x: number, y: number) => [number, number, number, number] = () => [20, 80, 200, 255]) => {
@@ -49,10 +49,25 @@ describe('Warnung bei zu kleinen Bildern (empfohlen mindestens 250 x 100)', () =
 })
 
 describe('Größen und kaputte Dateien', () => {
-  it('zu große Datei (über 300 KB) und leere Datei', () => {
-    const noise = new PNG({ width: 400, height: 400 }); for (let i = 0; i < noise.data.length; i++) noise.data[i] = Math.floor(Math.random() * 256)
-    const big = PNG.sync.write(noise); expect(big.length).toBeGreaterThan(MAX_LOGO_BYTES); expect(() => processLogo(big, 'x.png')).toThrow(/zu groß/)
+  it('Datei über 3 MB und leere Datei werden abgelehnt', () => {
+    expect(() => processLogo(Buffer.alloc(MAX_LOGO_BYTES + 1, 1), 'x.png')).toThrow(/zu groß.*3 MB/)
     expect(() => processLogo(Buffer.alloc(0))).toThrow(/leer/)
+  })
+  it('Originale über 300 KB sind erlaubt (Grafikprogramme speichern groß): das gespeicherte Ergebnis ist höchstens 300 KB', () => {
+    // Rauschen = schlecht komprimierbar; 250 x 100 JPG in Höchstqualität ist deutlich größer als 300 KB, so wie das Logo aus der Praxis (495 KB)
+    const noisy = (w: number, h: number) => { const d = Buffer.alloc(w * h * 4); for (let i = 0; i < d.length; i++) d[i] = i % 4 === 3 ? 255 : Math.floor(Math.random() * 256); return d }
+    const big = Buffer.from(jpeg.encode({ data: noisy(500, 200), width: 500, height: 200 }, 100).data)
+    expect(big.length).toBeGreaterThan(300 * 1024); expect(big.length).toBeLessThan(MAX_LOGO_BYTES)
+    const out = processLogo(big, 'logo250x100.jpg')
+    expect(out.type).toBe('jpg'); expect(out.data.length).toBeLessThanOrEqual(MAX_LOGO_STORED_BYTES); expect([out.width, out.height]).toEqual([500, 200])
+    const small = Buffer.from(jpeg.encode({ data: noisy(250, 100), width: 250, height: 100 }, 100).data)
+    expect(processLogo(small, 'x.jpg').data.length).toBeLessThanOrEqual(MAX_LOGO_STORED_BYTES)
+  })
+  it('großes PNG wird beim Verkleinern klein genug; bleibt es auch dann über 300 KB, kommt eine verständliche Meldung statt eines großen Ergebnisses', () => {
+    const noise = (w: number, h: number) => new PNG({ width: w, height: h }).data.fill(0) && (() => { const p = new PNG({ width: w, height: h }); for (let i = 0; i < p.data.length; i++) p.data[i] = Math.floor(Math.random() * 256); return PNG.sync.write(p) })()
+    const bigPng = noise(800, 800); expect(bigPng.length).toBeGreaterThan(300 * 1024)
+    expect(processLogo(bigPng, 'x.png').data.length).toBeLessThanOrEqual(MAX_LOGO_STORED_BYTES)   // 800 x 800 -> 200 x 200
+    expect(() => processLogo(noise(500, 200), 'x.png')).toThrow(/größer als 300 KB.*JPG/)           // schon im Zielmaß, nicht weiter verkleinerbar
   })
   it('zu großes Bild (über 2000 × 2000) wird vor dem Dekodieren abgelehnt, 2000 × 2000 geht', () => {
     expect(() => processLogo(png(2001, 1), 'x.png')).toThrow(/zu groß/); expect(() => processLogo(png(1, 2001), 'x.png')).toThrow(/zu groß/)
