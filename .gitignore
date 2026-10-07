@@ -25,6 +25,11 @@ logs
 dist/
 lambda*.zip
 
+# Sicherungen (verschlüsselt .plxbak, entschlüsselt .zip, entpackt) enthalten echte Kundendaten: NIE ins Repository
+*.plxbak
+plexora-sicherung-*
+plexora-backup-*
+
 # Lokale Claude-Code-/Tooling-Artefakte, keine Projektdateien
 .claude/
 .playwright-mcp/
