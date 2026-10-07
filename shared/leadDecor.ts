@@ -32,7 +32,7 @@ export const OVERLAY_ANIMATIONS: Record<string, string> = { none: 'keine', pulse
 
 export interface TrustItem { id: string; on: boolean; icon: string; text: string }
 export interface PrivacyLine { on: boolean; text: string }
-export interface Overlay { id: string; on: boolean; shape: string; text: string; color: string; size: number; rotate: number; x: number; y: number; anim: string }
+export interface Overlay { id: string; on: boolean; shape: string; text: string; color: string; size: number; rotate: number; x: number; y: number; anim: string; textSize: number }
 
 // ── Standardwerte (damit bestehende Kampagnen unverändert aussehen) ──
 export const DEFAULT_TRUST_ITEMS: readonly TrustItem[] = Object.freeze([
@@ -42,7 +42,7 @@ export const DEFAULT_TRUST_ITEMS: readonly TrustItem[] = Object.freeze([
 ])
 export const DEFAULT_PRIVACY_LINE: Readonly<PrivacyLine> = Object.freeze({ on: true, text: 'Deine Daten werden vertraulich behandelt.' })
 export const DEFAULT_OVERLAY_COLOR = '#f59e0b'
-export const DEFAULT_OVERLAY: Omit<Overlay, 'id'> = { on: true, shape: 'star', text: '', color: DEFAULT_OVERLAY_COLOR, size: 22, rotate: 0, x: 70, y: 8, anim: 'none' }
+export const DEFAULT_OVERLAY: Omit<Overlay, 'id'> = { on: true, shape: 'star', text: '', color: DEFAULT_OVERLAY_COLOR, size: 22, rotate: 0, x: 70, y: 8, anim: 'none', textSize: 100 }
 
 // ── Bereinigung einzelner Werte ──
 const clean = (v: unknown, max: number) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max)
@@ -64,6 +64,7 @@ export function sanitizeOverlay(raw: any, i: number): Overlay {
     size: Math.round(num(raw?.size, 8, 40, DEFAULT_OVERLAY.size)), rotate: Math.round(num(raw?.rotate, -180, 180, 0)),
     x: Math.round(num(raw?.x, 0, 92, DEFAULT_OVERLAY.x)), y: Math.round(num(raw?.y, 0, 92, DEFAULT_OVERLAY.y)),
     anim: typeof raw?.anim === 'string' && raw.anim in OVERLAY_ANIMATIONS ? raw.anim : 'none',
+    textSize: Math.round(num(raw?.textSize, 50, 150, DEFAULT_OVERLAY.textSize)),
   }
 }
 

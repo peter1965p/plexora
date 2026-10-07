@@ -49,3 +49,49 @@ export function overlayBoxStyle(o: Overlay): Record<string, string> {
     transform: `rotate(${o.rotate}deg)`,
   }
 }
+
+/**
+ * Textfläche je Form (Anteile von Breite und Höhe der Form) und Verschiebung des Textmittelpunkts. Der Text passt sich der Fläche an,
+ * damit er auch bei Stern, Herz oder Blitz nicht über die Zacken läuft. Reine Zahlen, nur Anzeige.
+ */
+export const SHAPE_TEXT_BOX: Record<string, { w: number; h: number; dx: number; dy: number }> = {
+  star: { w: 0.46, h: 0.3, dx: 0, dy: 0.06 }, burst: { w: 0.62, h: 0.46, dx: 0, dy: 0 }, bolt: { w: 0.3, h: 0.3, dx: 0, dy: 0 },
+  flame: { w: 0.46, h: 0.32, dx: 0, dy: 0.14 }, arrow: { w: 0.44, h: 0.24, dx: -0.19, dy: 0 }, percent: { w: 0.8, h: 0.56, dx: 0, dy: 0 },
+  check: { w: 0.7, h: 0.26, dx: 0, dy: 0.3 }, heart: { w: 0.5, h: 0.28, dx: 0, dy: -0.02 }, 'thumbs-up': { w: 0.5, h: 0.26, dx: 0.08, dy: 0.14 },
+  crown: { w: 0.66, h: 0.3, dx: 0, dy: 0.1 }, gift: { w: 0.7, h: 0.26, dx: 0, dy: 0.2 }, rocket: { w: 0.26, h: 0.26, dx: 0, dy: 0 }, ribbon: { w: 0.76, h: 0.34, dx: 0, dy: 0 },
+}
+const CHAR_EM = 0.6 // durchschnittliche Zeichenbreite fetter Schrift in em (bewusst großzügig)
+
+/** Teilt den Text bei einem Leerzeichen so in höchstens zwei Zeilen, dass die längere Zeile möglichst kurz wird. */
+export function overlayTextLines(text: string): string[] {
+  const t = text.trim()
+  if (!t) return []
+  const words = t.split(' ')
+  if (words.length < 2) return [t]
+  let best = [t], bestLen = t.length
+  for (let i = 1; i < words.length; i++) {
+    const a = words.slice(0, i).join(' '), b = words.slice(i).join(' ')
+    const l = Math.max(a.length, b.length)
+    if (l < bestLen) { best = [a, b]; bestLen = l }
+  }
+  return best
+}
+
+/**
+ * Schriftgröße (in cqw), Zeilen und Lage des Textes: so groß wie möglich (höchstens 17 % der Formbreite), aber nie breiter oder höher als die Textfläche der Form.
+ * Mit einer Zeile oder zwei Zeilen wird die größere Schrift gewählt. Der Regler "Textgröße" (50–150 %) skaliert das Ergebnis.
+ */
+export function overlayTextLayout(o: Pick<Overlay, 'shape' | 'text' | 'size' | 'textSize'>) {
+  const box = SHAPE_TEXT_BOX[o.shape] || { w: 0.6, h: 0.3, dx: 0, dy: 0 }
+  const aspect = SHAPE_ASPECT[o.shape] || 1
+  const boxW = o.size * box.w, boxH = (o.size / aspect) * box.h
+  const fit = (lines: string[]) => {
+    if (!lines.length) return 0
+    const byW = boxW / (Math.max(...lines.map(l => l.length)) * CHAR_EM)
+    const byH = boxH / (lines.length * 1.1)
+    return Math.min(o.size * 0.17, byW, byH)
+  }
+  const one = o.text.trim() ? [o.text.trim()] : [], two = overlayTextLines(o.text)
+  const lines = fit(two) > fit(one) ? two : one
+  return { lines, fontSize: Math.max(0.5, fit(lines) * (o.textSize / 100)), dx: box.dx, dy: box.dy }
+}

@@ -64,6 +64,7 @@ const animDisabled = (o: Overlay, key: string) => key !== 'none' && o.anim === '
         </div>
         <div class="lde-sliders">
           <label>Größe {{ o.size }} %<input type="range" v-model.number="o.size" min="8" max="40" /></label>
+          <label>Textgröße {{ o.textSize }} %<input type="range" v-model.number="o.textSize" min="50" max="150" /></label>
           <label>Drehung {{ o.rotate }}°<input type="range" v-model.number="o.rotate" min="-180" max="180" /></label>
           <label>Links {{ o.x }} %<input type="range" v-model.number="o.x" min="0" max="92" /></label>
           <label>Oben {{ o.y }} %<input type="range" v-model.number="o.y" min="0" max="92" /></label>

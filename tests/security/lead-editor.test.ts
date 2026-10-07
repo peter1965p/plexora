@@ -11,7 +11,7 @@ describe('Editor (Kampagnenformular)', () => {
   })
   it('alle Funktionen: Schalter, Text, Icon, Reihenfolge, hinzufügen, löschen; Overlays mit Form, Text, Farbe, Größe, Drehung, Position, Animation, Schalter', () => {
     for (const t of ['v-model="t.on"', 'v-model="t.icon"', 'v-model="t.text"', 'move(state.trustItems', 'addTrust', 'state.trustItems.splice', 'v-model="state.privacyLine.on"', 'v-model="state.privacyLine.text"',
-      'v-model="o.on"', 'v-model="o.shape"', 'v-model="o.text"', 'v-model="o.color"', 'v-model.number="o.size"', 'v-model.number="o.rotate"', 'v-model.number="o.x"', 'v-model.number="o.y"', 'v-model="o.anim"', 'addOverlay'])
+      'v-model="o.on"', 'v-model="o.shape"', 'v-model="o.text"', 'v-model="o.color"', 'v-model.number="o.size"', 'v-model.number="o.rotate"', 'v-model.number="o.textSize"', 'v-model.number="o.x"', 'v-model.number="o.y"', 'v-model="o.anim"', 'addOverlay'])
       expect(editor, t).toContain(t)
   })
   it('Grenzen im Formular: maxlength aus den gemeinsamen Konstanten, Hinzufügen bei Höchstzahl gesperrt, nur zwei animierte wählbar', () => {

@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Overlay } from '../../shared/leadDecor'
-import { SHAPE_PRIMS, overlayBoxStyle, overlayTextColor } from '~/utils/leadShapes'
+import { SHAPE_PRIMS, overlayBoxStyle, overlayTextColor, overlayTextLayout } from '~/utils/leadShapes'
 
 // Zeichnet die Overlays (Sticker) auf dem Hero-Bild. Der Eltern-Container muss position:relative und container-type:inline-size haben.
 // Texte werden nur als Text ausgegeben, Formen kommen aus der festen Bibliothek (IDs). Animationen respektieren prefers-reduced-motion.
 const props = defineProps<{ overlays: Overlay[] }>()
+const textStyle = (o: Overlay) => {
+  const l = overlayTextLayout(o)
+  return { color: overlayTextColor(o), fontSize: `${l.fontSize.toFixed(2)}cqw`, left: `${((0.5 + l.dx) * 100).toFixed(1)}%`, top: `${((0.5 + l.dy) * 100).toFixed(1)}%` }
+}
 const shown = computed(() => props.overlays.filter(o => o.on && SHAPE_PRIMS[o.shape]))
 </script>
 
@@ -17,7 +21,7 @@ const shown = computed(() => props.overlays.filter(o => o.on && SHAPE_PRIMS[o.sh
           <component :is="p.tag" v-for="(p, i) in SHAPE_PRIMS[o.shape]" :key="i" v-bind="p.attrs"
             :fill="p.attrs.fill ?? (p.accent === 'white' ? '#ffffff' : o.color)" :stroke="p.accent === 'white' && p.attrs.fill === 'none' ? '#ffffff' : 'none'" />
         </svg>
-        <span v-if="o.text" class="lo-text" :style="{ color: overlayTextColor(o), fontSize: `${(o.size * 0.17).toFixed(2)}cqw` }">{{ o.text }}</span>
+        <span v-if="o.text" class="lo-text" :style="textStyle(o)"><template v-for="(line, li) in overlayTextLayout(o).lines" :key="li"><br v-if="li" />{{ line }}</template></span>
       </div>
     </div>
   </div>
@@ -28,7 +32,7 @@ const shown = computed(() => props.overlays.filter(o => o.on && SHAPE_PRIMS[o.sh
 .lo { pointer-events: none; }
 .lo-in { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .lo-svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
-.lo-text { position: relative; font-weight: 800; line-height: 1.05; text-align: center; max-width: 86%; word-break: break-word; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.lo-text { position: absolute; transform: translate(-50%, -50%); font-weight: 800; line-height: 1.1; text-align: center; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
 /* Animationen: langsam genug (kürzeste Periode 1,2 s = unter 1 Hz), nie schneller als 3 Mal pro Sekunde */
 .lo-pulse  { animation: lo-pulse 2s ease-in-out infinite; }
 .lo-wiggle { animation: lo-wiggle 1.2s ease-in-out infinite; }
