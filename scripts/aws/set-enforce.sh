@@ -3,6 +3,7 @@
 #
 #   scripts/aws/set-enforce.sh plan  status|on|off [--dry-run]   NUXT_PLAN_ENFORCE  (Tarif-/Modul-, Mail- und Upload-Limits: aus = nur protokollieren)
 #   scripts/aws/set-enforce.sh roles status|on|off [--dry-run]   NUXT_ROLES_ENFORCE (Rollen Inhaber/Admin/Mitglied: aus = nur protokollieren)
+#   scripts/aws/set-enforce.sh welcome status|on|off [--dry-run] NUXT_WELCOME_LINK  (Willkommensmail mit Einmal-Link statt Start-Passwort; erst NACH grant-set-password-right.sh --apply)
 #
 # "off" entfernt die Variable, dann gilt der Beobachtungsmodus: es wird nur protokolliert ("würde ablehnen"), nichts abgelehnt.
 # Danach wirksam machen (neue Version + Alias): scripts/aws/deploy-backend.sh --config-only
@@ -12,8 +13,8 @@
 set -euo pipefail
 REGION="${AWS_REGION:-eu-central-1}"; FN="plexora-api"
 WHAT="${1:-}"; MODE="${2:-status}"; DRY=0; [[ "${3:-}" == "--dry-run" ]] && DRY=1
-case "$WHAT" in plan) VAR="NUXT_PLAN_ENFORCE";; roles) VAR="NUXT_ROLES_ENFORCE";; *) echo "Aufruf: $0 plan|roles status|on|off [--dry-run]"; exit 2;; esac
-case "$MODE" in status|on|off) ;; *) echo "Aufruf: $0 plan|roles status|on|off [--dry-run]"; exit 2;; esac
+case "$WHAT" in plan) VAR="NUXT_PLAN_ENFORCE";; roles) VAR="NUXT_ROLES_ENFORCE";; welcome) VAR="NUXT_WELCOME_LINK";; *) echo "Aufruf: $0 plan|roles|welcome status|on|off [--dry-run]"; exit 2;; esac
+case "$MODE" in status|on|off) ;; *) echo "Aufruf: $0 plan|roles|welcome status|on|off [--dry-run]"; exit 2;; esac
 umask 077
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 

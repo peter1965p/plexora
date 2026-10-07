@@ -28,3 +28,17 @@ Alle Durchsetzungen starten im **Beobachtungsmodus** (nur Protokoll "würde able
 | Neue Konten in den ersten 7 Tagen halbe Limits | **nicht umgesetzt** | Das Kontoalter steht nicht im Mandanten-Datensatz; Free hat ohnehin die kleinsten Limits. |
 | Registrierung: offen lassen, Turnstile, E-Mail-Bestätigung | Offen lassen (Weg 1), Schutz über die Free-Stufe. Turnstile auf der Registrierung **nicht** umgesetzt | Die Registrierung läuft direkt im Browser gegen Cognito; ein Turnstile-Token könnte nur der Pre-Sign-up-Trigger prüfen und bräuchte dort ein Secret (neuer AWS-Teil). Google-Konten sind durch den Trigger schon auf bestätigte Adressen begrenzt. |
 | Ausfall der Tarifabfrage | letzter bekannter Tarif bis 10 Minuten, danach scharf 503 (Beobachtungsmodus: durchlassen) | Nie "alles erlaubt". |
+
+## b) Willkommensmail ohne Start-Passwort
+
+| Entscheidung | Gewählt | Warum |
+|---|---|---|
+| Weg A (eigener Einmal-Link) oder B (Cognito „Passwort vergessen“) | **A** | Ein Schritt für den Kunden, kein Passwort in der Mail, kein zweiter Mailversand über Cognito. |
+| Laufzeit des Links | 60 Minuten, einmalig; je Konto gilt nur der neueste Link | Kurzes Fenster; ein abgelaufener Link lässt sich über „Neuen Link anfordern“ ersetzen. |
+| Lizenzschlüssel in der Mail | **Nein**, nur in der App (Einstellungen → Lizenzen) | Ein Geheimnis weniger im Postfach; die Lizenz ist an die E-Mail gebunden, der Schlüssel wird für den Betrieb nicht gebraucht. |
+| Passwortlänge | mindestens 12 (Pool verlangt 8) | Empfehlung des Plans; serverseitig durchgesetzt, in der Oberfläche live angezeigt. |
+| Wann wird der neue Ablauf aktiv? | Erst mit dem Schalter `NUXT_WELCOME_LINK=true` (`scripts/aws/set-enforce.sh welcome on`) **nach** `grant-set-password-right.sh --apply` | Ohne das AWS-Recht würde ein Kunde einen Link bekommen, der nicht funktioniert. Bis dahin läuft der bisherige Ablauf unverändert. |
+| Link für Konten, die schon ein Passwort haben | wirkungslos (nur Status „wartet auf erstes Passwort“) | Ein alter Link darf nie ein eingerichtetes Konto übernehmen. |
+| Konto-Orakel bei „Neuen Link anfordern“ | immer dieselbe Antwort; je Adresse 3 Mails/Stunde | Verrät nicht, welche Adressen ein Konto haben. Das Antwortverhalten (Zeit) ist nicht angeglichen; es verrät höchstens, dass ein Kauf-Konto auf sein erstes Passwort wartet. |
+| Turnstile auf dem „Neuen Link“-Formular | **nicht umgesetzt** | Drossel je IP und je Adresse stattdessen; Turnstile kann nachgerüstet werden (Bot-Schutz-Modul vorhanden). |
+| Token im Mail-Protokoll | Art `welcome`: nie eine Vorschau | Das Protokoll ist für alle Konten eines Mandanten lesbar. |

@@ -8,6 +8,9 @@ import { provisionModule } from '../../utils/moduleProvisioner'
 import { getCatalogEntry, verifyModulePurchase } from '../../utils/storeCatalog'
 import { randomUUID, randomBytes } from 'crypto'
 import { revealSecret } from '../../utils/paymentSecrets'
+import { issueSetPasswordToken, SET_PASSWORD_TTL_MINUTES } from '../../utils/welcomeToken'
+import { renderWelcomeMail, setPasswordUrl } from '../../utils/welcomeMail'
+import { sendMail } from '../../utils/mailer'
 
 export default defineEventHandler(async (event) => {
   const config  = useRuntimeConfig()
@@ -202,8 +205,12 @@ export default defineEventHandler(async (event) => {
 
       // 2. Cognito-User anlegen (Passwort = einmalig, SUPPRESS = kein Cognito-Default-Mail)
       // Passwort: "Plx" + 8 Hex-Zeichen (Großbuchstaben) + "!1" → 13 Zeichen, alle Regeln erfüllt
-      const tempPassword = `Plx${randomBytes(4).toString('hex').toUpperCase()}!1`
+      // NUXT_WELCOME_LINK=true (erst nach scripts/aws/grant-set-password-right.sh): Konto mit einem zufälligen, NIE versendeten Passwort (192 Bit),
+      // der Kunde legt sein Passwort über einen Einmal-Link fest. Ohne den Schalter bleibt der bisherige Ablauf unverändert.
+      const welcomeLink = (config as any).welcomeLink === true || (config as any).welcomeLink === 'true'
+      const tempPassword = welcomeLink ? `Plx${randomBytes(24).toString('base64url')}!1` : `Plx${randomBytes(4).toString('hex').toUpperCase()}!1`
       let cognitoCreated = false
+      let createdUsername = ''
 
       if (customerEmail) {
         // Cognito-Pool hat AliasAttributes:["email"] — ein E-Mail-formatierter Username
@@ -224,6 +231,7 @@ export default defineEventHandler(async (event) => {
             ],
           }))
           cognitoCreated = true
+          createdUsername = cognitoUsername
           console.log(`✅ Cognito-User angelegt: ${cognitoUsername} (${customerEmail})`)
 
           await cognito.send(new AdminAddUserToGroupCommand({
@@ -241,8 +249,17 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      // 3. Kombinierte Mail — Login-Daten + Lizenz-Key in einer Mail
-      if (customerEmail) {
+      // 3a. Neuer Ablauf: Willkommensmail mit Einmal-Link, kein Passwort, kein Lizenzschlüssel in der Mail
+      if (customerEmail && welcomeLink && cognitoCreated && createdUsername) {
+        try {
+          const token = await issueSetPasswordToken(createdUsername, customerEmail)
+          const m = renderWelcomeMail({ name: customerName, tierLabel, url: setPasswordUrl(token), minutes: SET_PASSWORD_TTL_MINUTES })
+          const st = await sendMail({ userId: customerEmail, kind: 'welcome', from: 'Plexora <billing@plexora.eu>', to: customerEmail, subject: m.subject, html: m.html, text: m.text })
+          console.log(`✅ Willkommensmail mit Einmal-Link an ${customerEmail}: ${st}`)
+        } catch (err) { console.error('Willkommensmail fehlgeschlagen (Kunde kann über "Neuen Link anfordern" einen Link bekommen):', err) }
+      }
+      // 3b. Bisheriger Ablauf — Login-Daten + Lizenz-Key in einer Mail (Standard, solange NUXT_WELCOME_LINK nicht gesetzt ist; auch für bereits vorhandene Konten)
+      else if (customerEmail) {
         const loginSection = cognitoCreated
           ? `
           <div style="background:#f0fdf4;border:1px solid #22c55e;border-radius:12px;padding:20px 24px;margin:24px 0">
