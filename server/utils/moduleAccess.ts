@@ -15,6 +15,7 @@ export const MODULE_RULES: ModuleRule[] = [
   { prefix: '/api/settings', need: 'none', note: 'Einstellungen des eigenen Kontos' },
   { pattern: /^\/api\/team\/invite$/, methods: ['POST'], need: 'paid', note: 'Einladungen verschicken Mails und legen Konten an: nicht für Free' },
   { prefix: '/api/team', need: 'none', note: 'Einladung annehmen/ansehen muss für jedes Konto gehen (auch Free), Mitgliederliste, Entfernen' },
+  { prefix: '/api/plan', need: 'none', note: 'eigener Tarif und Tagesverbrauch (Anzeige in den Einstellungen)' },
   { prefix: '/api/store', need: 'none', note: 'Kauf von Modulen muss ohne Lizenz möglich sein' },
   { prefix: '/api/billing', need: 'none', note: 'Abrechnungsportal' },
   { prefix: '/api/licenses', need: 'none', note: 'eigene Lizenz anzeigen; Verwaltung prüft die Gruppe admins im Handler' },

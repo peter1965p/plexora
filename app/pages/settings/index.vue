@@ -933,6 +933,8 @@
         </div>
       </div>
 
+      <PlanUsage />
+
       <!-- Module Übersicht -->
       <div class="card">
         <div class="card-header">

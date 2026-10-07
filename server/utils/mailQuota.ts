@@ -1,4 +1,4 @@
-import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { createHash } from 'node:crypto'
 import { getDynamoClient } from './dynamodb'
 import { resolvePlanForTenant, planEnforced } from './tenantPlan'
@@ -76,4 +76,12 @@ export async function reserveMail(i: MailQuotaInput): Promise<MailQuotaResult> {
 export async function assertMailQuota(i: MailQuotaInput): Promise<void> {
   const r = await reserveMail(i)
   if (!r.ok) throw createError({ statusCode: r.reason === 'bulk-not-allowed' || r.reason === 'free-recipient' ? 402 : r.reason === 'plan-unknown' ? 503 : 429, message: r.message || 'Mail-Limit erreicht.', data: { code: r.reason === 'bulk-not-allowed' || r.reason === 'free-recipient' ? 'PLAN_REQUIRED' : 'MAIL_LIMIT', reason: r.reason, limit: r.limit, used: r.used } })
+}
+
+/** Verbrauch von heute (nur lesen, zählt nicht mit): für die Anzeige "Heute verbraucht" */
+export async function readMailUsage(tenantId: string): Promise<{ system: number; bulk: number }> {
+  const day = Math.floor(Date.now() / 1000 / DAY), db = getDynamoClient()
+  const get = async (pool: MailPool) => Number((await db.send(new GetCommand({ TableName: 'plexora-newsletter-ratelimit', Key: { throttleKey: `mail:${pool}:${h(tenantId)}:${day}` } }))).Item?.count || 0)
+  const [system, bulk] = await Promise.all([get('system'), get('bulk')])
+  return { system: Math.max(0, system), bulk: Math.max(0, bulk) }
 }

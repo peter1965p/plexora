@@ -7,5 +7,6 @@
     </div>
     <ConfirmDialog />
     <AiAssistantWidget />
+    <PlanNotice />
   </div>
 </template>

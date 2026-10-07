@@ -1,5 +1,6 @@
 import { shouldAttachAuth, shouldRedirectToLogin } from '~/utils/apiAuth'
 import { useAuthUser } from '~/composables/useAuth'
+import { planNoticeFrom } from '~/utils/planNotice'
 
 // Sicherheitsnetz für den Wegfall des demo-user-Rückfalls im Backend: jeder Aufruf der eigenen API (useFetch, $fetch)
 // trägt das Token, auch wenn eine Stelle vergessen hat, Header zu setzen. Explizit gesetzte Authorization-Header bleiben unverändert.
@@ -27,6 +28,9 @@ export default defineNuxtPlugin(() => {
       const url = typeof request === 'string' ? request : request?.url
       const isApi = apiBase ? String(url).startsWith(apiBase) : String(url).startsWith('/api/')
       if (!isApi) return
+      // Tarif-/Mengenlimits des Servers (402/413/429 mit Code): verständlicher Hinweis statt stiller Leere; der Aufrufer bekommt den Fehler weiterhin
+      const notice = planNoticeFrom(response?.status, response?._data)
+      if (notice) window.dispatchEvent(new CustomEvent('plx:notice', { detail: notice }))
       const sent = new Headers(options?.headers || {}).has('authorization')
       if (shouldRedirectToLogin(response?.status, response?._data?.message, sent, window.location.pathname)) {
         cached = null
