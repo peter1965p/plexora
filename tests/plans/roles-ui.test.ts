@@ -47,6 +47,11 @@ describe('Oberfläche: Rollen', () => {
   it('Seitenschutz ist als globale Routen-Middleware verdrahtet und leitet auf /kein-zugriff', () => {
     const m = readFileSync('app/middleware/role.global.ts', 'utf8'); expect(m).toContain("path: '/kein-zugriff'"); expect(m).toContain('areaForPath'); expect(m).toContain('import.meta.server')
   })
+  it('Seitenleiste zeigt nur die gefilterten Abschnitte (Menüpunkte nach Rolle), Seitenschutz wartet auf die geladene Rolle', () => {
+    const sb = readFileSync('app/components/AppSidebar.vue', 'utf8')
+    expect(sb).toContain('v-for="section in visibleSections"'); expect(sb).toMatch(/const visibleSections = computed\(\(\) => navSections\.value[\s\S]*canRole\(areaForPath\(it\.to\)\?\.role \|\| 'self'\)/)
+    expect(readFileSync('app/middleware/role.global.ts', 'utf8')).toContain('!state.value.loaded || can(area.role)')
+  })
   it('Team-Seite nennt die Rollen mit Beschreibung und kann die Rolle ändern (PATCH)', () => {
     const s = readFileSync('app/pages/settings/index.vue', 'utf8'); expect(s).toContain('CRM, Support, Projekte, Termine, Marketing und Formulare'); expect(s).toMatch(/method: 'PATCH'[^}]*body: \{ role \}/)
   })
