@@ -64,9 +64,13 @@ describe('Logo-Upload: Ablage, Sicherheit, Rate-Limit', () => {
     expect(key).toMatch(KEY_RE); expect(key.split('/').slice(1).join('/')).not.toMatch(/Mein|geheim|Chef|logo|firma|chef-a|@/i)
     const obj = st.s3.get(key)!; expect(obj.contentType).toBe('image/png'); expect(obj.cacheControl).toMatch(/immutable/)
     expect(obj.body.equals(Buffer.from(src, 'base64'))).toBe(false)                  // nicht das Original
-    const dec = PNG.sync.read(obj.body); expect(dec.width).toBe(480); expect(dec.height).toBe(192)
-    const s: any = st.settings.get(`mail-template-invite|${OWNER.email}`).config; expect(s.logo).toMatchObject({ mode: 'custom', file: key, w: 480, h: 192 })
+    const dec = PNG.sync.read(obj.body); expect(dec.width).toBe(500); expect(dec.height).toBe(200)
+    const s: any = st.settings.get(`mail-template-invite|${OWNER.email}`).config; expect(s.logo).toMatchObject({ mode: 'custom', file: key, w: 500, h: 200 })
     expect((r as any).r.logoUrl).toBe(`https://plexora-files.s3.eu-central-1.amazonaws.com/${key}`)
+  })
+  it('zu kleines Bild: Upload klappt, die Antwort enthält die Warnung; ausreichend großes: keine Warnung', async () => {
+    const small: any = await up(OWNER, { fileBase64: pngB64(120, 40) }); expect(small.code).toBe(200); expect(small.r.warning).toMatch(/120 × 40/)
+    const big: any = await up(OWNER, { fileBase64: pngB64(600, 240) }); expect(big.code).toBe(200); expect(big.r.warning).toBeNull(); expect([big.r.width, big.r.height]).toEqual([500, 200])
   })
   it('Zufalls-ID: bei jedem Upload neu, mindestens 128 Bit', async () => {
     await up(OWNER, { fileBase64: pngB64() }); const k1 = [...st.s3.keys()][0]; await up(OWNER, { fileBase64: pngB64() }); const k2 = [...st.s3.keys()][0]

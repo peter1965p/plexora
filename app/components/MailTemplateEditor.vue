@@ -12,14 +12,16 @@ const props = defineProps<{ disabled?: boolean }>()
 const loading = ref(true)
 const forbidden = ref(false)
 const saving = ref(false), testing = ref(false), uploading = ref(false)
-const msg = reactive({ text: '', ok: true })
+const msg = reactive({ text: '', ok: true, warn: false })
 const errorField = ref('')
 const draft = reactive<InviteMailConfig>(structuredClone(DEFAULT_INVITE) as InviteMailConfig)
 const server = reactive({ customLogoUrl: '', brandingLogoUrl: '', customized: false })
 const view = reactive({ dark: false, mobile: false })
 const lastField = ref<'subject' | 'heading' | 'body' | 'buttonText' | 'footer'>('body')
 
-const say = (text: string, ok = true) => { msg.text = text; msg.ok = ok }
+const say = (text: string, ok = true, warn = false) => { msg.text = text; msg.ok = ok; msg.warn = warn }
+// Verständliche Fehlermeldung; 404 heißt: der Server (Backend) kennt die Funktion noch nicht, das Frontend ist neuer
+const errText = (e: any, fallback: string) => ((e?.statusCode ?? e?.status) === 404 ? 'Der Server kennt diese Funktion noch nicht (das Backend ist noch nicht aktualisiert). Bitte nach dem Backend-Deploy erneut versuchen.' : (e?.data?.message || e?.message || fallback))
 const api = async <T>(path: string, opts: any = {}): Promise<T> => {
   const { useAuthHeader } = await import('~/composables/useAuth')
   return await $fetch<T>(useApiUrl(`/api/settings/mail-templates/${path}`), { ...opts, headers: await useAuthHeader() })
@@ -31,7 +33,7 @@ async function load() {
   try {
     const r: any = await api('invite')
     apply(resolveInviteConfig(r.config)); server.customLogoUrl = r.customLogoUrl || ''; server.brandingLogoUrl = r.brandingLogoUrl || ''; server.customized = !!r.customized; forbidden.value = false
-  } catch (e: any) { if (e?.statusCode === 403 || e?.status === 403) forbidden.value = true; else say(e?.data?.message || 'Die Vorlage konnte nicht geladen werden.', false) }
+  } catch (e: any) { if (e?.statusCode === 403 || e?.status === 403) forbidden.value = true; else say(errText(e, 'Die Vorlage konnte nicht geladen werden.'), false) }
   finally { loading.value = false }
 }
 onMounted(load)
@@ -74,17 +76,17 @@ function usePreset(key: string) { Object.assign(draft, applyPreset(resolveInvite
 async function save() {
   saving.value = true; errorField.value = ''
   try { const r: any = await api('invite', { method: 'PUT', body: structuredClone(draft) }); apply(resolveInviteConfig(r.config)); server.customized = true; say('Vorlage gespeichert.') }
-  catch (e: any) { errorField.value = e?.data?.data?.field || ''; say(e?.data?.message || 'Speichern fehlgeschlagen.', false) }
+  catch (e: any) { errorField.value = e?.data?.data?.field || ''; say(errText(e, 'Speichern fehlgeschlagen.'), false) }
   finally { saving.value = false }
 }
 async function resetAll() {
   if (!confirm('Vorlage und eigenes Logo wirklich auf den Standard zurücksetzen?')) return
-  try { await api('invite', { method: 'DELETE' }); await load(); say('Auf Standard zurückgesetzt.') } catch (e: any) { say(e?.data?.message || 'Zurücksetzen fehlgeschlagen.', false) }
+  try { await api('invite', { method: 'DELETE' }); await load(); say('Auf Standard zurückgesetzt.') } catch (e: any) { say(errText(e, 'Zurücksetzen fehlgeschlagen.'), false) }
 }
 async function sendTest() {
   testing.value = true
   try { const r: any = await api('invite-test', { method: 'POST', body: { config: structuredClone(draft) } }); say(r.status === 'sent' ? `Testmail an ${r.to} gesendet. Der Link darin ist absichtlich nicht gültig.` : `Testmail nicht gesendet (${r.status}).`, r.status === 'sent') }
-  catch (e: any) { errorField.value = e?.data?.data?.field || ''; say(e?.data?.message || 'Testmail fehlgeschlagen.', false) }
+  catch (e: any) { errorField.value = e?.data?.data?.field || ''; say(errText(e, 'Testmail fehlgeschlagen.'), false) }
   finally { testing.value = false }
 }
 async function onFile(ev: Event) {
@@ -95,15 +97,15 @@ async function onFile(ev: Event) {
   uploading.value = true
   try {
     const b64: string = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(new Error('Datei nicht lesbar')); r.readAsDataURL(f) })
-    await api('logo', { method: 'POST', body: { fileBase64: b64, fileName: f.name } })
+    const up: any = await api('logo', { method: 'POST', body: { fileBase64: b64, fileName: f.name } })
     const r: any = await api('invite'); const c = resolveInviteConfig(r.config)
     Object.assign(draft.logo, { mode: 'custom', file: c.logo.file, w: c.logo.w, h: c.logo.h }); server.customLogoUrl = r.customLogoUrl || ''
-    say('Logo hochgeladen (auf höchstens 480 Pixel Breite verkleinert und in der Mail 240 Pixel breit gezeigt, Metadaten entfernt). Zum Übernehmen der übrigen Einstellungen bitte speichern.')
-  } catch (e: any) { say(e?.data?.message || e?.message || 'Upload fehlgeschlagen.', false) }
+    say('Logo hochgeladen (Metadaten entfernt, in der Mail höchstens 250 × 100 Pixel groß). Zum Übernehmen der übrigen Einstellungen bitte speichern.' + (up?.warning ? ' ' + up.warning : ''), true, !!up?.warning)
+  } catch (e: any) { say(errText(e, 'Upload fehlgeschlagen.'), false) }
   finally { uploading.value = false }
 }
 async function removeLogo() {
-  try { await api('logo', { method: 'DELETE' }); Object.assign(draft.logo, { mode: 'none', file: '', w: 0, h: 0 }); server.customLogoUrl = ''; say('Eigenes Logo entfernt.') } catch (e: any) { say(e?.data?.message || 'Entfernen fehlgeschlagen.', false) }
+  try { await api('logo', { method: 'DELETE' }); Object.assign(draft.logo, { mode: 'none', file: '', w: 0, h: 0 }); server.customLogoUrl = ''; say('Eigenes Logo entfernt.') } catch (e: any) { say(errText(e, 'Entfernen fehlgeschlagen.'), false) }
 }
 watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) say('Bitte ein Logo hochladen.', false) })
 </script>
@@ -122,7 +124,7 @@ watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) sa
       <div v-else-if="forbidden" class="mt-note"><i class="ti ti-lock"></i> Nur der Inhaber des Kontos kann E-Mail-Vorlagen ansehen und ändern.</div>
       <template v-else>
         <div v-if="disabled" class="mt-note"><i class="ti ti-lock"></i> Im Demo-Zugang kannst du die Vorlage ansehen, aber nicht speichern oder Testmails senden.</div>
-        <div v-if="msg.text" class="mt-msg" :class="{ bad: !msg.ok }" role="status">{{ msg.text }}</div>
+        <div v-if="msg.text" class="mt-msg" :class="{ bad: !msg.ok, warn: msg.warn }" role="status">{{ msg.text }}</div>
 
         <div class="mt-grid">
           <div class="mt-form">
@@ -194,7 +196,7 @@ watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) sa
                 <label class="theme-opt" :class="{ off: disabled || uploading }"><i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-upload'"></i> {{ draft.logo.file ? 'Logo ersetzen' : 'Logo hochladen' }}
                   <input type="file" accept="image/png,image/jpeg" style="display:none" :disabled="disabled || uploading" @change="onFile" /></label>
                 <button v-if="draft.logo.file" type="button" class="theme-opt" :disabled="disabled" @click="removeLogo"><i class="ti ti-trash"></i> Entfernen</button>
-                <span class="mt-hint">PNG oder JPG, höchstens 300 KB und 2000 × 2000 Pixel. Es wird auf höchstens 480 Pixel Breite verkleinert (in der Mail 240 Pixel breit gezeigt, scharf auf hochauflösenden Bildschirmen) und ohne Metadaten neu gespeichert.</span>
+                <span class="mt-hint">PNG oder JPG, höchstens 300 KB und 2000 × 2000 Pixel. <strong>Empfohlen: mindestens 250 × 100 Pixel, besser 500 × 200</strong> (scharf auf hochauflösenden Bildschirmen). In der Mail wird es höchstens 250 × 100 Pixel groß gezeigt, ohne Metadaten neu gespeichert und nie vergrößert.</span>
               </div>
               <div class="mt-colors">
                 <label :class="{ err: fieldProblems.alt }">Alternativtext (Pflicht) <span class="mt-count">{{ draft.logo.alt.length }}/{{ MAIL_LIMITS.alt }}</span><input v-model="draft.logo.alt" class="field-input" :maxlength="MAIL_LIMITS.alt" :disabled="disabled" /><span v-if="fieldProblems.alt" class="mt-err">{{ fieldProblems.alt }}</span></label>
@@ -230,12 +232,16 @@ watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) sa
 .mt-sub { font-weight: 400; color: var(--text-muted); font-size: 11px; margin-left: 6px; }
 .mt-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .mt-field label, .mt-colors label { font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px; }
+.mt-field { display: flex; flex-direction: column; gap: 3px; }
+.mt-field > label { flex-direction: row; justify-content: space-between; }
+.mt-field .field-input, .mt-colors .field-input, .mt-colors select, .mt-color .field-input { width: 100%; box-sizing: border-box; }
+.mt-field textarea.field-input { resize: vertical; min-height: 110px; line-height: 1.45; }
 .mt-field.err .field-input, .mt-colors label.err .field-input { border-color: var(--danger); }
 .mt-colors { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .mt-color { display: flex; gap: 6px; align-items: center; }
 .mt-color input[type=color] { width: 34px; height: 30px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: none; }
 .mt-check { flex-direction: row !important; align-items: center; gap: 6px !important; color: var(--text) !important; }
-.mt-count { float: right; font-size: 11px; }
+.mt-count { font-size: 11px; }
 .mt-hint { font-size: 11px; color: var(--text-muted); }
 .mt-note { font-size: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
 .mt-note.small { font-size: 11px; }
@@ -243,6 +249,7 @@ watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) sa
 .mt-warn { font-size: 11px; background: #f59e0b14; border: 1px solid #f59e0b55; border-radius: 8px; padding: 6px 8px; }
 .mt-msg { font-size: 12px; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; background: #16a34a14; border: 1px solid #16a34a55; }
 .mt-msg.bad { background: #dc262614; border-color: #dc262655; }
+.mt-msg.warn { background: #f59e0b14; border-color: #f59e0b55; }
 .mt-chip { font-family: monospace; font-size: 11px; border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; margin: 2px 2px 0 0; background: var(--bg-elevated); color: var(--text); cursor: pointer; }
 .theme-opt.off { opacity: .5; pointer-events: none; }
 iframe { display: block; margin: 0 auto; }

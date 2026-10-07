@@ -140,6 +140,9 @@ describe('Fester Sicherheitsteil', () => {
 
 describe('Mailtechnik', () => {
   const m = renderInviteMail(DEFAULT_INVITE, CTX)
+  it('die Seitenfarbe steht auch am html-Element: sonst färbt ein dunkles System die Fläche unter der Karte schwarz (im Editor-Screenshot sichtbar geworden)', () => {
+    for (const k of Object.keys(STYLE_PRESETS)) { const c = applyPreset(DEFAULT_INVITE, k); const h = renderInviteMail(c, CTX).html; expect(h).toContain(`<html lang="de" xmlns="http://www.w3.org/1999/xhtml" style="background-color:${c.colors.page}"`) }
+  })
   it('Tabellenlayout mit Inline-Styles, color-scheme, Button-Farbe auf td UND a, keine Skripte/Stylesheets/Hintergrundbilder/Pixel', () => {
     expect(m.html).toContain('<table'); expect(m.html).toContain('role="presentation"'); expect(m.html).toContain('name="color-scheme" content="light dark"'); expect(m.html).toContain('supported-color-schemes')
     const btnTd = m.html.match(/<td align="center" bgcolor="(#[0-9a-f]{6})" style="background-color:(#[0-9a-f]{6})/)!; expect(btnTd[1]).toBe(BUTTON_BLUE); expect(btnTd[2]).toBe(BUTTON_BLUE)
@@ -167,10 +170,11 @@ describe('Logo im Mailkopf', () => {
     expect(m.html).not.toMatch(/<a [^>]*>\s*<img/)                                          // das Logo ist nicht verlinkt
     expect(renderInviteMail(custom, { ...CTX, logoUrl: LOGO, inviteeEmail: 'ganz@anders.de' }).html.match(/<img src="[^"]*"/)![0]).toBe(m.html.match(/<img src="[^"]*"/)![0])   // gleiche Adresse für alle
   })
-  it('doppelte Auflösung: gespeichert bis 480 Pixel, angezeigt höchstens 240 breit mit passender Höhe (Seitenverhältnis bleibt); kleinere Bilder in Originalgröße', () => {
+  it('Anzeige: höchstens 250 x 100 Pixel (Seitenverhältnis bleibt), gespeichert bis 500 x 200 (doppelte Auflösung); kleinere Bilder in Originalgröße', () => {
     const show = (w: number, h: number) => renderInviteMail({ ...custom, logo: { ...custom.logo, w, h } }, { ...CTX, logoUrl: LOGO }).html.match(/<img [^>]*width="(\d+)" height="(\d+)"[^>]*style="[^"]*width:(\d+)px;[^"]*height:(\d+)px/)!.slice(1).map(Number)
-    expect(show(480, 192)).toEqual([240, 96, 240, 96]); expect(show(300, 100)).toEqual([240, 80, 240, 80]); expect(show(240, 80)).toEqual([240, 80, 240, 80]); expect(show(120, 40)).toEqual([120, 40, 120, 40]); expect(show(480, 480)).toEqual([240, 240, 240, 240])
-    expect(resolveInviteConfig({ logo: { mode: 'custom', file: custom.logo.file, w: 9999, h: 9999 } }).logo).toMatchObject({ w: 480, h: 480 })   // Maße aus beschädigter Zeile werden begrenzt
+    expect(show(500, 200)).toEqual([250, 100, 250, 100]); expect(show(300, 100)).toEqual([250, 83, 250, 83]); expect(show(240, 80)).toEqual([240, 80, 240, 80]); expect(show(120, 40)).toEqual([120, 40, 120, 40]); expect(show(200, 200)).toEqual([100, 100, 100, 100]); expect(show(250, 100)).toEqual([250, 100, 250, 100])
+    for (const [w, h] of [[500, 200], [1, 1], [37, 199], [499, 3], [500, 500]]) { const [a, b] = show(Math.min(w, 500), Math.min(h, 200)); expect(a).toBeLessThanOrEqual(250); expect(b).toBeLessThanOrEqual(100) }
+    expect(resolveInviteConfig({ logo: { mode: 'custom', file: custom.logo.file, w: 9999, h: 9999 } }).logo).toMatchObject({ w: 500, h: 200 })   // Maße aus beschädigter Zeile werden begrenzt
   })
   it('nur Logo-Adressen auf unserem Bucket (PNG/JPG, ohne Parameter): fremde Hosts, SVG, GIF, WebP, Query und javascript: ergeben kein Bild', () => {
     for (const bad of ['https://evil.de/logo.png', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.svg', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.gif', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.webp', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.png?x=1', 'https://plexora-files.s3.eu-central-1.amazonaws.com/lambda/code.png', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/../lambda/x.png', 'http://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.png', 'javascript:alert(1)', 'data:image/png;base64,AAAA']) {

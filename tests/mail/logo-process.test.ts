@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { crc32 } from 'node:zlib'
 import { PNG } from 'pngjs'
 import jpeg from 'jpeg-js'
-import { processLogo, detectLogoType, assertSafeFileName, LogoError, MAX_LOGO_BYTES, LOGO_OUT_MAX, LOGO_DISPLAY_MAX } from '../../server/utils/mailLogo'
+import { processLogo, detectLogoType, assertSafeFileName, LogoError, MAX_LOGO_BYTES, LOGO_OUT_W, LOGO_OUT_H, LOGO_MIN_W, LOGO_MIN_H } from '../../server/utils/mailLogo'
 
 // ── Testbilder selbst erzeugen ──
 const png = (w: number, h: number, fill: (x: number, y: number) => [number, number, number, number] = () => [20, 80, 200, 255]) => {
@@ -39,6 +39,15 @@ describe('processLogo prüft den Dateinamen selbst (nicht nur die Hilfsfunktion)
   })
 })
 
+describe('Warnung bei zu kleinen Bildern (empfohlen mindestens 250 x 100)', () => {
+  it('kleiner als 250 x 100: Warnung mit den echten Maßen, aber verarbeitet und nicht vergrößert; ab 250 x 100 keine Warnung', () => {
+    const small = processLogo(png(120, 40), 'x.png'); expect(small.warning).toMatch(/120 × 40/); expect(small.warning).toMatch(/250 × 100/); expect([small.width, small.height]).toEqual([120, 40])
+    expect(processLogo(png(250, 99), 'x.png').warning).toBeTruthy(); expect(processLogo(png(249, 100), 'x.png').warning).toBeTruthy()
+    expect(processLogo(png(250, 100), 'x.png').warning).toBeUndefined(); expect(processLogo(png(1000, 400), 'x.png').warning).toBeUndefined()
+    expect(processLogo(png(1000, 400), 'x.png')).toMatchObject({ origWidth: 1000, origHeight: 400 })   // Warnung bezieht sich auf das Original, nicht auf das verkleinerte Ergebnis
+  })
+})
+
 describe('Größen und kaputte Dateien', () => {
   it('zu große Datei (über 300 KB) und leere Datei', () => {
     const noise = new PNG({ width: 400, height: 400 }); for (let i = 0; i < noise.data.length; i++) noise.data[i] = Math.floor(Math.random() * 256)
@@ -47,7 +56,7 @@ describe('Größen und kaputte Dateien', () => {
   })
   it('zu großes Bild (über 2000 × 2000) wird vor dem Dekodieren abgelehnt, 2000 × 2000 geht', () => {
     expect(() => processLogo(png(2001, 1), 'x.png')).toThrow(/zu groß/); expect(() => processLogo(png(1, 2001), 'x.png')).toThrow(/zu groß/)
-    const ok = processLogo(png(2000, 2000), 'x.png'); expect(ok.width).toBeLessThanOrEqual(LOGO_OUT_MAX)
+    const ok = processLogo(png(2000, 2000), 'x.png'); expect(ok.width).toBeLessThanOrEqual(LOGO_OUT_W); expect(ok.height).toBeLessThanOrEqual(LOGO_OUT_H)
   })
   it('beschädigte, abgeschnittene und erfundene Dateien', () => {
     const p = png(50, 50), j = jpg(50, 50)
@@ -88,13 +97,14 @@ describe('Neu kodiert: Metadaten sind weg, Ergebnis ist ein sauberes Bild', () =
     const chunks: string[] = []; for (let p = 8; p < out.data.length;) { const len = out.data.readUInt32BE(p); chunks.push(out.data.toString('latin1', p + 4, p + 8)); p += 12 + len }
     expect(chunks.filter(c => !['IHDR', 'IDAT', 'IEND'].includes(c))).toEqual([])
   })
-  it('verkleinert auf höchstens 480 Pixel (doppelte Auflösung für die Anzeige mit 240), vergrößert nie, behält das Seitenverhältnis', () => {
-    expect(LOGO_OUT_MAX).toBe(480); expect(LOGO_DISPLAY_MAX).toBe(240)
-    const big = processLogo(png(1200, 480), 'x.png'); expect(big.width).toBe(480); expect(big.height).toBe(192)
-    const tall = processLogo(png(100, 1000), 'x.png'); expect(tall.height).toBeLessThanOrEqual(480); expect(tall.width).toBeLessThanOrEqual(480)
+  it('verkleinert in den Rahmen 500 x 200 (doppelte Auflösung für die Anzeige mit 250 x 100), vergrößert nie, behält das Seitenverhältnis', () => {
+    expect([LOGO_OUT_W, LOGO_OUT_H, LOGO_MIN_W, LOGO_MIN_H]).toEqual([500, 200, 250, 100])
+    const big = processLogo(png(1200, 480), 'x.png'); expect([big.width, big.height]).toEqual([500, 200])
+    const tall = processLogo(png(100, 1000), 'x.png'); expect([tall.width, tall.height]).toEqual([20, 200])
+    const square = processLogo(png(400, 400), 'x.png'); expect([square.width, square.height]).toEqual([200, 200])
     const small = processLogo(png(120, 40), 'x.png'); expect([small.width, small.height]).toEqual([120, 40])
     const mid = processLogo(png(300, 100), 'x.png'); expect([mid.width, mid.height]).toEqual([300, 100])
-    const j = processLogo(jpg(960, 320), 'x.jpg'); expect([j.width, j.height]).toEqual([480, 160])
+    const j = processLogo(jpg(960, 320), 'x.jpg'); expect([j.width, j.height]).toEqual([500, 167])
   })
   it('Transparenz bleibt erhalten (transparente Logos), Farben bleiben richtig', () => {
     const half = png(10, 10, (x) => (x < 5 ? [255, 0, 0, 0] : [0, 128, 255, 255]))

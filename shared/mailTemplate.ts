@@ -15,8 +15,16 @@ export const APP_ORIGIN = 'https://app.plexora.eu'
 export const LOGO_BASE = 'https://plexora-files.s3.eu-central-1.amazonaws.com/'
 export const LOGO_PREFIX = 'mail-logos'
 
-/** Höchste Anzeigebreite des Logos in der Mail (CSS-Pixel); gespeichert wird in doppelter Auflösung */
-export const LOGO_DISPLAY_MAX = 240
+/** Größe des Logos in der Mail (CSS-Pixel): höchstens 250 x 100, Seitenverhältnis bleibt. Gespeichert wird in doppelter Auflösung (bis 500 x 200). */
+export const LOGO_DISPLAY_W = 250
+export const LOGO_DISPLAY_H = 100
+export const LOGO_STORE_W = 500
+export const LOGO_STORE_H = 200
+/** Anzeigegröße zu den gespeicherten Maßen: einpassen in 250 x 100, nie vergrößern */
+export function logoDisplaySize(w: number, h: number): { w: number; h: number } {
+  const scale = Math.min(1, LOGO_DISPLAY_W / w, LOGO_DISPLAY_H / h)
+  return { w: Math.max(1, Math.round(w * scale)), h: Math.max(1, Math.round(h * scale)) }
+}
 export const MAIL_LIMITS = { subject: 90, heading: 80, body: 500, button: 30, footer: 200, alt: 80 } as const
 
 export const FONT_STACKS: Record<string, string> = {
@@ -122,7 +130,7 @@ export function resolveInviteConfig(stored: unknown): InviteMailConfig {
       // "eigenes Logo" ohne gespeicherte Datei gibt es nicht
       mode: mode === 'custom' && !file ? 'none' : mode,
       alt: text(g.alt, MAIL_LIMITS.alt, D.logo.alt), align: pickEnum(g.align, ['left', 'center', 'right'] as const, D.logo.align), plate: typeof g.plate === 'boolean' ? g.plate : D.logo.plate, plateColor: hex(g.plateColor, D.logo.plateColor),
-      file, w: file ? num(g.w, 1, 480, 0) : 0, h: file ? num(g.h, 1, 480, 0) : 0,
+      file, w: file ? num(g.w, 1, LOGO_STORE_W, 0) : 0, h: file ? num(g.h, 1, LOGO_STORE_H, 0) : 0,
     },
   }
 }
@@ -292,8 +300,8 @@ export function renderInviteMail(cfgInput: unknown, ctx: InviteCtx): RenderedMai
   if (logoUrl) {
     // Ersatztext bei blockiertem Bild: auf der Platte in einer Farbe mit Kontrast zur Platte, sonst in der Überschriftfarbe
     const altColor = cfg.logo.plate ? (luminance(cfg.logo.plateColor) > 0.4 ? '#111827' : '#ffffff') : C.heading
-    // gespeichert bis 480 Pixel breit, angezeigt höchstens 240 Pixel breit (doppelte Auflösung für scharfe Darstellung); die Höhe folgt dem Seitenverhältnis
-    const dims = cfg.logo.mode === 'custom' && cfg.logo.w && cfg.logo.h ? (() => { const w = Math.min(cfg.logo.w, LOGO_DISPLAY_MAX); return { w, h: Math.max(1, Math.round(cfg.logo.h * w / cfg.logo.w)) } })() : null
+    // gespeichert bis 500 x 200 (doppelte Auflösung), angezeigt höchstens 250 x 100 mit unverändertem Seitenverhältnis
+    const dims = cfg.logo.mode === 'custom' && cfg.logo.w && cfg.logo.h ? logoDisplaySize(cfg.logo.w, cfg.logo.h) : null
     const w = dims ? dims.w : 160
     const img = `<img src="${e(logoUrl)}" width="${w}"${dims ? ` height="${dims.h}"` : ''} alt="${e(cfg.logo.alt)}" style="display:block;border:0;outline:none;text-decoration:none;width:${w}px;max-width:100%;height:${dims ? dims.h + 'px' : 'auto'};font-family:${ff};font-size:16px;font-weight:700;color:${altColor}">`
     const inner = cfg.logo.plate ? `<table role="presentation" border="0" cellspacing="0" cellpadding="0"><tr><td bgcolor="${cfg.logo.plateColor}" style="background-color:${cfg.logo.plateColor};padding:10px 14px;border-radius:6px">${img}</td></tr></table>` : img
@@ -321,7 +329,7 @@ export function renderInviteMail(cfgInput: unknown, ctx: InviteCtx): RenderedMai
   const W = cfg.layout.cardWidth
 
   const html = `<!DOCTYPE html>
-<html lang="de" xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><title>${e(subject)}</title><style type="text/css">:root{color-scheme:light dark;supported-color-schemes:light dark}</style></head>
+<html lang="de" xmlns="http://www.w3.org/1999/xhtml" style="background-color:${C.page}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><title>${e(subject)}</title><style type="text/css">:root{color-scheme:light dark;supported-color-schemes:light dark}</style></head>
 <body style="margin:0;padding:0;background-color:${C.page}" bgcolor="${C.page}">
 <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="${C.page}" style="background-color:${C.page}"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="${W}" border="0" cellspacing="0" cellpadding="0" bgcolor="${C.card}" style="width:100%;max-width:${W}px;background-color:${C.card};border-radius:12px">

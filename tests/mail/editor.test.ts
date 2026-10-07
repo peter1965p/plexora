@@ -32,3 +32,16 @@ describe('Editor E-Mail-Vorlagen (Oberfläche)', () => {
     expect(ed).toContain('v-for="p in PLACEHOLDERS"'); expect(ed).toContain('Nur der Inhaber des Kontos kann E-Mail-Vorlagen ansehen und ändern')
   })
 })
+
+describe('Meldungen und Maße im Editor', () => {
+  it('ein 404 (Backend kennt die Funktion noch nicht) wird verständlich erklärt, nicht als "Page not found" gezeigt; Fehler aller Aktionen laufen darüber', () => {
+    expect(ed).toContain("=== 404 ? 'Der Server kennt diese Funktion noch nicht"); expect((ed.match(/errText\(e,/g) || []).length).toBeGreaterThanOrEqual(6)
+  })
+  it('Logo: Hinweis auf 250 × 100 (empfohlen mindestens, besser 500 × 200), Warnung aus der Antwort wird angezeigt', () => {
+    for (const t of ['Empfohlen: mindestens 250 × 100 Pixel, besser 500 × 200', 'höchstens 250 × 100 Pixel groß', 'up?.warning', 'msg.warn']) expect(ed, t).toContain(t)
+    expect(ed).not.toMatch(/480|240 Pixel/)
+  })
+  it('Eingabefelder nehmen die volle Breite (im Screenshot waren sie abgeschnitten)', () => {
+    expect(ed).toMatch(/\.mt-field \.field-input[^{]*\{ width: 100%; box-sizing: border-box; \}/)
+  })
+})

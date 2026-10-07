@@ -6,9 +6,11 @@ import jpeg from 'jpeg-js'
 // Textblöcke, Profile und alles, was in Metadaten oder hinter dem Bildende steckt, ist damit weg.
 export const MAX_LOGO_BYTES = 300 * 1024
 export const MAX_LOGO_DIM = 2000
-/** Gespeichert wird in doppelter Auflösung (bis 480 Pixel); die Mail zeigt es höchstens 240 Pixel breit (scharf auf hochauflösenden Bildschirmen) */
-export const LOGO_OUT_MAX = 480
-export const LOGO_DISPLAY_MAX = 240
+/** Anzeige in der Mail: höchstens 250 x 100 Pixel. Gespeichert wird in doppelter Auflösung (bis 500 x 200), damit es auf hochauflösenden Bildschirmen scharf bleibt. */
+export const LOGO_OUT_W = 500
+export const LOGO_OUT_H = 200
+export const LOGO_MIN_W = 250
+export const LOGO_MIN_H = 100
 
 export class LogoError extends Error { constructor(message: string) { super(message) } }
 
@@ -85,7 +87,7 @@ function downscale(src: { data: Buffer | Uint8Array; width: number; height: numb
   return { data: out, width: tw, height: th }
 }
 
-export interface ProcessedLogo { type: LogoType; data: Buffer; width: number; height: number }
+export interface ProcessedLogo { type: LogoType; data: Buffer; width: number; height: number; origWidth: number; origHeight: number; warning?: string }
 
 export function processLogo(buf: Buffer, fileName?: unknown): ProcessedLogo {
   assertSafeFileName(fileName)
@@ -107,10 +109,12 @@ export function processLogo(buf: Buffer, fileName?: unknown): ProcessedLogo {
   } catch { throw new LogoError('Das Bild ist beschädigt oder kann nicht gelesen werden.') }
   if (img.width !== dims.w || img.height !== dims.h) throw new LogoError('Die Bildangaben stimmen nicht überein – die Datei wird abgelehnt.')
 
-  const scale = Math.min(1, LOGO_OUT_MAX / img.width, LOGO_OUT_MAX / img.height)
+  const scale = Math.min(1, LOGO_OUT_W / img.width, LOGO_OUT_H / img.height)
   const out = scale < 1 ? downscale(img, Math.max(1, Math.round(img.width * scale)), Math.max(1, Math.round(img.height * scale))) : { data: Buffer.from(img.data), width: img.width, height: img.height }
   let data: Buffer
   if (type === 'png') { const p = new PNG({ width: out.width, height: out.height }); Buffer.from(out.data).copy(p.data); data = PNG.sync.write(p, { colorType: 6 }) }
   else data = Buffer.from(jpeg.encode({ data: out.data, width: out.width, height: out.height }, 85).data)
-  return { type, data, width: out.width, height: out.height }
+  // Kleiner als die empfohlene Anzeigegröße: wird nie vergrößert, kann aber unscharf wirken
+  const warning = img.width < LOGO_MIN_W || img.height < LOGO_MIN_H ? `Das Bild ist nur ${img.width} × ${img.height} Pixel groß (empfohlen: mindestens ${LOGO_MIN_W} × ${LOGO_MIN_H}, besser doppelt so groß). Es wird nicht vergrößert und kann unscharf wirken.` : undefined
+  return { type, data, width: out.width, height: out.height, origWidth: img.width, origHeight: img.height, warning }
 }

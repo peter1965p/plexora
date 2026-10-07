@@ -28,5 +28,5 @@ export default defineEventHandler(async (event) => {
     await saveInviteConfig(tenantId, { ...prev, logo: { ...prev.logo, mode: 'custom', file: key, w: out.width, h: out.height } }, auth.email)
   } catch (e) { await deleteLogoObject(tenantId, key); throw e }      // nichts verwaist liegen lassen
   await deleteLogoObject(tenantId, prev.logo.file)                       // das alte Logo wird beim Ersetzen gelöscht
-  return { logoUrl: logoUrlForFile(key), width: out.width, height: out.height }
+  return { logoUrl: logoUrlForFile(key), width: out.width, height: out.height, warning: out.warning || null }
 })
