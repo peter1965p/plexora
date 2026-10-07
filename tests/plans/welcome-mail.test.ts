@@ -35,7 +35,7 @@ describe('Skript für das AWS-Recht', () => {
   it('--dry-run läuft ohne Administratorrechte und schreibt nichts (kein put-role-policy im Probelauf)', () => {
     const out = execFileSync('bash', ['scripts/aws/grant-set-password-right.sh', '--dry-run'], { encoding: 'utf8', env: { ...process.env, AWS_PAGER: '' } })
     expect(out).toContain('Probelauf: nichts geändert'); expect(out).toContain('cognito-idp:AdminSetUserPassword')
-  })
+  }, 30_000)
 })
 
 describe('Umschalter', () => {

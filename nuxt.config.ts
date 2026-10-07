@@ -72,6 +72,8 @@ export default defineNuxtConfig({
     planEnforce: "",
     // Willkommensmail nach dem Kauf mit Einmal-Link statt Start-Passwort ("true" erst, wenn das AWS-Recht AdminSetUserPassword gesetzt ist: scripts/aws/grant-set-password-right.sh)
     welcomeLink: "",
+    // Rollenprüfung (server/middleware/roles.ts): leer = nur protokollieren ("würde ablehnen"), "true" = durchsetzen (403). Umschalten: scripts/aws/set-enforce.sh roles on|off
+    rolesEnforce: "",
     newsletterCronSecret: "",
     backupBucket: "",
     backupWorkerFunction: "",

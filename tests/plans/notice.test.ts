@@ -10,8 +10,12 @@ describe('Hinweise bei Tarif- und Mengenlimits', () => {
   it('429/413 mit Limit-Code: Hinweis ohne Link, mit der Meldung des Servers', () => {
     for (const [s, c] of [[429, 'MAIL_LIMIT'], [429, 'UPLOAD_RATE'], [429, 'UPLOAD_DAILY'], [413, 'UPLOAD_TOO_LARGE']] as const) expect(planNoticeFrom(s, body(c, 'Heute …'))).toEqual({ message: 'Heute …', kind: 'limit' })
   })
-  it('alles andere löst keinen Hinweis aus (401, 403 Rolle, 404, 500, 402 ohne Code, falscher Status zum Code)', () => {
-    expect(planNoticeFrom(401, body('PLAN_REQUIRED'))).toBeNull(); expect(planNoticeFrom(403, body('ROLE_REQUIRED'))).toBeNull(); expect(planNoticeFrom(500, body('MAIL_LIMIT'))).toBeNull()
+  it('403 ROLE_REQUIRED: Hinweis der Art "role" mit der Meldung des Servers (kein Link, kein Login-Wechsel)', () => {
+    expect(planNoticeFrom(403, body('ROLE_REQUIRED', 'Dafür brauchst du die Rolle Admin.'))).toEqual({ message: 'Dafür brauchst du die Rolle Admin.', kind: 'role' })
+    expect(planNoticeFrom(403, body('ANDERES'))).toBeNull(); expect(planNoticeFrom(401, body('ROLE_REQUIRED'))).toBeNull()
+  })
+  it('alles andere löst keinen Hinweis aus (401, 403 ohne Code, 404, 500, 402 ohne Code, falscher Status zum Code)', () => {
+    expect(planNoticeFrom(401, body('PLAN_REQUIRED'))).toBeNull(); expect(planNoticeFrom(403, { message: 'x' })).toBeNull(); expect(planNoticeFrom(500, body('MAIL_LIMIT'))).toBeNull()
     expect(planNoticeFrom(402, { message: 'x' })).toBeNull(); expect(planNoticeFrom(402, body('ANDERES'))).toBeNull(); expect(planNoticeFrom(429, body('PLAN_REQUIRED'))).toBeNull()
     expect(planNoticeFrom(402, undefined)).toBeNull(); expect(planNoticeFrom(402, { data: { code: 'PLAN_REQUIRED' } })).toBeNull()
   })

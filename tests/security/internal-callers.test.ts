@@ -12,12 +12,15 @@ walk('server')
 const CLOSED_PATHS = ['/api/settings/invoice', '/api/settings/invoice-presets', '/api/settings/branch-packages', '/api/team/', '/api/campaigns/presets', '/api/automotive/pricetag-templates/presets']
 const ROUTE_FILES = /^server\/api\/(settings\/(invoice|invoice-presets|branch-packages)\.|team\/|campaigns\/presets|automotive\/pricetag-templates\/presets)/
 
+// Richtlinien-Tabellen nennen Pfade nur als Daten (wer darf was), sie rufen nichts auf
+const POLICY_TABLES = new Set(['server/utils/rolePolicy.ts', 'server/utils/moduleAccess.ts', 'server/utils/routePolicy.ts', 'server/utils/freeRecords.ts'])
+
 describe('Interne Aufrufer der geschlossenen Routen', () => {
   it('kein Server-Code ruft diese Routen per Pfad auf (außer den Routen selbst)', () => {
     const hits: string[] = []
     for (const f of files) {
       const norm = f.replace(/\\/g, '/')
-      if (ROUTE_FILES.test(norm)) continue
+      if (ROUTE_FILES.test(norm) || POLICY_TABLES.has(norm)) continue
       const src = readFileSync(f, 'utf8')
       for (const p of CLOSED_PATHS) if (src.includes(p)) hits.push(`${norm}: ${p}`)
     }

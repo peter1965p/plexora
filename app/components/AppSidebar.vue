@@ -10,7 +10,7 @@
       </template>
     </div>
     <nav class="sidebar-nav">
-      <template v-for="section in navSections" :key="section.label">
+      <template v-for="section in visibleSections" :key="section.label">
         <div class="nav-section-label">{{ section.label }}</div>
         <NuxtLink
           v-for="item in section.items"
@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+import { areaForPath } from '~~/shared/roles'
 const store = useAppStore()
 onMounted(() => store.loadModules())
 const { branding, loadBranding } = useBranding()
@@ -70,6 +71,10 @@ onMounted(async () => {
 })
 
 onMounted(() => { loadBranchModules() })
+
+// Rollen: Menüpunkte, die die eigene Rolle nicht öffnen darf, werden ausgeblendet (nur wenn der Server die Rollen durchsetzt; der Server bleibt maßgeblich)
+const { load: loadRole, can: canRole } = useRole()
+onMounted(() => loadRole())
 
 const moduleRoutes: Record<string, string> = {
   crm: '/crm', projects: '/projects', contracts: '/contracts', finance: '/finance',
@@ -126,4 +131,8 @@ const navSections = computed(() => [
     ]
   }
 ])
+
+const visibleSections = computed(() => navSections.value
+  .map(sec => ({ ...sec, items: sec.items.filter((it: any) => canRole(areaForPath(it.to)?.role || 'self')) }))
+  .filter(sec => sec.items.length))
 </script>

@@ -10,6 +10,7 @@ vi.mock('@aws-sdk/client-s3', () => {
     PutObjectCommand: mk('Put'), DeleteObjectCommand: mk('Delete'), ListObjectsV2Command: mk('List'),
   }
 })
+vi.mock('../../server/utils/dynamodb', () => ({ getDynamoClient: () => ({ async send() { return { Items: [], Attributes: { count: 1 } } } }) }))   // Tarif-/Zähler-Abfragen des Uploads: kein echter Datenbankzugriff im Test
 installGlobals()
 const { PUBLIC_S3_PREFIXES, isAllowedKey, normalizePrefix, safeFileName } = await import('../../server/utils/s3Policy')
 const { default: upload } = await import('../../server/api/aws/s3-upload.post')

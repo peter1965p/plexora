@@ -1286,13 +1286,17 @@
         <div style="display:flex;gap:10px;margin-bottom:24px" v-if="!isDemo">
           <input v-model="teamInviteEmail" placeholder="E-Mail des neuen Mitglieds" style="flex:1" @keydown.enter="inviteTeamMember" />
           <select v-model="teamInviteRole" style="width:120px;padding:0 10px;height:36px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-primary)">
-            <option value="member">Member</option>
+            <option value="member">Mitglied</option>
             <option value="admin">Admin</option>
           </select>
           <button class="accent-btn" :disabled="teamInviting || !teamInviteEmail" @click="inviteTeamMember">
             <i class="ti" :class="teamInviting ? 'ti-loader-2 spin' : 'ti-send'"></i>
             {{ teamInviting ? 'Sendet...' : 'Einladen' }}
           </button>
+        </div>
+
+        <div v-if="!isDemo" style="font-size:12px;color:var(--text-muted);margin:-12px 0 20px;line-height:1.5">
+          <strong>Mitglied:</strong> CRM, Support, Projekte, Termine, Marketing und Formulare. <strong>Admin:</strong> alles außer Team, Sicherung, Abrechnung und Zahlungs-/KI-Schlüssel.
         </div>
 
         <!-- Member List -->
@@ -1307,13 +1311,18 @@
               </div>
               <div>
                 <div style="font-size:13px;font-weight:600">{{ m.memberEmail }}</div>
-                <div style="font-size:11px;color:var(--text-muted)">{{ m.role }} · {{ m.status === 'invited' ? (m.inviteExpired ? 'Einladung abgelaufen' : 'Einladung ausstehend' + (m.inviteExpiresAt ? ' bis ' + new Date(m.inviteExpiresAt).toLocaleDateString('de-DE') : '')) : 'Aktiv' }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">{{ m.role === 'admin' ? 'Admin' : 'Mitglied' }} · {{ m.status === 'invited' ? (m.inviteExpired ? 'Einladung abgelaufen' : 'Einladung ausstehend' + (m.inviteExpiresAt ? ' bis ' + new Date(m.inviteExpiresAt).toLocaleDateString('de-DE') : '')) : 'Aktiv' }}</div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <span :style="m.status === 'active' ? 'font-size:11px;padding:3px 8px;border-radius:5px;background:#00C85322;color:#00C853' : 'font-size:11px;padding:3px 8px;border-radius:5px;background:#F0B42822;color:#F0B428'">
                 {{ m.status === 'active' ? 'Aktiv' : (m.inviteExpired ? 'Abgelaufen' : 'Eingeladen') }}
               </span>
+              <select v-if="m.memberEmail !== userEmail && m.status === 'active' && !isDemo" :value="m.role === 'admin' ? 'admin' : 'member'" title="Rolle ändern"
+                style="height:28px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:12px" @change="changeMemberRole(m.memberEmail, ($event.target as HTMLSelectElement).value)">
+                <option value="member">Mitglied</option>
+                <option value="admin">Admin</option>
+              </select>
               <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" :title="m.status === 'invited' ? 'Einladung zurückziehen' : 'Entfernen'">
                 <i class="ti ti-trash"></i>
               </button>
@@ -2970,6 +2979,14 @@ async function inviteTeamMember() {
   } finally {
     teamInviting.value = false
   }
+}
+
+async function changeMemberRole(email: string, role: string) {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}`), { method: 'PATCH', headers: await useAuthHeader(), body: { role } })
+  } catch (e: any) { alert(e?.data?.message || 'Die Rolle konnte nicht geändert werden.') }
+  await loadTeamMembers()
 }
 
 async function removeTeamMember(email: string) {
