@@ -1527,6 +1527,9 @@
     </div>
 
     <!-- ── BOT-SCHUTZ (Cloudflare Turnstile) ── -->
+    <!-- E-MAIL-VORLAGEN: frei gestaltbare Einladungsmail mit Vorschau (Inhaber) -->
+    <MailTemplateEditor v-if="tab === 'mailtemplates'" :disabled="isDemo" />
+
     <div v-if="tab === 'botprotection'" class="card">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>Bot-Schutz (Turnstile)</span>
@@ -1909,7 +1912,7 @@ const tabs = computed(() => {
   const extra = store.licenseModules?.includes('nexora')
     ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
     : []
-  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }, { key: 'backup', label: 'Sicherung', icon: 'ti-database-export' }]
+  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }, { key: 'backup', label: 'Sicherung', icon: 'ti-database-export' }, { key: 'mailtemplates', label: 'E-Mail-Vorlagen', icon: 'ti-mail-cog' }]
   const integrityExtra = isAdmin.value
     ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
     : []

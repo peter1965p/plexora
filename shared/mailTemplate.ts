@@ -288,9 +288,11 @@ export function renderInviteMail(cfgInput: unknown, ctx: InviteCtx): RenderedMai
   // Kopf: Logo (mit Alternativtext in Schriftfarbe, damit der Name auch bei blockierten Bildern lesbar bleibt) oder der Produktname als Text
   let header: string
   if (logoUrl) {
+    // Ersatztext bei blockiertem Bild: auf der Platte in einer Farbe mit Kontrast zur Platte, sonst in der Überschriftfarbe
+    const altColor = cfg.logo.plate ? (luminance(cfg.logo.plateColor) > 0.4 ? '#111827' : '#ffffff') : C.heading
     const dims = cfg.logo.mode === 'custom' && cfg.logo.w && cfg.logo.h ? { w: Math.min(cfg.logo.w, 240), h: cfg.logo.h } : null
     const w = dims ? dims.w : 160
-    const img = `<img src="${e(logoUrl)}" width="${w}"${dims ? ` height="${dims.h}"` : ''} alt="${e(cfg.logo.alt)}" style="display:block;border:0;outline:none;text-decoration:none;width:${w}px;max-width:100%;height:${dims ? dims.h + 'px' : 'auto'};font-family:${ff};font-size:16px;font-weight:700;color:${C.heading}">`
+    const img = `<img src="${e(logoUrl)}" width="${w}"${dims ? ` height="${dims.h}"` : ''} alt="${e(cfg.logo.alt)}" style="display:block;border:0;outline:none;text-decoration:none;width:${w}px;max-width:100%;height:${dims ? dims.h + 'px' : 'auto'};font-family:${ff};font-size:16px;font-weight:700;color:${altColor}">`
     const inner = cfg.logo.plate ? `<table role="presentation" border="0" cellspacing="0" cellpadding="0"><tr><td bgcolor="${cfg.logo.plateColor}" style="background-color:${cfg.logo.plateColor};padding:10px 14px;border-radius:6px">${img}</td></tr></table>` : img
     header = `<tr><td align="${cfg.logo.align}" style="padding:28px 32px 0 32px"><table role="presentation" border="0" cellspacing="0" cellpadding="0" align="${cfg.logo.align}"><tr><td>${inner}</td></tr></table></td></tr>`
   } else {

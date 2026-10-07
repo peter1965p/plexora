@@ -181,6 +181,15 @@ describe('Logo im Mailkopf', () => {
     expect(resolveInviteConfig({ logo: { mode: 'custom', file: '../../etc/passwd', w: 5, h: 5 } }).logo).toMatchObject({ mode: 'none', file: '' })
     expect(resolveInviteConfig({ logo: { mode: 'custom', file: 'mail-logos/zzzz/x.png' } }).logo.file).toBe('')
   })
+  it('Ersatztext bei blockiertem Logo bleibt lesbar: auf heller Platte dunkle, auf dunkler Platte helle Schrift (nicht die Überschriftfarbe)', () => {
+    const dark = applyPreset(DEFAULT_INVITE, 'dunkel')                                   // Überschrift ist weiß
+    const onWhite = renderInviteMail({ ...dark, logo: { ...custom.logo, plate: true, plateColor: '#ffffff' } }, { ...CTX, logoUrl: LOGO }).html
+    const onBlack = renderInviteMail({ ...dark, logo: { ...custom.logo, plate: true, plateColor: '#101010' } }, { ...CTX, logoUrl: LOGO }).html
+    const altColor = (h: string) => h.match(/<img [^>]*color:(#[0-9a-f]{6})">/)![1]
+    expect(altColor(onWhite)).toBe('#111827'); expect(altColor(onBlack)).toBe('#ffffff')
+    expect(contrastRatio(altColor(onWhite), '#ffffff')).toBeGreaterThanOrEqual(4.5); expect(contrastRatio(altColor(onBlack), '#101010')).toBeGreaterThanOrEqual(4.5)
+    const noPlate = renderInviteMail({ ...dark, logo: { ...custom.logo, plate: false } }, { ...CTX, logoUrl: LOGO }).html; expect(altColor(noPlate)).toBe(dark.colors.heading)
+  })
   it('Branding-Logo ohne bekannte Maße: Breite fest, Höhe automatisch', () => {
     const c = { ...clone(), logo: { ...clone().logo, mode: 'branding' } }
     const m = renderInviteMail(c, { ...CTX, logoUrl: 'https://plexora-files.s3.eu-central-1.amazonaws.com/branding/logo250x100.jpg' }); expect(m.html).toMatch(/<img src="[^"]+" width="160" alt=/)
