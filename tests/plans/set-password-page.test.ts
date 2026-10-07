@@ -8,7 +8,7 @@ describe('Seite /set-password', () => {
     expect(page).toContain('[A-Za-z0-9_-]{43}'); expect(page).toContain('history.replaceState')
   })
   it('sendet Token und Passwort per POST im Body, nie in der Adresse', () => {
-    expect(page).toMatch(/\/api\/auth\/set-password'\), \{ method: 'POST', body: \{ token: token\.value, password: password\.value \}/)
+    expect(page).toMatch(/\/api\/auth\/set-password'\), \{ method: 'POST', body: \{ token: token\.value, password: password\.value \} \}\)/)
     expect(page).not.toMatch(/set-password\?|\?token=/)
   })
   it('prüft mit denselben Regeln wie der Server und verlangt die Wiederholung', () => {
