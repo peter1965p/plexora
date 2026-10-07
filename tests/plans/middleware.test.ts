@@ -9,6 +9,11 @@ vi.stubGlobal('createError', (o: any) => Object.assign(new Error(o.message), { s
 vi.stubGlobal('useRuntimeConfig', () => ({ planEnforce: enforce }))
 vi.spyOn(console, 'warn').mockImplementation((...a: any[]) => { warns.push(a.join(' ')) })
 vi.spyOn(console, 'error').mockImplementation(() => {})
+let counts: Record<string, number> = {}
+vi.mock('../../server/utils/freeRecords', async () => {
+  const actual = await vi.importActual<any>('../../server/utils/freeRecords')
+  return { ...actual, countRecords: async (_t: string, tables: string[]) => tables.reduce((n, t) => n + (counts[t] || 0), 0) }
+})
 vi.mock('../../server/utils/tenantPlan', async () => {
   const actual = await vi.importActual<any>('../../server/utils/tenantPlan')
   return { ...actual, resolvePlan: async () => { if (planError) throw planError; return plan } }
@@ -19,7 +24,7 @@ const AUTH = { userId: 's', email: 'a@b.de', groups: ['customers'] }
 const run = async (path: string, method = 'GET', auth: any = AUTH) => {
   try { await (mw as any)({ path, method, context: { auth } }); return { status: 200 as number, err: null as any } } catch (e: any) { return { status: e.statusCode as number, err: e } }
 }
-beforeEach(() => { enforce = ''; plan = { tenantId: 'a@b.de', plan: 'free', exempt: null, modules: [], branches: [] }; planError = null; warns.length = 0 })
+beforeEach(() => { counts = {}; enforce = ''; plan = { tenantId: 'a@b.de', plan: 'free', exempt: null, modules: [], branches: [] }; planError = null; warns.length = 0 })
 
 describe('Beobachtungsmodus (NUXT_PLAN_ENFORCE nicht gesetzt)', () => {
   it('lässt alles durch und protokolliert nur "würde ablehnen"', async () => {
@@ -82,5 +87,35 @@ describe('Scharf (NUXT_PLAN_ENFORCE=true)', () => {
   it('"true" als Text oder Wahrheitswert schaltet scharf, alles andere nicht', async () => {
     enforce = true; expect((await run('/api/finance')).status).toBe(402)
     for (const v of ['false', '', 'yes', '1', 0]) { enforce = v; expect((await run('/api/finance')).status, String(v)).toBe(200) }
+  })
+})
+
+describe('Free: Mengenbegrenzung beim Anlegen', () => {
+  beforeEach(() => { enforce = 'true' })
+  it('CRM: bei 49 Einträgen (Kontakte + Firmen + Deals zusammen) geht ein weiterer, bei 50 nicht', async () => {
+    counts = { 'plexora-contacts': 30, 'plexora-companies': 10, 'plexora-deals': 9 }
+    expect((await run('/api/contacts', 'POST')).status).toBe(200)
+    counts['plexora-deals'] = 10
+    const r = await run('/api/deals', 'POST'); expect(r.status).toBe(402)
+    expect(r.err.data).toMatchObject({ code: 'FREE_LIMIT', area: 'crm', max: 50, count: 50 }); expect(r.err.message).toMatch(/50/); expect(r.err.message).toMatch(/Lizenz/)
+    expect((await run('/api/companies', 'POST')).status).toBe(402)
+  })
+  it('Projekte und Support: je 25', async () => {
+    counts = { 'plexora-projects': 25, 'plexora-support': 24 }
+    expect((await run('/api/projects', 'POST')).status).toBe(402); expect((await run('/api/support', 'POST')).status).toBe(200)
+  })
+  it('Lesen, Ändern, Unterrouten (z. B. Kontakt umwandeln) und Konten mit Lizenz sind nicht betroffen', async () => {
+    counts = { 'plexora-contacts': 500, 'plexora-projects': 500 }
+    for (const [p, m] of [['/api/contacts', 'GET'], ['/api/contacts/abc', 'PATCH'], ['/api/contacts/abc/touch', 'POST'], ['/api/projects/abc/tasks', 'POST']] as const) expect((await run(p, m)).status, `${m} ${p}`).toBe(200)
+    plan = { ...plan, plan: 'starter', modules: ['crm', 'projects'] }
+    expect((await run('/api/contacts', 'POST')).status).toBe(200); expect((await run('/api/projects', 'POST')).status).toBe(200)
+  })
+  it('Beobachtungsmodus: nur Protokoll', async () => {
+    enforce = ''; counts = { 'plexora-contacts': 60 }
+    expect((await run('/api/contacts', 'POST')).status).toBe(200); expect(warns.some(w => w.includes('würde ablehnen') && w.includes('FREE_LIMIT'))).toBe(true)
+  })
+  it('Betreiber/Demo: nie begrenzt', async () => {
+    counts = { 'plexora-contacts': 500 }; plan = { ...plan, exempt: 'platform' }
+    expect((await run('/api/contacts', 'POST')).status).toBe(200)
   })
 })
