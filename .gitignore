@@ -36,3 +36,4 @@ plexora-backup-*
 
 # interne Sicherheits-Bestandsaufnahme (nicht committen)
 docs/security/route-inventar-demo-user.md
+docs/security/review-*.md
