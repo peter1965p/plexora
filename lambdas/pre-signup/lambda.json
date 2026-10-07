@@ -1,0 +1,12 @@
+{
+  "_hinweis": "Soll-Konfiguration der Lambda plexora-pre-signup (Stand 07.10.2026, so läuft sie live). Das Deploy-Skript meldet Abweichungen im Probelauf. Keine Geheimnisse.",
+  "functionName": "plexora-pre-signup",
+  "runtime": "nodejs24.x",
+  "handler": "index.handler",
+  "timeout": 5,
+  "memorySize": 128,
+  "architectures": ["x86_64"],
+  "roleName": "plexora-pre-signup-role",
+  "environmentNames": ["UNCONFIRMED_NATIVE_POLICY"],
+  "unconfirmedNativePolicy": { "erlaubt": ["separate", "reject", "delete"], "standard": "separate", "delete-braucht": "cognito-idp:AdminDeleteUser für die Rolle plexora-pre-signup-role" }
+}
