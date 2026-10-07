@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
   }))
   const invite = res.Items?.[0]
   if (!invite) throw createError({ statusCode: 404, message: 'Einladung nicht gefunden, bereits verwendet oder zurückgezogen' })
-  if (!sameEmail(invite.memberEmail, auth.email)) throw createError({ statusCode: 403, message: 'Diese Einladung wurde für eine andere E-Mail-Adresse ausgestellt. Bitte melde dich mit der eingeladenen Adresse an.' })
+  // Anderes Konto (z. B. ein zweites Google-Konto im selben Browser): nur die eingeladene Adresse nennen, damit die Seite "Diese Einladung gilt für …" zeigen kann.
+  // Wer den Token hat, kennt sie aus der Mail (der Sicherheitskasten nennt sie ebenfalls). Nichts über Einladenden, Mandant oder Rolle.
+  if (!sameEmail(invite.memberEmail, auth.email)) return { mismatch: true, invitedEmail: String(invite.memberEmail) }
 
   const expired = inviteExpired(invite.invitedAt)
   return {

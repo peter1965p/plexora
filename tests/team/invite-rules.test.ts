@@ -69,7 +69,7 @@ describe('Annahmeseite', () => {
   it('schickt nur den Token (keine E-Mail im Body), mit Anmeldung, und zeigt vorher die Vorschau mit dem Namen des Einladenden', () => {
     const accept = page.slice(page.indexOf('async function acceptInvite'))
     expect(accept).toContain('body: { token }'); expect(accept).not.toMatch(/email:/); expect(accept).toContain('useAuthHeader')
-    for (const t of ['/api/team/invite-preview', '{{ preview.inviter }}', 'p.hasOwnWorkspace', 'p.expired', 'p.emailVerified']) expect(page, t).toContain(t)
+    for (const t of ['/api/team/invite-preview', '{{ preview.inviter }}', 'decideInviteView(u.email, p)', "view.view === 'own-workspace'", "view.view === 'expired'", "view.view === 'unverified'"]) expect(page, t).toContain(t)
   })
   it('die Verwaltung zeigt Ablauf und erlaubt das Zurückziehen', () => {
     const s = readFileSync('app/pages/settings/index.vue', 'utf8')

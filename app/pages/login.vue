@@ -134,6 +134,7 @@
           </span>
         </div>
 
+        <div v-if="pendingInvite" style="font-size:12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:10px"><i class="ti ti-users"></i> Du meldest dich für eine Einladung an. Nutze die Adresse, an die sie geschickt wurde.</div>
         <!-- Google-Login vorübergehend ausgeblendet: Anmeldung über Google-Redirect noch nicht stabil -->
         <template v-if="!needsConfirm && GOOGLE_LOGIN_ENABLED">
           <div class="auth-divider"><span>oder</span></div>
@@ -157,6 +158,9 @@
 </template>
 
 <script setup lang="ts">
+import { takeInviteReturn, peekInviteReturn } from '~/utils/inviteFlow'
+const pendingInvite = ref(false)
+onMounted(() => { pendingInvite.value = peekInviteReturn() })
 const GOOGLE_LOGIN_ENABLED = true
 import {
   signIn,
@@ -180,7 +184,7 @@ onMounted(async () => {
     const payload = session.tokens?.idToken?.payload
     const groups  = (payload?.['cognito:groups'] as string[]) || []
     if (groups.includes('admins') || groups.includes('customers')) {
-      router.replace('/dashboard')
+      router.replace(takeInviteReturn() || '/dashboard')
     }
   } catch {}
 })
@@ -209,7 +213,7 @@ async function login() {
     // forceRefresh stellt sicher dass die Middleware den frischen Token sieht
     const { fetchAuthSession } = await import('aws-amplify/auth')
     await fetchAuthSession({ forceRefresh: true })
-    router.push("/dashboard");
+    router.push(takeInviteReturn() || "/dashboard");
   } catch (e: any) {
     error.value = e.message || "Anmeldung fehlgeschlagen";
   } finally {
@@ -252,7 +256,7 @@ async function confirmSignUp() {
       confirmationCode: confirmCode.value,
     });
     sessionStorage.removeItem("plx_reg_user");
-    router.push("/dashboard");
+    router.push(takeInviteReturn() || "/dashboard");
   } catch (e: any) {
     error.value = e.message || "Code ungültig — bitte prüfen";
   } finally {
@@ -294,7 +298,7 @@ async function loginWithPasskey() {
     if (result.isSignedIn) {
       const { fetchAuthSession } = await import("aws-amplify/auth");
       await fetchAuthSession({ forceRefresh: true });
-      router.push("/dashboard");
+      router.push(takeInviteReturn() || "/dashboard");
     } else {
       error.value = "Für dieses Konto ist kein Passkey registriert.";
     }
@@ -311,7 +315,8 @@ async function loginWithPasskey() {
 async function loginWithGoogle() {
   error.value = "";
   try {
-    await signInWithRedirect({ provider: "Google" });
+    // Kommt der Nutzer aus einer Einladung, immer mit Kontenwähler (kein stilles Wiederverwenden eines anderen Google-Kontos im Browser)
+    await signInWithRedirect(pendingInvite.value ? { provider: "Google", options: { prompt: "SELECT_ACCOUNT" } } : { provider: "Google" });
   } catch (e: any) {
     error.value = e.message || "Google-Anmeldung fehlgeschlagen";
   }

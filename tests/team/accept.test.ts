@@ -95,11 +95,11 @@ describe('Annehmen: kein stilles Übernehmen eines bestehenden Arbeitsbereichs',
 })
 
 describe('Vorschau', () => {
-  it('nur für das eingeladene Konto: andere bekommen 403 und erfahren nichts; ohne Anmeldung 401', async () => {
+  it('anderes Konto: nur die eingeladene Adresse wird genannt (für "Diese Einladung gilt für …"), nichts über Einladenden, Mandant, Rolle oder Ablauf; ohne Anmeldung 401', async () => {
     seedInvite()
     expect(await status(preview(ev(undefined, { token: 'tok-1111' }) as any))).toBe(401)
-    const r = await code(preview(ev({ userId: 'x', email: 'angreifer@evil.de', groups: [], emailVerified: true }, { token: 'tok-1111' }) as any))
-    expect(r.code).toBe(403); expect(JSON.stringify(r)).not.toContain('chef@firma.de')
+    const r: any = await preview(ev({ userId: 'x', email: 'angreifer@evil.de', groups: [], emailVerified: true }, { token: 'tok-1111' }) as any)
+    expect(r).toEqual({ mismatch: true, invitedEmail: 'neu@x.de' }); expect(JSON.stringify(r)).not.toMatch(/chef@firma|member|admin|expires|tok-1111/)
   })
   it('liefert Einladenden, Rolle, Ablauf und die Gründe, die das Annehmen verhindern – aber nie den Token', async () => {
     seedInvite(); st.ownData['plexora-deals'] = ['neu@x.de']

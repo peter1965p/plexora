@@ -31,6 +31,8 @@ const mountedAt = Date.now();
 const MIN_DISPLAY_MS = 1800;
 const POP_MS = 550; // Zeit für den "ra"-Hüpfer, bevor es zum Dashboard geht
 
+import { takeInviteReturn } from '~/utils/inviteFlow'
+
 function finish(path: string, message?: string) {
   if (settled) return;
   settled = true;
@@ -38,6 +40,8 @@ function finish(path: string, message?: string) {
     error.value = message;
     return;
   }
+  // kam die Anmeldung aus einer Einladung, geht es dorthin zurück (nur der gemerkte Einladungslink, sonst Dashboard)
+  if (path === "/dashboard") path = takeInviteReturn() || path;
   const wait = Math.max(0, MIN_DISPLAY_MS - (Date.now() - mountedAt));
   setTimeout(() => {
     popping.value = true;
