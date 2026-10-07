@@ -5,8 +5,8 @@ import { TRUST_ICONS, TRUST_ICON_LABELS, OVERLAY_SHAPES, OVERLAY_ANIMATIONS, MAX
 
 // Editor für Vertrauenspunkte, Datenschutzzeile und Overlays (Sticker). Alle Werte sind IDs aus fester Liste oder reiner Text;
 // der Server prüft sie beim Speichern noch einmal streng.
-const props = defineProps<{ modelValue: { trustItems: TrustItem[]; privacyLine: PrivacyLine; overlays: Overlay[] }; hasHero: boolean; customTemplate: boolean }>()
-const emit = defineEmits<{ (e: 'update:modelValue', v: { trustItems: TrustItem[]; privacyLine: PrivacyLine; overlays: Overlay[] }): void; (e: 'touched'): void }>()
+const props = defineProps<{ modelValue: { trustItems: TrustItem[]; privacyLine: PrivacyLine; overlays: Overlay[] }; hasHero: boolean; customTemplate: boolean; selectedId?: string }>()
+const emit = defineEmits<{ (e: 'update:modelValue', v: { trustItems: TrustItem[]; privacyLine: PrivacyLine; overlays: Overlay[] }): void; (e: 'touched'): void; (e: 'select', id: string): void }>()
 
 const state = reactive({
   trustItems: resolveTrustItems(props.modelValue.trustItems), privacyLine: resolvePrivacyLine(props.modelValue.privacyLine), overlays: resolveOverlays(props.modelValue.overlays),
@@ -21,6 +21,9 @@ const addTrust = () => { if (state.trustItems.length < MAX_TRUST_ITEMS) state.tr
 const move = (arr: any[], i: number, d: number) => { const j = i + d; if (j < 0 || j >= arr.length) return; const [x] = arr.splice(i, 1); arr.splice(j, 0, x) }
 const resetTrust = () => { state.trustItems = DEFAULT_TRUST_ITEMS.map(t => ({ ...t })); state.privacyLine = { ...DEFAULT_PRIVACY_LINE } }
 const addOverlay = () => { if (state.overlays.length < MAX_OVERLAYS) state.overlays.push({ id: uid(), ...DEFAULT_OVERLAY, x: 8 + (state.overlays.length * 6) % 60, y: 8 + (state.overlays.length * 6) % 60 }) }
+/** Lage eines Stickers setzen (Ziehen in der Vorschau): läuft über denselben Weg wie die Regler, also auch über "touched" und die Prüfung beim Speichern. */
+function setOverlayPos(id: string, x: number, y: number) { const o = state.overlays.find(v => v.id === id); if (o) { o.x = x; o.y = y } }
+defineExpose({ setOverlayPos })
 const animDisabled = (o: Overlay, key: string) => key !== 'none' && o.anim === 'none' && animatedCount.value >= MAX_ANIMATED_OVERLAYS
 </script>
 
@@ -54,7 +57,7 @@ const animDisabled = (o: Overlay, key: string) => key !== 'none' && o.anim === '
       <div class="lde-head"><strong>Sticker auf dem Hero-Bild</strong> <span class="lde-count">{{ state.overlays.length }} / {{ MAX_OVERLAYS }} · animiert {{ animatedCount }} / {{ MAX_ANIMATED_OVERLAYS }}</span></div>
       <div v-if="customTemplate" class="lde-note"><i class="ti ti-info-circle"></i> Diese Kampagne nutzt ein frei gestaltetes Template: Vertrauenspunkte und Datenschutzzeile gelten dort, <strong>Overlays gelten nicht</strong>.</div>
       <div v-else-if="!hasHero" class="lde-note"><i class="ti ti-info-circle"></i> Ohne Hero-Bild (Header-Banner) werden keine Overlays angezeigt. Lade oben ein Header-Banner hoch.</div>
-      <div v-for="(o, i) in state.overlays" :key="o.id" class="lde-ov">
+      <div v-for="(o, i) in state.overlays" :key="o.id" class="lde-ov" :class="{ 'lde-ov-sel': o.id === selectedId }" @click="emit('select', o.id)">
         <div class="lde-row">
           <input type="checkbox" v-model="o.on" title="anzeigen" />
           <select v-model="o.shape" class="field-input"><option v-for="(label, id) in OVERLAY_SHAPES" :key="id" :value="id">{{ label }}</option></select>
@@ -89,6 +92,7 @@ const animDisabled = (o: Overlay, key: string) => key !== 'none' && o.anim === '
 .lde-prev { color: var(--accent); width: 18px; text-align: center; }
 .lde-color { width: 34px; height: 30px; padding: 0; border: 1px solid var(--border); background: none; border-radius: 6px; }
 .lde-ov { border: 1px solid var(--border); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.lde-ov-sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .lde-sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 11px; color: var(--text-muted); }
 .lde-sliders label { display: flex; flex-direction: column; gap: 2px; }
 .lde-note { font-size: 11px; color: var(--text-muted); }

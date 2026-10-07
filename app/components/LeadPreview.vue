@@ -4,7 +4,8 @@ import { resolveTrustItems, resolvePrivacyLine, resolveOverlays, TRUST_ICONS } f
 
 // Live-Vorschau der Lead-Seite im Kampagnenformular (Desktop- und Handy-Ansicht). Zeigt dieselben Bausteine wie die echte Seite:
 // Vertrauenspunkte, Datenschutzzeile und Overlays über dem Hero-Bild – alles nur als Text und über IDs aus shared/leadDecor.ts.
-const props = defineProps<{ campaign: Record<string, any>; form: Record<string, any> | null; mode: 'desktop' | 'mobile' }>()
+const props = defineProps<{ campaign: Record<string, any>; form: Record<string, any> | null; mode: 'desktop' | 'mobile'; selectedOverlayId?: string }>()
+const emit = defineEmits<{ (e: 'move-overlay', v: { id: string; x: number; y: number }): void; (e: 'select-overlay', id: string): void }>()
 const mode = defineModel<'desktop' | 'mobile'>('mode', { default: 'desktop' })
 const accent = computed(() => props.campaign.accentColor || '#6C3FE8')
 const trust = computed(() => resolveTrustItems(props.campaign.trustItems).filter(t => t.on))
@@ -27,7 +28,7 @@ const fields = computed(() => (props.form?.fields || []).slice(0, 4))
         <div class="pv-hero">
           <div class="pv-h1">{{ campaign.headline || 'Deine Headline' }}</div>
           <div v-if="campaign.subtext" class="pv-sub">{{ campaign.subtext }}</div>
-          <div v-if="campaign.headerImageUrl" class="pv-banner"><img :src="campaign.headerImageUrl" alt="" /><LeadOverlays :overlays="overlays" /></div>
+          <div v-if="campaign.headerImageUrl" class="pv-banner"><img :src="campaign.headerImageUrl" alt="" /><LeadOverlays :overlays="overlays" editable :selected-id="selectedOverlayId" @move="emit('move-overlay', $event)" @select="emit('select-overlay', $event)" /></div>
           <div v-for="(it, i) in items" :key="i" class="pv-item"><span class="pv-chk" :style="{ background: accent + '22', color: accent }"><i class="ti ti-check"></i></span>{{ it }}</div>
           <div v-if="trust.length" class="pv-trust"><span v-for="t in trust" :key="t.id" class="pv-trust-item"><i class="ti" :class="TRUST_ICONS[t.icon]" :style="{ color: accent }"></i> {{ t.text }}</span></div>
         </div>
@@ -39,6 +40,7 @@ const fields = computed(() => (props.form?.fields || []).slice(0, 4))
         </div>
       </div>
     </div>
+    <div v-if="overlays.some(o => o.on) && campaign.headerImageUrl" class="pv-hint"><i class="ti ti-hand-move"></i> Sticker mit Maus oder Finger direkt im Bild ziehen. Alternativ anklicken und mit den Pfeiltasten verschieben (Umschalt = große Schritte).</div>
     <div v-if="overlays.some(o => o.on) && !campaign.headerImageUrl" class="pv-hint"><i class="ti ti-info-circle"></i> Ohne Hero-Bild (Header-Banner) werden keine Overlays angezeigt.</div>
   </div>
 </template>

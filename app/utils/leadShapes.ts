@@ -95,3 +95,13 @@ export function overlayTextLayout(o: Pick<Overlay, 'shape' | 'text' | 'size' | '
   const lines = fit(two) > fit(one) ? two : one
   return { lines, fontSize: Math.max(0.5, fit(lines) * (o.textSize / 100)), dx: box.dx, dy: box.dy }
 }
+
+/**
+ * Neue Lage beim Ziehen in der Vorschau. left/top/bw/bh = angezeigte Lage und Größe des Stickers in Prozent der Bildfläche (W/H = Bildgröße in Pixeln),
+ * dxPx/dyPx = Zugweg. Ergebnis: ganze Prozentwerte, begrenzt auf 0–92 (Grenzen des Servers) und so, dass der Sticker im Bild bleibt.
+ */
+export function dragPosition(a: { left: number; top: number; bw: number; bh: number; dxPx: number; dyPx: number; W: number; H: number }) {
+  const clamp = (v: number, max: number) => Math.round(Math.max(0, Math.min(max, v)))
+  if (!(a.W > 0) || !(a.H > 0) || ![a.left, a.top, a.dxPx, a.dyPx].every(Number.isFinite)) return { x: clamp(a.left || 0, 92), y: clamp(a.top || 0, 92) }
+  return { x: clamp(a.left + (a.dxPx / a.W) * 100, Math.min(92, 100 - a.bw)), y: clamp(a.top + (a.dyPx / a.H) * 100, Math.min(92, 100 - a.bh)) }
+}

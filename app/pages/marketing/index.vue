@@ -384,7 +384,7 @@
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
                 Bestimmt, was unter dem Hero-Bild und unter dem Button der Lead-Seite steht, und welche Sticker auf dem Hero-Bild liegen. Ohne Änderung bleibt alles wie bisher.
               </div>
-              <LeadDecorEditor :model-value="decor" :has-hero="!!form.headerImageUrl" :custom-template="!!editing?.customTemplateHtml"
+              <LeadDecorEditor ref="decorEditor" :selected-id="selectedOverlayId" @select="selectedOverlayId = $event" :model-value="decor" :has-hero="!!form.headerImageUrl" :custom-template="!!editing?.customTemplateHtml"
                 @update:model-value="(v: any) => Object.assign(decor, v)" @touched="decorTouched = true" />
             </div>
           </div>
@@ -393,7 +393,8 @@
           <div style="position:sticky;top:0">
             <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.livePreview }}</div>
             <!-- Live-Vorschau der Lead-Seite (Desktop und Handy) inkl. Vertrauenspunkten, Datenschutzzeile und Stickern -->
-            <LeadPreview v-model:mode="previewMode" :campaign="previewCampaign" :form="selectedForm" />
+            <LeadPreview v-model:mode="previewMode" :campaign="previewCampaign" :form="selectedForm" :selected-overlay-id="selectedOverlayId"
+              @select-overlay="selectedOverlayId = $event" @move-overlay="(m: any) => decorEditor?.setOverlayPos(m.id, m.x, m.y)" />
             <div v-if="form.formId" style="margin-top:8px;background:var(--bg-elevated);border-radius:8px;padding:10px;font-size:11px">
               <div style="color:var(--text-muted);margin-bottom:3px">Link:</div>
               <div style="color:var(--accent);word-break:break-all;font-size:10px">{{ campaignUrl }}</div>
@@ -971,6 +972,8 @@ onMounted(loadBotStatus)
 const decor = reactive<{ trustItems: any[]; privacyLine: any; overlays: any[] }>({ trustItems: resolveTrustItems(undefined), privacyLine: resolvePrivacyLine(undefined), overlays: [] })
 const decorTouched = ref(false)
 const previewMode = ref<'desktop' | 'mobile'>('desktop')
+const decorEditor = ref<{ setOverlayPos: (id: string, x: number, y: number) => void } | null>(null)
+const selectedOverlayId = ref('')
 function loadDecor(c?: any) { Object.assign(decor, { trustItems: resolveTrustItems(c?.trustItems), privacyLine: resolvePrivacyLine(c?.privacyLine), overlays: resolveOverlays(c?.overlays) }); decorTouched.value = false }
 
 const editing = ref<any>(null)
