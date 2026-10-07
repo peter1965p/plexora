@@ -85,7 +85,9 @@ if exists_table; then say "   existiert bereits"; else
   act aws dynamodb create-table --region "$REGION" --table-name "$TABLE" --attribute-definitions AttributeName=owner,AttributeType=S AttributeName=jobId,AttributeType=S --key-schema AttributeName=owner,KeyType=HASH AttributeName=jobId,KeyType=RANGE --billing-mode PAY_PER_REQUEST
   [[ "$MODE" == "--apply" ]] && aws dynamodb wait table-exists --region "$REGION" --table-name "$TABLE"
 fi
-act aws dynamodb update-time-to-live --region "$REGION" --table-name "$TABLE" --time-to-live-specification Enabled=true,AttributeName=expiresAt || true
+TTL_STATE="$(aws dynamodb describe-time-to-live --region "$REGION" --table-name "$TABLE" --query 'TimeToLiveDescription.TimeToLiveStatus' --output text 2>/dev/null || echo NONE)"
+if [[ "$TTL_STATE" == "ENABLED" || "$TTL_STATE" == "ENABLING" ]]; then say "   Ablauf (TTL auf expiresAt) ist schon aktiv"
+else act aws dynamodb update-time-to-live --region "$REGION" --table-name "$TABLE" --time-to-live-specification Enabled=true,AttributeName=expiresAt || true; fi
 
 say; say "3. IAM-Rolle $ROLE (eigene Rechte, kein AmazonS3FullAccess)"
 trust_json > "$TMP/trust.json"; worker_policy_json > "$TMP/worker.json"; api_policy_json > "$TMP/api.json"
