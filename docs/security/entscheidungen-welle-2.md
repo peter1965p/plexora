@@ -42,3 +42,26 @@ Alle Durchsetzungen starten im **Beobachtungsmodus** (nur Protokoll "würde able
 | Konto-Orakel bei „Neuen Link anfordern“ | immer dieselbe Antwort; je Adresse 3 Mails/Stunde | Verrät nicht, welche Adressen ein Konto haben. Das Antwortverhalten (Zeit) ist nicht angeglichen; es verrät höchstens, dass ein Kauf-Konto auf sein erstes Passwort wartet. |
 | Turnstile auf dem „Neuen Link“-Formular | **nicht umgesetzt** | Drossel je IP und je Adresse stattdessen; Turnstile kann nachgerüstet werden (Bot-Schutz-Modul vorhanden). |
 | Token im Mail-Protokoll | Art `welcome`: nie eine Vorschau | Das Protokoll ist für alle Konten eines Mandanten lesbar. |
+
+## c) Rollen (Inhaber, Admin, Mitglied)
+
+| Entscheidung | Gewählt | Warum |
+|---|---|---|
+| Durchsetzung | Beobachtungsmodus zuerst (`NUXT_ROLES_ENFORCE` leer): die Middleware prüft und protokolliert nur „würde ablehnen“. Auswertung: `scripts/aws/enforce-report.sh`. Scharf: `scripts/aws/set-enforce.sh roles on` + `deploy-backend.sh --config-only`; Rückweg `roles off` + `--config-only` oder `rollback-backend.sh`. | Sperrt die Middleware Berechtigte aus, ist das teurer als eine fehlende Rolle. Das Umschalten machst du nach dem Test mit Sylvia als Mitglied. |
+| Newsletter, Sequenzen, Automatisierungen | Admin | Sie versenden Massenmails. |
+| KI-Assistent | Admin | `ai/assistant/execute` führt Aktionen in allen Modulen aus und würde die Sperren eines Mitglieds umgehen. |
+| Branchenmodule | Admin | Enthalten teils sensible Daten (Praxis: Patienten). |
+| Termin-Einstellungen/Google-Kalender | Admin; Buchungen und Termintypen: Mitglied | Wie im Plan. |
+| Zahlungs- und KI-Schlüssel, Einladungsvorlage | nur Inhaber | Kostenfolgen bzw. Team-Verwaltung. |
+| Formulare | Mitglied | Kampagnen brauchen ein Formular. |
+| Rolle nachträglich ändern | `PATCH /api/team/[email]`, nur Inhaber, nur `admin`/`member`; wirkt sofort | Bisher gab es nur Entfernen. |
+| Unbekannte oder kaputte Rolle in der Team-Zeile | Mitglied | Im Zweifel weniger Rechte. |
+| Ausfall der Rollenabfrage | scharf 503 (nach höchstens 10 Minuten mit letztem Stand), nie Rückfall auf „Inhaber“ | `resolveUserId` fällt bei Störungen auf die eigene Adresse zurück; das würde ein Mitglied zum Inhaber machen. |
+| Menü und Seitenschutz in der Oberfläche | nur, wenn der Server durchsetzt (`enforced` aus `GET /api/team/role`) | Im Beobachtungsmodus ändert sich für niemanden etwas. |
+| Modul-Store | Seite nur für den Inhaber (Kauf) | Admin soll nichts kaufen. |
+
+**Abweichungen von der Zuordnung im Plan (Fehler im Entwurf, anhand der Handler korrigiert):**
+- `aws/s3-upload`: war „Betreiber“, ist aber der Bild-Upload aller Konten (Profilbild, Kampagnen, Newsletter) → jedes angemeldete Konto.
+- `team/accept` und `team/invite-preview`: waren „Inhaber“, müssen aber für den Eingeladenen gehen → jedes angemeldete Konto.
+- `finance/batch-dunning` und `store/branch-modules` (POST): Handler verlangen die Gruppe `admins` → Betreiber.
+- `licenses/portal` → Inhaber (Abrechnung); `licenses` (Verwaltung) → Betreiber.
