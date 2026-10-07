@@ -17,7 +17,7 @@ const { default: del } = await import('../../server/api/aws/s3-delete.post')
 const { default: list } = await import('../../server/api/aws/s3.get')
 beforeEach(() => { sent.length = 0 })
 
-const PNG = 'data:image/png;base64,' + Buffer.from('x'.repeat(100)).toString('base64')
+const PNG = 'data:image/png;base64,' + Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.from('x'.repeat(100))]).toString('base64')
 const up = (email: string, body: any, groups?: string[]) => (upload as any)(authEv(email, { body }, groups))
 
 describe('Eine Liste für Skript und Server', () => {
@@ -66,8 +66,8 @@ describe('Upload', () => {
   })
   it('gültiger Upload: nur unter dem erlaubten Präfix, Dateiname bereinigt, Bildtyp gesetzt', async () => {
     const res: any = await up('kunde@firma.de', { fileBase64: PNG, fileName: '../Mein Bild.PNG', prefix: 'marketing/' })
-    expect(res.key).toBe('marketing/Mein_Bild.PNG')
-    expect(sent).toHaveLength(1); expect(sent[0]).toMatchObject({ type: 'Put', Bucket: 'plexora-files', Key: 'marketing/Mein_Bild.PNG', ContentType: 'image/png' })
+    expect(res.key).toMatch(/^marketing\/[0-9a-f]{16}\/Mein_Bild\.PNG$/)
+    expect(sent).toHaveLength(1); expect(sent[0]).toMatchObject({ type: 'Put', Bucket: 'plexora-files', Key: res.key, ContentType: 'image/png' })
   })
 })
 
