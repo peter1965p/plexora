@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { crc32 } from 'node:zlib'
 import { PNG } from 'pngjs'
 import jpeg from 'jpeg-js'
-import { processLogo, detectLogoType, assertSafeFileName, LogoError, MAX_LOGO_BYTES, LOGO_OUT_MAX } from '../../server/utils/mailLogo'
+import { processLogo, detectLogoType, assertSafeFileName, LogoError, MAX_LOGO_BYTES, LOGO_OUT_MAX, LOGO_DISPLAY_MAX } from '../../server/utils/mailLogo'
 
 // ── Testbilder selbst erzeugen ──
 const png = (w: number, h: number, fill: (x: number, y: number) => [number, number, number, number] = () => [20, 80, 200, 255]) => {
@@ -88,11 +88,13 @@ describe('Neu kodiert: Metadaten sind weg, Ergebnis ist ein sauberes Bild', () =
     const chunks: string[] = []; for (let p = 8; p < out.data.length;) { const len = out.data.readUInt32BE(p); chunks.push(out.data.toString('latin1', p + 4, p + 8)); p += 12 + len }
     expect(chunks.filter(c => !['IHDR', 'IDAT', 'IEND'].includes(c))).toEqual([])
   })
-  it('verkleinert auf höchstens 240 Pixel, vergrößert nie, behält das Seitenverhältnis', () => {
-    const big = processLogo(png(1200, 480), 'x.png'); expect(big.width).toBe(240); expect(big.height).toBe(96)
-    const tall = processLogo(png(100, 1000), 'x.png'); expect(tall.height).toBeLessThanOrEqual(240); expect(tall.width).toBeLessThanOrEqual(240)
+  it('verkleinert auf höchstens 480 Pixel (doppelte Auflösung für die Anzeige mit 240), vergrößert nie, behält das Seitenverhältnis', () => {
+    expect(LOGO_OUT_MAX).toBe(480); expect(LOGO_DISPLAY_MAX).toBe(240)
+    const big = processLogo(png(1200, 480), 'x.png'); expect(big.width).toBe(480); expect(big.height).toBe(192)
+    const tall = processLogo(png(100, 1000), 'x.png'); expect(tall.height).toBeLessThanOrEqual(480); expect(tall.width).toBeLessThanOrEqual(480)
     const small = processLogo(png(120, 40), 'x.png'); expect([small.width, small.height]).toEqual([120, 40])
-    const j = processLogo(jpg(600, 200), 'x.jpg'); expect([j.width, j.height]).toEqual([240, 80])
+    const mid = processLogo(png(300, 100), 'x.png'); expect([mid.width, mid.height]).toEqual([300, 100])
+    const j = processLogo(jpg(960, 320), 'x.jpg'); expect([j.width, j.height]).toEqual([480, 160])
   })
   it('Transparenz bleibt erhalten (transparente Logos), Farben bleiben richtig', () => {
     const half = png(10, 10, (x) => (x < 5 ? [255, 0, 0, 0] : [0, 128, 255, 255]))

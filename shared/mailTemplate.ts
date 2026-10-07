@@ -15,6 +15,8 @@ export const APP_ORIGIN = 'https://app.plexora.eu'
 export const LOGO_BASE = 'https://plexora-files.s3.eu-central-1.amazonaws.com/'
 export const LOGO_PREFIX = 'mail-logos'
 
+/** Höchste Anzeigebreite des Logos in der Mail (CSS-Pixel); gespeichert wird in doppelter Auflösung */
+export const LOGO_DISPLAY_MAX = 240
 export const MAIL_LIMITS = { subject: 90, heading: 80, body: 500, button: 30, footer: 200, alt: 80 } as const
 
 export const FONT_STACKS: Record<string, string> = {
@@ -120,7 +122,7 @@ export function resolveInviteConfig(stored: unknown): InviteMailConfig {
       // "eigenes Logo" ohne gespeicherte Datei gibt es nicht
       mode: mode === 'custom' && !file ? 'none' : mode,
       alt: text(g.alt, MAIL_LIMITS.alt, D.logo.alt), align: pickEnum(g.align, ['left', 'center', 'right'] as const, D.logo.align), plate: typeof g.plate === 'boolean' ? g.plate : D.logo.plate, plateColor: hex(g.plateColor, D.logo.plateColor),
-      file, w: file ? num(g.w, 1, 240, 0) : 0, h: file ? num(g.h, 1, 2000, 0) : 0,
+      file, w: file ? num(g.w, 1, 480, 0) : 0, h: file ? num(g.h, 1, 480, 0) : 0,
     },
   }
 }
@@ -290,7 +292,8 @@ export function renderInviteMail(cfgInput: unknown, ctx: InviteCtx): RenderedMai
   if (logoUrl) {
     // Ersatztext bei blockiertem Bild: auf der Platte in einer Farbe mit Kontrast zur Platte, sonst in der Überschriftfarbe
     const altColor = cfg.logo.plate ? (luminance(cfg.logo.plateColor) > 0.4 ? '#111827' : '#ffffff') : C.heading
-    const dims = cfg.logo.mode === 'custom' && cfg.logo.w && cfg.logo.h ? { w: Math.min(cfg.logo.w, 240), h: cfg.logo.h } : null
+    // gespeichert bis 480 Pixel breit, angezeigt höchstens 240 Pixel breit (doppelte Auflösung für scharfe Darstellung); die Höhe folgt dem Seitenverhältnis
+    const dims = cfg.logo.mode === 'custom' && cfg.logo.w && cfg.logo.h ? (() => { const w = Math.min(cfg.logo.w, LOGO_DISPLAY_MAX); return { w, h: Math.max(1, Math.round(cfg.logo.h * w / cfg.logo.w)) } })() : null
     const w = dims ? dims.w : 160
     const img = `<img src="${e(logoUrl)}" width="${w}"${dims ? ` height="${dims.h}"` : ''} alt="${e(cfg.logo.alt)}" style="display:block;border:0;outline:none;text-decoration:none;width:${w}px;max-width:100%;height:${dims ? dims.h + 'px' : 'auto'};font-family:${ff};font-size:16px;font-weight:700;color:${altColor}">`
     const inner = cfg.logo.plate ? `<table role="presentation" border="0" cellspacing="0" cellpadding="0"><tr><td bgcolor="${cfg.logo.plateColor}" style="background-color:${cfg.logo.plateColor};padding:10px 14px;border-radius:6px">${img}</td></tr></table>` : img

@@ -58,14 +58,14 @@ describe('Vorlage lesen und speichern: Inhaber, Demo, Mandantentrennung', () => 
 
 describe('Logo-Upload: Ablage, Sicherheit, Rate-Limit', () => {
   it('speichert nur das neu kodierte Bild unter Mandanten-Schlüssel + 128-Bit-Zufalls-ID; Name und Pfad stammen nie aus der Anfrage; fester Content-Type', async () => {
-    const src = pngB64(400, 160)
+    const src = pngB64(960, 384)
     const r = await up(OWNER, { fileBase64: src, fileName: 'Mein geheimes Logo (Chef).png' })
     expect(r.code).toBe(200); const key = [...st.s3.keys()][0]
     expect(key).toMatch(KEY_RE); expect(key.split('/').slice(1).join('/')).not.toMatch(/Mein|geheim|Chef|logo|firma|chef-a|@/i)
     const obj = st.s3.get(key)!; expect(obj.contentType).toBe('image/png'); expect(obj.cacheControl).toMatch(/immutable/)
     expect(obj.body.equals(Buffer.from(src, 'base64'))).toBe(false)                  // nicht das Original
-    const dec = PNG.sync.read(obj.body); expect(dec.width).toBe(240); expect(dec.height).toBe(96)
-    const s: any = st.settings.get(`mail-template-invite|${OWNER.email}`).config; expect(s.logo).toMatchObject({ mode: 'custom', file: key, w: 240, h: 96 })
+    const dec = PNG.sync.read(obj.body); expect(dec.width).toBe(480); expect(dec.height).toBe(192)
+    const s: any = st.settings.get(`mail-template-invite|${OWNER.email}`).config; expect(s.logo).toMatchObject({ mode: 'custom', file: key, w: 480, h: 192 })
     expect((r as any).r.logoUrl).toBe(`https://plexora-files.s3.eu-central-1.amazonaws.com/${key}`)
   })
   it('Zufalls-ID: bei jedem Upload neu, mindestens 128 Bit', async () => {

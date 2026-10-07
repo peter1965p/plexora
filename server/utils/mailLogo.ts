@@ -6,7 +6,9 @@ import jpeg from 'jpeg-js'
 // Textblöcke, Profile und alles, was in Metadaten oder hinter dem Bildende steckt, ist damit weg.
 export const MAX_LOGO_BYTES = 300 * 1024
 export const MAX_LOGO_DIM = 2000
-export const LOGO_OUT_MAX = 240
+/** Gespeichert wird in doppelter Auflösung (bis 480 Pixel); die Mail zeigt es höchstens 240 Pixel breit (scharf auf hochauflösenden Bildschirmen) */
+export const LOGO_OUT_MAX = 480
+export const LOGO_DISPLAY_MAX = 240
 
 export class LogoError extends Error { constructor(message: string) { super(message) } }
 

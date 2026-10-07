@@ -98,7 +98,7 @@ async function onFile(ev: Event) {
     await api('logo', { method: 'POST', body: { fileBase64: b64, fileName: f.name } })
     const r: any = await api('invite'); const c = resolveInviteConfig(r.config)
     Object.assign(draft.logo, { mode: 'custom', file: c.logo.file, w: c.logo.w, h: c.logo.h }); server.customLogoUrl = r.customLogoUrl || ''
-    say('Logo hochgeladen (auf höchstens 240 Pixel verkleinert, Metadaten entfernt). Zum Übernehmen der übrigen Einstellungen bitte speichern.')
+    say('Logo hochgeladen (auf höchstens 480 Pixel Breite verkleinert und in der Mail 240 Pixel breit gezeigt, Metadaten entfernt). Zum Übernehmen der übrigen Einstellungen bitte speichern.')
   } catch (e: any) { say(e?.data?.message || e?.message || 'Upload fehlgeschlagen.', false) }
   finally { uploading.value = false }
 }
@@ -194,7 +194,7 @@ watch(() => draft.logo.mode, (m) => { if (m === 'custom' && !draft.logo.file) sa
                 <label class="theme-opt" :class="{ off: disabled || uploading }"><i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-upload'"></i> {{ draft.logo.file ? 'Logo ersetzen' : 'Logo hochladen' }}
                   <input type="file" accept="image/png,image/jpeg" style="display:none" :disabled="disabled || uploading" @change="onFile" /></label>
                 <button v-if="draft.logo.file" type="button" class="theme-opt" :disabled="disabled" @click="removeLogo"><i class="ti ti-trash"></i> Entfernen</button>
-                <span class="mt-hint">PNG oder JPG, höchstens 300 KB und 2000 × 2000 Pixel. Es wird auf höchstens 240 Pixel Breite verkleinert und ohne Metadaten neu gespeichert.</span>
+                <span class="mt-hint">PNG oder JPG, höchstens 300 KB und 2000 × 2000 Pixel. Es wird auf höchstens 480 Pixel Breite verkleinert (in der Mail 240 Pixel breit gezeigt, scharf auf hochauflösenden Bildschirmen) und ohne Metadaten neu gespeichert.</span>
               </div>
               <div class="mt-colors">
                 <label :class="{ err: fieldProblems.alt }">Alternativtext (Pflicht) <span class="mt-count">{{ draft.logo.alt.length }}/{{ MAIL_LIMITS.alt }}</span><input v-model="draft.logo.alt" class="field-input" :maxlength="MAIL_LIMITS.alt" :disabled="disabled" /><span v-if="fieldProblems.alt" class="mt-err">{{ fieldProblems.alt }}</span></label>

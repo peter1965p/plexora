@@ -167,6 +167,11 @@ describe('Logo im Mailkopf', () => {
     expect(m.html).not.toMatch(/<a [^>]*>\s*<img/)                                          // das Logo ist nicht verlinkt
     expect(renderInviteMail(custom, { ...CTX, logoUrl: LOGO, inviteeEmail: 'ganz@anders.de' }).html.match(/<img src="[^"]*"/)![0]).toBe(m.html.match(/<img src="[^"]*"/)![0])   // gleiche Adresse für alle
   })
+  it('doppelte Auflösung: gespeichert bis 480 Pixel, angezeigt höchstens 240 breit mit passender Höhe (Seitenverhältnis bleibt); kleinere Bilder in Originalgröße', () => {
+    const show = (w: number, h: number) => renderInviteMail({ ...custom, logo: { ...custom.logo, w, h } }, { ...CTX, logoUrl: LOGO }).html.match(/<img [^>]*width="(\d+)" height="(\d+)"[^>]*style="[^"]*width:(\d+)px;[^"]*height:(\d+)px/)!.slice(1).map(Number)
+    expect(show(480, 192)).toEqual([240, 96, 240, 96]); expect(show(300, 100)).toEqual([240, 80, 240, 80]); expect(show(240, 80)).toEqual([240, 80, 240, 80]); expect(show(120, 40)).toEqual([120, 40, 120, 40]); expect(show(480, 480)).toEqual([240, 240, 240, 240])
+    expect(resolveInviteConfig({ logo: { mode: 'custom', file: custom.logo.file, w: 9999, h: 9999 } }).logo).toMatchObject({ w: 480, h: 480 })   // Maße aus beschädigter Zeile werden begrenzt
+  })
   it('nur Logo-Adressen auf unserem Bucket (PNG/JPG, ohne Parameter): fremde Hosts, SVG, GIF, WebP, Query und javascript: ergeben kein Bild', () => {
     for (const bad of ['https://evil.de/logo.png', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.svg', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.gif', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.webp', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.png?x=1', 'https://plexora-files.s3.eu-central-1.amazonaws.com/lambda/code.png', 'https://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/../lambda/x.png', 'http://plexora-files.s3.eu-central-1.amazonaws.com/mail-logos/a/b.png', 'javascript:alert(1)', 'data:image/png;base64,AAAA']) {
       expect(isLogoUrl(bad), bad).toBe(false); expect(renderInviteMail(custom, { ...CTX, logoUrl: bad }).html, bad).not.toContain('<img')
