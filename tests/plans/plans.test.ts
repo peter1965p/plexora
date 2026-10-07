@@ -78,6 +78,8 @@ describe('Was ein Tarif darf', () => {
 
 // ── resolvePlan mit gefälschter Datenbank ──
 const st = { licenses: [] as any[], team: [] as any[], nexora: [] as any[], fail: false, scans: 0 }
+let adminEmail = ''
+vi.stubGlobal('useRuntimeConfig', () => ({ adminEmail }))
 vi.stubGlobal('createError', (o: any) => Object.assign(new Error(o.message), { statusCode: o.statusCode }))
 vi.mock('../../server/utils/dynamodb', () => ({
   getDynamoClient: () => ({
@@ -131,6 +133,12 @@ describe('resolvePlan', () => {
     expect(await resolvePlan({ email: 'chef@firma.de', groups: [] })).toMatchObject({ plan: 'pro', stale: true })
     vi.advanceTimersByTime(6 * 60_000)
     await expect(resolvePlan({ email: 'chef@firma.de', groups: [] })).rejects.toMatchObject({ statusCode: 503 })
+  })
+  it('Tarif direkt für einen Mandanten (Mails, Cron): Plattform-Betreiber über NUXT_ADMIN_EMAIL ausgenommen, andere nach Lizenz', async () => {
+    const { resolvePlanForTenant } = await import('../../server/utils/tenantPlan')
+    adminEmail = 'Peter@Plexora.eu'; expect((await resolvePlanForTenant('peter@plexora.eu')).exempt).toBe('platform'); expect(st.scans).toBe(0)
+    adminEmail = ''; st.licenses = [lic]; expect((await resolvePlanForTenant('chef@firma.de')).plan).toBe('pro')
+    expect((await resolvePlanForTenant('peter@plexora.eu')).exempt).toBeNull()   // ohne gesetzten Wert ist niemand "Betreiber"
   })
   it('Ausfall ohne frühere Antwort: Fehler 503', async () => {
     st.fail = true

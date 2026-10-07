@@ -29,12 +29,10 @@ async function installedBranches(email: string): Promise<string[]> {
   return legacy.map(k => String(k).toLowerCase())
 }
 
-export async function resolvePlan(auth: { email: string; groups?: string[] }): Promise<ResolvedPlan> {
-  const email = auth.email || ''
-  if ((auth.groups || []).includes('admins')) return { tenantId: email, plan: 'enterprise', exempt: 'platform', modules: ALL_MODULES }
-  if (isDemoAccount({ email, groups: auth.groups || [] })) return { tenantId: email, plan: 'enterprise', exempt: 'demo', modules: ALL_MODULES }
-
-  const tenantId = await resolveUserId(email)
+/** Tarif eines Mandanten (E-Mail des Inhabers), ohne Anmeldung: für Mails, Cron und öffentliche Abläufe. Der Plattform-Betreiber (NUXT_ADMIN_EMAIL) ist ausgenommen. */
+export async function resolvePlanForTenant(tenantId: string): Promise<ResolvedPlan> {
+  const adminEmail = String((useRuntimeConfig() as any).adminEmail || '').trim().toLowerCase()
+  if (adminEmail && tenantId.trim().toLowerCase() === adminEmail) return { tenantId, plan: 'enterprise', exempt: 'platform', modules: ALL_MODULES }
   const hit = cache.get(tenantId)
   if (hit && Date.now() - hit.ts < TTL) return hit.v
   try {
@@ -52,4 +50,11 @@ export async function resolvePlan(auth: { email: string; groups?: string[] }): P
     if (hit && Date.now() - hit.ts < STALE_MAX) return { ...hit.v, stale: true }
     throw createError({ statusCode: 503, message: 'Der Tarif konnte gerade nicht geprüft werden. Bitte gleich noch einmal versuchen.' })
   }
+}
+
+export async function resolvePlan(auth: { email: string; groups?: string[] }): Promise<ResolvedPlan> {
+  const email = auth.email || ''
+  if ((auth.groups || []).includes('admins')) return { tenantId: email, plan: 'enterprise', exempt: 'platform', modules: ALL_MODULES }
+  if (isDemoAccount({ email, groups: auth.groups || [] })) return { tenantId: email, plan: 'enterprise', exempt: 'demo', modules: ALL_MODULES }
+  return resolvePlanForTenant(await resolveUserId(email))
 }

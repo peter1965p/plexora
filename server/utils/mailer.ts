@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto'
 import { notifySystem } from './notifications'
 import { mailBlockReason, MAIL_BLOCK_TEXT } from './mailPolicy'
 import { logPreview } from '../../shared/logMask'
+import { reserveMail } from './mailQuota'
 
 export interface MailInput {
   userId: string
@@ -30,6 +31,19 @@ export async function sendMail(input: MailInput): Promise<'sent' | 'failed' | 's
     } catch {}
     console.warn(`[mail] übersprungen (${blocked}) kind=${input.kind}`)
     return 'skipped'
+  }
+  // Tageslimit je Mandant (Tarif). Interne Sicherheitsmeldungen an den Inhaber (Sicherung) werden nie begrenzt.
+  if (input.kind !== 'internal') {
+    const q = await reserveMail({ tenantId: input.userId, pool: 'system', recipients: [input.to], what: input.kind })
+    if (!q.ok) {
+      try {
+        await getDynamoClient().send(new PutCommand({
+          TableName: 'plexora-mail-log',
+          Item: { userId: input.userId, mailId: randomUUID(), kind: input.kind, to: input.to, subject: input.subject, status: 'skipped', error: q.message || 'Mail-Limit erreicht', preview: '', created: new Date().toISOString() },
+        }))
+      } catch {}
+      return 'skipped'
+    }
   }
   const resend = new Resend(useRuntimeConfig().resendApiKey as string)
   let status: 'sent' | 'failed' = 'sent'
