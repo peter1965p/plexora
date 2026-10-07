@@ -18,7 +18,7 @@ const USER = { userId: 's', email: 'chef@firma.de', groups: ['customers'] }
 
 describe('NUXT_AUTH_ENFORCE=true: ungültiges oder fehlendes Token ergibt 401, öffentliche Abläufe bleiben offen', () => {
   it('geschützte Route ohne Token / mit ungültigem oder abgelaufenem Token (verifyBearerToken liefert null): 401', async () => {
-    for (const p of ['/api/contacts', '/api/finance', '/api/settings/invoice', '/api/team/members', '/api/hr/stempel', '/api/marketing/abc/preview-email'])
+    for (const p of ['/api/contacts', '/api/finance', '/api/settings/invoice', '/api/team/members', '/api/team/accept', '/api/team/invite-preview', '/api/hr/stempel', '/api/marketing/abc/preview-email'])
       expect((await run(p)).status, p).toBe(401)
   })
   it('geschützte Route mit gültigem Token: durch, Nutzer im Kontext', async () => {
@@ -31,7 +31,7 @@ describe('NUXT_AUTH_ENFORCE=true: ungültiges oder fehlendes Token ergibt 401, �
       ['/api/public/T1/newsletter/signup', 'POST'], ['/api/public/newsletter/confirm/tok', 'GET'], ['/api/webhooks/stripe', 'POST'], ['/api/webhooks/resend', 'POST'],
       ['/api/shop/webhook', 'POST'], ['/api/termine/cron/reminders', 'POST'], ['/api/newsletter/cron/run-automations', 'POST'], ['/api/sequences/cron/sweep', 'POST'],
       ['/api/settings/agb', 'GET'], ['/api/settings/datenschutz', 'GET'], ['/api/settings/branding', 'GET'], ['/api/settings/company', 'GET'], ['/api/pages/start', 'GET'],
-      ['/api/jobs/x', 'GET'], ['/api/pay/inv1', 'GET'], ['/api/support/portal/tok', 'GET'], ['/api/team/accept', 'POST'], ['/api/termine/google-callback', 'GET'],
+      ['/api/jobs/x', 'GET'], ['/api/pay/inv1', 'GET'], ['/api/support/portal/tok', 'GET'], ['/api/termine/google-callback', 'GET'],
       ['/api/analytics/vitals', 'POST'], ['/api/licenses/PLXR-AAAA', 'GET'], ['/api/licenses/checkout', 'POST'],
     ] as const) expect((await run(p, m)).status, `${m} ${p}`).toBe(200)
   })

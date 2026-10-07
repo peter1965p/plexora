@@ -4,6 +4,9 @@ import { resolveUserId, invalidateTenantCache } from '../../utils/tenant'
 import { requireMailSender, validRecipient } from '../../utils/mailGuard'
 import { sendMail } from '../../utils/mailer'
 import { randomUUID } from 'crypto'
+import { checkRateLimit } from '../../utils/rateLimit'
+import { inviteExpired, INVITES_PER_DAY } from '../../utils/teamInvite'
+import { escapeHtml } from '../../../shared/leadDecor'
 
 const ALLOWED_ROLES = ['member', 'admin']
 
@@ -31,7 +34,13 @@ export default defineEventHandler(async (event) => {
     TableName: 'plexora-team-members',
     Key: { tenantId, memberEmail: inviteeEmail },
   }))
-  if (existing.Item) throw createError({ statusCode: 409, message: 'Bereits eingeladen oder Mitglied' })
+  // Aktive Mitglieder und noch gültige Einladungen bleiben; eine abgelaufene Einladung darf neu verschickt werden (überschreibt die alte)
+  if (existing.Item && (existing.Item.status !== 'invited' || !inviteExpired(existing.Item.invitedAt))) throw createError({ statusCode: 409, message: existing.Item.status === 'invited' ? 'Diese Adresse hat noch eine gültige Einladung. Ziehe sie zuerst zurück, wenn du eine neue schicken willst.' : 'Bereits Mitglied' })
+
+  // Höchstens INVITES_PER_DAY Einladungen je Konto und Tag (verhindert, dass die Einladungsmail als Spam-Relay dient). Der Zähler zählt nur Versuche, die bis hierher gültig waren.
+  if (!(await checkRateLimit('team-invite:day', tenantId, INVITES_PER_DAY, 86400))) {
+    throw createError({ statusCode: 429, message: `Heute wurden schon ${INVITES_PER_DAY} Einladungen verschickt. Bitte versuche es morgen wieder.` })
+  }
 
   const token = randomUUID()
   await dynamo.send(new PutCommand({
@@ -59,11 +68,11 @@ export default defineEventHandler(async (event) => {
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px">
         <h2 style="margin-bottom:8px">Einladung zu Plexora</h2>
-        <p style="color:#666">${inviterEmail} hat dich eingeladen, dem Team auf Plexora beizutreten.</p>
+        <p style="color:#666">${escapeHtml(inviterEmail)} hat dich eingeladen, dem Team auf Plexora beizutreten.</p>
         <a href="${appUrl}/invite?token=${token}" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#6C3FE8;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
           Einladung annehmen
         </a>
-        <p style="margin-top:32px;color:#999;font-size:12px">Dieser Link ist einmalig gültig. Falls du diese E-Mail nicht erwartet hast, ignoriere sie einfach.</p>
+        <p style="margin-top:32px;color:#999;font-size:12px">Dieser Link ist einmalig und 7 Tage gültig. Falls du diese E-Mail nicht erwartet hast, ignoriere sie einfach.</p>
       </div>
     `,
   })

@@ -4,6 +4,8 @@ export interface AuthUser {
   userId: string
   email: string
   groups: string[]
+  /** E-Mail-Adresse ist vom Anbieter (Cognito/Google) als verifiziert gemeldet */
+  emailVerified?: boolean
 }
 
 let verifier: ReturnType<typeof CognitoJwtVerifier.create> | null = null
@@ -27,6 +29,7 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
       userId: payload.sub,
       email:  (payload.email as string) || '',
       groups: (payload['cognito:groups'] as string[]) || [],
+      emailVerified: payload.email_verified === true || payload.email_verified === 'true',
     }
   } catch {
     return null

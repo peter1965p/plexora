@@ -1305,14 +1305,14 @@
               </div>
               <div>
                 <div style="font-size:13px;font-weight:600">{{ m.memberEmail }}</div>
-                <div style="font-size:11px;color:var(--text-muted)">{{ m.role }} · {{ m.status === 'invited' ? 'Einladung ausstehend' : 'Aktiv' }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">{{ m.role }} · {{ m.status === 'invited' ? (m.inviteExpired ? 'Einladung abgelaufen' : 'Einladung ausstehend' + (m.inviteExpiresAt ? ' bis ' + new Date(m.inviteExpiresAt).toLocaleDateString('de-DE') : '')) : 'Aktiv' }}</div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <span :style="m.status === 'active' ? 'font-size:11px;padding:3px 8px;border-radius:5px;background:#00C85322;color:#00C853' : 'font-size:11px;padding:3px 8px;border-radius:5px;background:#F0B42822;color:#F0B428'">
-                {{ m.status === 'active' ? 'Aktiv' : 'Eingeladen' }}
+                {{ m.status === 'active' ? 'Aktiv' : (m.inviteExpired ? 'Abgelaufen' : 'Eingeladen') }}
               </span>
-              <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" title="Entfernen">
+              <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" :title="m.status === 'invited' ? 'Einladung zurückziehen' : 'Entfernen'">
                 <i class="ti ti-trash"></i>
               </button>
             </div>
@@ -2968,7 +2968,7 @@ async function inviteTeamMember() {
 }
 
 async function removeTeamMember(email: string) {
-  if (!await openConfirm({ title: 'Mitglied entfernen?', name: email, icon: 'ti-user-off' })) return
+  if (!await openConfirm({ title: 'Mitglied entfernen bzw. Einladung zurückziehen?', name: email, icon: 'ti-user-off' })) return
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}?userId=${encodeURIComponent(userEmail.value)}`), { method: 'DELETE', headers: await useAuthHeader() })
