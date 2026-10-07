@@ -94,3 +94,12 @@ describe('Löschen und Auflisten (Dateiverwaltung: nur Plattform-Admins, nur öf
     expect(await code((list as any)(authEv('chef@firma.de', { query: { prefix: 'marketing/' } }, adm)))).toBe(200)
   })
 })
+
+describe('Mail-Logos: öffentlich lesbar, aber nur über die eigene, geprüfte Route beschreibbar', () => {
+  it('"mail-logos" ist ein öffentliches Lese-Präfix (Skript und Server gleich), der allgemeine Upload schreibt dort nie hinein', async () => {
+    expect(PUBLIC_S3_PREFIXES).toContain('mail-logos' as any); expect(isAllowedKey('mail-logos/0123456789abcdef/0123456789abcdef0123456789abcdef.png')).toBe(true)
+    for (const p of ['mail-logos/', 'mail-logos/0123456789abcdef/']) expect(normalizePrefix(p), p).toBeNull()
+    expect(await code(up('chef@firma.de', { fileBase64: PNG, fileName: 'x.png', prefix: 'mail-logos/' }))).toBe(400); expect(sent).toEqual([])
+    expect(await code(up('chef@firma.de', { fileBase64: PNG, fileName: 'x.png', prefix: 'marketing/' }))).toBe(200)
+  })
+})

@@ -1,6 +1,8 @@
 // Welche Präfixe im Bucket plexora-files öffentlich lesbar sind (Bilder der Seiten, Kampagnen, Shops usw.). Alles andere ist privat.
 // Dieselbe Liste steht in scripts/aws/secure-bucket.sh (Bucket-Policy); tests/security/s3-policy.test.ts erzwingt, dass beide übereinstimmen.
-export const PUBLIC_S3_PREFIXES = ['automotive', 'avatars', 'blog', 'branding', 'campaigns', 'marketing', 'newsletter', 'nexora', 'plugins', 'products', 'public', 'termine'] as const
+export const PUBLIC_S3_PREFIXES = ['automotive', 'avatars', 'blog', 'branding', 'campaigns', 'marketing', 'newsletter', 'nexora', 'plugins', 'products', 'public', 'termine', 'mail-logos'] as const
+/** Präfixe, in die nur eigene, geprüfte Routen schreiben (nie der allgemeine Upload): die Mail-Logos haben zufällige Dateinamen und werden vor dem Speichern neu kodiert */
+export const UPLOAD_BLOCKED_PREFIXES = ['mail-logos'] as const
 
 export const UPLOAD_MIME: Record<string, string> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' }
 export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024
@@ -18,7 +20,9 @@ export function normalizePrefix(prefix: unknown): string | null {
   const p = typeof prefix === 'string' ? prefix : ''
   // erlaubt Unterordner wie "nexora/clients/", aber nur unterhalb eines öffentlichen Präfixes
   if (!/^[a-z0-9-]+(\/[a-z0-9_-]+)*\/$/.test(p)) return null
-  return (PUBLIC_S3_PREFIXES as readonly string[]).includes(p.split('/')[0]) ? p : null
+  const top = p.split('/')[0]
+  if ((UPLOAD_BLOCKED_PREFIXES as readonly string[]).includes(top)) return null
+  return (PUBLIC_S3_PREFIXES as readonly string[]).includes(top) ? p : null
 }
 
 /** Dateiname ohne Pfad und Sonderzeichen; Endung muss ein erlaubtes Bildformat sein, sonst null. */

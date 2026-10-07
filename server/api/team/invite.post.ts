@@ -5,8 +5,9 @@ import { requireMailSender, validRecipient } from '../../utils/mailGuard'
 import { sendMail } from '../../utils/mailer'
 import { randomUUID } from 'crypto'
 import { checkRateLimit } from '../../utils/rateLimit'
-import { inviteExpired, INVITES_PER_DAY } from '../../utils/teamInvite'
-import { escapeHtml } from '../../../shared/leadDecor'
+import { inviteExpired, INVITES_PER_DAY, INVITE_TTL_DAYS } from '../../utils/teamInvite'
+import { loadInviteConfig, resolveInviteLogoUrl } from '../../utils/mailTemplateStore'
+import { renderInviteMail, resolveInviteConfig, APP_ORIGIN } from '../../../shared/mailTemplate'
 
 const ALLOWED_ROLES = ['member', 'admin']
 
@@ -43,6 +44,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const token = randomUUID()
+  const invitedAt = new Date()
   await dynamo.send(new PutCommand({
     TableName: 'plexora-team-members',
     Item: {
@@ -51,30 +53,30 @@ export default defineEventHandler(async (event) => {
       role,
       status: 'invited',
       inviteToken: token,
-      invitedAt: new Date().toISOString(),
+      invitedAt: invitedAt.toISOString(),
       joinedAt: '',
     },
   }))
 
   invalidateTenantCache(inviteeEmail)
 
-  const appUrl = 'https://app.plexora.eu'
+  // Mail aus der Vorlage des Mandanten (frei gestaltbar, Standard wenn nichts gespeichert oder beschädigt). Der Link kommt IMMER vom Server:
+  // feste Plexora-Domain + der Token dieser Einladung, nie ein Wert aus der Konfiguration.
+  const cfg = await loadInviteConfig(tenantId)
+  const ctx = {
+    inviterName: auth.name || inviterEmail, inviterEmail, inviteeEmail, expiresAt: new Date(invitedAt.getTime() + INVITE_TTL_DAYS * 86_400_000),
+    acceptUrl: `${APP_ORIGIN}/invite?token=${token}`, logoUrl: await resolveInviteLogoUrl(tenantId, cfg),
+  }
+  let mail
+  try { mail = renderInviteMail(cfg, ctx) } catch (e) { console.error('[team] Vorlage nicht darstellbar, Standard wird verwendet', (e as Error)?.message); mail = renderInviteMail(resolveInviteConfig(null), { ...ctx, logoUrl: '' }) }
   const status = await sendMail({
     userId: tenantId,
-    kind: 'internal',
-    from: 'team@plexora.eu',
+    kind: 'team_invite',
+    from: `"${mail.fromName}" <team@plexora.eu>`,      // Absendername "<Einladender> über Plexora", Absenderadresse bleibt die Systemadresse
     to: inviteeEmail,
-    subject: 'Du wurdest zu Plexora eingeladen',
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px">
-        <h2 style="margin-bottom:8px">Einladung zu Plexora</h2>
-        <p style="color:#666">${escapeHtml(inviterEmail)} hat dich eingeladen, dem Team auf Plexora beizutreten.</p>
-        <a href="${appUrl}/invite?token=${token}" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#6C3FE8;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
-          Einladung annehmen
-        </a>
-        <p style="margin-top:32px;color:#999;font-size:12px">Dieser Link ist einmalig und 7 Tage gültig. Falls du diese E-Mail nicht erwartet hast, ignoriere sie einfach.</p>
-      </div>
-    `,
+    subject: mail.subject,
+    html: mail.html,
+    text: mail.text,                                       // Resend sendet HTML und Klartext als multipart/alternative
   })
 
   if (status === 'failed') {

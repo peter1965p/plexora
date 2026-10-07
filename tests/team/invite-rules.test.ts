@@ -45,9 +45,9 @@ describe('Einladen: abgelaufene Einladung, Maskierung', () => {
     reset(); seedInvite({ status: 'active', inviteToken: '' })
     expect((await code(invite(ev(OWNER, { inviteeEmail: 'neu@x.de' }) as any))).code).toBe(409)
   })
-  it('die Absenderadresse wird in der Mail maskiert (kein Einschleusen von HTML) und die Mail nennt die 7 Tage', async () => {
+  it('die Absenderadresse wird in der Mail maskiert (kein Einschleusen von HTML) und die Mail nennt das Ablaufdatum', async () => {
     await invite(ev({ ...OWNER, email: 'chef<img src=x onerror=alert(1)>@firma.de' }, { inviteeEmail: 'neu@x.de' }) as any)
-    const html = st.sent[0].html; expect(html).not.toContain('<img'); expect(html).toContain('&lt;img'); expect(html).toContain('7 Tage')
+    const html = st.sent[0].html; expect(html).not.toContain('<img'); expect(html).toContain('&lt;img'); expect(html).toContain('ist bis'); expect(html).toContain('gültig')
   })
 })
 

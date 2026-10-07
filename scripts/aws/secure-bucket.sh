@@ -10,7 +10,7 @@
 # Neues öffentliches Präfix = hier eintragen UND scripts/aws/check-public-flows.sh ergänzen (der Test s3-upload.test.ts erzwingt dieselbe Liste).
 set -euo pipefail
 BUCKET="plexora-files"; REGION="eu-central-1"
-PUBLIC_PREFIXES=(automotive avatars blog branding campaigns marketing newsletter nexora plugins products public termine)
+PUBLIC_PREFIXES=(automotive avatars blog branding campaigns mail-logos marketing newsletter nexora plugins products public termine)
 PRIVATE_EXAMPLES=("lambda/lambda-new.zip" "lambda-deploy/lambda-new.zip")
 MODE="${1:---dry-run}"
 SAVE_DIR="/home/peter/Dev/backups/plexora/bucket"; STAMP="$(date +%Y%m%d-%H%M%S)"
