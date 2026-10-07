@@ -98,7 +98,7 @@ describe('Free: Mengenbegrenzung beim Anlegen', () => {
     counts['plexora-deals'] = 10
     const r = await run('/api/deals', 'POST'); expect(r.status).toBe(402)
     expect(r.err.data).toMatchObject({ code: 'FREE_LIMIT', area: 'crm', max: 50, count: 50 }); expect(r.err.message).toMatch(/50/); expect(r.err.message).toMatch(/Lizenz/)
-    expect((await run('/api/companies', 'POST')).status).toBe(402)
+    expect((await run('/api/companies', 'POST')).status).toBe(402); expect((await run('/api/contacts', 'POST')).status).toBe(402)
   })
   it('Projekte und Support: je 25', async () => {
     counts = { 'plexora-projects': 25, 'plexora-support': 24 }
