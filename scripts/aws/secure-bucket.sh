@@ -51,7 +51,7 @@ case "$MODE" in
     sleep 3; FAIL=0
     for k in "${PRIVATE_EXAMPLES[@]}"; do c="$(http "$k")"; [[ "$c" == "403" ]] && echo "  OK   $k -> 403" || { echo "  FEHLER $k -> $c (erwartet 403)"; FAIL=1; }; done
     for p in "${PUBLIC_PREFIXES[@]}"; do
-      k="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$p/" --max-items 1 --query 'Contents[0].Key' --output text 2>/dev/null || true)"
+      k="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$p/" --max-items 1 --query 'Contents[0].Key' --output text 2>/dev/null | head -1 || true)"
       [[ -z "$k" || "$k" == "None" ]] && { echo "  --   $p/: keine Objekte zum Testen"; continue; }
       c="$(http "$k")"; [[ "$c" == "200" ]] && echo "  OK   $p/… -> 200" || { echo "  FEHLER $p/… -> $c (erwartet 200)"; FAIL=1; }
     done
