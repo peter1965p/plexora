@@ -24,7 +24,7 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 |---|---|---|
 | Offene Registrierung: Tarifmodell, Mail-Tageslimit, Upload-Härtung, Free-Mengen, Anzeige | gebaut und deployt, **nur Beobachtung** | wartet auf dich: Protokoll lesen (`enforce-report.sh`), dann `set-enforce.sh plan on` |
 | Registrierung: Turnstile beim Anmelden, Gesamtspeicher je Mandant, Sperre öffentlicher Seiten von Free-Mandanten, 90-Tage-Löschung | bewusst nicht gebaut (Begründung in `docs/security/entscheidungen-welle-2.md`) | offen: nur auf Anforderung |
-| Willkommensmail mit Einmal-Link statt Start-Passwort | gebaut und deployt, **Schalter aus** (alter Ablauf läuft); Live-Test ohne Browser vorbereitet (`scripts/security/welcome-flow-test.mjs`: signiertes Kaufereignis, Mail über die Resend-API lesen, Link einlösen, Anmeldung, Aufräumen) | wartet auf Rechte: CloudShell-Teil A in `docs/aws/cloudshell-ablauf-willkommensmail-und-logfilter.md` (`grant-set-password-right.sh --apply`), dann "Recht gesetzt" melden; danach schalte ich `welcome on` und teste selbst |
+| Willkommensmail mit Einmal-Link statt Start-Passwort | gebaut und deployt, **Schalter aus** (alter Ablauf läuft); Live-Test ohne Browser vorbereitet (`scripts/security/welcome-flow-test.mjs`: signiertes Kaufereignis, Mail über die Resend-API lesen, Link einlösen, Anmeldung, Aufräumen) | Recht von dir gesetzt (bestätigt), Schalter `welcome` ist AN (live Version 21). **Offen: mein Live-Test** (`welcome-flow-test.mjs`), danach Testdaten aufräumen |
 | Rollen scharf | siehe A-1 | wartet auf dich |
 | Mail-Baustein für weitere Systemmails | **zurückgestellt** bis Zahlungs-Secrets, Willkommensmail, Log-Filter und Rollen-Auswertung durch sind | Einladung und Passwort-Mails nutzen eigene Layouts; rund 17 Versandstellen haben noch eigenes HTML. Erst ein Plan, dann umbauen |
 | Mail-Vorlage (Einladung): Logo, Editor | erledigt (Upload bis 3 MB, Speichern-Fehler behoben, deployt) | wartet auf dich: Logo erneut hochladen, Testmail in Gmail und Outlook ansehen |
@@ -39,7 +39,7 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 | Lambda-Limit (Throttling, Konto-Limit 10) | Antragstext liegt in `docs/aws/antrag-lambda-limit.md` | wartet auf dich: Antrag selbst einreichen (`plexora-app` darf keine Service Quotas) |
 | Stripe-Secrets in der Datenbank | **erledigt (08.10.2026)**: Stripe-Schlüssel (Länge 107) und Webhook-Secret (Länge 38) sind verschlüsselt; Probe vorher/nachher gleich (Webhook gültig 200, falsch 400, Checkout 200); Probe-Entschlüsselung stimmt; drei Prüfungen grün | wartet auf dich: den Klartext-Export (Rechte 600) unter `~/Dev/backups/plexora/payment-secrets-export-….json` nach ein paar sauberen Tagen mit `shred -u` löschen; Rückweg bis dahin `encrypt-payment-secrets.mjs --rollback <Export>` |
 | Stripe-Schlüssel rotieren | nicht beauftragt | deine Entscheidung |
-| Alarm: Log-Filter `[request error]` | Alarme laufen, Filter fehlt (Metrik `Plexora/RequestErrors` existiert noch nicht, heute lesend geprüft) | wartet auf Rechte: fertiger Befehl in Teil B desselben Dokuments, dann "Filter gesetzt" melden; ich prüfe lesend, ob die Metrik erscheint |
+| Alarm: Log-Filter `[request error]` | **erledigt (08.10.2026)**: Filter von dir in der CloudShell gesetzt, Metrik `Plexora/RequestErrors` existiert (lesend bestätigt) | – |
 | Protokoll-Maskierung, Svix, Lizenzprüfung ohne E-Mail | erledigt | – |
 
 ## 4. Turnstile
