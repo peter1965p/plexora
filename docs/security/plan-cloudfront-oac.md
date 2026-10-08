@@ -2,6 +2,8 @@
 
 Stand 08.10.2026. **Nur Planung, nichts gebaut.** Gehört zur Speicher-Regel (`infra/storage-policy.ts`, `scripts/aws/check-storage.sh`).
 
+> **Entscheidung 08.10.2026 (Peter): jetzt nicht umsetzen.** Erst den Zugriff auf die alten Bild-Adressen messen, sobald es dafür eine Datengrundlage gibt. **Stand der Datengrundlage:** Das S3-Zugriffsprotokoll (Server Access Logging) für `plexora-files` ist NICHT eingeschaltet (`get-bucket-logging` liefert nichts); es gibt also noch keine Messwerte. Das Einschalten (Phase 0) braucht einen Zielbucket und eine Bucket-Policy-/Rechte-Änderung und ist deshalb ein eigener Schritt nach deiner Freigabe.
+
 ## 1. Ziel und warum
 Heute ist `plexora-files` über eine Bucket-Policy für 13 Präfixe öffentlich lesbar (`Principal "*"`, nur `s3:GetObject`). Das Gate prüft, dass es dabei bleibt – aber solange es eine öffentliche Policy gibt,
 - darf **Block Public Access** nicht komplett an sein (`BlockPublicPolicy`/`RestrictPublicBuckets` müssen aus bleiben), und
