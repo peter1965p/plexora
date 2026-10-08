@@ -98,6 +98,34 @@ SLOTS="$(curl -s -m 25 "$API/api/public/$TENANT/termine/availability?typeId=${TY
 PB="$(curl -s -i -m 25 -X OPTIONS "$API/api/public/$TENANT/termine/book" -H 'Origin: https://www.paeffgen-it.de' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type')"
 echo "$PB" | head -1 | grep -qE ' (200|204)' && ok "Preflight für POST …/termine/book" || bad "Preflight für Terminbuchung"
 
+echo "== Terminbuchung: Widget und serverseitige Prüfung stimmen überein (es wird nie ein Termin gebucht)"
+# Probe: Buchung OHNE Token für einen nicht verfügbaren Zeitpunkt (01.01.2020, 03:33 Uhr). Verlangt der Server ein Token (Kampagnen-Terminart mit Bot-Schutz), kommt 403,
+# sonst 409 "nicht mehr verfügbar" – in beiden Fällen entsteht keine Buchung. Die Buchungsseite muss genau dann ein Widget zeigen, wenn 403 kommt, sonst scheitert jede Buchung.
+book_probe() { curl -s -o /dev/null -m 25 -w '%{http_code}' -X POST "$API/api/public/$TENANT/termine/book" -H 'Content-Type: application/json' -d "{\"typeId\":\"$1\",\"date\":\"2020-01-01\",\"startTime\":\"03:33\",\"customerName\":\"check-public-flows\",\"customerEmail\":\"check-public-flows@invalid.example\"}"; }
+widget_for() { curl -s -m 25 "$API/api/public/$TENANT/termine?type=$1" | python3 -c 'import json,sys; print("ja" if json.load(sys.stdin).get("botProtection") else "nein")' 2>/dev/null || echo "?"; }
+consistent() { # $1 Beschriftung, $2 typeId
+  local w st; w="$(widget_for "$2")"; st="$(book_probe "$2")"
+  case "$st:$w" in
+    429:*) ok "$1: übersprungen (Drossel der Buchungsroute, kein Fehler)";;
+    403:ja) ok "$1: Widget wird gezeigt UND der Server verlangt ein Token (403) – konsistent";;
+    409:nein) ok "$1: kein Widget und der Server verlangt kein Token (409 nicht verfügbar) – konsistent";;
+    403:nein|503:nein) bad "$1: der Server verlangt ein Token ($st), die Seite zeigt aber KEIN Widget – jede Buchung würde scheitern";;
+    409:ja) bad "$1: die Seite zeigt ein Widget, der Server prüft aber nichts (409) – Schutz wirkungslos";;
+    *) bad "$1: unerwartet (Server $st, Widget $w)";;
+  esac
+}
+[[ -n "${FIRST_TYPE:-}" ]] && consistent "allgemeine Terminart" "$FIRST_TYPE" || bad "keine allgemeine Terminart zum Prüfen"
+CAMP_TYPES="$( { echo "$LP"; echo "$LP2"; } | python3 -c '
+import sys,json
+seen=set()
+for line in sys.stdin.read().split("\n"):
+    try: t=json.loads(line)["campaign"].get("appointmentTypeId")
+    except Exception: continue
+    if t: seen.add(t)
+print(" ".join(sorted(seen)))' 2>/dev/null)"
+if [[ -z "$CAMP_TYPES" ]]; then ok "keine Kampagne mit Terminart gefunden: nur die allgemeine Terminart geprüft (Kampagnen-Termine: tests/botprotection/consistency.test.ts)"
+else for t in $CAMP_TYPES; do consistent "Kampagnen-Terminart $t" "$t"; done; fi
+
 echo "== Nexora-Website"
 expect 200 "www.paeffgen-it.de/termine" -H 'Accept: text/html' "https://www.paeffgen-it.de/termine${TYPE_ID:+?type=$TYPE_ID}"
 expect 200 "www.paeffgen-it.de/" -H 'Accept: text/html' "https://www.paeffgen-it.de/"
