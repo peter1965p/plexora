@@ -24,7 +24,7 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 |---|---|---|
 | Offene Registrierung: Tarifmodell, Mail-Tageslimit, Upload-Härtung, Free-Mengen, Anzeige | gebaut und deployt, **nur Beobachtung** | wartet auf dich: Protokoll lesen (`enforce-report.sh`), dann `set-enforce.sh plan on` |
 | Registrierung: Turnstile beim Anmelden, Gesamtspeicher je Mandant, Sperre öffentlicher Seiten von Free-Mandanten, 90-Tage-Löschung | bewusst nicht gebaut (Begründung in `docs/security/entscheidungen-welle-2.md`) | offen: nur auf Anforderung |
-| Willkommensmail mit Einmal-Link statt Start-Passwort | gebaut und deployt, **Schalter aus** (alter Ablauf läuft); Live-Test ohne Browser vorbereitet (`scripts/security/welcome-flow-test.mjs`: signiertes Kaufereignis, Mail über die Resend-API lesen, Link einlösen, Anmeldung, Aufräumen) | Recht von dir gesetzt (bestätigt), Schalter `welcome` ist AN (live Version 21). **Offen: mein Live-Test** (`welcome-flow-test.mjs`), danach Testdaten aufräumen |
+| Willkommensmail mit Einmal-Link statt Start-Passwort | gebaut und deployt, **Schalter aus** (alter Ablauf läuft); Live-Test ohne Browser vorbereitet (`scripts/security/welcome-flow-test.mjs`: signiertes Kaufereignis, Mail über die Resend-API lesen, Link einlösen, Anmeldung, Aufräumen) | **erledigt und live (08.10.2026, Version 21)**: Recht von dir gesetzt, Schalter `welcome` AN. Live-Test bestanden (12 von 12 Prüfungen): Mail mit Link, ohne Passwort und ohne Lizenzschlüssel; Link setzt das Passwort, zweiter Versuch 400; Bestätigungsmail ohne Link; Anmeldung mit dem neuen Passwort klappt; Konto CONFIRMED. Testdaten (Konto, Lizenz) gelöscht und belegt |
 | Rollen scharf | siehe A-1 | wartet auf dich |
 | Mail-Baustein für weitere Systemmails | **zurückgestellt** bis Zahlungs-Secrets, Willkommensmail, Log-Filter und Rollen-Auswertung durch sind | Einladung und Passwort-Mails nutzen eigene Layouts; rund 17 Versandstellen haben noch eigenes HTML. Erst ein Plan, dann umbauen |
 | Mail-Vorlage (Einladung): Logo, Editor | erledigt (Upload bis 3 MB, Speichern-Fehler behoben, deployt) | wartet auf dich: Logo erneut hochladen, Testmail in Gmail und Outlook ansehen |
@@ -76,7 +76,7 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
 1. **Turnstile-Beweis** (2 Minuten): Formular absenden, ich prüfe das Log; Secret rotieren.
 2. **CloudShell: Access Analyzer und Bucket-Meldungen** (30 Minuten, Ablauf liegt bereit).
-3. **Willkommensmail aktivieren** (Recht vergeben, Schalter, Testkauf): danach steht kein Start-Passwort mehr in Mails.
+3. ~~Willkommensmail aktivieren~~ erledigt am 08.10.: kein Start-Passwort mehr in Mails. Noch offen dazu: ein echter Stripe-Testkauf mit Bezahlseite (nur im Browser möglich).
 4. **Zahlungs-Secrets verschlüsseln** (Migration mit Probe).
 5. **Rollen mit Sylvia testen**, Protokoll auswerten, scharf schalten; gleichzeitig Einladung mit zwei Konten, Logo und Mail in Gmail/Outlook.
 6. **`NUXT_AUTH_ENFORCE`** nach deinem Klicktest.
