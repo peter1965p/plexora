@@ -18,7 +18,7 @@ export interface BucketDecl {
   /** Name, "{account}" wird ersetzt */
   name: string
   purpose: string
-  /** plexora = von diesem Projekt verwaltet; extern = anderes Projekt im selben Konto (Zustand wird festgeschrieben und überwacht, aber nicht von uns verändert) */
+  /** plexora = von diesem Projekt verwaltet; extern = anderes Projekt im selben Konto (Zustand wird festgeschrieben und überwacht, aber nicht von uns verändert; Abweichungen sind für das Deploy-Gate nur eine Warnung, kein Abbruch) */
   owner: 'plexora' | 'extern'
   region: string
   access: BucketAccess
@@ -93,7 +93,7 @@ export const STORAGE: StorageDeclaration = {
       access: { kind: 'public-whole', reason: 'Bucket-Policy "PublicReadGetObject": ganzer Bucket öffentlich lesbar, nur s3:GetObject (Auflisten ist nicht erlaubt). Zustand beim Anlegen dieser Regel festgeschrieben; ob das so bleiben soll, entscheidet Peter (offen).' },
       blockPublicAccess: { BlockPublicAcls: false, IgnorePublicAcls: false, BlockPublicPolicy: false, RestrictPublicBuckets: false },
       encryption: 'AES256', versioning: 'None', lifecycle: [], denyInsecureTransport: false, ownership: 'BucketOwnerEnforced', privateExamples: [],
-      note: 'Fremdes Projekt: wird nur beobachtet. Ändert sich etwas, schlägt das Deploy-Gate an, damit es jemand bewusst bestätigt (Deklaration anpassen).',
+      note: 'Fremdes Projekt: wird nur beobachtet. Ändert sich etwas, meldet das Deploy-Gate eine WARNUNG (gelb, kein Abbruch), damit es jemand bewusst bestätigt (Deklaration anpassen).',
     },
     {
       name: 'aether-os-data-peter-{account}-eu-central-1-an',

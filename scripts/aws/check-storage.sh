@@ -6,6 +6,7 @@
 #   scripts/aws/check-storage.sh --http-only  nur HTTP (wird von check-public-flows.sh aufgerufen)
 #   scripts/aws/check-storage.sh --no-http    nur Konfiguration
 #
+# Abweichungen bei fremden Buckets (infra/storage-policy.ts: owner "extern") sind nur eine WARNUNG (gelb), bei Plexora-Buckets und nicht deklarierten Buckets ein Abbruch.
 # deploy-backend.sh ruft es VOR dem Alias-Wechsel auf: bei Abweichung bleibt der Alias unverändert und der Deploy bricht ab.
 # Grenze: Das Gate sieht nur den Zustand zum Zeitpunkt des Aufrufs – spätere Änderungen in der Konsole bemerkt erst der nächste Lauf.
 # Erwartete Rechte von plexora-app: s3:ListAllMyBuckets, s3:GetBucket*/GetEncryptionConfiguration/GetLifecycleConfiguration/GetBucketPolicy/GetBucketPublicAccessBlock/ListBucket, s3:GetAccountPublicAccessBlock.

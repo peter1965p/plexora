@@ -122,8 +122,8 @@ fi
 # Privates bleibt privat, Auflisten verboten, deklarierte Präfixe erreichbar: dieselbe Deklaration wie das Deploy-Gate (infra/storage-policy.ts)
 echo "== Speicher (HTTP, Regel: infra/storage-policy.ts)"
 if ST="$(scripts/aws/check-storage.sh --http-only 2>&1)"; then STORAGE_OK=1; else STORAGE_OK=0; fi
-printf '%s\n' "$ST" | grep -E '^\s+.{0,12}(OK|FEHLER|--)' | sed -E 's/\x1b\[[0-9;]*m//g' | while IFS= read -r l; do
-  case "$l" in *FEHLER*) printf '  \033[31mFEHLER\033[0m %s\n' "${l#*FEHLER }";; *OK*) printf '  \033[32mOK\033[0m   %s\n' "${l#*OK   }";; *) printf '  --   %s\n' "${l#*--   }";; esac
+printf '%s\n' "$ST" | grep -E '^\s+.{0,12}(OK|FEHLER|WARNUNG|--)' | sed -E 's/\x1b\[[0-9;]*m//g' | while IFS= read -r l; do
+  case "$l" in *FEHLER*) printf '  \033[31mFEHLER\033[0m %s\n' "${l#*FEHLER }";; *WARNUNG*) printf '  \033[33mWARNUNG\033[0m %s\n' "${l#*WARNUNG }";; *OK*) printf '  \033[32mOK\033[0m   %s\n' "${l#*OK   }";; *) printf '  --   %s\n' "${l#*--   }";; esac
 done
 [[ "$STORAGE_OK" == "1" ]] && ok "Speicher-Prüfung (HTTP) bestanden" || bad "Speicher-Prüfung (HTTP) fehlgeschlagen – Ausgabe mit scripts/aws/check-storage.sh --http-only ansehen; bei Deploy-Zips: scripts/aws/secure-bucket.sh --apply"
 

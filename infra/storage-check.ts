@@ -124,7 +124,8 @@ export function compareAccount(decl: StorageDeclaration, accountBuckets: string[
   const p: string[] = []
   const declared = new Set(decl.buckets.map(b => resolveBucketName(b.name, account)))
   for (const n of accountBuckets) if (!declared.has(n)) p.push(`Bucket "${n}" ist im Konto vorhanden, aber nicht deklariert (infra/storage-policy.ts): Zweck und Zugriff bewusst festlegen`)
-  for (const n of declared) if (!accountBuckets.includes(n)) p.push(`Bucket "${n}" ist deklariert, aber nicht im Konto`)
+  // Fehlt ein FREMDER Bucket (owner extern), meldet das compareBucket als Warnung; fehlt ein Plexora-Bucket, ist es ein Abbruch
+  for (const b of decl.buckets) { const n = resolveBucketName(b.name, account); if (b.owner === 'plexora' && !accountBuckets.includes(n)) p.push(`Bucket "${n}" ist deklariert, aber nicht im Konto`) }
   if (decl.accountBlockPublicAccess === null && accountBpa !== null) p.push(`Block Public Access auf Konto-Ebene ist jetzt gesetzt (${fmtBpa(accountBpa)}), deklariert ist "nicht gesetzt": prüfen, ob öffentliche Bilder noch laden, dann deklarieren`)
   if (decl.accountBlockPublicAccess !== null && (accountBpa === null || !same(accountBpa, decl.accountBlockPublicAccess))) p.push(`Block Public Access auf Konto-Ebene weicht ab (ist: ${fmtBpa(accountBpa)}; erwartet: ${fmtBpa(decl.accountBlockPublicAccess)})`)
   return p

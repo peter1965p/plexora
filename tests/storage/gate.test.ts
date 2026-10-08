@@ -91,6 +91,32 @@ describe('Deploy-Gate scripts/aws/check-storage.sh (Konfiguration, gefälschtes 
   })
 })
 
+describe('Fremde Buckets (owner extern): Abweichung = Warnung, kein Abbruch', () => {
+  const AE_A = `aether-os-assets-${ACCOUNT}-eu-central-1-an`, AE_D = `aether-os-data-peter-${ACCOUNT}-eu-central-1-an`
+  it('Abweichung nur bei den Aether-Buckets: Exit 0, gelbe WARNUNG mit Bucket-Namen, "bestanden, mit … WARNUNG"', () => {
+    const s = baseState(); s.buckets[AE_A].policy = null; delete s.buckets[AE_D].bpa; s.buckets[AE_D].enc = null; const r = gate(s)
+    expect(r.code).toBe(0); expect(r.out).toMatch(/WARNUNG.*aether-os-assets/); expect(r.out).toMatch(/WARNUNG.*aether-os-data-peter.*Block Public Access/); expect(r.out).toMatch(/bestanden, mit .*WARNUNG/); expect(r.out).not.toMatch(/FEHLER/)
+  })
+  it('dieselbe Abweichung an einem Plexora-Bucket bleibt ein Abbruch', () => {
+    const s = baseState(); s.buckets[`plexora-backups-${ACCOUNT}`].policy = null; const r = gate(s)
+    expect(r.code).toBe(1); expect(r.out).toMatch(/FEHLER.*plexora-backups/); expect(r.out).not.toMatch(/bestanden/)
+  })
+  it('Abweichungen an beiden Arten: Abbruch (Plexora zählt), Warnung steht trotzdem im Bericht', () => {
+    const s = baseState(); s.buckets[AE_A].bpa.BlockPublicAcls = true; s.buckets['plexora-files'].versioning = 'None'; const r = gate(s)
+    expect(r.code).toBe(1); expect(r.out).toMatch(/WARNUNG.*aether-os-assets/); expect(r.out).toMatch(/FEHLER.*plexora-files: Versionierung/)
+  })
+  it('ein nicht deklarierter Bucket bleibt ein Abbruch (auch wenn er wie ein Aether-Bucket heißt)', () => {
+    const s = baseState(); s.buckets['aether-os-neu-123'] = clone(s.buckets[AE_D]); const r = gate(s)
+    expect(r.code).toBe(1); expect(r.out).toMatch(/FEHLER.*"aether-os-neu-123" ist im Konto vorhanden, aber nicht deklariert/)
+  })
+  it('ein fremder Bucket, der verschwindet: Warnung, nicht Abbruch; ein verschwundener Plexora-Bucket: Abbruch', () => {
+    const s = baseState(); delete s.buckets[AE_D]; const r = gate(s)
+    expect(r.code).toBe(0); expect(r.out).toMatch(/WARNUNG.*aether-os-data-peter.*(existiert nicht|Zugriff auf den Bucket nicht möglich)/)
+    const t = baseState(); delete t.buckets[`plexora-backups-${ACCOUNT}`]; const q = gate(t)
+    expect(q.code).toBe(1); expect(q.out).toMatch(/FEHLER.*plexora-backups.*(deklariert, aber nicht im Konto|nicht möglich|existiert nicht)/)
+  })
+})
+
 describe('Verdrahtung', () => {
   const deploy = readFileSync('scripts/aws/deploy-backend.sh', 'utf8')
   it('deploy-backend.sh ruft das Gate VOR dem Alias-Wechsel auf und bricht bei Fehler ab, ohne den Alias zu verändern', () => {

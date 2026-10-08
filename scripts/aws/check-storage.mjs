@@ -1,6 +1,7 @@
 // Speicher-Gate (nur lesend): vergleicht den ECHTEN Zustand aller S3-Buckets im Konto mit der Deklaration in infra/storage-policy.ts
 // (Policy, Block Public Access, Verschlüsselung, Versionierung, Lifecycle, ACL, Ownership, Website) und prüft per HTTP:
 // private Objekte liefern 403, das Auflisten liefert 403, deklarierte öffentliche Präfixe liefern 200.
+// Abbruch (Exit 1) bei jeder Abweichung an Plexora-Buckets und bei nicht deklarierten Buckets; bei fremden Buckets (owner "extern", z. B. Aether OS) nur eine Warnung.
 // Aufruf über scripts/aws/check-storage.sh. Es wird nichts verändert und keine Objektinhalte werden gelesen (nur Statuscodes).
 import { spawnSync } from 'node:child_process'
 import { STORAGE, resolveBucketName } from '../../infra/storage-policy.ts'
@@ -10,10 +11,14 @@ const args = new Set(process.argv.slice(2))
 const HTTP_ONLY = args.has('--http-only')      // nur HTTP-Prüfungen (für check-public-flows.sh), keine Konfigurations-Abfragen
 const NO_HTTP = args.has('--no-http')
 const green = (s) => `\x1b[32m${s}\x1b[0m`, red = (s) => `\x1b[31m${s}\x1b[0m`
-let failed = false
+let failed = false, warned = 0
 const ok = (m) => console.log(`  ${green('OK')}   ${m}`)
 const bad = (m) => { failed = true; console.log(`  ${red('FEHLER')} ${m}`) }
 const note = (m) => console.log(`  --   ${m}`)
+const yellow = (x) => `\x1b[33m${x}\x1b[0m`
+// Abweichungen bei Buckets, die NICHT zu Plexora gehören (owner "extern"), sind eine Warnung (gelb), kein Abbruch; bei Plexora-Buckets bleibt es ein Abbruch
+const warn = (m) => { warned++; console.log(`  ${yellow('WARNUNG')} ${m}`) }
+const report = (b) => (b.owner === 'plexora' ? bad : warn)
 
 const run = (a) => { const r = spawnSync('aws', a, { encoding: 'utf8', timeout: 60000 }); return { code: r.status ?? 1, stdout: r.stdout || '', stderr: r.stderr || '' } }
 const httpStatus = async (url, kind) => { const r = await fetch(url, { method: kind === 'get' ? 'GET' : 'HEAD', redirect: 'manual', signal: AbortSignal.timeout(20000) }); try { await r.body?.cancel() } catch {} ; return r.status }
@@ -42,9 +47,10 @@ if (!HTTP_ONLY) {
   for (const b of STORAGE.buckets) {
     const name = resolveBucketName(b.name, account)
     const { actual, errors } = collectBucket(name, run)
-    errors.forEach(bad)
+    const out = report(b)
+    errors.forEach(out)
     const problems = compareBucket(b, actual, account)
-    problems.length ? problems.forEach(bad) : ok(`${name} entspricht der Deklaration (${b.access.kind === 'private' ? 'privat' : b.access.kind === 'public-whole' ? 'ganzer Bucket öffentlich, fremdes Projekt' : b.access.prefixes.length + ' öffentliche Präfixe'})`)
+    problems.length ? problems.forEach(out) : ok(`${name} entspricht der Deklaration (${b.access.kind === 'private' ? 'privat' : b.access.kind === 'public-whole' ? 'ganzer Bucket öffentlich, fremdes Projekt' : b.access.prefixes.length + ' öffentliche Präfixe'})`)
   }
 }
 
@@ -68,10 +74,10 @@ if (!NO_HTTP) {
     } else if (b.access.kind === 'public-whole') { const k = firstKey(name, ''); if (k === undefined) listable = false; else input.publicKeys['*'] = k }
     else { const k = firstKey(name, ''); if (k === undefined) listable = false; else input.privateKey = k }
     if (!listable) note(`${name}: Objekte nicht ermittelbar (kein Recht zum Auflisten) – nur Auflisten und feste Beispielschlüssel werden geprüft`)
-    for (const r of await runProbes(b, account, input, httpStatus)) r.ok ? ok(r.label) : bad(r.label)
+    for (const r of await runProbes(b, account, input, httpStatus)) r.ok ? ok(r.label) : report(b)(r.label)
   }
 }
 
 console.log()
 if (failed) { console.log(red('Speicher-Prüfung FEHLGESCHLAGEN.') + ' Ursache beheben oder (bei gewollter Änderung) infra/storage-policy.ts anpassen und begründen.'); process.exit(1) }
-console.log('Speicher-Prüfung bestanden.')
+console.log(warned ? `Speicher-Prüfung bestanden, mit ${yellow(warned + ' WARNUNG(EN)')} bei Buckets, die nicht zu Plexora gehören (siehe oben; kein Abbruch).` : 'Speicher-Prüfung bestanden.')
