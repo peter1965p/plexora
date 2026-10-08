@@ -10,7 +10,8 @@
     "postinstall": "nuxt prepare",
     "postbuild": "node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('.output/public','dist',{recursive:true}); fs.copyFileSync('public/_redirects','dist/_redirects'); for (const r of ['datenschutz','impressum','agb']) { fs.mkdirSync('dist/'+r,{recursive:true}); fs.copyFileSync('dist/200.html','dist/'+r+'/index.html') }\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1068.0",
