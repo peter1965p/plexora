@@ -91,7 +91,8 @@ if [[ -n "$TYPE_ID" ]]; then
   echo "$TY" | grep -q "$TYPE_ID" && ok "Kampagnen-Terminart über Deep-Link sichtbar" || bad "Kampagnen-Terminart nicht über Deep-Link sichtbar"
   echo "$(curl -s -m 25 "$API/api/public/$TENANT/termine")" | grep -q "$TYPE_ID" && bad "Kampagnen-Terminart steht auf der allgemeinen Liste" || ok "Kampagnen-Terminart NICHT auf der allgemeinen Liste"
 fi
-DAY="$(date -d '+2 days' +%F)"; FIRST_TYPE="$(echo "$TY" | python3 -c 'import json,sys; print(json.load(sys.stdin)["types"][0]["typeId"])' 2>/dev/null || true)"
+next_workday() { local d="$1"; while [[ "$(date -d "$d" +%u)" -ge 6 ]]; do d="$(date -d "$d +1 day" +%F)"; done; echo "$d"; }   # Termine gibt es nur Mo–Fr: sonst wäre die Prüfung am Wochenende rot
+DAY="$(next_workday "$(date -d '+2 days' +%F)")"; FIRST_TYPE="$(echo "$TY" | python3 -c 'import json,sys; print(json.load(sys.stdin)["types"][0]["typeId"])' 2>/dev/null || true)"
 SLOTS="$(curl -s -m 25 "$API/api/public/$TENANT/termine/availability?typeId=${TYPE_ID:-$FIRST_TYPE}&date=$DAY" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)["slots"]))' 2>/dev/null || echo 0)"
 [[ "$SLOTS" -ge 1 ]] && ok "freie Zeiten am $DAY: $SLOTS" || bad "keine freien Zeiten am $DAY"
 PB="$(curl -s -i -m 25 -X OPTIONS "$API/api/public/$TENANT/termine/book" -H 'Origin: https://www.paeffgen-it.de' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type')"

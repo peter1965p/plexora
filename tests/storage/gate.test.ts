@@ -112,3 +112,17 @@ describe('Verdrahtung', () => {
     for (const f of ['scripts/aws/check-storage.sh', 'scripts/aws/check-storage.mjs']) expect(readFileSync(f, 'utf8'), f).not.toMatch(/\b(put|delete|create|update|attach)-[a-z-]+/)
   })
 })
+
+describe('Folgefehler, die beim Einbau aufgefallen sind', () => {
+  it('check-public-flows.sh: der Terminprüftag ist nie ein Wochenende (Termine gibt es nur Mo–Fr)', () => {
+    const flows = readFileSync('scripts/aws/check-public-flows.sh', 'utf8')
+    const fnSrc = flows.match(/^next_workday\(\) \{[^\n]*\}/m)![0].replace(/\s+#.*$/, '')
+    const run = (d: string) => spawnSync('bash', ['-c', `${fnSrc}; next_workday ${d}`], { encoding: 'utf8' }).stdout.trim()
+    expect(run('2026-10-10')).toBe('2026-10-12'); expect(run('2026-10-11')).toBe('2026-10-12'); expect(run('2026-10-09')).toBe('2026-10-09'); expect(run('2026-10-12')).toBe('2026-10-12')
+    expect(flows).toContain('DAY="$(next_workday "$(date -d \'+2 days\' +%F)")"')
+  })
+  it('deploy-backend.sh: ist die veröffentlichte Version schon live, bleibt "previous" unverändert (Rückweg bleibt erhalten)', () => {
+    const deploy = readFileSync('scripts/aws/deploy-backend.sh', 'utf8')
+    expect(deploy).toContain('[[ "$NEW" == "$CUR" ]] && echo'); expect(deploy).toMatch(/\|\| aws lambda update-alias[^\n]*--name "\$PREV" --function-version "\$CUR"/)
+  })
+})

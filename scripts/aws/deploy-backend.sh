@@ -90,7 +90,8 @@ fi
 
 CUR="$(alias_ver "$ALIAS")"
 echo "== Alias umstellen: $PREV -> $CUR, $ALIAS -> $NEW"
-aws lambda update-alias --region "$REGION" --function-name "$FN" --name "$PREV" --function-version "$CUR" >/dev/null
+# Hat sich der Code nicht geändert (z. B. --config-only ohne neue Einstellung), liefert publish-version die bereits live gesetzte Version: "previous" darf dann nicht überschrieben werden (sonst zeigte der Rückweg auf dieselbe Version)
+[[ "$NEW" == "$CUR" ]] && echo "   Version $NEW ist schon live: previous bleibt unverändert (Version $(alias_ver "$PREV"))" || aws lambda update-alias --region "$REGION" --function-name "$FN" --name "$PREV" --function-version "$CUR" >/dev/null
 aws lambda update-alias --region "$REGION" --function-name "$FN" --name "$ALIAS" --function-version "$NEW" --description "$DESC" >/dev/null
 
 echo "== Prüfung über die öffentliche Adresse"
