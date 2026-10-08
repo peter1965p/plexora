@@ -7,7 +7,7 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 
 | Punkt | Stand | Was noch fehlt |
 |---|---|---|
-| A-1 Rollen Inhaber/Admin/Mitglied | gebaut und deployt, **nur Beobachtung** | wartet auf dich: Test mit Sylvia als Mitglied, `enforce-report.sh`, dann `set-enforce.sh roles on` |
+| A-1 Rollen Inhaber/Admin/Mitglied | gebaut und deployt, **nur Beobachtung** | wartet auf dich: Test mit Sylvia als Mitglied und die Meldung "Sylvi getestet"; dann führe ich `enforce-report.sh` aus und berichte, was abgelehnt worden wäre (**ich schalte nicht scharf**; das machst du danach selbst mit `set-enforce.sh roles on`) |
 | A-2 Einladung nimmt dem Opfer den Arbeitsbereich | erledigt, deployt | wartet auf dich: Browser-Test mit zwei Konten |
 | A-3 Anmeldetoken in der URL (Google-Kalender) | erledigt, deployt (Einmalwert 60 s) | – |
 | A-4 Einladungslinks laufen nie ab | erledigt, deployt | – |
@@ -24,9 +24,9 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 |---|---|---|
 | Offene Registrierung: Tarifmodell, Mail-Tageslimit, Upload-Härtung, Free-Mengen, Anzeige | gebaut und deployt, **nur Beobachtung** | wartet auf dich: Protokoll lesen (`enforce-report.sh`), dann `set-enforce.sh plan on` |
 | Registrierung: Turnstile beim Anmelden, Gesamtspeicher je Mandant, Sperre öffentlicher Seiten von Free-Mandanten, 90-Tage-Löschung | bewusst nicht gebaut (Begründung in `docs/security/entscheidungen-welle-2.md`) | offen: nur auf Anforderung |
-| Willkommensmail mit Einmal-Link statt Start-Passwort | gebaut und deployt, **Schalter aus** (alter Ablauf läuft) | wartet auf Rechte: `grant-set-password-right.sh --apply` (Administrator), dann `set-enforce.sh welcome on`, `--config-only`, Testkauf |
+| Willkommensmail mit Einmal-Link statt Start-Passwort | gebaut und deployt, **Schalter aus** (alter Ablauf läuft); Live-Test ohne Browser vorbereitet (`scripts/security/welcome-flow-test.mjs`: signiertes Kaufereignis, Mail über die Resend-API lesen, Link einlösen, Anmeldung, Aufräumen) | wartet auf Rechte: CloudShell-Teil A in `docs/aws/cloudshell-ablauf-willkommensmail-und-logfilter.md` (`grant-set-password-right.sh --apply`), dann "Recht gesetzt" melden; danach schalte ich `welcome on` und teste selbst |
 | Rollen scharf | siehe A-1 | wartet auf dich |
-| Mail-Baustein für weitere Systemmails | **offen**, nicht begonnen | Einladung und Passwort-Mails nutzen eigene Layouts; rund 17 Versandstellen haben noch eigenes HTML. Erst ein Plan, dann umbauen |
+| Mail-Baustein für weitere Systemmails | **zurückgestellt** bis Zahlungs-Secrets, Willkommensmail, Log-Filter und Rollen-Auswertung durch sind | Einladung und Passwort-Mails nutzen eigene Layouts; rund 17 Versandstellen haben noch eigenes HTML. Erst ein Plan, dann umbauen |
 | Mail-Vorlage (Einladung): Logo, Editor | erledigt (Upload bis 3 MB, Speichern-Fehler behoben, deployt) | wartet auf dich: Logo erneut hochladen, Testmail in Gmail und Outlook ansehen |
 | Kontenwähler beim Einladen (`select_account`) | gebaut, deployt | wartet auf dich: echter Test mit zwei Google-Konten |
 
@@ -37,9 +37,9 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 | Cognito pre-signup (Regel `separate`) | angewendet (auf deine ausdrückliche Anweisung), live Version 2, Rückweg `--rollback` | wartet auf dich: Regel bestätigen oder `reject`/`delete` wählen; Angriffstest mit echtem Konto (Schritte auf Anfrage) |
 | Resend-Webhook-Secret | **entfallen**: du hast keinen Webhook in Resend; der Endpunkt lehnt ohne Signatur ab | optional später: Webhook anlegen, damit Newsletter-Bounces erfasst werden |
 | Lambda-Limit (Throttling, Konto-Limit 10) | Antragstext liegt in `docs/aws/antrag-lambda-limit.md` | wartet auf dich: Antrag selbst einreichen (`plexora-app` darf keine Service Quotas) |
-| Stripe-Secrets in der Datenbank | Code für Verschlüsselung deployt; **in der Datenbank liegen sie noch im Klartext** (heute geprüft, nur Längen) | wartet auf dich: Migration nach `docs/security/anleitung-zahlungs-secrets.md` (mit Stripe-Probe) |
+| Stripe-Secrets in der Datenbank | **erledigt (08.10.2026)**: Stripe-Schlüssel (Länge 107) und Webhook-Secret (Länge 38) sind verschlüsselt; Probe vorher/nachher gleich (Webhook gültig 200, falsch 400, Checkout 200); Probe-Entschlüsselung stimmt; drei Prüfungen grün | wartet auf dich: den Klartext-Export (Rechte 600) unter `~/Dev/backups/plexora/payment-secrets-export-….json` nach ein paar sauberen Tagen mit `shred -u` löschen; Rückweg bis dahin `encrypt-payment-secrets.mjs --rollback <Export>` |
 | Stripe-Schlüssel rotieren | nicht beauftragt | deine Entscheidung |
-| Alarm: Log-Filter `[request error]` | Alarme laufen, Filter fehlt | wartet auf Rechte: `logs:PutMetricFilter` |
+| Alarm: Log-Filter `[request error]` | Alarme laufen, Filter fehlt (Metrik `Plexora/RequestErrors` existiert noch nicht, heute lesend geprüft) | wartet auf Rechte: fertiger Befehl in Teil B desselben Dokuments, dann "Filter gesetzt" melden; ich prüfe lesend, ob die Metrik erscheint |
 | Protokoll-Maskierung, Svix, Lizenzprüfung ohne E-Mail | erledigt | – |
 
 ## 4. Turnstile
@@ -73,6 +73,7 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 | Sicherung, Beispieldaten-Bereinigung, Demo-Mandant mit Seed, Entwurfs-Autosave, Lead-Seiten-Editor, Hero-Bild | erledigt |
 
 ## Empfohlene Reihenfolge
+0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
 1. **Turnstile-Beweis** (2 Minuten): Formular absenden, ich prüfe das Log; Secret rotieren.
 2. **CloudShell: Access Analyzer und Bucket-Meldungen** (30 Minuten, Ablauf liegt bereit).
 3. **Willkommensmail aktivieren** (Recht vergeben, Schalter, Testkauf): danach steht kein Start-Passwort mehr in Mails.
