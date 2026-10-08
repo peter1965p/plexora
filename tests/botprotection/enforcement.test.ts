@@ -72,6 +72,15 @@ describe('Lead-Formular einer Kampagne', () => {
     expect(cloudflare.calls[0]).toMatchObject({ secret: SECRET, response: 'valid-token' })
     expect(cloudflare.calls[0].remoteip).toMatch(/^203\./)
   })
+  it('Erfolg wird protokolliert (Beweis, dass Siteverify aufgerufen wird): Mandanten-Hash und Hostname, nie Token, Secret oder Adresse; bei Ablehnung keine Erfolgszeile', async () => {
+    const logs: string[] = []; const spy = vi.spyOn(console, 'log').mockImplementation((...a: any[]) => { logs.push(a.join(' ')) })
+    try {
+      expect(await code(submit(submitEv({ turnstileToken: 'valid-token' }) as any))).toBe(200)
+      const line = logs.find(l => l.startsWith('[turnstile] bestätigt'))!; expect(line).toMatch(/^\[turnstile\] bestätigt [0-9a-f]{8} app\.plexora\.eu$/)
+      expect(logs.join('\n')).not.toContain('valid-token'); expect(logs.join('\n')).not.toContain(SECRET); expect(logs.join('\n')).not.toContain(OWNER)
+      logs.length = 0; expect(await code(submit(submitEv({ turnstileToken: 'ungueltig' }) as any))).toBe(403); expect(logs.some(l => l.includes('bestätigt'))).toBe(false)
+    } finally { spy.mockRestore() }
+  })
   it('ohne Token wird Cloudflare gar nicht erst gefragt; abgelehntes Token wird auch bei passendem Hostnamen abgewiesen', async () => {
     expect(await code(submit(submitEv({}) as any))).toBe(403)
     expect(cloudflare.calls).toHaveLength(0)

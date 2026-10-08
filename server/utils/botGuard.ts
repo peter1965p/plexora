@@ -1,4 +1,5 @@
 import { QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { createHash } from 'node:crypto'
 import { getDynamoClient } from './dynamodb'
 import { resolveUserId } from './tenant'
 import { clientIp } from './rateLimit'
@@ -60,6 +61,8 @@ export async function verifyBotToken(event: any, ownerScope: string, token: unkn
     console.warn('[turnstile] Token von fremder Seite', ownerScope, result.hostname)
     throw createError({ statusCode: 403, message: TOKEN_REJECTED })
   }
+  // Erfolg wird protokolliert (ohne Token, ohne Adresse): so lässt sich beweisen, dass Siteverify aufgerufen wird (Cloudflare-Hinweis "Siteverify isn't being called")
+  console.log('[turnstile] bestätigt', createHash('sha256').update(ownerScope).digest('hex').slice(0, 8), result.hostname)
 }
 
 // ── Entscheidungen des Servers (nur aus gespeicherten Daten) ───────────────────────────────────
