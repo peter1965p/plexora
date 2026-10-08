@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Backend (Lambda plexora-api) ausliefern: bauen, hochladen, als neue Version veröffentlichen, prüfen,
-# dann den Alias "live" umstellen. Die bisherige Version wird zu "previous" (Rückweg: rollback-backend.sh).
+# prüfen (inkl. Speicher-Gate scripts/aws/check-storage.sh), dann den Alias "live" umstellen. Die bisherige Version wird zu "previous" (Rückweg: rollback-backend.sh).
 #
 #   scripts/aws/deploy-backend.sh                 testen, bauen, ausliefern
 #   scripts/aws/deploy-backend.sh --skip-tests    ohne "npm test"
@@ -80,6 +80,13 @@ echo "   neue Version: $NEW ($DESC)"
 echo "== Vorabprüfung der neuen Version (noch nicht live)"
 code="$(smoke "$NEW")"
 [[ "$code" == "200" ]] || { echo "ABBRUCH: Version $NEW antwortet mit $code statt 200. Alias unverändert (live = Version $(alias_ver "$ALIAS"))."; exit 1; }
+
+echo "== Speicher-Prüfung (check-storage.sh, nur lesend): Buckets gegen infra/storage-policy.ts"
+if ! scripts/aws/check-storage.sh; then
+  echo "ABBRUCH: Die Speicher-Prüfung ist fehlgeschlagen (Erklärung oben). Alias unverändert (live = Version $(alias_ver "$ALIAS"))." >&2
+  echo "         Liegt es an einer gewollten Änderung, infra/storage-policy.ts mit Begründung anpassen; sonst den Zustand in AWS korrigieren (z. B. scripts/aws/secure-bucket.sh --apply)." >&2
+  exit 1
+fi
 
 CUR="$(alias_ver "$ALIAS")"
 echo "== Alias umstellen: $PREV -> $CUR, $ALIAS -> $NEW"

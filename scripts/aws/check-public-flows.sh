@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Prüft nach jedem Deploy die öffentlichen Abläufe, ohne etwas zu verändern (keine Leads, keine Buchungen, keine Mails):
 # Landingpage, Lead-Formular (Definition + Preflight), Terminbuchung (Typen, freie Zeiten, Preflight), Nexora-Seite,
-# Cron-Schutz und Anmeldeschutz. Endet mit Fehlercode 1, wenn etwas nicht stimmt.
+# Cron-Schutz und Anmeldeschutz sowie die HTTP-Speicherprüfung (scripts/aws/check-storage.sh --http-only). Endet mit Fehlercode 1, wenn etwas nicht stimmt.
 set -uo pipefail
 API="https://7hrkm580pb.execute-api.eu-central-1.amazonaws.com"
 TENANT="PLXR-GOD0-MODE-0000-PETE"
@@ -118,9 +118,13 @@ print("\n".join(u for u in urls if u and u.startswith("https://plexora-files")))
 if [[ -z "$IMG_URLS" ]]; then ok "keine Bild-URLs auf Landingpage/Terminseite zu prüfen"; else
   while IFS= read -r u; do [[ -z "$u" ]] && continue; c="$(img_status "$u")"; [[ "$c" == "200" ]] && ok "Bild lädt (200): ${u#$S3/}" || bad "Bild lädt nicht ($c): ${u#$S3/}"; done <<< "$IMG_URLS"
 fi
-for k in lambda/lambda-new.zip lambda-deploy/lambda-new.zip; do
-  c="$(img_status "$S3/$k")"; [[ "$c" == "403" ]] && ok "Deploy-Zip nicht öffentlich: $k (403)" || bad "Deploy-Zip öffentlich erreichbar: $k ($c, erwartet 403) – scripts/aws/secure-bucket.sh --apply ausführen"
+# Privates bleibt privat, Auflisten verboten, deklarierte Präfixe erreichbar: dieselbe Deklaration wie das Deploy-Gate (infra/storage-policy.ts)
+echo "== Speicher (HTTP, Regel: infra/storage-policy.ts)"
+if ST="$(scripts/aws/check-storage.sh --http-only 2>&1)"; then STORAGE_OK=1; else STORAGE_OK=0; fi
+printf '%s\n' "$ST" | grep -E '^\s+.{0,12}(OK|FEHLER|--)' | sed -E 's/\x1b\[[0-9;]*m//g' | while IFS= read -r l; do
+  case "$l" in *FEHLER*) printf '  \033[31mFEHLER\033[0m %s\n' "${l#*FEHLER }";; *OK*) printf '  \033[32mOK\033[0m   %s\n' "${l#*OK   }";; *) printf '  --   %s\n' "${l#*--   }";; esac
 done
+[[ "$STORAGE_OK" == "1" ]] && ok "Speicher-Prüfung (HTTP) bestanden" || bad "Speicher-Prüfung (HTTP) fehlgeschlagen – Ausgabe mit scripts/aws/check-storage.sh --http-only ansehen; bei Deploy-Zips: scripts/aws/secure-bucket.sh --apply"
 
 echo "== Schutz"
 expect 401 "Entwürfe ohne Token" "$API/api/drafts/marketing-campaign"
