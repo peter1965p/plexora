@@ -42,6 +42,7 @@ export const MODULE_RULES: ModuleRule[] = [
 
   // ── Lizenzmodule ──
   { prefix: '/api/finance', need: { module: 'finance' }, note: 'Finanzen' },
+  { prefix: '/api/quotes', need: { module: 'finance' }, note: 'Angebote gehören zu den Finanzen (wie Rechnungen)' },
   { prefix: '/api/articles', need: { module: 'finance' }, note: 'Artikelkatalog der Finanzen' },
   { prefix: '/api/contracts', need: { module: 'contracts' }, note: 'Verträge' },
   { prefix: '/api/hr', need: { module: 'hr' }, note: 'Personal' },

@@ -58,6 +58,9 @@ const T = { tenantId: 'T-A' }
 const settings = (input: any) => SETTINGS[input?.Key?.settingId]
 const NX = { 'plexora-nexora': [NEXORA] }
 
+import { createHash as qHash } from 'node:crypto'
+const Q_SECRET = 'A'.repeat(32), Q_ID = '11111111-1111-4111-8111-111111111111'
+const QUOTE = { userId: SECRETS.userId, quoteId: Q_ID, number: 'AN-2026-001', client: 'Max Muster', clientEmail: SECRETS.ownerEmail, clientAddress: 'Musterstr. 1', title: 'Aktion', intro: '', note: '', items: [{ description: 'Website Paket', qty: 1, price: 450 }], net: 450, vat: 85.5, gross: 535.5, vatRate: 19, smallBusiness: false, status: 'sent', validUntil: '2999-01-01', acceptHash: qHash('sha256').update(Q_SECRET).digest('hex'), internalNote: SECRETS.note, dealId: SECRETS.draft, created: '2026-10-01T00:00:00.000Z' }
 export const EVIDENCE: Record<string, Evidence> = {
   // ── Website eines Mandanten: nur freigegebene Felder ──
   'GET /api/public/[tenantId]/blog': { kind: 'read', params: T, db: { 'plexora-blog': [BLOG] }, keys: ['posts'] },
@@ -95,6 +98,8 @@ export const EVIDENCE: Record<string, Evidence> = {
   'GET /api/marketing/public/[slug]': { kind: 'read', params: { slug: 'beratung' }, db: { 'plexora-marketing': [{ userId: SECRETS.userId, campaignId: 'c1', slug: 'beratung', formId: 'f1', name: 'K', headline: 'H', notifyEmail: SECRETS.notify, internalNote: SECRETS.note }], 'plexora-forms': [{ formId: 'f1', userId: SECRETS.userId, notifyEmail: SECRETS.notify, title: 'F', fields: [] }], 'plexora-settings': settings }, keys: ['campaign', 'form', 'branding', 'botProtection'] },
   'GET /api/jobs/[id]': { kind: 'read', params: { id: 'x' }, db: { 'plexora-campaigns': [CAMPAIGN_HR], 'plexora-settings': settings }, keys: ['campaign', 'branding'] },
   'GET /api/licenses/[key]': { kind: 'read', params: { key: 'PLXR-AAAA-BBBB-CCCC' }, db: { 'plexora-licenses': [LICENSE] }, keys: ['license'] },
+  'GET /api/public/quote/[ref]': { kind: 'read', params: { ref: `${Q_ID}.${Q_SECRET}` }, db: { 'plexora-quotes': [QUOTE], 'plexora-settings': settings }, keys: ['number', 'title', 'intro', 'note', 'client', 'items', 'net', 'vat', 'gross', 'vatRate', 'smallBusiness', 'validUntil', 'status', 'canRespond', 'respondedAt', 'brand'], writes: ['plexora-newsletter-ratelimit'], note: 'Angebot per Annahme-Link (Geheimnis im Link); nur das Angebot selbst, keine Besitzer-/Mandantendaten' },
+  'POST /api/public/quote/[ref]/respond': { kind: 'write', params: { ref: `${Q_ID}.${Q_SECRET}` }, body: { action: 'accept' }, db: { 'plexora-quotes': [QUOTE] }, keys: ['success', 'status'], status: [200], writes: ['plexora-quotes', 'plexora-newsletter-ratelimit', 'plexora-notifications'], note: 'Kunde nimmt das Angebot an (einmalig, atomar)' },
   'GET /api/pay/[invoiceId]': { kind: 'read', params: { invoiceId: 'x' }, db: { 'plexora-finance': [INVOICE], 'plexora-settings': settings }, keys: ['invoice', 'gateway', 'sepaEnabled', 'stripeEnabled', 'branding'] },
   'GET /api/support/portal/[token]': { kind: 'read', params: { token: SECRETS.portal }, db: { 'plexora-support': [TICKET] }, keys: ['ticketId', 'title', 'status', 'priority', 'created', 'comments'] },
   'GET /api/public/newsletter/confirm/[token]': { kind: 'read', params: { token: 't' }, db: { 'plexora-newsletter-subscribers': [{ tenantId: 'T-A', email: 'abo@x.de', status: 'pending' }], 'plexora-newsletter-automation-rules': [] }, keys: [], text: true, writes: ['plexora-newsletter-subscribers', 'plexora-newsletter-ratelimit'], note: 'bestätigt genau diese Anmeldung; Seite nennt keine Daten' },

@@ -73,6 +73,10 @@
    "parentField": "campaignId",
    "childField": "campaignId"
   },
+  "plexora-quotes": {
+   "mode": "owner",
+   "attr": "userId"
+  },
   "plexora-finance": {
    "mode": "owner",
    "attr": "userId"

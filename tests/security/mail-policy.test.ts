@@ -129,6 +129,7 @@ describe('Neue Versandstelle ohne Entscheidung lässt den Test durchfallen', () 
     'server/api/jobs/[id]/apply.post.ts': 'öffentlich: mailBlockReason auf die Stelle',
     'server/api/shop/webhook/index.post.ts': 'Stripe-Webhook: mailBlockReason auf den Verkäufer',
     'server/api/finance/[id]/send.post.ts': 'angemeldet: requireMailSender',
+    'server/api/quotes/[id]/send.post.ts': 'angemeldet: requireMailSender (Empfänger nur aus dem Angebot)',
     'server/api/finance/[id]/dunning.post.ts': 'angemeldet: requireMailSender',
     'server/api/finance/batch-dunning.post.ts': 'angemeldet: requireAdmin',
     'server/api/marketing/[id]/send-email.post.ts': 'angemeldet: requireMailSender',

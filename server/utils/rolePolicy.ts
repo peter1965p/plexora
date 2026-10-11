@@ -47,7 +47,7 @@ export const ROLE_RULES: RoleRule[] = [
   { prefix: '/api/termine', role: 'admin', note: 'Termin-Einstellungen und Google-Kalender' },
   { prefix: '/api/settings', role: 'admin', note: 'Einstellungen des Mandanten' },
   { prefix: '/api/store', role: 'admin', note: 'Modul-Store ansehen' },
-  { prefix: '/api/finance', role: 'admin', note: 'Finanzen' }, { prefix: '/api/articles', role: 'admin', note: 'Artikelkatalog' }, { prefix: '/api/contracts', role: 'admin', note: 'Verträge' }, { prefix: '/api/hr', role: 'admin', note: 'Personal (HR)' },
+  { prefix: '/api/finance', role: 'admin', note: 'Finanzen' }, { prefix: '/api/quotes', role: 'admin', note: 'Angebote (wie Rechnungen)' }, { prefix: '/api/articles', role: 'admin', note: 'Artikelkatalog' }, { prefix: '/api/contracts', role: 'admin', note: 'Verträge' }, { prefix: '/api/hr', role: 'admin', note: 'Personal (HR)' },
   { prefix: '/api/newsletter', role: 'admin', note: 'Newsletter (Massenmails)' }, { prefix: '/api/sequences', role: 'admin', note: 'Sequenzen (Massenmails)' }, { prefix: '/api/automations', role: 'admin', note: 'Automatisierungen' },
   { prefix: '/api/shop', role: 'admin', note: 'Webshop' }, { prefix: '/api/returns', role: 'admin', note: 'Retouren' }, { prefix: '/api/blog', role: 'admin', note: 'Blog der Website' }, { prefix: '/api/pages', role: 'admin', note: 'Seiten der Website' },
   { prefix: '/api/nexora', role: 'admin', note: 'Website' }, { prefix: '/api/services', role: 'admin', note: 'Leistungen' }, { prefix: '/api/video', role: 'admin', note: 'Video der Website' },
