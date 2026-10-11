@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 22 (previous 21), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -71,6 +71,16 @@ Live: Backend Version 20 (previous 19), Pre-signup Version 2, alle drei Prüfung
 | Verschlüsselung des Sicherungsordners mit `encrypt-backup.sh` (deine Passphrase) | wartet auf dich |
 | Kampagnen-Kennzeichnung in der Terminart-Liste, Zoom/Teams, Umzug Dogado | offen, nicht beauftragt |
 | Sicherung, Beispieldaten-Bereinigung, Demo-Mandant mit Seed, Entwurfs-Autosave, Lead-Seiten-Editor, Hero-Bild | erledigt |
+
+## 7. Angebote (neu, 11.10.2026)
+
+| Punkt | Stand | Was noch fehlt |
+|---|---|---|
+| Angebote in Finanzen (Tab "Angebot", Menü Neu), Nummer AN-JJJJ-NNN, Positionen mit Katalog, PDF, Versand per Mail mit Annahme-Link, Status Entwurf/Gesendet/Angenommen/Abgelehnt/Abgelaufen, "In Rechnung umwandeln" | **erledigt und live (Version 22)**; Routen anonym geprüft (401, öffentliche Ansicht bei falschem Link 404); drei Prüfungen grün | wartet auf dich: ein Angebot an dich selbst senden und den Link in der Mail öffnen (annehmen, dann Rechnung daraus) |
+| Kunde nimmt online an (`/angebot/<Link>`, geheimer Link, nur Hash gespeichert) | erledigt, live | – |
+| Buttons "Angebot erstellen" bei Kontakt und Deal (CRM) | erledigt, live (Formular vorbefüllt, nichts wird ohne Speichern angelegt) | – |
+| Kampagne: Schalter "Bei Anfrage Angebot-Entwurf anlegen" (Paket, Preis netto, Gültigkeit, Aktionsende) | erledigt, live; es entsteht nur ein **Entwurf** + Benachrichtigung, nie ein automatischer Versand | wartet auf dich: Schalter in der Aktions-Kampagne einschalten (Paket "Website-Paket", 450 €) und einmal testen |
+| Umsatzsteuer | folgt deinen Rechnungs-Einstellungen (Standard 19 %, Kleinunternehmer möglich) | wartet auf dich: bitte prüfen, ob 450 € netto oder brutto gemeint sind und ob Kleinunternehmer gilt |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
