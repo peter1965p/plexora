@@ -379,6 +379,25 @@
               </div>
             </div>
 
+            <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
+              <div class="settings-label" style="margin-bottom:6px">Automatisches Angebot</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                Bei jeder Anfrage mit E-Mail-Adresse legt Plexora unter Finanzen → Angebote einen <b>Entwurf</b> an. Gesendet wird nichts von selbst: du prüfst und schickst ihn ab.
+              </div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="form.autoQuote.enabled" /> Bei Anfrage Angebot-Entwurf anlegen</label>
+              <template v-if="form.autoQuote.enabled">
+                <div class="auth-field" style="margin-top:10px"><label>Paket / Leistung</label><input v-model="form.autoQuote.description" maxlength="300" placeholder="z. B. Website-Paket (Aktion)" /></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <div class="auth-field" style="flex:1;min-width:120px"><label>Preis netto (€)</label><input v-model.number="form.autoQuote.price" type="number" min="0" step="0.01" /></div>
+                  <div class="auth-field" style="flex:1;min-width:120px"><label>Gültig (Tage)</label><input v-model.number="form.autoQuote.validDays" type="number" min="1" max="90" /></div>
+                  <div class="auth-field" style="flex:1;min-width:150px"><label>Aktion endet am (optional)</label><input v-model="form.autoQuote.promoUntil" type="date" /></div>
+                </div>
+                <div class="auth-field"><label>Überschrift (optional)</label><input v-model="form.autoQuote.title" maxlength="120" /></div>
+                <div class="auth-field"><label>Begleittext (optional)</label><textarea v-model="form.autoQuote.intro" rows="3" maxlength="1500"></textarea></div>
+                <div style="font-size:12px;color:var(--text-muted)">Das Angebot endet nie nach dem Aktionsende. Der Preis ist netto; die Steuer kommt aus deinen Rechnungs-Einstellungen.</div>
+              </template>
+            </div>
+
           </div>
 
           <!-- Live-Vorschau -->
@@ -989,6 +1008,7 @@ const form = reactive({
   appointmentEnabled: true, appointmentName: '', appointmentDurationMinutes: 30,
   endsAt: new Date(Date.now() + 90 * 86400_000).toISOString().slice(0, 10),
   turnstileEnabled: false,
+  autoQuote: { enabled: false, title: '', description: '', price: 0, validDays: 14, intro: '', promoUntil: '' },
 })
 
 // ── Entwurfs-Autosave für "Neue Kampagne" (nicht beim Bearbeiten) ──
@@ -1022,7 +1042,7 @@ const campaignUrl  = computed(() => {
 })
 
 function resetForm() {
-  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', bgImageUrl: '', bgColor: '#050815', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '', turnstileEnabled: false })
+  Object.assign(form, { name: '', slug: '', formId: '', headline: '', subtext: '', headerImageUrl: '', accentColor: '#6C3FE8', bgImageUrl: '', bgColor: '#050815', contentTitle: '', contentItems: ['', '', '', ''], utmSource: '', utmMedium: 'social', utmCampaign: '', turnstileEnabled: false, autoQuote: { enabled: false, title: '', description: '', price: 0, validDays: 14, intro: '', promoUntil: '' } })
 }
 
 function openAdd() { editing.value = null; resetForm(); loadDecor(); showModal.value = true }
@@ -1042,6 +1062,7 @@ function openEdit(c: any) {
     contentTitle: c.contentTitle || '', contentItems: items,
     utmSource: c.utmSource || '', utmMedium: c.utmMedium || 'social', utmCampaign: c.utmCampaign || '',
     turnstileEnabled: c.turnstileEnabled === true,
+    autoQuote: { ...(c.autoQuote || {}), enabled: c.autoQuote?.enabled === true, title: c.autoQuote?.title || '', description: c.autoQuote?.description || '', price: c.autoQuote?.price || 0, validDays: c.autoQuote?.validDays || 14, intro: c.autoQuote?.intro || '', promoUntil: c.autoQuote?.promoUntil || '' },
   })
   loadDecor(c)
   showModal.value = true

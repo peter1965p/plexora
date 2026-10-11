@@ -65,3 +65,20 @@ export function effectiveStatus(q: { status: QuoteStatus; validUntil: string }, 
 export const canRespond = (q: { status: QuoteStatus; validUntil: string }, now = Date.now()) => effectiveStatus(q, now) === 'sent'
 
 export const quoteNumber = (year: number, seq: number) => `AN-${year}-${String(seq).padStart(3, '0')}`
+
+/** Kampagnen-Einstellung "bei Anfrage automatisch Angebot-Entwurf anlegen". Immer bereinigt; ohne gültiges Paket ist sie aus. */
+export interface AutoQuoteConfig { enabled: boolean; title: string; description: string; price: number; validDays: number; intro: string; promoUntil: string }
+export function parseAutoQuote(raw: any): AutoQuoteConfig {
+  const b = raw && typeof raw === 'object' ? raw : {}
+  const price = Number(b.price)
+  const description = clean(b.description, LIMITS.itemDescription)
+  const promoUntil = isIsoDate(b.promoUntil) ? b.promoUntil : ''
+  const validDays = Number.isFinite(Number(b.validDays)) ? Math.min(90, Math.max(1, Math.round(Number(b.validDays)))) : 14
+  const ok = b.enabled === true && !!description && Number.isFinite(price) && price >= 0 && price <= LIMITS.priceMax
+  return { enabled: ok, title: clean(b.title, LIMITS.title), description, price: Number.isFinite(price) ? Math.round(price * 100) / 100 : 0, validDays, intro: clean(b.intro, LIMITS.intro), promoUntil }
+}
+/** Gültig bis für ein automatisches Angebot: Gültigkeitsdauer, aber nie über das Aktionsende hinaus (und nie in der Vergangenheit) */
+export function autoQuoteValidUntil(cfg: AutoQuoteConfig, now = Date.now()): string {
+  const base = addDays(todayIso(now), cfg.validDays)
+  return cfg.promoUntil && cfg.promoUntil >= todayIso(now) && cfg.promoUntil < base ? cfg.promoUntil : base
+}

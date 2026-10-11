@@ -1,9 +1,9 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
-import { GetCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
+import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { resolveUserId } from './tenant'
 import { requireAuth } from './verifyAuth'
-import { effectiveStatus, canRespond, type QuoteStatus } from '../../shared/quotes'
+import { effectiveStatus, canRespond, totals, quoteNumber, type QuoteStatus, type QuoteInput } from '../../shared/quotes'
 
 // Angebote (Tabelle plexora-quotes, Schlüssel userId = Mandant, quoteId). Der Annahme-Link des Kunden besteht aus quoteId + einem Geheimnis (24 Byte);
 // gespeichert wird nur der SHA-256-Hash des Geheimnisses, bei jedem Senden entsteht ein neues (der alte Link verfällt).
@@ -79,4 +79,18 @@ export function publicView(q: any, brand: { name: string; color: string; logo: s
     canRespond: canRespond({ status: q.status, validUntil: q.validUntil }, now), respondedAt: q.respondedAt || null,
     brand,
   }
+}
+
+/** Legt ein Angebot als Entwurf an (gemeinsam für die Route und die Kampagnen-Automatik). Eingaben müssen bereits mit parseQuoteInput geprüft sein. */
+export async function createDraftQuote(tenantId: string, input: QuoteInput, extra: Record<string, any> = {}) {
+  const { invoiceSettings } = await loadTenantSettings(tenantId)
+  const t = totals(input.items, invoiceSettings.vatRate, invoiceSettings.smallBusiness)
+  const now = new Date()
+  const quote = {
+    userId: tenantId, quoteId: randomUUID(), number: quoteNumber(now.getFullYear(), await nextQuoteSeq(tenantId, now.getFullYear())),
+    ...input, ...t, vatRate: invoiceSettings.vatRate, smallBusiness: !!invoiceSettings.smallBusiness, status: 'draft',
+    ...extra, created: now.toISOString(), updated: now.toISOString(),
+  }
+  await getDynamoClient().send(new PutCommand({ TableName: QUOTES_TABLE, Item: quote, ConditionExpression: 'attribute_not_exists(quoteId)' }))
+  return quote
 }

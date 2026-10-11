@@ -1,3 +1,4 @@
+import { parseAutoQuote } from '../../../shared/quotes'
 import { UpdateCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { assertOwner } from '../../utils/ownership'
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event) => {
   await client.send(new UpdateCommand({
     TableName: 'plexora-marketing',
     Key: { userId: existing.userId, campaignId },
-    UpdateExpression: 'SET #nm = :nm, slug = :sl, formId = :fi, headline = :hl, subtext = :st, headerImageUrl = :hi, accentColor = :ac, bgImageUrl = :bi, bgColor = :bc, contentTitle = :ct, contentItems = :ci, utmSource = :us, utmMedium = :um, utmCampaign = :uc, active = :av, customTemplateHtml = :cth, templatePresetKey = :tpk, turnstileEnabled = :tse' + decorSet,
+    UpdateExpression: 'SET #nm = :nm, slug = :sl, formId = :fi, headline = :hl, subtext = :st, headerImageUrl = :hi, accentColor = :ac, bgImageUrl = :bi, bgColor = :bc, contentTitle = :ct, contentItems = :ci, utmSource = :us, utmMedium = :um, utmCampaign = :uc, active = :av, customTemplateHtml = :cth, templatePresetKey = :tpk, turnstileEnabled = :tse, autoQuote = :aq' + decorSet,
     ExpressionAttributeNames: { '#nm': 'name' },
     ExpressionAttributeValues: {
       ':nm': body.name || '',
@@ -54,6 +55,7 @@ export default defineEventHandler(async (event) => {
       // damit das einfache Basis-Modal ein gespeichertes Template nicht versehentlich löscht.
       ':cth': body.customTemplateHtml !== undefined ? body.customTemplateHtml : (existing.customTemplateHtml || ''),
       ':tse': turnstileEnabled,
+      ':aq': body.autoQuote === undefined ? parseAutoQuote(existing.autoQuote) : parseAutoQuote(body.autoQuote),
       ...decorValues,
       ':tpk': body.templatePresetKey !== undefined ? body.templatePresetKey : (existing.templatePresetKey || ''),
     }

@@ -1,3 +1,4 @@
+import { parseAutoQuote } from '../../../shared/quotes'
 import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
@@ -32,6 +33,7 @@ export default defineEventHandler(async (event) => {
     utmMedium:      body.utmMedium || '',
     utmCampaign:    body.utmCampaign || '',
     active:         true,
+    autoQuote:      parseAutoQuote(body.autoQuote),
     created:        new Date().toISOString(),
     turnstileEnabled: await assertBotProtectionAllowed(await resolveUserId(requireAuth(event).email), body.turnstileEnabled),
     endsAt:         body.endsAt ? new Date(body.endsAt).toISOString() : defaultCampaignEnd(),

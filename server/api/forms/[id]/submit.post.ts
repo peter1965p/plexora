@@ -4,6 +4,10 @@ import { fireAutomations } from '../../../utils/automations'
 import { startSequences } from '../../../utils/sequences'
 import { findCampaignAppointmentTypeId } from '../../../utils/campaignAppointments'
 import { randomUUID } from 'crypto'
+import { QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { parseAutoQuote, parseQuoteInput, autoQuoteValidUntil } from '../../../../shared/quotes'
+import { createDraftQuote } from '../../../utils/quoteStore'
+import { notifySystem } from '../../../utils/notifications'
 import { formIsProtected, verifyBotToken } from '../../../utils/botGuard'
 import { enforcePublicRateLimit } from '../../../utils/rateLimit'
 
@@ -99,6 +103,20 @@ export default defineEventHandler(async (event) => {
         created:       new Date().toISOString(),
       }
     }))
+  }
+
+  // Kampagnen-Automatik: bei Anfrage mit E-Mail einen Angebot-ENTWURF anlegen (versendet wird nie automatisch). Ein Fehler hier darf den Lead nicht verlieren.
+  if (emailKey && data[emailKey]) {
+    try {
+      const camps = await client.send(new QueryCommand({ TableName: 'plexora-marketing', KeyConditionExpression: 'userId = :u', FilterExpression: 'formId = :f', ExpressionAttributeValues: { ':u': owner, ':f': formId } }))
+      const cfg = parseAutoQuote(camps.Items?.find(c => c.autoQuote?.enabled)?.autoQuote)
+      if (cfg.enabled) {
+        const person = [data[firstNameKey as string], data[lastNameKey as string]].filter(Boolean).join(' ').trim()
+        const input = parseQuoteInput({ client: person || data['Firma'] || data['Unternehmen'] || String(data[emailKey]), clientEmail: String(data[emailKey]), title: cfg.title, intro: cfg.intro, items: [{ description: cfg.description, qty: 1, price: cfg.price }], validUntil: autoQuoteValidUntil(cfg) })
+        const q = await createDraftQuote(owner, input, { source: 'campaign', formId, submissionId })
+        await notifySystem({ userId: owner, type: 'quote_draft', title: `Angebot ${q.number} als Entwurf angelegt`, message: `${input.client} hat über das Formular angefragt. Bitte prüfen und senden.`, level: 'info', link: '/finance?tab=quotes' } as any).catch(() => {})
+      }
+    } catch (e: any) { console.error('[request error] auto-quote', e?.message) }
   }
 
   const sequenceOwner = owner

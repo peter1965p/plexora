@@ -66,6 +66,7 @@
                 <div style="display:flex;gap:4px">
                   <button v-if="c.status === 'lead'" class="icon-btn" :title="t.crm.makeCustomer" @click="convertContact(c)"><i class="ti ti-user-check"></i></button>
                   <button class="icon-btn" title="Rechnung erstellen" @click="createInvoiceFor(companyName(c), c.email)"><i class="ti ti-file-invoice"></i></button>
+                  <button class="icon-btn" title="Angebot erstellen" @click="quoteForContact(c)"><i class="ti ti-file-text"></i></button>
                   <button class="icon-btn" @click="openEditContact(c)"><i class="ti ti-pencil"></i></button>
                   <button class="icon-btn" style="color:var(--danger)" @click="deleteContact(c)"><i class="ti ti-trash"></i></button>
                 </div>
@@ -100,6 +101,7 @@
               <td><span class="badge" :class="'badge-'+d.status">{{ t.dealStage[d.status] || stageLabel[d.status] }}</span></td>
               <td>
                 <div style="display:flex;gap:4px">
+                  <button class="icon-btn" title="Angebot erstellen" @click="quoteForDeal(d)"><i class="ti ti-file-text"></i></button>
                   <button class="icon-btn" @click="openEditDeal(d)"><i class="ti ti-pencil"></i></button>
                   <button class="icon-btn" style="color:var(--danger)" @click="deleteDeal(d)"><i class="ti ti-trash"></i></button>
                 </div>
@@ -419,6 +421,15 @@ function openAddContact() {
   showContactModal.value = true
 }
 
+// Angebot aus Kontakt/Deal: öffnet Finanzen → Angebote mit vorbefülltem Formular (nichts wird ohne dein Speichern angelegt)
+function quoteUrl(q: Record<string, string>) { return '/finance?' + new URLSearchParams({ tab: 'quotes', newQuote: '1', ...q }).toString() }
+function quoteForContact(c: any) {
+  navigateTo(quoteUrl({ client: [c.firstName, c.lastName].filter(Boolean).join(' ') || c.company || '', clientEmail: c.email || '' }))
+}
+function quoteForDeal(d: any) {
+  const price = String(d.value || '').replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}\b)/g, '').replace(',', '.')
+  navigateTo(quoteUrl({ client: d.name || '', title: d.name || '', ...(Number(price) > 0 ? { price } : {}) }))
+}
 function openEditContact(c: Contact) {
   editingContact.value = c
   Object.assign(contactForm, {
