@@ -31,6 +31,7 @@
     <!-- TABS -->
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="theme-opt" :class="{ active: tab==='invoices' }"   @click="tab='invoices'">  <i class="ti ti-receipt"></i> {{ t.finance.invoices }}</button>
+      <button class="theme-opt" :class="{ active: tab==='quotes' }"     @click="tab='quotes'">    <i class="ti ti-file-text"></i> Angebote</button>
       <button class="theme-opt" :class="{ active: tab==='cashbook' }"   @click="tab='cashbook'">  <i class="ti ti-cash"></i> {{ t.finance.cashbook }}</button>
       <button class="theme-opt" :class="{ active: tab==='bank' }"       @click="tab='bank'">      <i class="ti ti-building-bank"></i> {{ t.finance.bankImport }}</button>
       <button class="theme-opt" :class="{ active: tab==='tax' }"        @click="tab='tax'">       <i class="ti ti-file-euro"></i> {{ t.finance.tax }}</button>
@@ -109,6 +110,9 @@
     </div>
 
     <!-- ═══ TAB: KASSENBUCH ═══ -->
+    <!-- ANGEBOTE -->
+    <QuotesPanel v-if="tab==='quotes'" :key="String(route.query.newQuote || '') + String(route.query.client || '')" :services="services" :articles="articles" :prefill="quotePrefill" :open-new="!!route.query.newQuote" @invoice-created="refresh()" />
+
     <div v-if="tab==='cashbook'" class="card">
       <div class="card-header">
         <span class="card-title">{{ t.finance.cashbook }}</span>
@@ -644,6 +648,8 @@ async function onUnitSelect(e: Event, target: { unit: string }) {
 // ── UI state ──────────────────────────────────────────
 const tab      = ref('invoices')
 const route    = useRoute()
+// Vorbefüllung eines Angebots aus Query-Parametern (z. B. aus einem Deal: ?tab=quotes&newQuote=1&client=…&clientEmail=…&title=…&description=…&price=…)
+const quotePrefill = computed(() => route.query.newQuote ? { client: String(route.query.client || ''), clientEmail: String(route.query.clientEmail || ''), title: String(route.query.title || ''), description: String(route.query.description || ''), price: Number(route.query.price) || 0 } : null)
 const showAdd  = ref(false)
 const showCash = ref(false)
 const showService = ref(false)
@@ -671,6 +677,9 @@ onMounted(() => {
   if (route.query.tab) tab.value = String(route.query.tab)
   if (route.query.newService) openAddService()
 })
+
+// Schnell-erstellen-Menü auf der Finanzseite selbst: Reiter nachziehen (onMounted läuft dann nicht erneut)
+watch(() => route.query.tab, (v) => { if (v) tab.value = String(v) })
 
 function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.value = '', 3500) }
 // Servermeldung (z. B. "Im Demo-Zugang ist der E-Mail-Versand deaktiviert.") statt rohem Netzwerkfehler anzeigen
