@@ -28,7 +28,7 @@ function renderLeadFormHtml(form: any, privacyLine?: unknown): string {
       input = `<textarea name="${esc(f.label)}" placeholder="${esc(f.placeholder || '')}" ${req} class="plx-input plx-textarea" rows="4"></textarea>`
     } else if (f.type === 'select') {
       const opts = (f.options || []).map((o: string) => `<option value="${esc(o)}">${esc(o)}</option>`).join('')
-      input = `<select name="${esc(f.label)}" ${req} class="plx-input plx-select"><option value="">— bitte wählen —</option>${opts}</select>`
+      input = `<select name="${esc(f.label)}" ${req} class="plx-input plx-select"><option value="">${esc(f.placeholder || '— bitte wählen —')}</option>${opts}</select>`
     } else {
       const type = ['email', 'phone', 'text'].includes(f.type) ? (f.type === 'phone' ? 'tel' : f.type) : 'text'
       input = `<input type="${type}" name="${esc(f.label)}" placeholder="${esc(f.placeholder || '')}" ${req} class="plx-input" />`

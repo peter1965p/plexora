@@ -72,8 +72,8 @@
                   <label class="lp-label">{{ field.label }}<span v-if="field.required" :style="`color:${accent}`"> *</span></label>
                   <textarea v-if="field.type === 'textarea'" v-model="formData[field.label]"
                     :placeholder="field.placeholder || ''" rows="4" class="lp-input lp-textarea"></textarea>
-                  <select v-else-if="field.type === 'select'" v-model="formData[field.label]" class="lp-input lp-select">
-                    <option value="">— bitte wählen —</option>
+                  <select v-else-if="field.type === 'select'" :value="formData[field.label] ?? ''" @change="formData[field.label] = ($event.target as HTMLSelectElement).value" class="lp-input lp-select">
+                    <option value="">{{ field.placeholder || '— bitte wählen —' }}</option>
                     <option v-for="opt in (field.options || [])" :key="opt" :value="opt">{{ opt }}</option>
                   </select>
                   <input v-else v-model="formData[field.label]"
