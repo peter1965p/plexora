@@ -1266,7 +1266,10 @@
         Jede Videobuchung bekommt automatisch einen eigenen Raum bei Jitsi Meet (meet.jit.si). Kein Konto, keine Verbindung und kein Ablaufdatum: Der Kunde klickt den Link in der Bestätigungsmail und ist im Browser dabei. Der Link steht auch in der Erinnerung und in deinem Terminplan.
       </div>
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="video.autoJitsi" /> Für Video-Termine automatisch einen Jitsi-Raum anlegen</label>
+      <div class="auth-field" style="margin:0"><label>Eigener Jitsi-Server (optional)</label><input v-model="video.jitsiHost" placeholder="meet.jit.si (Standard)" style="max-width:360px" /></div>
+      <div style="font-size:11px;color:var(--text-muted)">Nur wenn du einen eigenen Jitsi-Server betreibst: den Servernamen eintragen, z. B. meet.paeffgen-it.de (ohne https://). Leer = meet.jit.si.</div>
       <div><button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink"><i class="ti" :class="video.saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button></div>
+      <div v-if="video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</div>
     </div>
 
     <div class="card" style="display:flex;flex-direction:column;gap:10px">
@@ -3011,7 +3014,7 @@ async function removeTeamMember(email: string) {
 
 watch(tab, v => { if (v === 'team') loadTeamMembers() })
 
-const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', autoJitsi: false, saving: false, disconnecting: false, msg: '' })
+const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', autoJitsi: false, jitsiHost: '', saving: false, disconnecting: false, msg: '' })
 async function loadVideoSettings() {
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
@@ -3020,6 +3023,7 @@ async function loadVideoSettings() {
     video.googleEmail = res.googleEmail || ''
     video.fallbackLink = res.videoFallbackLink || ''
     video.autoJitsi = res.videoAutoJitsi === true
+    video.jitsiHost = res.jitsiHost || ''
   } catch {}
 }
 watch(tab, v => { if (v === 'video') loadVideoSettings() })
@@ -3049,7 +3053,7 @@ async function saveFallbackLink() {
   video.msg = ''
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
-    await $fetch(useApiUrl('/api/video/settings'), { method: 'POST', headers: await useAuthHeader(), body: { videoFallbackLink: video.fallbackLink, videoAutoJitsi: video.autoJitsi } })
+    await $fetch(useApiUrl('/api/video/settings'), { method: 'POST', headers: await useAuthHeader(), body: { videoFallbackLink: video.fallbackLink, videoAutoJitsi: video.autoJitsi, jitsiHost: video.jitsiHost } })
     video.msg = 'Gespeichert.'
   } catch (e: any) {
     video.msg = e?.data?.message || 'Speichern fehlgeschlagen.'

@@ -7,7 +7,7 @@ import { randomUUID } from 'crypto'
 // Manuelles Eintragen eines Termins durch den Tenant selbst (z.B. telefonisch vereinbart) —
 // im Gegensatz zur öffentlichen Buchung wird die Slot-Verfügbarkeit nicht erzwungen, da der
 // Nutzer bewusst einen Termin außerhalb der normalen Regeln eintragen können muss.
-import { jitsiLink, wantsJitsi } from '../../../utils/videoLink'
+import { jitsiLink, wantsJitsi, jitsiHostOf } from '../../../utils/videoLink'
 export default defineEventHandler(async (event) => {
   const tenantId = await requireTenantId(event)
   const body = await readBody(event)
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
   let googleEventId = ''
   let googleMeetLink = ''
-  let videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink() : ''
+  let videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink(jitsiHostOf(tenantItem)) : ''
   if (customerEmail) {
     try {
       const googleEvent = await createGoogleCalendarEvent(tenantItem, {
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Google lieferte keinen Meet-Link (nicht verbunden, abgelaufen, Fehler): sonst bekäme der Kunde keinen Link. Ausdrücklich ausgeschaltet oder fester Standardlink vorhanden: nichts ergänzen.
-  if (channel === 'video' && !videoLink && !googleMeetLink && tenantItem.videoAutoJitsi !== false && !tenantItem.videoFallbackLink) videoLink = jitsiLink()
+  if (channel === 'video' && !videoLink && !googleMeetLink && tenantItem.videoAutoJitsi !== false && !tenantItem.videoFallbackLink) videoLink = jitsiLink(jitsiHostOf(tenantItem))
 
   const dynamo = getDynamoClient()
   const bookingId = randomUUID()

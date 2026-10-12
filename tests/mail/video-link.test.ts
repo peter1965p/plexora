@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { wantsJitsi, jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../server/utils/videoLink'
+import { parseJitsiHost, jitsiHostOf, wantsJitsi, jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../server/utils/videoLink'
 
 describe('Jitsi-Videolink je Buchung', () => {
   it('Adresse bei meet.jit.si mit langem Zufallsteil, jedes Mal anders', () => {
@@ -30,5 +30,14 @@ describe('Jitsi-Videolink je Buchung', () => {
     expect(wantsJitsi({ googleConnected: true, googleRefreshTokenEncrypted: 'x' })).toBe(false)
     expect(wantsJitsi({ videoFallbackLink: 'https://zoom.us/j/1' })).toBe(false)
     expect(wantsJitsi({ videoAutoJitsi: false })).toBe(false)
+  })
+  it('eigener Jitsi-Server: nur ein sauberer Hostname, sonst Standard', () => {
+    expect(parseJitsiHost('')).toBe('')
+    expect(parseJitsiHost(' Meet.Paeffgen-IT.de ')).toBe('meet.paeffgen-it.de')
+    for (const bad of ['https://meet.x.de', 'meet.x.de/raum', 'meet.x.de:8443', 'x', 'a b.de', 'evil.de"><script>', '-x.de']) expect(() => parseJitsiHost(bad), bad).toThrow()
+    expect(jitsiLink('meet.paeffgen-it.de')).toMatch(/^https:\/\/meet\.paeffgen-it\.de\/Plexora-[0-9a-f]{20}$/)
+    expect(jitsiHostOf({ jitsiHost: 'meet.paeffgen-it.de' })).toBe('meet.paeffgen-it.de')
+    expect(jitsiHostOf({ jitsiHost: 'https://böse' })).toBe('meet.jit.si')
+    expect(jitsiHostOf({})).toBe('meet.jit.si')
   })
 })

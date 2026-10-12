@@ -2,7 +2,18 @@ import { randomBytes } from 'node:crypto'
 import { escapeText } from '../../shared/mailTemplate'
 
 // Eigener Videoraum je Buchung über Jitsi Meet: nur eine Adresse, keine Anbindung, kein Konto. Der lange Zufallsteil ist der einzige "Schlüssel".
-export const jitsiLink = () => `https://meet.jit.si/Plexora-${randomBytes(10).toString('hex')}`
+export const DEFAULT_JITSI_HOST = 'meet.jit.si'
+const HOST_RE = /^(?=.{4,100}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}$/
+/** Prüft einen eigenen Jitsi-Server (nur Hostname, ohne https://, Pfad oder Port). Leer = Standard. Wirft bei ungültiger Eingabe. */
+export function parseJitsiHost(raw: unknown): string {
+  const h = String(raw ?? '').trim().toLowerCase()
+  if (!h) return ''
+  if (!HOST_RE.test(h)) throw new Error('Bitte nur den Servernamen angeben, z. B. meet.beispiel.de (ohne https:// und ohne Pfad).')
+  return h
+}
+/** Gespeicherter Server des Mandanten; bei jedem Zweifel der Standard (nie ein ungeprüfter Wert in einer Mail) */
+export function jitsiHostOf(tenant: any): string { try { return parseJitsiHost(tenant?.jitsiHost) || DEFAULT_JITSI_HOST } catch { return DEFAULT_JITSI_HOST } }
+export const jitsiLink = (host: string = DEFAULT_JITSI_HOST) => `https://${host}/Plexora-${randomBytes(10).toString('hex')}`
 
 /** Der Link, den ein Video-Termin hat: erst der eigene Raum (Jitsi), dann Google Meet */
 export const bookingVideoLink = (b: any): string => String(b?.videoLink || b?.googleMeetLink || '')
