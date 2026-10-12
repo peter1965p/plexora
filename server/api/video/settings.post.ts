@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
   await getDynamoClient().send(new UpdateCommand({
     TableName: 'plexora-nexora',
     Key: { tenantId },
-    UpdateExpression: 'SET videoFallbackLink = :l',
-    ExpressionAttributeValues: { ':l': link },
+    UpdateExpression: 'SET videoFallbackLink = :l' + (typeof body?.videoAutoJitsi === 'boolean' ? ', videoAutoJitsi = :j' : ''),
+    ExpressionAttributeValues: { ':l': link, ...(typeof body?.videoAutoJitsi === 'boolean' ? { ':j': body.videoAutoJitsi } : {}) },
   }))
   return { success: true }
 })

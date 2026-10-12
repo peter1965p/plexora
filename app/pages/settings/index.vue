@@ -1261,6 +1261,15 @@
     </div>
 
     <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-weight:700;font-size:14px">Eigener Videoraum je Termin (Jitsi, kostenlos)</div>
+      <div style="font-size:12px;color:var(--text-muted)">
+        Jede Videobuchung bekommt automatisch einen eigenen Raum bei Jitsi Meet (meet.jit.si). Kein Konto, keine Verbindung und kein Ablaufdatum: Der Kunde klickt den Link in der Bestätigungsmail und ist im Browser dabei. Der Link steht auch in der Erinnerung und in deinem Terminplan.
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="video.autoJitsi" /> Für Video-Termine automatisch einen Jitsi-Raum anlegen</label>
+      <div><button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink"><i class="ti" :class="video.saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button></div>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
       <div style="font-weight:700;font-size:14px">Standard-Videolink</div>
       <div style="font-size:12px;color:var(--text-muted)">
         Dein fester Raum, z.B. ein Zoom-Persönlicher-Link oder Jitsi-Raum. Wird in Bestätigungsmails verwendet, wenn kein Google-Meet-Link erzeugt wurde.
@@ -3002,7 +3011,7 @@ async function removeTeamMember(email: string) {
 
 watch(tab, v => { if (v === 'team') loadTeamMembers() })
 
-const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', saving: false, disconnecting: false, msg: '' })
+const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', autoJitsi: false, saving: false, disconnecting: false, msg: '' })
 async function loadVideoSettings() {
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
@@ -3010,6 +3019,7 @@ async function loadVideoSettings() {
     video.googleConnected = !!res.googleConnected
     video.googleEmail = res.googleEmail || ''
     video.fallbackLink = res.videoFallbackLink || ''
+    video.autoJitsi = res.videoAutoJitsi === true
   } catch {}
 }
 watch(tab, v => { if (v === 'video') loadVideoSettings() })
@@ -3039,7 +3049,7 @@ async function saveFallbackLink() {
   video.msg = ''
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
-    await $fetch(useApiUrl('/api/video/settings'), { method: 'POST', headers: await useAuthHeader(), body: { videoFallbackLink: video.fallbackLink } })
+    await $fetch(useApiUrl('/api/video/settings'), { method: 'POST', headers: await useAuthHeader(), body: { videoFallbackLink: video.fallbackLink, videoAutoJitsi: video.autoJitsi } })
     video.msg = 'Gespeichert.'
   } catch (e: any) {
     video.msg = e?.data?.message || 'Speichern fehlgeschlagen.'

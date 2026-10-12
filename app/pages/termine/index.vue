@@ -165,7 +165,7 @@
             :style="b.status === 'cancelled' ? 'background:#ef444422;color:#ef4444' : 'background:#22c55e22;color:#22c55e'">
             {{ b.status === 'cancelled' ? 'Storniert' : 'Bestätigt' }}
           </span>
-          <a v-if="b.googleMeetLink" :href="b.googleMeetLink" target="_blank" class="icon-btn" title="Meet-Link öffnen" style="flex-shrink:0">
+          <a v-if="b.videoLink || b.googleMeetLink" :href="b.videoLink || b.googleMeetLink" target="_blank" rel="noopener" class="icon-btn" title="Video-Link öffnen" style="flex-shrink:0">
             <i class="ti ti-video"></i>
           </a>
           <button v-if="b.status !== 'cancelled'" @click="cancelBooking(b)" class="icon-btn" style="color:#ef4444;flex-shrink:0" title="Stornieren">
@@ -391,7 +391,7 @@ interface Booking {
   date: string; startTime: string; endTime: string
   customerName: string; customerEmail: string; customerPhone: string; notes: string
   channel?: 'video' | 'phone'
-  status: string; googleEventId?: string; googleMeetLink?: string; createdAt: string
+  status: string; googleEventId?: string; googleMeetLink?: string; videoLink?: string; createdAt: string
 }
 
 const weekdays = [

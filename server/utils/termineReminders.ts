@@ -1,3 +1,4 @@
+import { videoDetailsHtml } from './videoLink'
 import { ScanCommand, GetCommand, UpdateCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { mailBlockReason } from './mailPolicy'
 import { randomUUID } from 'crypto'
@@ -84,13 +85,7 @@ export async function sendDueTerminReminders() {
 
       const companyName = tenant.companyName || 'Wir'
       const ownerEmail = tenant.email as string
-      const details = b.channel === 'phone'
-        ? `Wir rufen dich unter ${b.customerPhone} an.`
-        : b.googleMeetLink
-          ? `Video-Gespräch über Google Meet: <a href="${b.googleMeetLink}">${b.googleMeetLink}</a>`
-          : tenant.videoFallbackLink
-            ? `Video-Gespräch: <a href="${tenant.videoFallbackLink}">${tenant.videoFallbackLink}</a>`
-            : 'Den Video-Link erhältst du separat.'
+      const details = videoDetailsHtml(b, tenant)
 
       await sendMail({
         userId: ownerEmail,

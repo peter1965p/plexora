@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto'
 // Manuelles Eintragen eines Termins durch den Tenant selbst (z.B. telefonisch vereinbart) —
 // im Gegensatz zur öffentlichen Buchung wird die Slot-Verfügbarkeit nicht erzwungen, da der
 // Nutzer bewusst einen Termin außerhalb der normalen Regeln eintragen können muss.
+import { jitsiLink } from '../../../utils/videoLink'
 export default defineEventHandler(async (event) => {
   const tenantId = await requireTenantId(event)
   const body = await readBody(event)
@@ -36,14 +37,15 @@ export default defineEventHandler(async (event) => {
 
   let googleEventId = ''
   let googleMeetLink = ''
+  const videoLink = channel === 'video' && tenantItem.videoAutoJitsi === true ? jitsiLink() : ''
   if (customerEmail) {
     try {
       const googleEvent = await createGoogleCalendarEvent(tenantItem, {
         summary: typeItem.name,
-        description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : notes,
+        description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : [videoLink && `Video: ${videoLink}`, notes].filter(Boolean).join('\n'),
         date, startTime, endTime,
         customerEmail,
-        channel,
+        channel: videoLink ? 'phone' : channel,
       })
       if (googleEvent) {
         googleEventId = googleEvent.eventId
@@ -64,7 +66,7 @@ export default defineEventHandler(async (event) => {
     customerName, customerEmail, customerPhone, channel, notes,
     status: 'confirmed',
     source: 'admin',
-    googleEventId, googleMeetLink,
+    googleEventId, googleMeetLink, ...(videoLink ? { videoLink } : {}),
     createdAt: now, updatedAt: now,
   }
   await dynamo.send(new PutCommand({ TableName: 'plexora-termine-bookings', Item: item }))

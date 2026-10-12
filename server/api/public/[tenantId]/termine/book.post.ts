@@ -2,6 +2,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
+import { jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../../../utils/videoLink'
 import { sendMail } from '../../../../utils/mailer'
 import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
 import { campaignTypeIsProtected, verifyBotToken } from '../../../../utils/botGuard'
@@ -53,13 +54,15 @@ export default defineEventHandler(async (event) => {
   let googleEventId = ''
   let googleCalendarId = ''
   let googleMeetLink = ''
+  // Eigener Videoraum (Jitsi) statt Google Meet, wenn der Inhaber das so eingestellt hat
+  const videoLink = channel === 'video' && tenantItem.videoAutoJitsi === true ? jitsiLink() : ''
   try {
     const googleEvent = await createGoogleCalendarEvent(tenantItem, {
       summary: typeItem.name,
-      description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : notes,
+      description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : [videoLink && `Video: ${videoLink}`, notes].filter(Boolean).join('\n'),
       date, startTime, endTime,
       customerEmail,
-      channel,
+      channel: videoLink ? 'phone' : channel,   // 'phone' = kein Google-Meet anfordern
     })
     if (googleEvent) {
       googleEventId = googleEvent.eventId
@@ -89,6 +92,7 @@ export default defineEventHandler(async (event) => {
     googleEventId,
     googleCalendarId,
     googleMeetLink,
+    ...(videoLink ? { videoLink } : {}),
     createdAt: now,
     updatedAt: now,
   }
@@ -111,13 +115,7 @@ export default defineEventHandler(async (event) => {
 
   const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
   const companyName = tenantItem.companyName || 'Wir'
-  const details = channel === 'phone'
-    ? `Wir rufen dich unter ${customerPhone} an.`
-    : googleMeetLink
-      ? `Video-Gespräch über Google Meet: <a href="${googleMeetLink}">${googleMeetLink}</a>`
-      : tenantItem.videoFallbackLink
-        ? `Video-Gespräch: <a href="${tenantItem.videoFallbackLink}">${tenantItem.videoFallbackLink}</a>`
-        : 'Den Video-Link erhältst du separat.'
+  const details = videoDetailsHtml(item, tenantItem)
   await sendMail({
     userId: tenantItem.email,
     kind: 'booking_confirmation',
@@ -136,7 +134,7 @@ export default defineEventHandler(async (event) => {
   return {
     booking: {
       bookingId, typeName: item.typeName, date, startTime, endTime,
-      customerName, channel, meetLink: item.googleMeetLink || null,
+      customerName, channel, meetLink: bookingVideoLink(item) || null,
     },
   }
 })

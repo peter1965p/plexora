@@ -10,5 +10,6 @@ export default defineEventHandler(async (event) => {
     googleConnected: item.googleConnected ?? false,
     googleEmail: item.googleEmail || '',
     videoFallbackLink: item.videoFallbackLink || '',
+    videoAutoJitsi: item.videoAutoJitsi === true,
   }
 })
