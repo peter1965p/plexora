@@ -113,7 +113,10 @@
             <i class="ti" :class="loadingGoogleEvents ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
           </button>
         </div>
-        <div v-if="googleEventsError" style="font-size:12px;color:#e05c5c">{{ googleEventsError }}</div>
+        <div v-if="googleEventsError" style="font-size:12px;color:#e05c5c">
+          <template v-if="/oauth2\.googleapis|400|401|invalid_grant/i.test(googleEventsError)">Die Google-Verbindung ist abgelaufen (Google beendet den Zugriff von Apps im Testmodus nach 7 Tagen). <a href="#" style="color:var(--accent);font-weight:700" @click.prevent="connectGoogle">Google neu verbinden</a></template>
+          <template v-else>{{ googleEventsError }}</template>
+        </div>
         <div v-else-if="!loadingGoogleEvents && !googleEvents.length" style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px">
           Keine Termine in den nächsten 30 Tagen in deinem Google-Kalender.
         </div>
