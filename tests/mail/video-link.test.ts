@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../server/utils/videoLink'
+import { wantsJitsi, jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../server/utils/videoLink'
 
 describe('Jitsi-Videolink je Buchung', () => {
   it('Adresse bei meet.jit.si mit langem Zufallsteil, jedes Mal anders', () => {
@@ -23,5 +23,12 @@ describe('Jitsi-Videolink je Buchung', () => {
     expect(videoDetailsHtml({ channel: 'video', videoLink: 'javascript:alert(1)' }, {})).toContain('separat')
     expect(videoDetailsHtml({ channel: 'video', videoLink: 'https://x.de/"><script>' }, {})).not.toContain('<script>')
     expect(videoDetailsHtml({ channel: 'phone', customerPhone: '<img onerror=x>' }, {})).not.toContain('<img')
+  })
+  it('wantsJitsi: an, wenn eingeschaltet; ohne Entscheidung nur ohne Google und ohne Standardlink; ausdrücklich aus bleibt aus', () => {
+    expect(wantsJitsi({ videoAutoJitsi: true, googleConnected: true, googleRefreshTokenEncrypted: 'x' })).toBe(true)
+    expect(wantsJitsi({})).toBe(true)
+    expect(wantsJitsi({ googleConnected: true, googleRefreshTokenEncrypted: 'x' })).toBe(false)
+    expect(wantsJitsi({ videoFallbackLink: 'https://zoom.us/j/1' })).toBe(false)
+    expect(wantsJitsi({ videoAutoJitsi: false })).toBe(false)
   })
 })

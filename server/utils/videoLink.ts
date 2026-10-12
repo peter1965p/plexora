@@ -18,3 +18,10 @@ export function videoDetailsHtml(b: any, tenant: any): string {
     || (tenant?.videoFallbackLink && linkHtml('Video-Gespräch', String(tenant.videoFallbackLink)))
     || 'Den Video-Link erhältst du separat.'
 }
+
+/** Bekommt eine Video-Buchung einen eigenen Jitsi-Raum? Ja, wenn der Inhaber es eingeschaltet hat; ohne Entscheidung (Einstellung nie gesetzt) nur, wenn es sonst keinen Link gäbe (kein Google, kein Standardlink). Ausdrücklich aus bleibt aus. */
+export function wantsJitsi(tenant: any): boolean {
+  if (tenant?.videoAutoJitsi === true) return true
+  if (tenant?.videoAutoJitsi === false) return false
+  return !(tenant?.googleConnected && tenant?.googleRefreshTokenEncrypted) && !tenant?.videoFallbackLink
+}

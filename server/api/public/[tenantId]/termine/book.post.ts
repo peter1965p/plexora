@@ -2,7 +2,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
-import { jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../../../utils/videoLink'
+import { wantsJitsi, jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../../../utils/videoLink'
 import { sendMail } from '../../../../utils/mailer'
 import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
 import { campaignTypeIsProtected, verifyBotToken } from '../../../../utils/botGuard'
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
   let googleCalendarId = ''
   let googleMeetLink = ''
   // Eigener Videoraum (Jitsi) statt Google Meet, wenn der Inhaber das so eingestellt hat
-  const videoLink = channel === 'video' && tenantItem.videoAutoJitsi === true ? jitsiLink() : ''
+  let videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink() : ''
   try {
     const googleEvent = await createGoogleCalendarEvent(tenantItem, {
       summary: typeItem.name,
@@ -72,6 +72,9 @@ export default defineEventHandler(async (event) => {
   } catch (e) {
     console.error('Google Calendar event creation failed', tenantId, e)
   }
+
+  // Google lieferte keinen Meet-Link (nicht verbunden, abgelaufen, Fehler): sonst bekäme der Kunde keinen Link. Ausdrücklich ausgeschaltet oder fester Standardlink vorhanden: nichts ergänzen.
+  if (channel === 'video' && !videoLink && !googleMeetLink && tenantItem.videoAutoJitsi !== false && !tenantItem.videoFallbackLink) videoLink = jitsiLink()
 
   const item = {
     tenantId,
