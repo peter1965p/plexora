@@ -74,7 +74,7 @@ export async function sendTemplateEmail(userId: string, templateId: string, toEm
   await sendMail({
     userId,
     kind: 'automation',
-    from: `${branding.brandName || 'Plexora'} <automation@plexora.eu>`,
+    from: `${branding.brandName || 'Plexora'} <info@plexora.eu>`,
     to: toEmail,
     subject: fillPlaceholders(template.name || 'Nachricht', data),
     html,
@@ -163,7 +163,7 @@ async function runAction(userId: string, automation: any, data: Record<string, a
     await sendMail({
       userId,
       kind: 'internal',
-      from: 'Plexora Automatisierung <automation@plexora.eu>',
+      from: 'Plexora Automatisierung <info@plexora.eu>',
       to: automation.emailTo,
       subject,
       text: body,
