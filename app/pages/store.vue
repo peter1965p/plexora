@@ -343,7 +343,7 @@ const branchModulesLoading = ref(true)
 
 const LUCIDE_TO_TABLER: Record<string, string> = {
   Car: 'ti-car', Store: 'ti-building-store', UtensilsCrossed: 'ti-tools-kitchen-2',
-  Hammer: 'ti-hammer', Home: 'ti-home', Stethoscope: 'ti-stethoscope', Scissors: 'ti-scissors',
+  Hammer: 'ti-hammer', Home: 'ti-home', BedDouble: 'ti-bed', Stethoscope: 'ti-stethoscope', Scissors: 'ti-scissors',
 }
 function lucideToTabler(icon: string) { return LUCIDE_TO_TABLER[icon] || 'ti-puzzle' }
 

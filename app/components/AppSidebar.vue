@@ -60,7 +60,7 @@ const branchRegistry = computed(() => Object.fromEntries(
 const LUCIDE_TO_TABLER: Record<string, string> = {
   Car: 'ti-car', Store: 'ti-shopping-bag', UtensilsCrossed: 'ti-tools-kitchen-2',
   Hammer: 'ti-hammer', Home: 'ti-building-estate', Stethoscope: 'ti-stethoscope',
-  Scissors: 'ti-scissors',
+  Scissors: 'ti-scissors', BedDouble: 'ti-bed',
 }
 
 onMounted(async () => {
