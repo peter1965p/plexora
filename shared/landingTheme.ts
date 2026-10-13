@@ -83,7 +83,8 @@ export function customTheme(t: LandingTheme): ThemeResult {
     '--blue': accentText, '--blue2': accentText, '--blue-rgb': rgbCsv(accentText), '--orange2': accentText,
     '--ink': ink, '--shadow': dark ? '0,0,0' : '60,60,80',
     '--nav-bg': `rgba(${rgbCsv(bg)},0.88)`, '--footer-bg': `rgba(${rgbCsv(dark ? mix(bg, '#000000', 0.25) : mix(bg, '#000000', 0.04))},0.9)`,
-    '--page-bg': `radial-gradient(ellipse 80% 50% at 12% 0%, rgba(${rgbCsv(accent)},${dark ? 0.35 : 0.2}) 0%, transparent 65%), radial-gradient(ellipse 70% 50% at 92% 45%, rgba(${rgbCsv(accentText)},${dark ? 0.16 : 0.12}) 0%, transparent 65%)`,
+    // Der Verlauf wiederholt sich alle 90 % der Fensterhöhe: die Leuchtflecken liegen in der Kachelmitte und laufen zu den Rändern auf 0 aus, sonst entsteht an jeder Kachelgrenze eine sichtbare Kante
+    '--page-bg': `radial-gradient(ellipse 80% 45% at 12% 50%, rgba(${rgbCsv(accentText)},${dark ? 0.30 : 0.18}) 0%, transparent 100%), radial-gradient(ellipse 70% 45% at 92% 50%, rgba(${rgbCsv(accentText)},${dark ? 0.14 : 0.10}) 0%, transparent 100%)`,
   }
   return { dark, vars, info: { bg, text, textContrast: round1(contrast(text, bg)), accentOnBgContrast: round1(contrast(accent, bg)), buttonText: btnText, buttonContrast: round1(contrast(btnText, accent)) } }
 }

@@ -276,7 +276,7 @@
         <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.branchen.heading }}</h2>
         <p style="text-align:center;font-size:14px;color:var(--muted);margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto">{{ t.branchen.sub }}</p>
         <div class="lp-branchen-grid">
-          <div class="lp-bcard" v-for="(pkg, i) in t.branchen.items" :key="pkg.key" :style="{ transitionDelay: (i * 0.08) + 's' }">
+          <div class="lp-bcard" v-for="(pkg, i) in branchItems" :key="pkg.key" :style="{ transitionDelay: (i * 0.08) + 's' }">
             <div class="lp-bcard-icon"><component :is="pkg.icon" :size="20" :stroke-width="1.75" /></div>
             <div class="lp-bcard-name">{{ pkg.name }}</div>
             <div class="lp-bcard-desc">{{ pkg.desc }}</div>
@@ -349,7 +349,7 @@
 import { parseLandingTheme, customTheme } from '~~/shared/landingTheme'
 import {
   Users, Kanban, Receipt, IdCard, Headset, BarChart3,
-  Car, UtensilsCrossed, Building2,
+  Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble, Puzzle,
   Check, X, Info, UserRound, Rocket, Zap,
   LogIn, SlidersHorizontal, Cloud, CreditCard, ShieldCheck,
 } from 'lucide-vue-next'
@@ -468,7 +468,7 @@ const i18n = {
     branchen: {
       label: 'Für deine Branche',
       heading: 'Branchen-Pakete als Erweiterung',
-      sub: 'Zusätzliche Module für Automotive, Gastronomie und Immobilien — buchbar zu jedem Plan.',
+      sub: 'Zusätzliche Module für deine Branche — buchbar zu jedem Plan.',
       cta: 'Paket wählen',
       note: 'Verfügbar im Modul-Store nach dem Kauf einer Lizenz — kein Extra-Vertrag nötig.',
       items: [
@@ -567,7 +567,7 @@ const i18n = {
     branchen: {
       label: 'For Your Industry',
       heading: 'Industry Packages as Add-ons',
-      sub: 'Extra modules for Automotive, Restaurants and Real Estate — available with any plan.',
+      sub: 'Extra modules for your industry — available with any plan.',
       cta: 'Choose Package',
       note: 'Available in the Module Store after purchasing a license — no extra contract needed.',
       items: [
@@ -768,6 +768,19 @@ onMounted(() => {
   }
   draw()
   onUnmounted(() => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize) })
+})
+
+// Branchen-Pakete kommen aus dem Modul-Store (Preise und Texte werden dort gepflegt); bei einem Abruffehler zeigt die Seite die festen Einträge.
+const BRANCH_ICONS: Record<string, any> = { Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble }
+const { data: branchData } = useFetch(useApiUrl('/api/public/branch-packages'), { server: false })
+const branchItems = computed(() => {
+  const live = ((branchData.value as any)?.packages || []) as any[]
+  if (!live.length) return t.value.branchen.items
+  const staticByKey = Object.fromEntries((t.value.branchen.items as any[]).map(i => [i.key, i]))
+  return live.map(p => {
+    const st = lang.value === 'en' ? staticByKey[p.key] : null       // Englische Texte nur, wo es sie gibt; sonst die deutschen aus dem Store
+    return { key: p.key, name: st?.name || p.name, desc: st?.desc || p.desc, features: st?.features || p.features, price: p.price, icon: BRANCH_ICONS[p.icon] || Puzzle }
+  })
 })
 
 const { data: pagesData } = await useFetch(useApiUrl('/api/pages'))

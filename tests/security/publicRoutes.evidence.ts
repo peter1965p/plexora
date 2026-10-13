@@ -88,6 +88,10 @@ export const EVIDENCE: Record<string, Evidence> = {
   'GET /api/public/[tenantId]/termine/availability': { kind: 'read', params: T, query: { date: '2026-12-01', typeId: 't1' }, db: { ...NX, 'plexora-termine-types': [TERMINE_TYPE], 'plexora-termine-bookings': [] }, keys: ['slots'], status: [200, 404] },
   'GET /api/public/[tenantId]/vehicles': { kind: 'read', params: T, db: { 'plexora-vehicles': [VEHICLE] }, keys: ['vehicles'], writes: ['plexora-site-analytics'], note: 'zählt den Seitenaufruf' },
   'GET /api/public/resolve': { kind: 'read', query: { host: 'www.firma-a.de' }, db: NX, keys: ['tenantId'] },
+  'GET /api/public/branch-packages': { kind: 'read', db: { 'plexora-plugin-registry': [
+    { key: 'fewo', name: 'Ferienwohnungen', icon: 'BedDouble', price: 79, desc: 'Text', features: ['A'], builtin: true, route: '/fewo', internalNote: SECRETS.note },
+    { key: 'plug', name: 'Plugin', price: 5, builtin: false, remoteEntryUrl: 'https://geheim.example/' + SECRETS.apiKey },
+  ] }, keys: ['packages'], note: 'Eingebaute Branchen-Pakete aus dem Modul-Store (Name, Preis, Text); keine Plugin-Adressen oder internen Felder' },
   'GET /api/public/landing-theme': { kind: 'read', db: { 'plexora-settings': { settingId: 'landing-theme', scope: 'global', theme: { mode: 'custom', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', internal: SECRETS.note } } }, keys: ['theme'], note: 'Farbauswahl der Startseite (global); nur geprüfte Felder' },
   'GET /api/public/testimonials': { kind: 'read', db: { 'plexora-settings': settings }, keys: ['items'] },
   'GET /api/public/s/[code]': { kind: 'read', params: { code: 'abc' }, db: { 'plexora-shortlinks': [{ shortCode: 'abc', userId: SECRETS.userId, targetUrl: 'https://ziel.example', clicks: 1 }], 'plexora-settings': settings }, keys: ['targetUrl'], writes: ['plexora-shortlinks'], note: 'zählt Klicks (bewusst)' },
