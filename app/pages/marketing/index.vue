@@ -623,7 +623,7 @@
             <label>Dann...</label>
             <select v-model="newAutomation.action" class="form-select">
               <option value="send_email_template">E-Mail-Vorlage an den Lead senden</option>
-              <option value="send_booking_link">Termin-Buchungslink senden (Google Meet)</option>
+              <option value="send_booking_link">Termin-Buchungslink senden (Video-Gespräch)</option>
               <option value="set_lead_status">Lead-Status setzen</option>
               <option value="email">Interne Benachrichtigung senden</option>
               <option value="webhook">Webhook aufrufen (nur für externe Ziele)</option>

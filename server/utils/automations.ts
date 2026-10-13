@@ -117,13 +117,13 @@ export async function sendBookingLink(userId: string, toEmail: string, data: Rec
   await sendMail({
     userId,
     kind: 'automation',
-    from:    `${companyName} <automation@plexora.eu>`,
+    from:    `${companyName} <termine@plexora.eu>`,
     to:      toEmail,
     subject: 'Jetzt Termin vereinbaren',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
         <p>Hallo ${name || ''},</p>
-        <p>vielen Dank für Ihr Interesse! Buchen Sie sich jetzt direkt einen passenden Termin für ein kurzes Video-Gespräch (Google Meet) – ganz unkompliziert, ohne Hin- und Her-Mails:</p>
+        <p>vielen Dank für Ihr Interesse! Buchen Sie sich jetzt direkt einen passenden Termin für ein kurzes Video-Gespräch – ganz unkompliziert, ohne Hin- und Her-Mails:</p>
         <p style="text-align:center;margin:28px 0">
           <a href="${bookingUrl}" style="background:#1c71d8;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">Jetzt Termin buchen</a>
         </p>
