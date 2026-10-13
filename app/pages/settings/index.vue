@@ -1260,16 +1260,26 @@
       </div>
     </div>
 
-    <div class="card" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-weight:700;font-size:14px">Eigener Videoraum je Termin (Jitsi, kostenlos)</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="vid-icon" style="background:#1d76ba1a;color:#1d76ba"><i class="ti ti-video"></i></div>
+          <div>
+            <div style="font-weight:700;font-size:14px">Jitsi Meet</div>
+            <div style="font-size:12px;color:var(--text-muted)">Automatischer Video-Link je Termin, kostenlos, ohne Konto</div>
+          </div>
+        </div>
+        <span v-if="video.autoJitsi" class="badge badge-success">Aktiv</span>
+        <span v-else class="badge">Aus</span>
+      </div>
       <div style="font-size:12px;color:var(--text-muted)">
-        Jede Videobuchung bekommt automatisch einen eigenen Raum bei Jitsi Meet (meet.jit.si). Kein Konto, keine Verbindung und kein Ablaufdatum: Der Kunde klickt den Link in der Bestätigungsmail und ist im Browser dabei. Der Link steht auch in der Erinnerung und in deinem Terminplan.
+        Plexora bildet für jede Videobuchung einen eigenen Raum-Link (z. B. meet.jit.si/Plexora-…). Der Kunde klickt ihn in der Bestätigungsmail und ist im Browser dabei. Es läuft nichts auf deinem Server: das Video selbst betreibt Jitsi. Der Link steht auch in der Erinnerung und im Terminplan.
       </div>
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="video.autoJitsi" /> Für Video-Termine automatisch einen Jitsi-Raum anlegen</label>
       <div class="auth-field" style="margin:0"><label>Eigener Jitsi-Server (optional)</label><input v-model="video.jitsiHost" placeholder="meet.jit.si (Standard)" style="max-width:360px" /></div>
-      <div style="font-size:11px;color:var(--text-muted)">Nur wenn du einen eigenen Jitsi-Server betreibst: den Servernamen eintragen, z. B. meet.paeffgen-it.de (ohne https://). Leer = meet.jit.si.</div>
-      <div><button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink"><i class="ti" :class="video.saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button></div>
-      <div v-if="video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</div>
+      <div style="font-size:11px;color:var(--text-muted)">Nur wenn du Jitsi selbst auf einem eigenen Server betreibst: den Servernamen eintragen, z. B. meet.paeffgen-it.de (ohne https://). Leer = meet.jit.si.</div>
+      <div style="display:flex;align-items:center;gap:10px"><button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink('jitsi')"><i class="ti" :class="video.saving && video.msgFor === 'jitsi' ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
+        <span v-if="video.msgFor === 'jitsi' && video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</span></div>
     </div>
 
     <div class="card" style="display:flex;flex-direction:column;gap:10px">
@@ -1279,11 +1289,11 @@
       </div>
       <div style="display:flex;gap:8px">
         <input v-model="video.fallbackLink" placeholder="https://..." style="flex:1" />
-        <button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink">
-          <i class="ti" :class="video.saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+        <button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink('link')">
+          <i class="ti" :class="video.saving && video.msgFor === 'link' ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
         </button>
       </div>
-      <div v-if="video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</div>
+      <div v-if="video.msgFor === 'link' && video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</div>
     </div>
   </div>
 
@@ -3160,7 +3170,7 @@ async function removeTeamMember(email: string) {
 
 watch(tab, v => { if (v === 'team') loadTeamMembers() })
 
-const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', autoJitsi: false, jitsiHost: '', saving: false, disconnecting: false, msg: '' })
+const video = reactive({ googleConnected: false, googleEmail: '', fallbackLink: '', autoJitsi: false, jitsiHost: '', msgFor: '' as '' | 'jitsi' | 'link', saving: false, disconnecting: false, msg: '' })
 async function loadVideoSettings() {
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
@@ -3194,8 +3204,9 @@ async function disconnectGoogle() {
     video.disconnecting = false
   }
 }
-async function saveFallbackLink() {
+async function saveFallbackLink(which: 'jitsi' | 'link' = 'link') {
   video.saving = true
+  video.msgFor = which
   video.msg = ''
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
