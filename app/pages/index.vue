@@ -1276,7 +1276,7 @@ onMounted(() => {
 /* BRANCHEN-PAKETE */
 .lp-branchen-section { padding: 0 0 64px; }
 .lp-branchen-panel {
-  max-width: 1120px; margin: 0 auto; position: relative; overflow: hidden;
+  max-width: none; margin: 0 auto; position: relative; overflow: hidden;
   background: linear-gradient(160deg, rgba(var(--accent-rgb),0.06), var(--card2) 55%);
   border: 0.5px solid rgba(var(--ink),0.08);
   border-radius: 28px;
@@ -1286,7 +1286,8 @@ onMounted(() => {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(ellipse 60% 50% at 15% 0%, rgba(var(--blue-rgb),0.10), transparent 70%);
 }
-.lp-branchen-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; position: relative; z-index: 1; }
+.lp-branchen-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; position: relative; z-index: 1; }
+@media (max-width: 1180px) { .lp-branchen-grid { grid-template-columns: repeat(2,1fr); } }
 .lp-bcard {
   background: rgba(var(--ink),0.02); border: 0.5px solid rgba(var(--ink),0.08);
   border-radius: 18px; padding: 26px 22px; display: flex; flex-direction: column;
