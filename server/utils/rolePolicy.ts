@@ -17,7 +17,7 @@ export const ROLE_RULES: RoleRule[] = [
   { pattern: /^\/api\/finance\/batch-dunning$/, role: 'platform', note: 'Sammel-Mahnlauf über alle Mandanten (der Handler verlangt die Gruppe admins)' },
   { pattern: /^\/api\/store\/branch-modules$/, methods: ['POST'], role: 'platform', note: 'Branchenpaket ohne Kauf zuweisen (der Handler verlangt die Gruppe admins)' },
   { pattern: /^\/api\/settings\/(agb|datenschutz)$/, role: 'platform', note: 'Rechtstexte der Plattform (Lesen ist öffentlich)' },
-  { pattern: /^\/api\/settings\/(dunning|payment|testimonials)$/, role: 'platform', note: 'Plattform-Einstellungen (global)' },
+  { pattern: /^\/api\/settings\/(dunning|payment|testimonials|landing-theme)$/, role: 'platform', note: 'Plattform-Einstellungen (global)' },
 
   // ── jedes angemeldete Konto ──
   { prefix: '/api/drafts', role: 'self', note: 'eigene Entwürfe' },

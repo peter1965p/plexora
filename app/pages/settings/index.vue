@@ -1391,6 +1391,66 @@
       </div>
     </div>
 
+  <!-- ── STARTSEITE (Design der öffentlichen Plexora-Seite, global) ── -->
+  <div v-if="tab === 'landing'" class="card">
+    <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Startseite (Design)</span></div>
+    <div class="card-body" style="display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:24px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:12px;color:var(--text-muted)">Farben der öffentlichen Plexora-Startseite (www.plexora.eu). Gilt sofort für alle Besucher, sobald du speicherst.</div>
+        <div>
+          <div class="lt-label">Design</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button v-for="m in LT_MODES" :key="m.key" class="lt-mode" :class="{ on: lt.mode === m.key }" @click="lt.mode = m.key as any"><i class="ti" :class="m.icon"></i> {{ m.label }}</button>
+          </div>
+          <div v-if="lt.mode !== 'custom'" style="font-size:11px;color:var(--text-muted);margin-top:6px">Besucher dürfen zwischen Hell und Dunkel umschalten. Eigene Farben sind fest.</div>
+        </div>
+        <template v-if="lt.mode === 'custom'">
+          <div>
+            <div class="lt-label">Vorlagen</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="pr in LANDING_PRESETS.filter(x => x.theme.mode === 'custom')" :key="pr.key" class="lt-chip" @click="applyLandingPreset(pr.theme)">{{ pr.label }}</button></div>
+          </div>
+          <div>
+            <div class="lt-label">Hintergrund (Display)</div>
+            <div style="display:flex;gap:8px;align-items:center"><input type="color" v-model="lt.bg" class="lt-color" /><input v-model="lt.bg" maxlength="7" style="width:96px;font-family:monospace" /><span style="font-size:12px;color:var(--text-muted)">ergibt {{ ltResult?.info.bg }}</span></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Deckkraft</span><input type="range" min="0" max="100" v-model.number="lt.bgOpacity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.bgOpacity }} %</strong></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Die Seite liegt auf Weiß: 75 % Schwarz ergibt ein dunkles Grau, 100 % echtes Schwarz.</div>
+          </div>
+          <div>
+            <div class="lt-label">Vordergrund / Akzent</div>
+            <div style="display:flex;gap:8px;align-items:center"><input type="color" v-model="lt.accent" class="lt-color" /><input v-model="lt.accent" maxlength="7" style="width:96px;font-family:monospace" /><span style="font-size:12px;color:var(--text-muted)">Schaltflächen, Zahlen, Hervorhebungen</span></div>
+          </div>
+          <div>
+            <div class="lt-label">Textfarbe</div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" :checked="!lt.text" @change="lt.text = ($event.target as HTMLInputElement).checked ? '' : (ltResult?.info.text || '#ffffff')" /> automatisch passend zum Hintergrund</label>
+            <div v-if="lt.text" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="color" v-model="lt.text" class="lt-color" /><input v-model="lt.text" maxlength="7" style="width:96px;font-family:monospace" /></div>
+          </div>
+          <div v-if="ltWarnings.length" style="padding:10px 12px;border-radius:8px;background:#F0B42822;color:#8a5d00;font-size:12px;display:flex;flex-direction:column;gap:6px"><div v-for="w in ltWarnings" :key="w"><i class="ti ti-alert-triangle"></i> {{ w }}</div></div>
+          <div v-else style="font-size:12px;color:#00A844"><i class="ti ti-circle-check"></i> Lesbarkeit in Ordnung (Text {{ ltResult?.info.textContrast }}:1, Schaltflächen {{ ltResult?.info.buttonContrast }}:1)</div>
+        </template>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
+          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light' })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
+          <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Startseite öffnen</a>
+        </div>
+      </div>
+
+      <!-- Live-Vorschau: dieselbe Farbrechnung wie auf der Startseite -->
+      <div>
+        <div class="lt-label">Vorschau</div>
+        <div class="lt-prev" :style="ltPreviewVars">
+          <div class="lt-nav"><strong>Plexo<span style="color:var(--accent)">ra</span></strong><span style="flex:1"></span><span class="lt-pill">Anmelden</span><span class="lt-btn">Preise</span></div>
+          <div style="padding:22px 18px 8px"><div style="font-size:11px;letter-spacing:2px;color:var(--blue)">BUSINESS PLATFORM</div>
+            <div style="font-size:30px;font-weight:800;line-height:1.1;margin:8px 0 4px;color:var(--text-strong)">Eine Lizenz.<br /><span style="color:var(--accent2)">Alles drin.</span></div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:14px">Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt?</div>
+            <span class="lt-btn" style="padding:9px 20px">Demo ausprobieren ↗</span> <span class="lt-pill" style="margin-left:6px">Preise ansehen</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px 18px">
+            <div v-for="c in [['6','Module'],['1','Login'],['49 €','ab']]" :key="c[0]" class="lt-card"><div style="font-size:20px;font-weight:800;color:var(--accent2)">{{ c[0] }}</div><div style="font-size:11px;color:var(--muted)">{{ c[1] }}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── WEBSITE / NEXORA ── -->
     <div v-if="tab === 'nexora'" class="card">
       <div class="card-header">
@@ -1781,6 +1841,7 @@
 <script setup lang="ts">
 import { hasTurnstilePrivacy, withTurnstilePrivacy } from '~~/shared/turnstilePrivacy'
 import { marked } from 'marked'
+import { parseLandingTheme, customTheme, themeWarnings, PRESETS as LANDING_PRESETS, DEFAULT_LANDING_THEME, type LandingTheme } from '~~/shared/landingTheme'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore, THEMES } from '~/stores/app'
 
@@ -1929,6 +1990,7 @@ const ADMIN_TABS = [
   { key: 'dunning',      label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
   { key: 'payment',      label: 'Payment',          icon: 'ti-credit-card'     },
   { key: 'testimonials', label: 'Testimonials',     icon: 'ti-quote'           },
+  { key: 'landing',      label: 'Startseite (Design)', icon: 'ti-palette'      },
 ]
 
 const tabs = computed(() => {
@@ -2933,6 +2995,44 @@ async function saveTestimonials() {
   }
 }
 
+// ── Startseite (Design) ──
+const LT_MODES = [{ key: 'light', label: 'Freundlich hell', icon: 'ti-sun' }, { key: 'dark', label: 'Dunkel', icon: 'ti-moon' }, { key: 'custom', label: 'Eigene Farben', icon: 'ti-palette' }]
+const lt = reactive<LandingTheme>({ ...DEFAULT_LANDING_THEME })
+const ltSaving = ref(false)
+let ltLoaded = false
+const ltResult = computed(() => (lt.mode === 'custom' ? customTheme(parseLandingTheme(lt)) : null))
+const ltWarnings = computed(() => themeWarnings(parseLandingTheme(lt)))
+const LT_BUILTIN: Record<string, Record<string, string>> = {
+  light: { '--bg': '#fff8f1', '--card': '#ffffff', '--text-strong': '#231c2c', '--muted': '#6a6377', '--accent': '#ea580c', '--accent2': '#c2410c', '--blue': '#0369a1', '--btn': '#d9480f', '--btn-text': '#fff', '--line': 'rgba(43,36,51,.1)' },
+  dark:  { '--bg': '#1a1723', '--card': '#241f30', '--text-strong': '#f0eef9', '--muted': '#8b8fa8', '--accent': '#ea580c', '--accent2': '#fb923c', '--blue': '#38bdf8', '--btn': '#ea580c', '--btn-text': '#fff', '--line': 'rgba(255,255,255,.1)' },
+}
+const ltPreviewVars = computed(() => {
+  const r = ltResult.value
+  if (!r) return LT_BUILTIN[lt.mode === 'dark' ? 'dark' : 'light']
+  const v = r.vars
+  return { '--bg': v['--bg'], '--card': v['--card'], '--text-strong': v['--text-strong'], '--muted': v['--muted'], '--accent': v['--btn'], '--accent2': v['--orange2'], '--blue': v['--blue'], '--btn': v['--btn'], '--btn-text': v['--btn-text'], '--line': `rgba(${v['--ink']},.12)` }
+})
+async function loadLanding() {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ theme: any }>(useApiUrl('/api/settings/landing-theme'), { headers: await useAuthHeader() })
+    Object.assign(lt, parseLandingTheme(res.theme))
+  } catch {}
+}
+watch(tab, (v) => { if (v === 'landing' && !ltLoaded) { ltLoaded = true; loadLanding() } })
+function applyLandingPreset(t: LandingTheme) { Object.assign(lt, t) }
+async function saveLanding() {
+  ltSaving.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ theme: any }>(useApiUrl('/api/settings/landing-theme'), { method: 'POST', headers: await useAuthHeader(), body: parseLandingTheme(lt) })
+    Object.assign(lt, parseLandingTheme(res.theme))
+    showSettingsToast('Startseiten-Design gespeichert!')
+  } catch (e: any) {
+    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+  } finally { ltSaving.value = false }
+}
+
 async function saveAgb() {
   if (isDemo.value) return
   agbSaving.value = true
@@ -3063,3 +3163,17 @@ async function saveFallbackLink() {
 }
 
 </script>
+
+<style scoped>
+.lt-label { font-size: 12px; font-weight: 700; margin-bottom: 6px }
+.lt-mode { border: 1px solid var(--border); background: var(--bg-surface); border-radius: 10px; padding: 8px 12px; cursor: pointer; font-size: 13px; color: var(--text); display: inline-flex; gap: 6px; align-items: center }
+.lt-mode.on { border-color: var(--accent); font-weight: 700; box-shadow: 0 0 0 1px var(--accent) inset }
+.lt-chip { border: 1px solid var(--border); background: var(--bg-surface); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 12px; color: var(--text) }
+.lt-chip:hover { border-color: var(--accent) }
+.lt-color { width: 44px; height: 34px; padding: 2px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer }
+.lt-prev { background: var(--bg); color: var(--text-strong); border-radius: 14px; overflow: hidden; border: 1px solid rgba(128,128,128,.25); font-family: sans-serif }
+.lt-nav { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 15px }
+.lt-pill { border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px; font-size: 12px; display: inline-block }
+.lt-btn { background: var(--btn); color: var(--btn-text); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; display: inline-block }
+.lt-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: center }
+</style>
