@@ -1451,6 +1451,25 @@
     </div>
   </div>
 
+    <div v-if="tab === 'landing'" class="card" style="margin-top:16px">
+      <div class="card-header"><span class="card-title"><i class="ti ti-layout-grid" style="margin-right:8px;color:var(--accent)"></i>Branchen-Pakete auf der Startseite</span></div>
+      <div class="card-body" style="max-width:640px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;color:var(--text-muted)">Die Pakete kommen aus dem Modul-Store (Name, Preis und Text pflegst du dort). Hier wählst du, welche auf www.plexora.eu erscheinen und in welcher Reihenfolge.</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" :checked="lp.auto" @change="setLpAuto(($event.target as HTMLInputElement).checked)" /> Alle Pakete automatisch anzeigen (neue erscheinen von selbst)</label>
+        <div v-if="!lp.auto" style="display:flex;flex-direction:column;gap:6px">
+          <div v-for="(k, i) in lp.shown" :key="k" class="lp-row"><i class="ti ti-grip-vertical" style="color:var(--text-muted)"></i><strong style="flex:1">{{ lpName(k) }}</strong><span style="color:var(--text-muted);font-size:12px">{{ lpPrice(k) }}</span>
+            <button class="icon-btn" :disabled="i === 0" title="nach oben" @click="lpMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
+            <button class="icon-btn" :disabled="i === lp.shown.length - 1" title="nach unten" @click="lpMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
+            <button class="icon-btn" style="color:var(--danger)" title="ausblenden" @click="lp.shown.splice(i, 1)"><i class="ti ti-eye-off"></i></button></div>
+          <div v-if="lpHidden.length" style="font-size:12px;color:var(--text-muted);margin-top:6px">Ausgeblendet (zum Anzeigen anklicken):</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="p in lpHidden" :key="p.key" class="lt-chip" @click="lp.shown.push(p.key)"><i class="ti ti-plus"></i> {{ p.name }} · {{ eur0(p.price) }}</button></div>
+          <div v-if="!lp.shown.length" style="font-size:12px;color:#8a5d00"><i class="ti ti-alert-triangle"></i> Keine Auswahl: die Startseite zeigt dann keinen Abschnitt „Branchen-Pakete“ (ihre festen Platzhalter erscheinen nur, wenn der Abruf scheitert).</div>
+        </div>
+        <div v-else style="font-size:12px;color:var(--text-muted)">Aktuell im Store: {{ lp.available.map((p: any) => p.name).join(', ') || 'keine Pakete' }}.</div>
+        <div><button class="accent-btn" :disabled="lpSaving || isDemo" @click="saveLp"><i class="ti" :class="lpSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button></div>
+      </div>
+    </div>
+
   <!-- ── WEBSITE / NEXORA ── -->
     <div v-if="tab === 'nexora'" class="card">
       <div class="card-header">
@@ -3033,6 +3052,33 @@ async function saveLanding() {
   } finally { ltSaving.value = false }
 }
 
+// ── Branchen-Pakete auf der Startseite ──
+const lp = reactive<{ available: any[]; shown: string[]; auto: boolean }>({ available: [], shown: [], auto: true })
+const lpSaving = ref(false)
+const lpName = (k: string) => lp.available.find(p => p.key === k)?.name || k
+const eur0 = (n: number) => `${n} €`
+const lpPrice = (k: string) => { const p = lp.available.find(x => x.key === k); return p ? `${eur0(p.price)} / Monat` : '' }
+const lpHidden = computed(() => lp.available.filter(p => !lp.shown.includes(p.key)))
+function lpMove(i: number, by: number) { const j = i + by; if (j < 0 || j >= lp.shown.length) return; const a = lp.shown; [a[i], a[j]] = [a[j], a[i]] }
+function setLpAuto(auto: boolean) { lp.auto = auto; if (!auto && !lp.shown.length) lp.shown = lp.available.map(p => p.key) }
+async function loadLandingPackages() {
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    const res = await $fetch<{ available: any[]; shown: string[] | null }>(useApiUrl('/api/settings/landing-packages'), { headers: await useAuthHeader() })
+    lp.available = res.available || []; lp.auto = res.shown === null; lp.shown = (res.shown || []).filter(k => lp.available.some(p => p.key === k))
+  } catch {}
+}
+watch(tab, (v) => { if (v === 'landing') loadLandingPackages() })
+async function saveLp() {
+  lpSaving.value = true
+  try {
+    const { useAuthHeader } = await import('~/composables/useAuth')
+    await $fetch(useApiUrl('/api/settings/landing-packages'), { method: 'POST', headers: await useAuthHeader(), body: { shown: lp.auto ? null : lp.shown } })
+    showSettingsToast('Auswahl gespeichert!')
+  } catch (e: any) { showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true) }
+  finally { lpSaving.value = false }
+}
+
 async function saveAgb() {
   if (isDemo.value) return
   agbSaving.value = true
@@ -3176,4 +3222,5 @@ async function saveFallbackLink() {
 .lt-pill { border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px; font-size: 12px; display: inline-block }
 .lt-btn { background: var(--btn); color: var(--btn-text); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; display: inline-block }
 .lt-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: center }
+.lp-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-surface) }
 </style>

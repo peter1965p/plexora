@@ -88,7 +88,7 @@ export const EVIDENCE: Record<string, Evidence> = {
   'GET /api/public/[tenantId]/termine/availability': { kind: 'read', params: T, query: { date: '2026-12-01', typeId: 't1' }, db: { ...NX, 'plexora-termine-types': [TERMINE_TYPE], 'plexora-termine-bookings': [] }, keys: ['slots'], status: [200, 404] },
   'GET /api/public/[tenantId]/vehicles': { kind: 'read', params: T, db: { 'plexora-vehicles': [VEHICLE] }, keys: ['vehicles'], writes: ['plexora-site-analytics'], note: 'zählt den Seitenaufruf' },
   'GET /api/public/resolve': { kind: 'read', query: { host: 'www.firma-a.de' }, db: NX, keys: ['tenantId'] },
-  'GET /api/public/branch-packages': { kind: 'read', db: { 'plexora-plugin-registry': [
+  'GET /api/public/branch-packages': { kind: 'read', db: { 'plexora-settings': { settingId: 'landing-packages', scope: 'global', shown: null }, 'plexora-plugin-registry': [
     { key: 'fewo', name: 'Ferienwohnungen', icon: 'BedDouble', price: 79, desc: 'Text', features: ['A'], builtin: true, route: '/fewo', internalNote: SECRETS.note },
     { key: 'plug', name: 'Plugin', price: 5, builtin: false, remoteEntryUrl: 'https://geheim.example/' + SECRETS.apiKey },
   ] }, keys: ['packages'], note: 'Eingebaute Branchen-Pakete aus dem Modul-Store (Name, Preis, Text); keine Plugin-Adressen oder internen Felder' },

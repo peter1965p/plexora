@@ -99,3 +99,18 @@ export function themeWarnings(t: LandingTheme): string[] {
   if (r.info.accentOnBgContrast < 3 && t.accent) out.push(`Der Akzent hebt sich kaum vom Hintergrund ab (Kontrast ${r.info.accentOnBgContrast}:1). Schaltflächen und Zahlen werden deshalb automatisch aufgehellt bzw. abgedunkelt dargestellt.`)
   return out
 }
+
+// ── Auswahl der Branchen-Pakete auf der Startseite ──
+/** Gespeicherte Auswahl prüfen: null = alle anzeigen (Standard), sonst die gewählten Schlüssel in der gewählten Reihenfolge (ohne Doppelte, höchstens 24) */
+export function parseLandingPackages(raw: unknown): string[] | null {
+  if (!Array.isArray(raw)) return null
+  const out: string[] = []
+  for (const k of raw) if (typeof k === 'string' && /^[a-z0-9-]{1,40}$/.test(k) && !out.includes(k)) out.push(k)
+  return out.slice(0, 24)
+}
+/** Wendet die Auswahl auf die verfügbaren Pakete an: ohne Auswahl alle (nach Name), sonst nur die gewählten in gewählter Reihenfolge; unbekannte Schlüssel entfallen */
+export function selectPackages<T extends { key: string; name: string }>(all: T[], shown: string[] | null): T[] {
+  if (shown === null) return [...all].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+  const byKey = new Map(all.map(p => [p.key, p]))
+  return shown.map(k => byKey.get(k)).filter((p): p is T => !!p)
+}

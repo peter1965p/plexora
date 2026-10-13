@@ -270,7 +270,7 @@
     </section>
 
     <!-- BRANCHEN-PAKETE -->
-    <section class="lp-wrap lp-branchen-section lp-reveal" id="branchen">
+    <section v-if="branchItems.length" class="lp-wrap lp-branchen-section lp-reveal" id="branchen">
       <div class="lp-branchen-panel">
         <div class="lp-section-label">{{ t.branchen.label }}</div>
         <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.branchen.heading }}</h2>
@@ -774,8 +774,10 @@ onMounted(() => {
 const BRANCH_ICONS: Record<string, any> = { Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble }
 const { data: branchData } = useFetch(useApiUrl('/api/public/branch-packages'), { server: false })
 const branchItems = computed(() => {
-  const live = ((branchData.value as any)?.packages || []) as any[]
-  if (!live.length) return t.value.branchen.items
+  const d = branchData.value as any
+  const live = (d?.packages || []) as any[]
+  if (!d || d.unavailable) return t.value.branchen.items          // noch nicht geladen oder Abruf gescheitert: feste Einträge
+  if (!live.length) return []                                     // bewusst keine Auswahl: Abschnitt entfällt
   const staticByKey = Object.fromEntries((t.value.branchen.items as any[]).map(i => [i.key, i]))
   return live.map(p => {
     const st = lang.value === 'en' ? staticByKey[p.key] : null       // Englische Texte nur, wo es sie gibt; sonst die deutschen aus dem Store
