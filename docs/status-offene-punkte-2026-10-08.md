@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 22 (previous 21), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 30 (previous 29), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -81,6 +81,15 @@ Live: Backend Version 22 (previous 21), Pre-signup Version 2, alle drei Prüfung
 | Buttons "Angebot erstellen" bei Kontakt und Deal (CRM) | erledigt, live (Formular vorbefüllt, nichts wird ohne Speichern angelegt) | – |
 | Kampagne: Schalter "Bei Anfrage Angebot-Entwurf anlegen" (Paket, Preis netto, Gültigkeit, Aktionsende) | erledigt, live; es entsteht nur ein **Entwurf** + Benachrichtigung, nie ein automatischer Versand | wartet auf dich: Schalter in der Aktions-Kampagne einschalten (Paket "Website-Paket", 450 €) und einmal testen |
 | Umsatzsteuer | folgt deinen Rechnungs-Einstellungen (Standard 19 %, Kleinunternehmer möglich) | wartet auf dich: bitte prüfen, ob 450 € netto oder brutto gemeint sind und ob Kleinunternehmer gilt |
+
+## 8. Ferienwohnungen (neu, 13.10.2026)
+
+| Punkt | Stand | Was noch fehlt |
+|---|---|---|
+| Branchenpaket Ferienwohnungen (`/fewo`): Unterkünfte, Buchungen, Belegungsplan, Preise, Rechnung aus Buchung | **erledigt und live (Version 30)**; Tabellen angelegt; drei Prüfungen grün; neue Routen anonym 401/404 | wartet auf dich: einmal ausprobieren (Unterkunft, Buchung, Rechnung) |
+| Booking.com/Airbnb per iCal (Link raus, Kanal-Kalender rein) | erledigt, live; Anleitung `docs/fewo-modul.md` | wartet auf dich: echten Booking-Link eintragen und prüfen, ob Booking den Plexora-Link annimmt (das kann nur dein Konto zeigen) |
+| Modul-Store-Eintrag mit Preis (Menüpunkt in der Seitenleiste) | nicht angelegt (Preis ist deine Entscheidung; Käufer kämen sonst in einen Checkout) | wartet auf dich: Preis nennen |
+| Automatischer Abgleich, Gäste-Verfügbarkeit auf der Webseite, Booking.com-Live-Schnittstelle | nicht gebaut | auf Anforderung; Live-Schnittstelle nur nach Zulassung als Connectivity Partner |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
