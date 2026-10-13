@@ -17,7 +17,7 @@ export const AREA_ROLES: Array<{ prefix: string; area: string; role: RoleNeed }>
   { prefix: '/termine', area: 'Termine', role: 'member' }, { prefix: '/marketing', area: 'Marketing', role: 'member' }, { prefix: '/forms', area: 'Formulare', role: 'member' },
   { prefix: '/finance', area: 'Finanzen', role: 'admin' }, { prefix: '/contracts', area: 'Verträge', role: 'admin' }, { prefix: '/hr', area: 'HR', role: 'admin' },
   { prefix: '/shop-admin', area: 'Shop', role: 'admin' }, { prefix: '/newsletter', area: 'Newsletter', role: 'admin' }, { prefix: '/blog', area: 'Blog', role: 'admin' },
-  { prefix: '/automotive', area: 'Automotive', role: 'admin' }, { prefix: '/immobilien', area: 'Immobilien', role: 'admin' }, { prefix: '/gastro', area: 'Gastronomie', role: 'admin' },
+  { prefix: '/automotive', area: 'Automotive', role: 'admin' }, { prefix: '/immobilien', area: 'Immobilien', role: 'admin' }, { prefix: '/gastro', area: 'Gastronomie', role: 'admin' }, { prefix: '/fewo', area: 'Ferienwohnungen', role: 'admin' },
   { prefix: '/handwerk', area: 'Handwerk', role: 'admin' }, { prefix: '/praxis', area: 'Praxis', role: 'admin' }, { prefix: '/retail', area: 'Einzelhandel', role: 'admin' },
   { prefix: '/rechnungs-design', area: 'Rechnungs-Design', role: 'admin' }, { prefix: '/analytics', area: 'Analytics', role: 'admin' }, { prefix: '/seo', area: 'SEO / GEO', role: 'admin' },
   { prefix: '/settings', area: 'Einstellungen', role: 'admin' }, { prefix: '/store', area: 'Modul-Store', role: 'owner' },

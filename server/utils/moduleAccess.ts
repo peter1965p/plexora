@@ -73,6 +73,7 @@ export const MODULE_RULES: ModuleRule[] = [
   { prefix: '/api/properties', need: { branch: 'immobilien' }, note: 'Branchenpaket Immobilien' },
   { prefix: '/api/viewings', need: { branch: 'immobilien' }, note: 'Branchenpaket Immobilien' },
   { prefix: '/api/renters', need: { branch: 'immobilien' }, note: 'Branchenpaket Immobilien' },
+  { prefix: '/api/fewo', need: { branch: 'fewo' }, note: 'Branchenpaket Ferienwohnungen' },
   { prefix: '/api/retail', need: { branch: 'retail' }, note: 'Branchenpaket Retail' },
 ]
 

@@ -73,6 +73,14 @@
    "parentField": "campaignId",
    "childField": "campaignId"
   },
+  "plexora-fewo-bookings": {
+   "mode": "owner",
+   "attr": "tenantId"
+  },
+  "plexora-fewo-units": {
+   "mode": "owner",
+   "attr": "tenantId"
+  },
   "plexora-quotes": {
    "mode": "owner",
    "attr": "userId"

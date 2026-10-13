@@ -4,7 +4,7 @@ import { compileNewsletterHtml } from './newsletterHtml'
 import { getTenantByEmail } from './ai/keys'
 import { sendMail } from './mailer'
 import { lookup } from 'dns/promises'
-import { isIP } from 'net'
+import { isPrivateIp } from './safeFetch'
 
 // Schlankes, natives Automatisierungs-Fundament: "Wenn [Trigger], dann [Aktion]" —
 // bewusst ohne Bedingungen/Verzweigungen/Mehrstufigkeit. Die Aktionen laufen selbst in
@@ -17,28 +17,6 @@ export type AutomationAction = 'send_email_template' | 'set_lead_status' | 'send
 
 function fillPlaceholders(template: string, data: Record<string, any>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => String(data[key] ?? ''))
-}
-
-// SSRF-Schutz: Webhook-URLs kommen vom Tenant selbst, der Server ruft sie serverseitig
-// (also aus dem AWS-Lambda-Netzwerk) auf. Ohne Prüfung könnte jemand auf interne
-// Adressen zielen (z.B. 169.254.169.254 = AWS Metadata-Endpunkt mit Credentials).
-function isPrivateIp(ip: string): boolean {
-  if (ip === '169.254.169.254') return true // AWS/Cloud Metadata-Endpunkt
-  if (isIP(ip) === 4) {
-    const [a, b] = ip.split('.').map(Number)
-    if (a === 127) return true // loopback
-    if (a === 10) return true // 10.0.0.0/8
-    if (a === 172 && b >= 16 && b <= 31) return true // 172.16.0.0/12
-    if (a === 192 && b === 168) return true // 192.168.0.0/16
-    if (a === 169 && b === 254) return true // link-local
-    if (a === 0) return true
-  }
-  if (isIP(ip) === 6) {
-    const lower = ip.toLowerCase()
-    if (lower === '::1') return true // loopback
-    if (lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd')) return true // link-local/ULA
-  }
-  return false
 }
 
 async function assertSafeWebhookUrl(rawUrl: string) {

@@ -54,7 +54,7 @@ export const ROLE_RULES: RoleRule[] = [
   { prefix: '/api/ai', role: 'admin', note: 'KI-Assistent führt Aktionen in allen Modulen aus und würde sonst die Sperren eines Mitglieds umgehen' },
   { prefix: '/api/mail-log', role: 'admin', note: 'Versandprotokoll' }, { prefix: '/api/plugins', role: 'admin', note: 'Plugin-Daten' },
   { prefix: '/api/automotive', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/workshop', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/praxis', role: 'admin', note: 'Branchenpaket (Patientendaten)' },
-  { prefix: '/api/handwerk', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/gastro-', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/properties', role: 'admin', note: 'Branchenpaket der Branche' },
+  { prefix: '/api/handwerk', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/gastro-', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/properties', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/fewo', role: 'admin', note: 'Branchenpaket Ferienwohnungen' },
   { prefix: '/api/viewings', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/renters', role: 'admin', note: 'Branchenpaket der Branche' }, { prefix: '/api/retail', role: 'admin', note: 'Branchenpaket der Branche' },
 ]
 
