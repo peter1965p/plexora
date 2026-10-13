@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 30 (previous 29), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 31 (previous 30), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -90,6 +90,14 @@ Live: Backend Version 30 (previous 29), Pre-signup Version 2, alle drei Prüfung
 | Booking.com/Airbnb per iCal (Link raus, Kanal-Kalender rein) | erledigt, live; Anleitung `docs/fewo-modul.md` | wartet auf dich: echten Booking-Link eintragen und prüfen, ob Booking den Plexora-Link annimmt (das kann nur dein Konto zeigen) |
 | Modul-Store-Eintrag mit Preis (Menüpunkt in der Seitenleiste) | nicht angelegt (Preis ist deine Entscheidung; Käufer kämen sonst in einen Checkout) | wartet auf dich: Preis nennen |
 | Automatischer Abgleich, Gäste-Verfügbarkeit auf der Webseite, Booking.com-Live-Schnittstelle | nicht gebaut | auf Anforderung; Live-Schnittstelle nur nach Zulassung als Connectivity Partner |
+
+## 9. Startseite plexora.eu (neu, 13.10.2026)
+
+| Punkt | Stand | Was noch fehlt |
+|---|---|---|
+| Freundliches helles Design als Standard (Creme, weiche Karten, Orange); dunkles Design bleibt per Umschalter | erledigt, live | wartet auf dich: ansehen |
+| Einstellungen → "Startseite (Design)": Hell / Dunkel / Eigene Farben (Hintergrund + Deckkraft, Akzent, Textfarbe), Vorlagen (u. a. "Deep Blue auf 75 % Schwarz"), Live-Vorschau, Kontrastwarnung | erledigt, live (Backend Version 31); nur für Betreiber | wartet auf dich: Vorlage wählen und speichern |
+| Seitenrand der Abschnitte (klebten bei 1440 px am Rand) | behoben | – |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
