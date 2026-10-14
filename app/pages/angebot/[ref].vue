@@ -10,8 +10,8 @@
       </div>
 
       <div v-else>
-        <!-- Logo-Feld: gleiche Breite und Rundung wie die Karten darunter, damit die Kanten bündig abschließen -->
-        <div v-if="q.brand.logo" class="logo-panel"><img :src="q.brand.logo" :alt="q.brand.name" /></div>
+        <!-- Das Logo füllt die Kartenbreite (bündige Kanten, gleiche Rundung wie die Karten) -->
+        <img v-if="q.brand.logo" class="logo-full" :src="q.brand.logo" :alt="q.brand.name" />
         <div v-else style="text-align:center;margin-bottom:24px;font-size:26px;font-weight:800" :style="{ color: q.brand.color }">{{ q.brand.name }}</div>
 
         <div v-if="q.status === 'accepted'" class="banner" style="background:#00C85318;color:#00A844"><i class="ti ti-circle-check"></i> Angenommen. Vielen Dank! {{ q.brand.name }} meldet sich bei Ihnen.</div>
@@ -76,7 +76,6 @@ onMounted(load)
 </script>
 
 <style scoped>
-.logo-panel { background: #fff; border-radius: 14px; padding: 18px 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; min-height: 110px; box-sizing: border-box }
-.logo-panel img { max-height: 96px; max-width: 100%; width: auto; object-fit: contain; display: block }
+.logo-full { display: block; width: 100%; height: auto; max-height: 240px; object-fit: cover; border-radius: 14px; margin-bottom: 16px }
 .banner { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 14px; font-weight: 600 }
 </style>
