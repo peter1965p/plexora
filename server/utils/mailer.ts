@@ -15,6 +15,8 @@ export interface MailInput {
   subject: string
   html?: string
   text?: string
+  /** Anhänge (z. B. Kalendereinladung .ics): Inhalt als Text */
+  attachments?: Array<{ filename: string; content: string; contentType?: string }>
 }
 
 // Zentraler Versand: Resend meldet Fehler als Rückgabewert statt als Exception —
@@ -55,6 +57,7 @@ export async function sendMail(input: MailInput): Promise<'sent' | 'failed' | 's
       subject: input.subject,
       html: input.html,
       text: input.text,
+      ...(input.attachments?.length ? { attachments: input.attachments.map(a => ({ filename: a.filename, content: Buffer.from(a.content, 'utf8'), ...(a.contentType ? { contentType: a.contentType } : {}) })) } : {}),
     })
     if (res.error) {
       status = 'failed'

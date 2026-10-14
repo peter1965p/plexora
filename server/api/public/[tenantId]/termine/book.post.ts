@@ -2,6 +2,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
+import { buildInviteIcs } from '../../../../../shared/termineIcal'
 import { wantsJitsi, jitsiHostOf, jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../../../utils/videoLink'
 import { sendMail } from '../../../../utils/mailer'
 import { enforcePublicRateLimit } from '../../../../utils/rateLimit'
@@ -99,12 +100,14 @@ export default defineEventHandler(async (event) => {
     kind: 'booking_confirmation',
     from: `${companyName} <termine@plexora.eu>`,
     to: customerEmail,
+    attachments: [{ filename: 'termin.ics', content: buildInviteIcs(companyName, item as any, String(tenantItem.termineTimezone || 'Europe/Berlin')), contentType: 'text/calendar; charset=utf-8; method=PUBLISH' }],
     subject: `Terminbestätigung: ${typeItem.name} am ${dateLabel}`,
     html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
       <p>Hallo ${customerName},</p>
       <p>dein Termin ist bestätigt:</p>
       <p><strong>${typeItem.name}</strong><br>${dateLabel}, ${startTime} – ${endTime} Uhr (${durationMinutes} Min.)</p>
       <p>${details}</p>
+      <p style="font-size:12px;color:#666">Im Anhang findest du eine Kalenderdatei (termin.ics) zum Übernehmen in deinen Kalender.</p>
       <p>Viele Grüße<br>${companyName}</p>
     </div>`,
   })

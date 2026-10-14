@@ -10,7 +10,7 @@
       <button v-if="activeTab === 'terminarten'" class="accent-btn" @click="openNewType">
         <i class="ti ti-plus"></i> Terminart anlegen
       </button>
-      <button v-if="activeTab === 'termine'" class="accent-btn" :disabled="!types.length" @click="openManualBooking">
+      <button v-if="activeTab === 'termine' || activeTab === 'kalender'" class="accent-btn" :disabled="!types.length" @click="openManualBooking()">
         <i class="ti ti-plus"></i> Termin eintragen
       </button>
     </div>
@@ -71,7 +71,12 @@
     </div>
 
     <!-- ── TAB: TERMINARTEN ── -->
-    <div v-if="activeTab === 'terminarten'">
+    <div v-if="activeTab === 'kalender'">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="openSubscribe"><i class="ti ti-calendar-share"></i> Kalender abonnieren</button></div>
+      <TermineCalendar :bookings="bookings" :can-create="types.some(t => t.active)" @new="(d, t) => openManualBooking(d, t)" @open="openDetail" />
+    </div>
+
+    <div v-else-if="activeTab === 'terminarten'">
       <div v-if="loadingTypes" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
       </div>
@@ -253,6 +258,41 @@
     </div>
 
     <!-- MODAL: Termin manuell eintragen -->
+    <!-- KALENDER ABONNIEREN (.ics) -->
+    <div v-if="showSubscribe" class="modal-overlay" @click.self="showSubscribe = false">
+      <div class="modal-card" style="max-width:520px">
+        <div class="modal-header"><span class="card-title">Kalender abonnieren</span><button class="icon-btn" @click="showSubscribe = false"><i class="ti ti-x"></i></button></div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+          <div style="color:var(--text-muted)">Mit diesem Link siehst du deine Termine in Google Kalender, Apple Kalender (iPhone/Mac), Outlook oder Thunderbird. Neue Buchungen erscheinen dort automatisch (je nach App mit etwas Verzögerung). Es geht nur in eine Richtung: Plexora → dein Kalender.</div>
+          <div v-if="subscribeLoading"><i class="ti ti-loader-2 spin"></i></div>
+          <template v-else-if="subscribeUrl">
+            <div style="display:flex;gap:6px"><input :value="subscribeUrl" readonly style="flex:1;font-size:12px" @focus="($event.target as HTMLInputElement).select()" /><button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" @click="copySubscribe"><i class="ti ti-copy"></i> {{ subscribeCopied ? 'Kopiert' : 'Kopieren' }}</button></div>
+            <div style="font-size:12px;color:var(--text-muted)"><strong>So geht's:</strong> Google Kalender → „Weitere Kalender“ → „Per URL“. iPhone → Einstellungen → Kalender → Accounts → „Abonnierter Kalender“. Outlook → „Kalender hinzufügen“ → „Aus dem Internet“.</div>
+            <div style="font-size:12px;color:#8a5d00;background:#F0B42822;border-radius:8px;padding:8px 10px"><i class="ti ti-lock"></i> Der Link ist geheim: Wer ihn kennt, sieht Terminart, Zeit, Gastname, Telefon und Video-Link (keine E-Mail-Adressen, keine Notizen). Nicht weitergeben. Bei Verdacht: neuen Link erzeugen, der alte funktioniert dann nicht mehr.</div>
+            <div><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="createSubscribe(true)"><i class="ti ti-refresh"></i> Neuen Link erzeugen</button></div>
+          </template>
+          <button v-else class="auth-btn" @click="createSubscribe(false)"><i class="ti ti-link"></i> Abo-Link erzeugen</button>
+          <div v-if="subscribeError" style="color:#E05C5C">{{ subscribeError }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TERMIN-DETAILS (Klick im Kalender) -->
+    <div v-if="detail" class="modal-overlay" @click.self="detail = null">
+      <div class="modal-card" style="max-width:440px">
+        <div class="modal-header"><span class="card-title">{{ detail.typeName }}</span><button class="icon-btn" @click="detail = null"><i class="ti ti-x"></i></button></div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div><i class="ti ti-calendar" style="color:var(--accent)"></i> {{ new Date(detail.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) }}, {{ detail.startTime }}–{{ detail.endTime }} Uhr</div>
+          <div><i class="ti ti-user" style="color:var(--accent)"></i> <strong>{{ detail.customerName }}</strong><span v-if="detail.status === 'cancelled'" style="color:#E05C5C"> · storniert</span></div>
+          <div v-if="detail.customerEmail"><i class="ti ti-mail" style="color:var(--accent)"></i> {{ detail.customerEmail }}</div>
+          <div v-if="detail.customerPhone"><i class="ti ti-phone" style="color:var(--accent)"></i> {{ detail.customerPhone }}</div>
+          <div v-if="detail.channel !== 'phone' && (detail.videoLink || detail.googleMeetLink)"><i class="ti ti-video" style="color:var(--accent)"></i> <a :href="detail.videoLink || detail.googleMeetLink" target="_blank" rel="noopener" style="color:var(--accent)">Video-Raum öffnen</a></div>
+          <div v-if="detail.notes" style="padding:8px 10px;background:var(--bg-elevated);border-radius:8px;white-space:pre-line">{{ detail.notes }}</div>
+          <button v-if="detail.status !== 'cancelled'" class="auth-btn" style="background:#E05C5C;margin-top:6px" @click="cancelFromDetail"><i class="ti ti-x"></i> Termin stornieren</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="showManualBookingModal" class="modal-overlay" @click.self="showManualBookingModal=false">
       <div class="modal-card" style="max-width:440px">
         <div class="modal-header">
@@ -309,9 +349,10 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const userEmail = ref('')
 const authToken = ref('')
-const activeTab = ref('terminarten')
+const activeTab = ref('kalender')
 
 const tabs = [
+  { key: 'kalender',     label: 'Kalender',      icon: 'ti-calendar-month' },
   { key: 'terminarten',  label: 'Terminarten',  icon: 'ti-calendar-event' },
   { key: 'termine',      label: 'Termine',       icon: 'ti-list-details' },
   { key: 'einstellungen', label: 'Einstellungen', icon: 'ti-settings' },
@@ -424,6 +465,29 @@ async function cancelBooking(b: Booking) {
   await $fetch(useApiUrl(`/api/termine/bookings/${b.bookingId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { status: 'cancelled' } })
 }
 
+// ── Kalender abonnieren (.ics) ──
+const showSubscribe = ref(false), subscribeUrl = ref(''), subscribeLoading = ref(false), subscribeError = ref(''), subscribeCopied = ref(false)
+const authHdr = () => ({ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` })
+async function openSubscribe() {
+  showSubscribe.value = true; subscribeError.value = ''; subscribeCopied.value = false; subscribeLoading.value = true
+  try { subscribeUrl.value = (await $fetch<{ url: string | null }>(useApiUrl('/api/termine/ical-token'), { headers: authHdr() })).url || '' } catch (e: any) { subscribeError.value = e?.data?.message || 'Der Link konnte nicht geladen werden.' } finally { subscribeLoading.value = false }
+}
+async function createSubscribe(renew: boolean) {
+  if (renew && !confirm('Neuen Link erzeugen? Der alte Link (in deinen Kalender-Apps) hört sofort auf zu funktionieren, du musst den neuen dort eintragen.')) return
+  subscribeError.value = ''; subscribeLoading.value = true
+  try { subscribeUrl.value = (await $fetch<{ url: string }>(useApiUrl('/api/termine/ical-token'), { method: 'POST', headers: authHdr() })).url } catch (e: any) { subscribeError.value = e?.data?.message || 'Der Link konnte nicht erzeugt werden.' } finally { subscribeLoading.value = false }
+}
+async function copySubscribe() { try { await navigator.clipboard.writeText(subscribeUrl.value); subscribeCopied.value = true } catch { subscribeError.value = 'Kopieren nicht möglich, bitte von Hand markieren.' } }
+
+// ── Termin-Details (Kalender) ──
+const detail = ref<Booking | null>(null)
+function openDetail(b: Booking) { detail.value = b }
+async function cancelFromDetail() {
+  const b = detail.value; if (!b) return
+  await cancelBooking(b)
+  if (b.status === 'cancelled') detail.value = null
+}
+
 // ── Termin manuell eintragen ─────────────────────────────
 const showManualBookingModal = ref(false)
 const savingManualBooking    = ref(false)
@@ -439,10 +503,10 @@ const canSaveManualBooking = computed(() =>
   (manualBooking.channel === 'phone' ? !!manualBooking.customerPhone : !!manualBooking.customerEmail)
 )
 
-function openManualBooking() {
+function openManualBooking(date?: string, time?: string) {
   Object.assign(manualBooking, {
     typeId: types.value.find(t => t.active)?.typeId || '',
-    date: new Date().toISOString().slice(0, 10), startTime: '',
+    date: date || new Date().toISOString().slice(0, 10), startTime: time || '',
     channel: 'video', customerName: '', customerEmail: '', customerPhone: '', notes: '',
   })
   manualBookingError.value = ''
