@@ -10,10 +10,9 @@
       </div>
 
       <div v-else>
-        <div style="text-align:center;margin-bottom:24px">
-          <img v-if="q.brand.logo" :src="q.brand.logo" alt="" style="max-height:56px;max-width:200px;object-fit:contain" />
-          <div v-else style="font-size:26px;font-weight:800" :style="{ color: q.brand.color }">{{ q.brand.name }}</div>
-        </div>
+        <!-- Logo-Feld: gleiche Breite und Rundung wie die Karten darunter, damit die Kanten bündig abschließen -->
+        <div v-if="q.brand.logo" class="logo-panel"><img :src="q.brand.logo" :alt="q.brand.name" /></div>
+        <div v-else style="text-align:center;margin-bottom:24px;font-size:26px;font-weight:800" :style="{ color: q.brand.color }">{{ q.brand.name }}</div>
 
         <div v-if="q.status === 'accepted'" class="banner" style="background:#00C85318;color:#00A844"><i class="ti ti-circle-check"></i> Angenommen. Vielen Dank! {{ q.brand.name }} meldet sich bei Ihnen.</div>
         <div v-else-if="q.status === 'declined'" class="banner" style="background:#E05C5C18;color:#E05C5C"><i class="ti ti-circle-x"></i> Abgelehnt.</div>
@@ -77,5 +76,7 @@ onMounted(load)
 </script>
 
 <style scoped>
+.logo-panel { background: #fff; border-radius: 14px; padding: 18px 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; min-height: 110px; box-sizing: border-box }
+.logo-panel img { max-height: 96px; max-width: 100%; width: auto; object-fit: contain; display: block }
 .banner { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 14px; font-weight: 600 }
 </style>
