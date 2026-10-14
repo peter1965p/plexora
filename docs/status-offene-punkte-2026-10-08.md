@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 34 (previous 33), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 35 (previous 34), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -107,7 +107,7 @@ Live: Backend Version 34 (previous 33), Pre-signup Version 2, alle drei Prüfung
 | Eigener Terminkalender in Termine (Monat/Woche/Tag, Klick auf freie Stelle trägt Termin ein, Details und Stornieren) | erledigt, live | wartet auf dich: ansehen |
 | Abo-Link (.ics) für Google/Apple/Outlook, Kalenderdatei (.ics) in der Terminbestätigung | erledigt, live | wartet auf dich: Abo-Link einrichten und eine Testbuchung machen |
 | Video-Termine: Jitsi ist jetzt der Standard | erledigt | – |
-| Gantt-Projektplan (wie MS Project) in Projekte | **Schritt 2, noch nicht begonnen** | wartet auf dein Bild, was er können soll |
+| Gantt-Projektplaner (wie MS Project) in Projekte → Reiter "Planer": Balken mit Fortschritt, Meilensteine, Abhängigkeiten mit Pfeilen, Zuständige, kritischer Pfad, Ziehen/Dehnen/Verknüpfen mit der Maus | **erledigt, live (Version 35)** | wartet auf dich: ausprobieren (Projekt anlegen, Vorgänge anlegen) |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
