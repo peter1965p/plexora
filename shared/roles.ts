@@ -20,7 +20,7 @@ export const AREA_ROLES: Array<{ prefix: string; area: string; role: RoleNeed }>
   { prefix: '/automotive', area: 'Automotive', role: 'admin' }, { prefix: '/immobilien', area: 'Immobilien', role: 'admin' }, { prefix: '/gastro', area: 'Gastronomie', role: 'admin' }, { prefix: '/fewo', area: 'Ferienwohnungen', role: 'admin' },
   { prefix: '/handwerk', area: 'Handwerk', role: 'admin' }, { prefix: '/praxis', area: 'Praxis', role: 'admin' }, { prefix: '/retail', area: 'Einzelhandel', role: 'admin' },
   { prefix: '/rechnungs-design', area: 'Rechnungs-Design', role: 'admin' }, { prefix: '/analytics', area: 'Analytics', role: 'admin' }, { prefix: '/seo', area: 'SEO / GEO', role: 'admin' },
-  { prefix: '/settings', area: 'Einstellungen', role: 'admin' }, { prefix: '/store', area: 'Modul-Store', role: 'owner' },
+  { prefix: '/settings', area: 'Einstellungen', role: 'admin' }, { prefix: '/store', area: 'Modul-Store', role: 'owner' }, { prefix: '/team', area: 'Team', role: 'owner' },
 ]
 export function areaForPath(path: string) {
   const p = path.split('?')[0]

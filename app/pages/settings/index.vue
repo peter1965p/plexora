@@ -1303,6 +1303,7 @@
         <span class="card-title"><i class="ti ti-users" style="margin-right:8px;color:var(--accent)"></i>Team</span>
       </div>
       <div class="card-body">
+        <div style="margin-bottom:16px;padding:10px 14px;border-radius:10px;background:var(--bg-elevated);font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span><i class="ti ti-layout-dashboard" style="color:var(--accent)"></i> Komfortabler: die <strong>Teamübersicht</strong> mit Rollen-Tabelle gibt es jetzt auch im Menü.</span><NuxtLink to="/team" class="accent-btn" style="text-decoration:none;height:30px;font-size:12px;display:inline-flex;align-items:center;padding:0 12px">Zur Teamübersicht</NuxtLink></div>
 
         <!-- Invite Form -->
         <div style="display:flex;gap:10px;margin-bottom:24px" v-if="!isDemo">
