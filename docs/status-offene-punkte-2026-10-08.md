@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 31 (previous 30), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 34 (previous 33), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -98,6 +98,16 @@ Live: Backend Version 31 (previous 30), Pre-signup Version 2, alle drei Prüfung
 | Freundliches helles Design als Standard (Creme, weiche Karten, Orange); dunkles Design bleibt per Umschalter | erledigt, live | wartet auf dich: ansehen |
 | Einstellungen → "Startseite (Design)": Hell / Dunkel / Eigene Farben (Hintergrund + Deckkraft, Akzent, Textfarbe), Vorlagen (u. a. "Deep Blue auf 75 % Schwarz"), Live-Vorschau, Kontrastwarnung | erledigt, live (Backend Version 31); nur für Betreiber | wartet auf dich: Vorlage wählen und speichern |
 | Seitenrand der Abschnitte (klebten bei 1440 px am Rand) | behoben | – |
+
+## 10. Google raus, eigener Kalender (neu, 14.10.2026)
+
+| Punkt | Stand | Was noch fehlt |
+|---|---|---|
+| Google-Kalender-Anbindung (Verbinden, Meet, Kalenderanzeige, Routen, Einstellungen, Datenschutz-Abschnitt dazu) | **ausgebaut, live (Version 34)**; "Anmelden mit Google" (Login) bleibt | wartet auf dich: **Okay zum Löschen** der gespeicherten Google-Zugänge in der Datenbank (`scripts/aws/purge-google-credentials.sh --dry-run` zählt, `--apply` entfernt; nichts ausgeführt); Zugriff im Google-Konto entziehen, Cloud-Projekt prüfen; Lambda-Variablen für Google-Kalender entfernen (Secrets setzt du) |
+| Eigener Terminkalender in Termine (Monat/Woche/Tag, Klick auf freie Stelle trägt Termin ein, Details und Stornieren) | erledigt, live | wartet auf dich: ansehen |
+| Abo-Link (.ics) für Google/Apple/Outlook, Kalenderdatei (.ics) in der Terminbestätigung | erledigt, live | wartet auf dich: Abo-Link einrichten und eine Testbuchung machen |
+| Video-Termine: Jitsi ist jetzt der Standard | erledigt | – |
+| Gantt-Projektplan (wie MS Project) in Projekte | **Schritt 2, noch nicht begonnen** | wartet auf dein Bild, was er können soll |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
