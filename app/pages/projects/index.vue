@@ -101,39 +101,39 @@
       </div>
     </div>
 
-    <!-- ═══ GANTT / PLANER ═══ -->
+    <!-- ═══ PLANER (Gantt) ═══ -->
     <div v-if="view==='gantt'" class="card">
-      <div class="card-header"><span class="card-title">{{ t.projects.ganttTitle }}</span></div>
-      <div v-if="ganttProjects.length === 0" style="text-align:center;color:var(--text-muted);padding:40px">
-        {{ t.projects.ganttEmpty }}
+      <div class="card-header" style="flex-wrap:wrap;gap:8px">
+        <span class="card-title"><i class="ti ti-chart-gantt" style="margin-right:8px;color:var(--accent)"></i>{{ t.projects.ganttTitle }}</span>
+        <select v-if="projects.length" v-model="planProjectId" class="form-select" style="height:30px;max-width:320px"><option v-for="p in projects" :key="p.projectId" :value="p.projectId">{{ p.name }}</option></select>
       </div>
-      <div v-else style="overflow-x:auto;padding:0 16px 16px">
-        <!-- DATE HEADER -->
-        <div class="gantt-grid" :style="{ gridTemplateColumns: `200px repeat(${ganttWeeks}, 1fr)` }">
-          <div class="gantt-label-cell" style="font-size:11px;color:var(--text-muted);padding-bottom:6px">{{ t.projects.projectTask }}</div>
-          <div v-for="w in ganttWeekLabels" :key="w.iso" class="gantt-week-cell" :class="{ 'gantt-today-col': w.isThisWeek }">
-            {{ w.label }}
-          </div>
+      <div v-if="!projects.length" style="text-align:center;color:var(--text-muted);padding:40px">Lege zuerst ein Projekt an (Liste → „Neues Projekt“), dann planst du es hier als Gantt.</div>
+      <div v-else style="padding:0 16px 16px">
+        <div v-if="planMsg" class="plan-msg" :class="{ err: planMsgErr }">{{ planMsg }}</div>
+        <GanttChart :tasks="planTasks" @change="onPlanChange" @create="openPlanCreate" @edit="openPlanEdit" @error="m => say(m, true)" />
+      </div>
+    </div>
 
-          <!-- PROJECT ROWS -->
-          <template v-for="p in ganttProjects" :key="p.projectId">
-            <div class="gantt-label-cell" style="font-weight:600;font-size:13px">
-              <span :class="statusBadge(p.status)" class="badge" style="margin-right:6px;font-size:10px"></span>{{ p.name }}
-            </div>
-            <div v-for="w in ganttWeekLabels" :key="w.iso" class="gantt-cell" :class="{ 'gantt-today-col': w.isThisWeek }">
-              <div v-if="ganttBar(p, w)" class="gantt-bar-fill" :style="ganttBarStyle(p,w)" :title="p.name"></div>
-            </div>
-
-            <!-- TASK ROWS in Gantt -->
-            <template v-for="tk in (p.tasks||[]).filter((t:any) => t.endDate)" :key="tk.taskId">
-              <div class="gantt-label-cell" style="font-size:12px;color:var(--text-muted);padding-left:20px">
-                <i class="ti ti-circle" style="font-size:8px;margin-right:4px"></i>{{ tk.title }}
+    <!-- VORGANG ANLEGEN / BEARBEITEN (Planer) -->
+    <div v-if="planModal" class="modal-overlay" @click.self="planModal = null">
+      <div class="modal-card" style="max-width:520px">
+        <div class="modal-header"><span class="card-title">{{ planModal.mode === 'edit' ? (pf.milestone ? 'Meilenstein bearbeiten' : 'Vorgang bearbeiten') : (pf.milestone ? 'Neuer Meilenstein' : 'Neuer Vorgang') }}</span><button class="icon-btn" @click="planModal = null"><i class="ti ti-x"></i></button></div>
+        <div class="modal-body">
+          <div v-if="planErr" class="plan-msg err">{{ planErr }}</div>
+          <div class="auth-field"><label>Bezeichnung *</label><input v-model="pf.title" maxlength="120" /></div>
+          <div class="auth-field"><label>Zuständig</label><input v-model="pf.assignee" list="plan-people" maxlength="80" placeholder="Name oder E-Mail" /><datalist id="plan-people"><option v-for="n in planPeople" :key="n" :value="n" /></datalist></div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" v-model="pf.milestone" :disabled="planModal.mode === 'edit' && false" /> Meilenstein (ein Termin ohne Dauer)</label>
+          <div class="auth-row"><div class="auth-field"><label>{{ pf.milestone ? 'Datum' : 'Beginn' }}</label><input v-model="pf.startDate" type="date" /></div><div v-if="!pf.milestone" class="auth-field"><label>Ende</label><input v-model="pf.endDate" type="date" :min="pf.startDate" /></div></div>
+          <template v-if="planModal.mode === 'edit'">
+            <div class="auth-field"><label>Fortschritt: {{ pf.progress }} %</label><input type="range" min="0" max="100" step="5" v-model.number="pf.progress" /></div>
+            <div class="auth-field"><label>Vorgänger (muss fertig sein, bevor dieser Vorgang beginnt)</label>
+              <div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow:auto;border:0.5px solid var(--border);border-radius:8px;padding:8px">
+                <label v-for="o in planOthers" :key="o.taskId" style="display:flex;gap:8px;font-size:13px;align-items:center"><input type="checkbox" :value="o.taskId" v-model="pf.predecessors" /> {{ o.title }}</label>
+                <span v-if="!planOthers.length" style="font-size:12px;color:var(--text-muted)">Es gibt noch keine anderen Vorgänge.</span>
               </div>
-              <div v-for="w in ganttWeekLabels" :key="w.iso" class="gantt-cell">
-                <div v-if="ganttTaskBar(tk,w)" class="gantt-bar-fill task-bar" :style="ganttTaskBarStyle(tk,w)"></div>
-              </div>
-            </template>
+            </div>
           </template>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="auth-btn" :disabled="planSaving || !pf.title.trim()" style="flex:1" @click="savePlanModal"><i class="ti" :class="planSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button><button v-if="planModal.mode === 'edit'" class="auth-btn" style="flex:0 0 auto;background:#E05C5C" :disabled="planSaving" @click="deletePlanTask"><i class="ti ti-trash"></i></button></div>
         </div>
       </div>
     </div>
@@ -290,59 +290,67 @@ const statusBadge  = (s: string) => ({ active: 'badge-info', review: 'badge-warn
 const priorityLabel = (p: string) => ({ low: 'Niedrig', medium: 'Mittel', high: 'Hoch', critical: 'Kritisch' }[p || 'medium'] || p)
 const priorityBadge = (p: string) => ({ low: 'badge-info', medium: 'badge-warning', high: 'badge-danger', critical: 'badge-danger' }[p || 'medium'] || '')
 
-// ── GANTT ─────────────────────────────────────────────
-const ganttProjects = computed(() => projects.value.filter((p: any) => p.deadline))
+// ── PLANER (Gantt) ────────────────────────────────────
+import { applyScheduleChanges, isIsoDate, addDays as ganttAddDays, GanttError } from '~~/shared/gantt'
+const planProjectId = ref('')
+const planMsg = ref(''), planMsgErr = ref(false)
+const say = (m: string, err = false) => { planMsg.value = m; planMsgErr.value = err; setTimeout(() => { if (planMsg.value === m) planMsg.value = '' }, 5000) }
+const planProject = computed(() => projects.value.find((p: any) => p.projectId === planProjectId.value) || null)
+// Lokale Kopie der Vorgänge: Änderungen erscheinen sofort, der Server bestätigt oder ruft einen Fehler.
+const planTasks = ref<any[]>([]), planRev = ref(0)
+watch([planProject, view], () => { if (!planProjectId.value && projects.value.length) planProjectId.value = projects.value[0].projectId; planTasks.value = JSON.parse(JSON.stringify(planProject.value?.tasks || [])); planRev.value = planProject.value?.scheduleRev || 0 }, { immediate: true })
+watch(projects, () => { if (!planProjectId.value && projects.value.length) planProjectId.value = projects.value[0].projectId }, { immediate: true })
+const planPeople = computed(() => [...new Set([userEmail.value, ...(teamPeople.value), ...planTasks.value.map((t: any) => t.assignee).filter(Boolean)].filter(Boolean))])
+const teamPeople = ref<string[]>([])
+const userEmail = ref('')
+onMounted(async () => { try { const u: any = await useAuthUser(); userEmail.value = u.email || '' } catch {} try { const r: any = await $fetch(useApiUrl('/api/team/members'), { headers: authHeaders }); teamPeople.value = (r.members || []).filter((m: any) => m.status === 'active').map((m: any) => m.memberEmail) } catch {} })
 
-const ganttRange = computed(() => {
-  const allDates = ganttProjects.value.flatMap((p: any) => [
-    new Date(p.created || Date.now()),
-    new Date(p.deadline),
-    ...(p.tasks||[]).filter((tk: any) => tk.startDate).map((tk: any) => new Date(tk.startDate)),
-    ...(p.tasks||[]).filter((tk: any) => tk.endDate).map((tk: any) => new Date(tk.endDate)),
-  ])
-  if (!allDates.length) return { start: new Date(), end: new Date() }
-  const min = new Date(Math.min(...(allDates as Date[]).map((d: Date) => d.getTime())))
-  const max = new Date(Math.max(...(allDates as Date[]).map((d: Date) => d.getTime())))
-  min.setDate(min.getDate() - 3)
-  max.setDate(max.getDate() + 7)
-  return { start: min, end: max }
-})
-
-const ganttWeeks = computed(() => {
-  const { start, end } = ganttRange.value
-  return Math.ceil((end.getTime() - start.getTime()) / (7 * 86400000))
-})
-
-const ganttWeekLabels = computed(() => {
-  const { start } = ganttRange.value
-  const today = new Date()
-  return Array.from({ length: ganttWeeks.value }, (_, i) => {
-    const d = new Date(start)
-    d.setDate(d.getDate() + i * 7)
-    const isThisWeek = Math.abs(d.getTime() - today.getTime()) < 7 * 86400000
-    return { iso: d.toISOString(), label: `${d.getDate()}.${d.getMonth()+1}`, isThisWeek, date: d }
-  })
-})
-
-function ganttBar(p: any, w: any) {
-  const s = new Date(p.created || p.startDate || ganttRange.value.start)
-  const e = new Date(p.deadline)
-  return w.date >= s && w.date <= e
+async function onPlanChange(changes: any[]) {
+  const before = JSON.parse(JSON.stringify(planTasks.value))
+  try {
+    const applied = applyScheduleChanges(planTasks.value.map(toPlan), changes)            // sofortige Vorschau mit denselben Regeln wie der Server
+    planTasks.value = planTasks.value.map(t => { const n = applied.find(a => a.taskId === t.taskId)!; return { ...t, ...n, title: t.title } })
+  } catch (e: any) { say(e instanceof GanttError ? e.message : 'Das geht so nicht.', true); return }
+  try {
+    const r: any = await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/schedule`), { method: 'PUT', headers: authHeaders, body: { changes, rev: planRev.value } })
+    planTasks.value = r.tasks; planRev.value = r.rev
+  } catch (e: any) { planTasks.value = before; say(e?.data?.message || 'Speichern fehlgeschlagen.', true); if (e?.statusCode === 409) await refresh() }
 }
-function ganttBarStyle(p: any, w: any) {
-  const isStart = Math.abs(new Date(p.created||p.startDate||ganttRange.value.start).getTime() - w.date.getTime()) < 7*86400000
-  const isEnd   = Math.abs(new Date(p.deadline).getTime() - w.date.getTime()) < 7*86400000
-  return { borderRadius: isStart ? '6px 0 0 6px' : isEnd ? '0 6px 6px 0' : '0', background: 'var(--accent)', opacity: '0.85' }
+const toPlan = (t: any) => ({ taskId: t.taskId, title: t.title, startDate: isIsoDate(t.startDate) ? t.startDate : new Date().toISOString().slice(0, 10), endDate: isIsoDate(t.endDate) ? t.endDate : (isIsoDate(t.startDate) ? t.startDate : new Date().toISOString().slice(0, 10)), progress: t.progress ?? (t.status === 'done' ? 100 : 0), milestone: t.milestone === true, predecessors: t.predecessors || [], assignee: t.assignee || '', status: t.status })
+
+const planModal = ref<null | { mode: 'create' | 'edit'; taskId?: string }>(null)
+const pf = reactive<any>({ title: '', assignee: '', milestone: false, startDate: '', endDate: '', progress: 0, predecessors: [] as string[] })
+const planSaving = ref(false), planErr = ref('')
+const planOthers = computed(() => planTasks.value.filter((t: any) => t.taskId !== planModal.value?.taskId))
+const todayIso = () => new Date().toISOString().slice(0, 10)
+function openPlanCreate(milestone: boolean) { planErr.value = ''; Object.assign(pf, { title: '', assignee: '', milestone, startDate: todayIso(), endDate: ganttAddDays(todayIso(), 4), progress: 0, predecessors: [] }); planModal.value = { mode: 'create' } }
+function openPlanEdit(taskId: string) {
+  const t = planTasks.value.find((x: any) => x.taskId === taskId); if (!t) return
+  planErr.value = ''; Object.assign(pf, { title: t.title, assignee: t.assignee || '', milestone: t.milestone === true, startDate: isIsoDate(t.startDate) ? t.startDate : todayIso(), endDate: isIsoDate(t.endDate) ? t.endDate : (t.startDate || todayIso()), progress: t.progress ?? (t.status === 'done' ? 100 : 0), predecessors: [...(t.predecessors || [])] })
+  planModal.value = { mode: 'edit', taskId }
 }
-function ganttTaskBar(tk: any, w: any) {
-  const s = new Date(tk.startDate || ganttRange.value.start)
-  const e = new Date(tk.endDate)
-  return w.date >= s && w.date <= e
+async function savePlanModal() {
+  if (!planModal.value) return
+  planSaving.value = true; planErr.value = ''
+  try {
+    if (planModal.value.mode === 'create') {
+      await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/tasks`), { method: 'POST', headers: authHeaders, body: { title: pf.title.trim(), assignee: pf.assignee, startDate: pf.startDate, endDate: pf.milestone ? pf.startDate : pf.endDate, milestone: pf.milestone, userId } })
+      await refresh()
+    } else {
+      const id = planModal.value.taskId!, cur = planTasks.value.find((x: any) => x.taskId === id)
+      if (cur && pf.title.trim() !== cur.title) await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/tasks/${id}`), { method: 'PATCH', headers: authHeaders, body: { title: pf.title.trim(), userId } })
+      const r: any = await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/schedule`), { method: 'PUT', headers: authHeaders, body: { rev: planRev.value, changes: [{ taskId: id, startDate: pf.startDate, endDate: pf.milestone ? pf.startDate : pf.endDate, milestone: pf.milestone, progress: pf.progress, assignee: pf.assignee, predecessors: pf.predecessors }] } })
+      planTasks.value = r.tasks.map((t: any) => (t.taskId === id ? { ...t, title: pf.title.trim() } : t)); planRev.value = r.rev
+      await refresh()
+    }
+    planModal.value = null
+  } catch (e: any) { planErr.value = e?.data?.message || e?.message || 'Speichern fehlgeschlagen.' } finally { planSaving.value = false }
 }
-function ganttTaskBarStyle(tk: any, w: any) {
-  const isStart = Math.abs(new Date(tk.startDate||ganttRange.value.start).getTime() - w.date.getTime()) < 7*86400000
-  const isEnd   = Math.abs(new Date(tk.endDate).getTime() - w.date.getTime()) < 7*86400000
-  return { borderRadius: isStart ? '4px 0 0 4px' : isEnd ? '0 4px 4px 0' : '0' }
+async function deletePlanTask() {
+  if (!planModal.value?.taskId || !window.confirm('Diesen Vorgang wirklich löschen?')) return
+  planSaving.value = true
+  try { await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/tasks/${planModal.value.taskId}`), { method: 'DELETE', headers: authHeaders }); planModal.value = null; await refresh() }
+  catch (e: any) { planErr.value = e?.data?.message || 'Löschen fehlgeschlagen.' } finally { planSaving.value = false }
 }
 
 // ── PROJECT CRUD ──────────────────────────────────────
@@ -436,6 +444,7 @@ const exportXlsx = () => exportToXlsx(`projekte-${new Date().toISOString().slice
 </script>
 
 <style scoped>
+.plan-msg { padding: 8px 12px; border-radius: 8px; background: #00C85318; color: #00A844; font-size: 13px; margin-bottom: 8px } .plan-msg.err { background: #E05C5C18; color: #E05C5C }
 .project-block { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
 .project-block-header { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .project-block-header:hover { background: rgba(255,255,255,0.02); }
@@ -443,11 +452,5 @@ const exportXlsx = () => exportToXlsx(`projekte-${new Date().toISOString().slice
 .task-card { background: var(--bg-elevated); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
 
 /* GANTT */
-.gantt-grid { display: grid; gap: 0; min-width: 600px; }
-.gantt-label-cell { padding: 6px 8px; font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; }
-.gantt-week-cell  { padding: 4px 2px; font-size: 10px; color: var(--text-muted); text-align: center; border-bottom: 0.5px solid var(--border); }
-.gantt-cell       { height: 28px; position: relative; border-bottom: 0.5px solid rgba(255,255,255,0.03); }
-.gantt-today-col  { background: rgba(234,88,12,0.04); }
-.gantt-bar-fill   { position: absolute; top: 4px; bottom: 4px; left: 0; right: 0; background: var(--accent); border-radius: 4px; opacity: 0.8; }
 .task-bar         { background: #6C3FE8 !important; opacity: 0.6 !important; top: 6px !important; bottom: 6px !important; }
 </style>
