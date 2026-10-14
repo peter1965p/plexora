@@ -103,7 +103,7 @@ Live: Backend Version 35 (previous 34), Pre-signup Version 2, alle drei Prüfung
 
 | Punkt | Stand | Was noch fehlt |
 |---|---|---|
-| Google-Kalender-Anbindung (Verbinden, Meet, Kalenderanzeige, Routen, Einstellungen, Datenschutz-Abschnitt dazu) | **ausgebaut, live (Version 34)**; "Anmelden mit Google" (Login) bleibt | wartet auf dich: **Okay zum Löschen** der gespeicherten Google-Zugänge in der Datenbank (`scripts/aws/purge-google-credentials.sh --dry-run` zählt, `--apply` entfernt; nichts ausgeführt); Zugriff im Google-Konto entziehen, Cloud-Projekt prüfen; Lambda-Variablen für Google-Kalender entfernen (Secrets setzt du) |
+| Google-Kalender-Anbindung (Verbinden, Meet, Kalenderanzeige, Routen, Einstellungen, Datenschutz-Abschnitt dazu) | **ausgebaut, live (Version 34)**; "Anmelden mit Google" (Login) bleibt | **Gespeicherte Google-Zugänge in der Datenbank gelöscht (14.10.2026, auf dein Okay; 1 Mandant, danach 0)**; wartet auf dich: Zugriff im Google-Konto entziehen, Cloud-Projekt prüfen (Kalender-Berechtigungen entfernen), Lambda-Variablen für Google-Kalender entfernen (Secrets setzt du) |
 | Eigener Terminkalender in Termine (Monat/Woche/Tag, Klick auf freie Stelle trägt Termin ein, Details und Stornieren) | erledigt, live | wartet auf dich: ansehen |
 | Abo-Link (.ics) für Google/Apple/Outlook, Kalenderdatei (.ics) in der Terminbestätigung | erledigt, live | wartet auf dich: Abo-Link einrichten und eine Testbuchung machen |
 | Video-Termine: Jitsi ist jetzt der Standard | erledigt | – |
