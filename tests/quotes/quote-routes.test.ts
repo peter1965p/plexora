@@ -125,7 +125,7 @@ describe('Ändern und Löschen', () => {
 describe('Senden', () => {
   it('Mail mit PDF-Anhang und Annahme-Link; Status gesendet; gespeichert wird nur der Hash des Geheimnisses', async () => {
     const q = await mk(); const r = await call(H.send, withId(q.quoteId)); expect(r.code).toBe(200); expect(r.res.quote.status).toBe('sent')
-    const m = st.mails[0]; expect(m.to).toBe('max@kunde.de'); expect(m.subject).toMatch(/^Angebot AN-\d{4}-001 von /); expect(m.attachments[0].filename).toMatch(/^Angebot-AN-\d{4}-001\.pdf$/); expect(Buffer.isBuffer(m.attachments[0].content)).toBe(true)
+    const m = st.mails[0]; expect(m.to).toBe('max@kunde.de'); expect(m.from).toMatch(/<angebote@plexora.eu>$/); expect(m.subject).toMatch(/^Angebot AN-\d{4}-001 von /); expect(m.attachments[0].filename).toMatch(/^Angebot-AN-\d{4}-001\.pdf$/); expect(Buffer.isBuffer(m.attachments[0].content)).toBe(true)
     const ref = refOf(m); expect(m.html).toContain(`https://app.plexora.eu/angebot/${ref}`); const secret = ref.split('.')[1]
     expect(JSON.stringify(rawQuote(q.quoteId))).not.toContain(secret); expect(rawQuote(q.quoteId).acceptHash).toMatch(/^[0-9a-f]{64}$/)
   })

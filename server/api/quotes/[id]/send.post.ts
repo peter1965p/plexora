@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   const until = new Date(quote.validUntil + 'T00:00:00').toLocaleDateString('de-DE')
   const resend = new Resend(useRuntimeConfig().resendApiKey as string)
   const res = await resend.emails.send({
-    from: `${ctx.branding.brandName || 'Plexora'} <billing@plexora.eu>`, to, subject: `Angebot ${quote.number} von ${ctx.branding.brandName || 'Plexora'}`,
+    from: `${ctx.branding.brandName || 'Plexora'} <angebote@plexora.eu>`, to, subject: `Angebot ${quote.number} von ${ctx.branding.brandName || 'Plexora'}`,
     html: `<html><body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto"><h2 style="color:#ea580c">${brand}</h2><p>Guten Tag ${escapeText(quote.client)},</p>
 <p>im Anhang finden Sie unser Angebot <strong>${nr}</strong>${quote.title ? ` „${escapeText(quote.title)}“` : ''} über <strong>${escapeText(gross)}</strong> (brutto). Es ist gültig bis <strong>${escapeText(until)}</strong>.</p>
 <p style="margin:24px 0"><a href="${escapeText(link)}" style="background:#ea580c;color:#fff;padding:12px 26px;border-radius:8px;text-decoration:none;font-weight:bold">Angebot ansehen und annehmen</a></p>
