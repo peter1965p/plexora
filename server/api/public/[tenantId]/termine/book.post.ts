@@ -1,6 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../../utils/dynamodb'
-import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../../utils/termine'
+import { loadTenantAndType, computeFreeSlots, toMinutes, toHHMM } from '../../../../utils/termine'
 import { randomUUID } from 'crypto'
 import { wantsJitsi, jitsiHostOf, jitsiLink, bookingVideoLink, videoDetailsHtml } from '../../../../utils/videoLink'
 import { sendMail } from '../../../../utils/mailer'
@@ -51,30 +51,8 @@ export default defineEventHandler(async (event) => {
   const now = new Date().toISOString()
   const notes = String(body.notes || '')
 
-  let googleEventId = ''
-  let googleCalendarId = ''
-  let googleMeetLink = ''
-  // Eigener Videoraum (Jitsi) statt Google Meet, wenn der Inhaber das so eingestellt hat
-  let videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink(jitsiHostOf(tenantItem)) : ''
-  try {
-    const googleEvent = await createGoogleCalendarEvent(tenantItem, {
-      summary: typeItem.name,
-      description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : [videoLink && `Video: ${videoLink}`, notes].filter(Boolean).join('\n'),
-      date, startTime, endTime,
-      customerEmail,
-      channel: videoLink ? 'phone' : channel,   // 'phone' = kein Google-Meet anfordern
-    })
-    if (googleEvent) {
-      googleEventId = googleEvent.eventId
-      googleCalendarId = googleEvent.calendarId
-      googleMeetLink = googleEvent.meetLink
-    }
-  } catch (e) {
-    console.error('Google Calendar event creation failed', tenantId, e)
-  }
-
-  // Google lieferte keinen Meet-Link (nicht verbunden, abgelaufen, Fehler): sonst bekäme der Kunde keinen Link. Ausdrücklich ausgeschaltet oder fester Standardlink vorhanden: nichts ergänzen.
-  if (channel === 'video' && !videoLink && !googleMeetLink && tenantItem.videoAutoJitsi !== false && !tenantItem.videoFallbackLink) videoLink = jitsiLink(jitsiHostOf(tenantItem))
+  // Video-Termine bekommen einen eigenen Jitsi-Raum (Standard), außer der Inhaber hat das ausgeschaltet oder einen festen Standardlink hinterlegt
+  const videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink(jitsiHostOf(tenantItem)) : ''
 
   const item = {
     tenantId,
@@ -92,9 +70,6 @@ export default defineEventHandler(async (event) => {
     notes,
     status: 'confirmed',
     source: 'public',
-    googleEventId,
-    googleCalendarId,
-    googleMeetLink,
     ...(videoLink ? { videoLink } : {}),
     createdAt: now,
     updatedAt: now,

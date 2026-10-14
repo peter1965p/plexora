@@ -36,10 +36,6 @@ export default defineEventHandler(async (event) => {
       termineMinNoticeHours:  item?.termineMinNoticeHours   ?? 2,
       termineMaxAdvanceDays:  item?.termineMaxAdvanceDays   ?? 60,
       termineReminderMinutes: item?.termineReminderMinutes  ?? 60,
-      googleConnected:        item?.googleConnected         ?? false,
-      googleEmail:            item?.googleEmail             || '',
-      googleCalendarId:       item?.googleCalendarId       || 'primary',
-      googleCalendarIds:      item?.googleCalendarIds      || [],
     },
   }
 })

@@ -65,8 +65,6 @@ export default defineNuxtConfig({
     adminEmail: "",
     anthropicApiKey: "",
     encryptionKey: "",
-    googleClientId: "",
-    googleClientSecret: "",
     authEnforce: "",
     // Tarif-/Modulprüfung (server/middleware/plan.ts): leer = nur protokollieren ("würde ablehnen"), "true" = durchsetzen (402/429). Umschalten: scripts/aws/set-enforce.sh plan on|off
     planEnforce: "",

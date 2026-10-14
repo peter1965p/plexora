@@ -104,36 +104,6 @@
 
     <!-- ── TAB: TERMINE ── -->
     <div v-else-if="activeTab === 'termine'">
-      <!-- Google-Kalender: alles, was direkt in Google Calendar eingetragen wurde (nicht nur über
-           Plexora gebuchte Termine) — separat, weil es eine andere Quelle als plexora-termine-bookings ist. -->
-      <div v-if="settingsForm.googleConnected" class="card gcal-float" style="margin-bottom:16px;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08),0 18px 40px -12px rgba(0,0,0,.25);transform:translateY(-2px)">
-        <div class="card-header">
-          <span class="card-title"><i class="ti ti-brand-google" style="margin-right:8px;color:var(--accent)"></i>Aus Google Kalender</span>
-          <button class="icon-btn" title="Aktualisieren" :disabled="loadingGoogleEvents" @click="loadGoogleEvents">
-            <i class="ti" :class="loadingGoogleEvents ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
-          </button>
-        </div>
-        <div v-if="googleEventsError" style="font-size:12px;color:#e05c5c">
-          <template v-if="/oauth2\.googleapis|400|401|invalid_grant/i.test(googleEventsError)">Die Google-Verbindung ist abgelaufen (Google beendet den Zugriff von Apps im Testmodus nach 7 Tagen). <a href="#" style="color:var(--accent);font-weight:700" @click.prevent="connectGoogle">Google neu verbinden</a></template>
-          <template v-else>{{ googleEventsError }}</template>
-        </div>
-        <div v-else-if="!loadingGoogleEvents && !googleEvents.length" style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px">
-          Keine Termine in den nächsten 30 Tagen in deinem Google-Kalender.
-        </div>
-        <div v-else style="display:flex;flex-direction:column;gap:6px">
-          <div v-for="ev in googleEvents" :key="ev.id" class="gcal-event"
-            style="display:flex;align-items:center;gap:16px;padding:10px 14px 10px 12px;border-radius:10px;border-left:4px solid var(--accent);background:var(--surface-2, rgba(127,127,127,.06));box-shadow:0 1px 3px rgba(0,0,0,.08);flex-wrap:wrap">
-            <div style="width:150px;flex-shrink:0;font-size:12px;color:var(--text-muted)">{{ formatGoogleEventTime(ev) }}</div>
-            <div style="flex:1;min-width:160px;font-size:13px;font-weight:600">{{ ev.summary }}</div>
-            <a v-if="ev.meetLink" :href="ev.meetLink" target="_blank" class="icon-btn" title="Meet-Link öffnen"><i class="ti ti-video"></i></a>
-            <a :href="ev.htmlLink" target="_blank" class="icon-btn" title="In Google Calendar öffnen"><i class="ti ti-external-link"></i></a>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:12px">
-          Nur Anzeige — manuell in Google eingetragene Termine landen nicht automatisch in Plexora und umgekehrt.
-        </div>
-      </div>
-
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
         <button v-for="f in bookingFilters" :key="f.key" class="theme-opt" :class="{ active: bookingFilter === f.key }" @click="bookingFilter = f.key">
           {{ f.label }}
@@ -201,44 +171,6 @@
               <div class="auth-field" v-if="settingsForm.termineEnabled">
                 <label>Seitentitel (Navigation &amp; Überschrift)</label>
                 <input v-model="settingsForm.termineTitle" placeholder="Termine" />
-              </div>
-            </div>
-
-            <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <div style="font-size:13px;font-weight:700"><i class="ti ti-brand-google" style="margin-right:6px;color:var(--accent)"></i>Google Calendar</div>
-                <span v-if="settingsForm.googleConnected" class="badge badge-success">Verbunden</span>
-              </div>
-              <div v-if="settingsForm.googleConnected" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                <div style="font-size:12px;color:var(--text-muted)">Verbunden als <strong>{{ settingsForm.googleEmail }}</strong> — neue Buchungen werden automatisch mit Meet-Link im Kalender angelegt.</div>
-                <button class="icon-btn" :disabled="googleDisconnecting" @click="disconnectGoogle" title="Trennen">
-                  <i class="ti" :class="googleDisconnecting ? 'ti-loader-2 spin' : 'ti-plug-off'"></i>
-                </button>
-              </div>
-              <div v-if="settingsForm.googleConnected" style="margin-top:14px">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Aktive Kalender — der oberste nimmt neue Termine auf, alle werden in der Terminliste angezeigt.</div>
-                <div v-if="googleCalendarError" style="font-size:12px;color:#e05c5c">{{ googleCalendarError }}</div>
-                <div v-else style="display:flex;flex-direction:column;gap:8px" :style="savingGoogleCalendar ? 'opacity:.6;pointer-events:none' : ''">
-                  <div v-for="c in googleCalendars" :key="c.id" style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px">
-                    <span style="display:flex;align-items:center;gap:8px;min-width:0">
-                      <span :style="`width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0`"></span>
-                      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.summary }}</span>
-                      <span v-if="c.primary" style="font-size:11px;color:var(--text-muted);flex-shrink:0">Hauptkalender</span>
-                    </span>
-                    <button @click="toggleGoogleCalendar(c.id)"
-                      style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
-                      :style="settingsForm.googleCalendarIds.includes(c.id) ? 'background:var(--accent)' : 'background:var(--border)'">
-                      <span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s"
-                        :style="settingsForm.googleCalendarIds.includes(c.id) ? 'left:21px' : 'left:3px'"></span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div v-else style="display:flex;flex-direction:column;gap:10px">
-                <div style="font-size:12px;color:var(--text-muted)">Verbinde dein Google-Konto, damit jede Buchung automatisch als Termin mit Meet-Link in deinem Kalender erscheint.</div>
-                <button class="accent-btn" style="align-self:flex-start" @click="connectGoogle">
-                  <i class="ti ti-brand-google" style="margin-right:6px"></i>Google verbinden
-                </button>
               </div>
             </div>
 
@@ -391,7 +323,7 @@ interface Booking {
   date: string; startTime: string; endTime: string
   customerName: string; customerEmail: string; customerPhone: string; notes: string
   channel?: 'video' | 'phone'
-  status: string; googleEventId?: string; googleMeetLink?: string; videoLink?: string; createdAt: string
+  status: string; googleMeetLink?: string; videoLink?: string; createdAt: string
 }
 
 const weekdays = [
@@ -492,37 +424,6 @@ async function cancelBooking(b: Booking) {
   await $fetch(useApiUrl(`/api/termine/bookings/${b.bookingId}`), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { status: 'cancelled' } })
 }
 
-// ── Google-Kalender (reine Anzeige, separat von plexora-termine-bookings) ──
-interface GoogleEvent { id: string; summary: string; start: string; end: string; meetLink: string; htmlLink: string }
-const googleEvents        = ref<GoogleEvent[]>([])
-const loadingGoogleEvents = ref(false)
-const googleEventsError   = ref('')
-
-async function loadGoogleEvents() {
-  loadingGoogleEvents.value = true
-  googleEventsError.value = ''
-  try {
-    const res = await $fetch<{ events: GoogleEvent[]; error?: string }>(useApiUrl('/api/termine/google-events'), {
-      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
-    })
-    googleEvents.value = res.events || []
-    if (res.error) googleEventsError.value = res.error
-  } catch (e: any) {
-    googleEventsError.value = e?.data?.message || e?.message || 'Google-Kalender konnte nicht geladen werden'
-  } finally {
-    loadingGoogleEvents.value = false
-  }
-}
-
-function formatGoogleEventTime(ev: GoogleEvent): string {
-  const start = new Date(ev.start)
-  const isAllDay = !ev.start.includes('T')
-  const dateStr = start.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
-  if (isAllDay) return `${dateStr}, ganztägig`
-  const timeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-  return `${dateStr}, ${timeStr}`
-}
-
 // ── Termin manuell eintragen ─────────────────────────────
 const showManualBookingModal = ref(false)
 const savingManualBooking    = ref(false)
@@ -579,76 +480,7 @@ const settingsForm = reactive({
   termineMinNoticeHours: 2,
   termineMaxAdvanceDays: 60,
   termineReminderMinutes: 60,
-  googleConnected: false,
-  googleEmail: '',
-  googleCalendarIds: [] as string[],
 })
-
-const googleDisconnecting = ref(false)
-
-async function connectGoogle() {
-  try {
-    // Das Anmeldetoken bleibt im Header; in die Adresse kommt nur ein 60 Sekunden gültiger Einmalwert
-    const r = await $fetch<{ url: string }>(useApiUrl('/api/termine/google-auth-start'), { method: 'POST', headers: { Authorization: `Bearer ${authToken.value}` } })
-    window.location.href = r.url
-  } catch (e: any) { alert(e?.data?.message || 'Die Verknüpfung konnte nicht gestartet werden.') }
-}
-
-async function disconnectGoogle() {
-  if (!confirm('Google Calendar wirklich trennen?')) return
-  googleDisconnecting.value = true
-  try {
-    await $fetch(useApiUrl('/api/termine/google-disconnect'), { method: 'POST', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
-    settingsForm.googleConnected = false
-    settingsForm.googleEmail = ''
-  } catch {
-    alert('Fehler beim Trennen.')
-  } finally {
-    googleDisconnecting.value = false
-  }
-}
-
-const googleCalendars      = ref<Array<{ id: string; summary: string; primary: boolean; color: string }>>([])
-const googleCalendarError  = ref('')
-const savingGoogleCalendar = ref(false)
-
-async function loadGoogleCalendars() {
-  try {
-    const res = await $fetch<any>(useApiUrl('/api/termine/google-calendars'), { headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
-    googleCalendars.value = res.calendars || []
-    googleCalendarError.value = res.error || ''
-    settingsForm.googleCalendarIds = res.selectedIds || []
-  } catch {}
-}
-
-// Schalter: Kalender ein-/ausblenden. Mindestens einer bleibt aktiv.
-async function toggleGoogleCalendar(calendarId: string) {
-  const current = settingsForm.googleCalendarIds
-  const next = current.includes(calendarId)
-    ? current.filter(id => id !== calendarId)
-    : [...current, calendarId]
-  if (!next.length) return
-  // Reihenfolge wie in der Kalenderliste, der oberste aktive nimmt neue Termine auf
-  const ordered = googleCalendars.value.map(c => c.id).filter(id => next.includes(id))
-  await saveGoogleCalendars(ordered)
-}
-
-async function saveGoogleCalendars(calendarIds: string[]) {
-  savingGoogleCalendar.value = true
-  try {
-    await $fetch(useApiUrl('/api/termine/google-calendar'), {
-      method: 'PUT',
-      headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` },
-      body: { calendarIds },
-    })
-    settingsForm.googleCalendarIds = calendarIds
-    await loadGoogleEvents()
-  } catch {
-    alert('Kalender konnte nicht gespeichert werden.')
-  } finally {
-    savingGoogleCalendar.value = false
-  }
-}
 
 async function loadSettings() {
   loadingSettings.value = true
@@ -679,10 +511,8 @@ onMounted(async () => {
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
-  await Promise.all([loadTypes(), loadBookings(), loadSettings(), loadGoogleEvents(), loadGoogleCalendars()])
+  await Promise.all([loadTypes(), loadBookings(), loadSettings()])
 
-  const route = useRoute()
-  if (route.query.google === 'error') alert('Google-Verbindung fehlgeschlagen. Bitte erneut versuchen.')
 })
 </script>
 
@@ -699,11 +529,4 @@ onMounted(async () => {
   }
 }
 
-.gcal-event {
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-.gcal-event:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px -4px rgba(0,0,0,.2);
-}
 </style>

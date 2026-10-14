@@ -1,74 +1,7 @@
-import { GetCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from './dynamodb'
-import { decryptSecret } from './crypto'
-import { notifySystem } from './notifications'
 
 const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-
-// Holt ein Access-Token über den Refresh-Token. Schlägt das fehl (z. B. Zugriff im Google-Konto
-// entzogen), bekommt der Inhaber eine Glocken-Nachricht – höchstens einmal pro Tag.
-async function refreshGoogleAccessToken(tenantItem: any, refreshToken: string): Promise<string> {
-  const config = useRuntimeConfig()
-  try {
-    const tokenRes = await $fetch<any>('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      body: {
-        client_id: config.googleClientId,
-        client_secret: config.googleClientSecret,
-        refresh_token: refreshToken,
-        grant_type: 'refresh_token',
-      },
-    })
-    const accessToken = tokenRes.access_token as string
-    if (!accessToken) throw new Error('Kein Access-Token von Google erhalten')
-    return accessToken
-  } catch (e) {
-    const cutoff = new Date(Date.now() - 24 * 3600_000).toISOString()
-    try {
-      await getDynamoClient().send(new UpdateCommand({
-        TableName: 'plexora-nexora',
-        Key: { tenantId: tenantItem.tenantId },
-        UpdateExpression: 'SET googleAuthNotifiedAt = :now',
-        ConditionExpression: 'attribute_not_exists(googleAuthNotifiedAt) OR googleAuthNotifiedAt < :cutoff',
-        ExpressionAttributeValues: { ':now': new Date().toISOString(), ':cutoff': cutoff },
-      }))
-      await notifySystem({
-        userId: tenantItem.email,
-        type: 'google_auth_failed',
-        title: 'Google-Verbindung abgelaufen',
-        message: 'Termine können nicht mehr in deinen Google-Kalender geschrieben werden. Bitte verbinde Google neu.',
-        level: 'warning',
-        link: '/termine',
-      })
-    } catch {}
-    throw e
-  }
-}
-
-
-// Gewählter Google-Kalender (Standard: der Hauptkalender des Kontos)
-// Aktive Kalender (Schalter in den Einstellungen). Der oberste ist der Zielkalender für neue Termine.
-export function activeCalendarIds(tenantItem: any): string[] {
-  const ids = Array.isArray(tenantItem.googleCalendarIds) ? tenantItem.googleCalendarIds.filter(Boolean) : []
-  if (ids.length) return ids
-  return [tenantItem.googleCalendarId || 'primary']
-}
-
-// Kalender, in die Plexora schreiben darf (Rolle "writer" oder "owner")
-export async function listGoogleCalendars(tenantItem: any): Promise<Array<{ id: string; summary: string; primary: boolean; color: string }>> {
-  const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
-  const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
-  const res = await $fetch<any>('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    query: { minAccessRole: 'writer' },
-  })
-  return (res.items || []).map((c: any) => ({
-    id: c.id,
-    summary: c.summaryOverride || c.summary || c.id,
-    primary: !!c.primary,
-    color: c.backgroundColor || '#4285F4',
-  }))
-}
 
 export function toMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(':').map(Number)
@@ -128,84 +61,6 @@ export async function computeFreeSlots(tenantId: string, tenantItem: any, typeIt
   return slots
 }
 
-// Push-only Google Calendar/Meet-Integration: Fehler hier dürfen eine Buchung nie blockieren —
-// der Aufrufer wraped dies in try/catch und läuft ohne Meet-Link weiter.
-export async function createGoogleCalendarEvent(tenantItem: any, opts: {
-  summary: string
-  description: string
-  date: string
-  startTime: string
-  endTime: string
-  customerEmail: string
-  channel?: 'phone' | 'video'
-}): Promise<{ eventId: string; meetLink: string; calendarId: string } | null> {
-  if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return null
-
-  const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
-
-  const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
-  if (!accessToken) return null
-
-  // Nur bei Video-Terminen einen Meet-Link anfordern — beim Telefontermin braucht's keinen.
-  const wantsMeet = opts.channel !== 'phone'
-  const timeZone = tenantItem.termineTimezone || 'Europe/Berlin'
-  const calendarId = activeCalendarIds(tenantItem)[0]
-  const event = await $fetch<any>(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events${wantsMeet ? '?conferenceDataVersion=1' : ''}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}` },
-    body: {
-      summary: opts.summary,
-      description: opts.description,
-      start: { dateTime: `${opts.date}T${opts.startTime}:00`, timeZone },
-      end:   { dateTime: `${opts.date}T${opts.endTime}:00`,   timeZone },
-      attendees: [{ email: opts.customerEmail }],
-      ...(wantsMeet ? {
-        conferenceData: {
-          createRequest: { requestId: `${opts.date}-${opts.startTime}-${Math.random().toString(36).slice(2)}`, conferenceSolutionKey: { type: 'hangoutsMeet' } },
-        },
-      } : {}),
-    },
-  })
-
-  return { eventId: event.id || '', meetLink: event.hangoutLink || '', calendarId }
-}
-
-// Reine Lese-Anzeige: holt Termine direkt aus Google Calendar (auch die, die NICHT über
-// Plexora gebucht wurden, z.B. manuell in Google eingetragen). Läuft komplett getrennt von
-// plexora-termine-bookings — es gibt bewusst keinen Sync zwischen beiden Seiten.
-export async function listGoogleCalendarEvents(tenantItem: any, opts: { timeMin: string; timeMax: string }): Promise<Array<{
-  id: string; summary: string; start: string; end: string; meetLink: string; htmlLink: string; calendarId: string
-}>> {
-  if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted) return []
-
-  const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
-
-  const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
-  if (!accessToken) return []
-
-  const lists = await Promise.all(activeCalendarIds(tenantItem).map(async (calendarId) => {
-    try {
-      const res = await $fetch<any>(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        query: { timeMin: opts.timeMin, timeMax: opts.timeMax, singleEvents: true, orderBy: 'startTime', maxResults: 250 },
-      })
-      return (res.items || []).map((e: any) => ({
-        id: e.id,
-        summary: e.summary || '(Ohne Titel)',
-        start: e.start?.dateTime || e.start?.date || '',
-        end: e.end?.dateTime || e.end?.date || '',
-        meetLink: e.hangoutLink || '',
-        htmlLink: e.htmlLink || '',
-        calendarId,
-      }))
-    } catch (e: any) {
-      console.error('Google-Kalender konnte nicht geladen werden', calendarId, e?.data || e?.message || e)
-      return []
-    }
-  }))
-  return lists.flat().sort((a, b) => a.start.localeCompare(b.start))
-}
-
 export async function loadTenantAndType(tenantId: string, typeId: string) {
   const dynamo = getDynamoClient()
   const [tenantRes, typeRes] = await Promise.all([
@@ -219,32 +74,4 @@ export async function loadTenantAndType(tenantId: string, typeId: string) {
     throw createError({ statusCode: 404, message: 'Terminart nicht gefunden' })
   }
   return { tenantItem: tenantRes.Item, typeItem: typeRes.Item }
-}
-
-// Löscht den Termin im verbundenen Google-Kalender. Fehler werden nur geloggt,
-// die Stornierung in Plexora soll deswegen nicht scheitern (z. B. wenn der Eintrag schon weg ist).
-export async function deleteGoogleCalendarEvent(tenantItem: any, eventId: string, calendarId?: string): Promise<void> {
-  if (!tenantItem.googleConnected || !tenantItem.googleRefreshTokenEncrypted || !eventId) return
-  try {
-    const refreshToken = decryptSecret(tenantItem.googleRefreshTokenEncrypted)
-    const accessToken = await refreshGoogleAccessToken(tenantItem, refreshToken)
-    // Ältere Buchungen haben keine Kalender-ID gespeichert: dann alle aktiven Kalender und den Hauptkalender prüfen
-    const candidates = calendarId
-      ? [calendarId]
-      : [...new Set([...activeCalendarIds(tenantItem), 'primary'])]
-    for (const cal of candidates) {
-      try {
-        await $fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal)}/events/${encodeURIComponent(eventId)}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        return
-      } catch (e: any) {
-        // 404/410: Termin liegt nicht in diesem Kalender – nächsten probieren
-        if (![404, 410].includes(e?.statusCode || e?.status)) throw e
-      }
-    }
-  } catch (e) {
-    console.error('Google-Termin konnte nicht gelöscht werden', eventId, e)
-  }
 }

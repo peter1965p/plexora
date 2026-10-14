@@ -40,8 +40,6 @@ export const PUBLIC_RULES: PublicRule[] = [
   { pattern: /^\/api\/settings\/company$/, methods: ['GET'], optionalAuth: true, reason: 'Impressum/Anbieterkennzeichnung (anonym nur Pflichtangaben, keine Bankdaten)' },
   { pattern: /^\/api\/licenses\/(?!my$)[^/]+$/, methods: ['GET'], reason: 'Lizenzstatus per Schlüssel (nur Status, Stufe, Module, Gültigkeit)' },
   { pattern: /^\/api\/analytics\/vitals$/, methods: ['POST'], reason: 'Web-Vitals-Messung öffentlicher Seiten (anonym)' },
-  { pattern: /^\/api\/termine\/google-auth$/, methods: ['GET'], reason: 'Start der Google-Verknüpfung per Browser-Navigation (kein Header möglich); verlangt einen 60 Sekunden gültigen Einmalwert aus der angemeldeten POST-Anfrage google-auth-start' },
-  { pattern: /^\/api\/termine\/google-callback$/, methods: ['GET'], reason: 'OAuth-Rücksprung von Google (Bindung des state an die Sitzung folgt in Block d)' },
   { pattern: /^\/api\/auth\/set-password$/, methods: ['POST'], reason: 'Passwort per Einmal-Link festlegen (nach einem Kauf): der Kunde kann noch nicht angemeldet sein; Token 256 Bit, 60 Minuten, einmalig, nur als Hash gespeichert; Drossel je IP und je Token' },
   { pattern: /^\/api\/auth\/request-set-password$/, methods: ['POST'], reason: 'Neuen Link zum Festlegen des Passworts anfordern: antwortet immer gleich (kein Konto-Orakel), nur für Konten im Status "wartet auf erstes Passwort"; Drossel je IP und je Adresse' },
   { pattern: /^\/api\/shop\/webhook$/, methods: ['POST'], reason: 'Stripe-Webhook des Shops mit Signaturprüfung' },

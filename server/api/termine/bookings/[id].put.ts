@@ -1,7 +1,6 @@
 import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { requireTenantId } from '../../../utils/auth'
-import { deleteGoogleCalendarEvent } from '../../../utils/termine'
 import { sendMail } from '../../../utils/mailer'
 
 export default defineEventHandler(async (event) => {
@@ -18,11 +17,10 @@ export default defineEventHandler(async (event) => {
   const item = { ...existing.Item, ...body, tenantId, bookingId, updatedAt: new Date().toISOString() }
   await dynamo.send(new PutCommand({ TableName: 'plexora-termine-bookings', Item: item }))
 
-  // Wechsel auf "storniert": Google-Termin entfernen und den Kunden benachrichtigen
+  // Wechsel auf "storniert": den Kunden benachrichtigen
   if (item.status === 'cancelled' && !wasCancelled) {
     const tenant = (await dynamo.send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))).Item
     if (tenant) {
-      await deleteGoogleCalendarEvent(tenant, existing.Item.googleEventId || '', existing.Item.googleCalendarId || '')
       if (item.customerEmail) {
         const companyName = tenant.companyName || 'Wir'
         const dateLabel = new Date(item.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })

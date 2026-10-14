@@ -15,7 +15,7 @@ export function parseJitsiHost(raw: unknown): string {
 export function jitsiHostOf(tenant: any): string { try { return parseJitsiHost(tenant?.jitsiHost) || DEFAULT_JITSI_HOST } catch { return DEFAULT_JITSI_HOST } }
 export const jitsiLink = (host: string = DEFAULT_JITSI_HOST) => `https://${host}/Plexora-${randomBytes(10).toString('hex')}`
 
-/** Der Link, den ein Video-Termin hat: erst der eigene Raum (Jitsi), dann Google Meet */
+/** Der Link, den ein Video-Termin hat: der eigene Raum (Jitsi); ältere Buchungen können noch einen früheren Meet-Link tragen (wird weiter angezeigt) */
 export const bookingVideoLink = (b: any): string => String(b?.videoLink || b?.googleMeetLink || '')
 
 const SAFE_LINK = /^https:\/\/[^\s"'<>]+$/
@@ -30,9 +30,9 @@ export function videoDetailsHtml(b: any, tenant: any): string {
     || 'Den Video-Link erhältst du separat.'
 }
 
-/** Bekommt eine Video-Buchung einen eigenen Jitsi-Raum? Ja, wenn der Inhaber es eingeschaltet hat; ohne Entscheidung (Einstellung nie gesetzt) nur, wenn es sonst keinen Link gäbe (kein Google, kein Standardlink). Ausdrücklich aus bleibt aus. */
+/** Bekommt eine Video-Buchung einen eigenen Jitsi-Raum? Standard: ja. Nein, wenn der Inhaber es ausdrücklich ausgeschaltet hat, oder (ohne ausdrückliche Wahl) wenn er einen festen Standardlink hinterlegt hat. */
 export function wantsJitsi(tenant: any): boolean {
   if (tenant?.videoAutoJitsi === true) return true
   if (tenant?.videoAutoJitsi === false) return false
-  return !(tenant?.googleConnected && tenant?.googleRefreshTokenEncrypted) && !tenant?.videoFallbackLink
+  return !tenant?.videoFallbackLink
 }

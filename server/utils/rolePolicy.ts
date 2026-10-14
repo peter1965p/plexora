@@ -44,7 +44,7 @@ export const ROLE_RULES: RoleRule[] = [
   { prefix: '/api/termine/bookings', role: 'member', note: 'Buchungen' }, { prefix: '/api/termine/types', role: 'member', note: 'Termintypen' },
 
   // ── Admin und höher: alles Übrige in den Modulen und Einstellungen ──
-  { prefix: '/api/termine', role: 'admin', note: 'Termin-Einstellungen und Google-Kalender' },
+  { prefix: '/api/termine', role: 'admin', note: 'Termin-Einstellungen und Terminverwaltung' },
   { prefix: '/api/settings', role: 'admin', note: 'Einstellungen des Mandanten' },
   { prefix: '/api/store', role: 'admin', note: 'Modul-Store ansehen' },
   { prefix: '/api/finance', role: 'admin', note: 'Finanzen' }, { prefix: '/api/quotes', role: 'admin', note: 'Angebote (wie Rechnungen)' }, { prefix: '/api/articles', role: 'admin', note: 'Artikelkatalog' }, { prefix: '/api/contracts', role: 'admin', note: 'Verträge' }, { prefix: '/api/hr', role: 'admin', note: 'Personal (HR)' },

@@ -1,7 +1,7 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { requireTenantId } from '../../../utils/auth'
-import { loadTenantAndType, toMinutes, toHHMM, createGoogleCalendarEvent } from '../../../utils/termine'
+import { loadTenantAndType, toMinutes, toHHMM } from '../../../utils/termine'
 import { randomUUID } from 'crypto'
 
 // Manuelles Eintragen eines Termins durch den Tenant selbst (z.B. telefonisch vereinbart) —
@@ -28,36 +28,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Telefonnummer erforderlich für einen Telefontermin' })
   }
   if (channel === 'video' && !customerEmail) {
-    throw createError({ statusCode: 400, message: 'E-Mail erforderlich für einen Video-Termin (für die Meet-Einladung)' })
+    throw createError({ statusCode: 400, message: 'E-Mail erforderlich für einen Video-Termin (für den Einladungslink)' })
   }
 
   const { tenantItem, typeItem } = await loadTenantAndType(tenantId, typeId)
   const durationMinutes = Number(typeItem.durationMinutes) || 30
   const endTime = toHHMM(toMinutes(startTime) + durationMinutes)
 
-  let googleEventId = ''
-  let googleMeetLink = ''
-  let videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink(jitsiHostOf(tenantItem)) : ''
-  if (customerEmail) {
-    try {
-      const googleEvent = await createGoogleCalendarEvent(tenantItem, {
-        summary: typeItem.name,
-        description: channel === 'phone' ? `Telefontermin — ${customerPhone}\n${notes}`.trim() : [videoLink && `Video: ${videoLink}`, notes].filter(Boolean).join('\n'),
-        date, startTime, endTime,
-        customerEmail,
-        channel: videoLink ? 'phone' : channel,
-      })
-      if (googleEvent) {
-        googleEventId = googleEvent.eventId
-        googleMeetLink = googleEvent.meetLink
-      }
-    } catch (e) {
-      console.error('Google Calendar event creation failed', tenantId, e)
-    }
-  }
-
-  // Google lieferte keinen Meet-Link (nicht verbunden, abgelaufen, Fehler): sonst bekäme der Kunde keinen Link. Ausdrücklich ausgeschaltet oder fester Standardlink vorhanden: nichts ergänzen.
-  if (channel === 'video' && !videoLink && !googleMeetLink && tenantItem.videoAutoJitsi !== false && !tenantItem.videoFallbackLink) videoLink = jitsiLink(jitsiHostOf(tenantItem))
+  const videoLink = channel === 'video' && wantsJitsi(tenantItem) ? jitsiLink(jitsiHostOf(tenantItem)) : ''
 
   const dynamo = getDynamoClient()
   const bookingId = randomUUID()
@@ -69,7 +47,7 @@ export default defineEventHandler(async (event) => {
     customerName, customerEmail, customerPhone, channel, notes,
     status: 'confirmed',
     source: 'admin',
-    googleEventId, googleMeetLink, ...(videoLink ? { videoLink } : {}),
+    ...(videoLink ? { videoLink } : {}),
     createdAt: now, updatedAt: now,
   }
   await dynamo.send(new PutCommand({ TableName: 'plexora-termine-bookings', Item: item }))

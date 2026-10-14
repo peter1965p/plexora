@@ -7,8 +7,6 @@ export default defineEventHandler(async (event) => {
   const res = await getDynamoClient().send(new GetCommand({ TableName: 'plexora-nexora', Key: { tenantId } }))
   const item = res.Item || {}
   return {
-    googleConnected: item.googleConnected ?? false,
-    googleEmail: item.googleEmail || '',
     videoFallbackLink: item.videoFallbackLink || '',
     videoAutoJitsi: item.videoAutoJitsi === true,
     jitsiHost: item.jitsiHost || '',

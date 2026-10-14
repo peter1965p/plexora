@@ -146,8 +146,6 @@ export const EVIDENCE: Record<string, Evidence> = {
   'POST /api/webhooks/stripe': { kind: 'gated', status: [400, 401], rawBody: '{"type":"checkout.session.completed"}', headers: { 'stripe-signature': 'ungueltig' }, note: 'Stripe-Signatur' },
   'POST /api/webhooks/resend': { kind: 'gated', status: [401], rawBody: '{"type":"email.bounced","data":{"tags":{"source":"newsletter","campaignId":"c","subscriberId":"s"}}}', headers: { 'svix-id': 'msg_x', 'svix-timestamp': '1', 'svix-signature': 'v1,ungueltig' }, note: 'Svix-Signatur mit Zeitfenster; ohne Secret wird abgelehnt' },
   'POST /api/shop/webhook': { kind: 'gated', status: [400, 401], rawBody: '{"type":"checkout.session.completed"}', headers: { 'stripe-signature': 'ungueltig' }, note: 'Stripe-Signatur' },
-  'GET /api/termine/google-auth': { kind: 'gated', status: [401], query: { token: 'irgendein-anmeldetoken', ticket: 'kein-gueltiger-einmalwert' }, note: 'verlangt Einmalwert aus der angemeldeten POST-Anfrage' },
-  'GET /api/termine/google-callback': { kind: 'gated', status: [200, 302], query: { code: 'abc', state: 'gefaelscht' }, note: 'state muss zum Browser gehören; sonst Rückleitung mit Fehler' },
 }
 
 export { SETTINGS, NEXORA as NEXORA_ROW }

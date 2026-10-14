@@ -24,10 +24,11 @@ describe('Jitsi-Videolink je Buchung', () => {
     expect(videoDetailsHtml({ channel: 'video', videoLink: 'https://x.de/"><script>' }, {})).not.toContain('<script>')
     expect(videoDetailsHtml({ channel: 'phone', customerPhone: '<img onerror=x>' }, {})).not.toContain('<img')
   })
-  it('wantsJitsi: an, wenn eingeschaltet; ohne Entscheidung nur ohne Google und ohne Standardlink; ausdrücklich aus bleibt aus', () => {
-    expect(wantsJitsi({ videoAutoJitsi: true, googleConnected: true, googleRefreshTokenEncrypted: 'x' })).toBe(true)
+  it('wantsJitsi: Standard ja; nein bei ausdrücklichem Aus oder (ohne Wahl) bei festem Standardlink; frühere Google-Felder spielen keine Rolle mehr', () => {
+    expect(wantsJitsi({ videoAutoJitsi: true })).toBe(true)
     expect(wantsJitsi({})).toBe(true)
-    expect(wantsJitsi({ googleConnected: true, googleRefreshTokenEncrypted: 'x' })).toBe(false)
+    expect(wantsJitsi({ googleConnected: true, googleRefreshTokenEncrypted: 'x' })).toBe(true)
+    expect(wantsJitsi({ videoAutoJitsi: true, videoFallbackLink: 'https://zoom.us/j/1' })).toBe(true)
     expect(wantsJitsi({ videoFallbackLink: 'https://zoom.us/j/1' })).toBe(false)
     expect(wantsJitsi({ videoAutoJitsi: false })).toBe(false)
   })

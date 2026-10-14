@@ -31,7 +31,7 @@ describe('NUXT_AUTH_ENFORCE=true: ung√ºltiges oder fehlendes Token ergibt 401, √
       ['/api/public/T1/newsletter/signup', 'POST'], ['/api/public/newsletter/confirm/tok', 'GET'], ['/api/webhooks/stripe', 'POST'], ['/api/webhooks/resend', 'POST'],
       ['/api/shop/webhook', 'POST'], ['/api/termine/cron/reminders', 'POST'], ['/api/newsletter/cron/run-automations', 'POST'], ['/api/sequences/cron/sweep', 'POST'],
       ['/api/settings/agb', 'GET'], ['/api/settings/datenschutz', 'GET'], ['/api/settings/branding', 'GET'], ['/api/settings/company', 'GET'], ['/api/pages/start', 'GET'],
-      ['/api/jobs/x', 'GET'], ['/api/pay/inv1', 'GET'], ['/api/support/portal/tok', 'GET'], ['/api/termine/google-callback', 'GET'],
+      ['/api/jobs/x', 'GET'], ['/api/pay/inv1', 'GET'], ['/api/support/portal/tok', 'GET'],
       ['/api/analytics/vitals', 'POST'], ['/api/licenses/PLXR-AAAA', 'GET'], ['/api/licenses/checkout', 'POST'],
     ] as const) expect((await run(p, m)).status, `${m} ${p}`).toBe(200)
   })
