@@ -59,6 +59,7 @@ const settings = (input: any) => SETTINGS[input?.Key?.settingId]
 const NX = { 'plexora-nexora': [NEXORA] }
 
 import { createHash as qHash } from 'node:crypto'
+const VIS_DB = { 'plexora-nexora': [{ ...NEXORA, blogCommentsMode: 'open' }] }
 const F_UNIT_ID = '22222222-2222-4222-8222-222222222222', F_TOKEN = 'B'.repeat(32)
 const F_UNIT = { tenantId: SECRETS.userId, unitId: F_UNIT_ID, name: 'Seeblick', icalToken: F_TOKEN, address: SECRETS.note, feeds: [{ feedId: 'f1', name: 'Booking', url: 'https://admin.booking.com/' + SECRETS.apiKey }] }
 const F_BOOKINGS = [
@@ -92,6 +93,17 @@ export const EVIDENCE: Record<string, Evidence> = {
     { key: 'fewo', name: 'Ferienwohnungen', icon: 'BedDouble', price: 79, desc: 'Text', features: ['A'], builtin: true, route: '/fewo', internalNote: SECRETS.note },
     { key: 'plug', name: 'Plugin', price: 5, builtin: false, remoteEntryUrl: 'https://geheim.example/' + SECRETS.apiKey },
   ] }, keys: ['packages'], note: 'Eingebaute Branchen-Pakete aus dem Modul-Store (Name, Preis, Text); keine Plugin-Adressen oder internen Felder' },
+  // ── Besucher-Konten und Kommentare der Webseite (Nexora): ohne gültiges Token/Link kommt nichts durch ──
+  'POST /api/public/[tenantId]/visitor/register': { kind: 'write', params: T, body: { name: 'A', email: 'x', password: 'y' }, db: VIS_DB, keys: [], status: [400], writes: [], note: 'Eingaben werden geprüft (400); es wird nichts angelegt' },
+  'POST /api/public/[tenantId]/visitor/verify': { kind: 'write', params: T, body: { token: 'x'.repeat(30) }, db: VIS_DB, keys: [], status: [400], writes: ['plexora-site-visitors'], note: 'Bestätigungslink gilt nur mit gültigem Einmal-Token' },
+  'POST /api/public/[tenantId]/visitor/login': { kind: 'write', params: T, body: { email: 'a@b.de', password: 'falsch-falsch-1' }, db: VIS_DB, keys: [], status: [401], writes: [], note: 'Falsche Zugangsdaten: eine einheitliche Fehlermeldung' },
+  'POST /api/public/[tenantId]/visitor/forgot': { kind: 'write', params: T, body: { email: 'a@b.de' }, db: VIS_DB, keys: ['ok', 'message'], status: [200], writes: [], note: 'Immer dieselbe Antwort, egal ob es ein Konto gibt' },
+  'POST /api/public/[tenantId]/visitor/reset': { kind: 'write', params: T, body: { token: 'x'.repeat(30), password: 'Ein-gutes-Geheimnis-42' }, db: VIS_DB, keys: [], status: [400], writes: ['plexora-site-visitors'], note: 'Passwort setzen nur mit gültigem Einmal-Token' },
+  'POST /api/public/[tenantId]/visitor/me': { kind: 'write', params: T, body: { token: 'x'.repeat(30) }, db: VIS_DB, keys: [], status: [401], writes: [], note: 'Nur mit gültiger Sitzung' },
+  'POST /api/public/[tenantId]/visitor/logout': { kind: 'write', params: T, body: { token: 'x'.repeat(30) }, db: VIS_DB, keys: [], status: [401], writes: [], note: 'Nur mit gültiger Sitzung' },
+  'POST /api/public/[tenantId]/visitor/delete-account': { kind: 'write', params: T, body: { token: 'x'.repeat(30), confirm: 'LOESCHEN' }, db: VIS_DB, keys: [], status: [401], writes: [], note: 'Nur mit gültiger Sitzung' },
+  'GET /api/public/[tenantId]/blog/[slug]/comments': { kind: 'read', params: { tenantId: 'T-A', slug: 's' }, db: { 'plexora-nexora': [{ ...NEXORA, blogCommentsMode: 'open' }], 'plexora-blog': [{ tenantId: 'T-A', postId: 'p1', slug: 's', status: 'published', title: 'T' }], 'plexora-blog-comments': [{ tenantId: 'T-A', commentId: 'c1', postId: 'p1', status: 'approved', authorName: 'Anna', text: 'Hallo', created: '2026-10-01T00:00:00Z', authorEmail: SECRETS.ownerEmail }] }, keys: ['mode', 'comments'], writes: ['plexora-newsletter-ratelimit'], note: 'Nur freigegebene Kommentare mit Name, Text, Zeit; nie die E-Mail-Adresse' },
+  'POST /api/public/[tenantId]/blog/[slug]/comments': { kind: 'write', params: { tenantId: 'T-A', slug: 's' }, body: { token: 'x'.repeat(30), text: 'Hallo Welt' }, db: VIS_DB, keys: [], status: [401], writes: [], note: 'Nur angemeldet' },
   'GET /api/public/landing-theme': { kind: 'read', db: { 'plexora-settings': { settingId: 'landing-theme', scope: 'global', theme: { mode: 'custom', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', internal: SECRETS.note } } }, keys: ['theme'], note: 'Farbauswahl der Startseite (global); nur geprüfte Felder' },
   'GET /api/public/testimonials': { kind: 'read', db: { 'plexora-settings': settings }, keys: ['items'] },
   'GET /api/public/s/[code]': { kind: 'read', params: { code: 'abc' }, db: { 'plexora-shortlinks': [{ shortCode: 'abc', userId: SECRETS.userId, targetUrl: 'https://ziel.example', clicks: 1 }], 'plexora-settings': settings }, keys: ['targetUrl'], writes: ['plexora-shortlinks'], note: 'zählt Klicks (bewusst)' },

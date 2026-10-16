@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   await dynamo.send(new UpdateCommand({
     TableName: 'plexora-blog',
     Key: { tenantId, postId },
-    UpdateExpression: 'SET title = :ti, slug = :sl, excerpt = :ex, content = :co, contentType = :ct, #st = :s, coverImageUrl = :ci, category = :ca, tags = :tg, publishedAt = :pa, updatedAt = :u' + (body.authorName !== undefined ? ', authorName = :an' : ''),
+    UpdateExpression: 'SET title = :ti, slug = :sl, excerpt = :ex, content = :co, contentType = :ct, #st = :s, coverImageUrl = :ci, category = :ca, tags = :tg, publishedAt = :pa, updatedAt = :u' + (body.authorName !== undefined ? ', authorName = :an' : '') + (body.commentsEnabled !== undefined ? ', commentsEnabled = :ce' : ''),
     ExpressionAttributeNames: { '#st': 'status' },
     ExpressionAttributeValues: {
       ':ti': body.title        || '',
@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
       ':tg': body.tags          || [],
       ':pa': body.status === 'published' && !body.publishedAt ? now : (body.publishedAt || ''),
       ':u':  now,
+      ...(body.commentsEnabled !== undefined ? { ':ce': body.commentsEnabled !== false } : {}),
       ...(body.authorName !== undefined ? { ':an': String(body.authorName || '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 80) } : {}),
     },
   }))

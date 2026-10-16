@@ -9,7 +9,7 @@ import { reserveMail } from './mailQuota'
 
 export interface MailInput {
   userId: string
-  kind: 'automation' | 'booking_confirmation' | 'booking_cancelled' | 'internal' | 'team_invite' | 'welcome'
+  kind: 'automation' | 'booking_confirmation' | 'booking_cancelled' | 'internal' | 'team_invite' | 'welcome' | 'visitor_account'
   from: string
   to: string
   subject: string

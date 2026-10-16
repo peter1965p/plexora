@@ -21,7 +21,7 @@ describe('Rollen-Zuordnung der Routen', () => {
     const count: Record<string, number> = {}
     for (const r of routes) { if (isPublicRoute(concretePath(r.path), r.method)) continue; const n = needOf(concretePath(r.path), r.method); count[n] = (count[n] || 0) + 1 }
     expect(count.member).toBeGreaterThan(45); expect(count.member).toBeLessThan(65)
-    expect(count.admin).toBeGreaterThan(180); expect(count.admin).toBeLessThan(230)
+    expect(count.admin).toBeGreaterThan(180); expect(count.admin).toBeLessThan(245)
     expect(count.owner).toBeGreaterThan(14); expect(count.owner).toBeLessThan(30)
     expect(count.platform).toBeGreaterThan(15); expect(count.platform).toBeLessThan(30)
   })

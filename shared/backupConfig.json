@@ -31,6 +31,10 @@
    "mode": "ownerTenant",
    "attr": "tenantId"
   },
+  "plexora-blog-comments": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
   "plexora-campaigns": {
    "mode": "owner",
    "attr": "userId"
@@ -271,6 +275,10 @@
   "plexora-site-analytics": {
    "mode": "ownerTenant",
    "attr": "tenantId"
+  },
+  "plexora-site-visitors": {
+   "mode": "skip",
+   "reason": "Konten von Webseiten-Besuchern (Passwort-Hashes, Sitzungen, Einmal-Links): gehören nicht in Sicherungen; Besucher können sich neu registrieren"
   },
   "plexora-submissions": {
    "mode": "via",

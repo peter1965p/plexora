@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
     tags:         body.tags          || [],
     // Ersteller: angegebener Name, sonst der Name des angemeldeten Kontos, sonst die Firma (nur zur Anzeige)
     authorName:   String(body.authorName || event.context.auth?.name || tenantItem.companyName || '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 80),
+    commentsEnabled: body.commentsEnabled !== false,
     publishedAt:  body.status === 'published' ? now : (body.publishedAt || ''),
     createdAt:    now,
     updatedAt:    now,
