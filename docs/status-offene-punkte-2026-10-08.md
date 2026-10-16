@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 38 (previous 37), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 39 (previous 38), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -115,7 +115,8 @@ Live: Backend Version 38 (previous 37), Pre-signup Version 2, alle drei Prüfung
 |---|---|---|
 | Tags sind anklickbar, `/blog?tag=…` filtert die Liste, Tag-Leiste oben | erledigt, live (Website) | – |
 | Autor wird beim Beitrag und in der Liste angezeigt (Feld "Autor" im Editor, Standard: Kontoname bzw. Firma) | erledigt, live | wartet auf dich: bei älteren Beiträgen den Autor eintragen (bis dahin steht der Firmenname) |
-| Kommentare nur mit Konto (Registrierung mit Mail-Bestätigung, Anmeldung, Passwort vergessen, Konto selbst löschen); Schalter Aus / sofort sichtbar / erst nach Freigabe; Beitrag kann einzeln abschalten; Verwaltung im Blog-Admin (Reiter "Kommentare") | erledigt, live (Backend Version 38 + Website + Verwaltung); **standardmäßig AUS** | wartet auf dich: im Blog-Admin → Kommentare einschalten, mit eigener Adresse Konto anlegen und kommentieren; **Datenschutzerklärung der Webseite um den Absatz zu Besucher-Konten ergänzen** (Name, E-Mail, Kommentare, Löschung möglich) |
+| **16.10.: Kommentare eingeschaltet (Modus "erst nach Freigabe") und live durchgespielt (27 Prüfungen bestanden, Testkonto samt Testkommentar wieder gelöscht, `scripts/security/visitor-comments-live-test.mjs`)**; nicht bestätigte Konten verfallen nach 7 Tagen | – |
+| Kommentare nur mit Konto (Registrierung mit Mail-Bestätigung, Anmeldung, Passwort vergessen, Konto selbst löschen); Schalter Aus / sofort sichtbar / erst nach Freigabe; Beitrag kann einzeln abschalten; Verwaltung im Blog-Admin (Reiter "Kommentare") | erledigt, live (Backend Version 38 + Website + Verwaltung); **standardmäßig AUS** | wartet auf dich: im Blog-Admin → Kommentare einschalten, mit eigener Adresse Konto anlegen und kommentieren; **Datenschutzerklärung der Webseite: Entwurf liegt vor (`docs/entwurf-datenschutz-paeffgen-it.html`, 13 Abschnitte); der veröffentlichte Text enthält bisher nur den nicht mehr zutreffenden Google-Kalender-Abschnitt; Impressum und AGB sind nur Platzhalter. Einsetzen mit `scripts/aws/set-site-privacy-page.sh PLXR-GOD0-MODE-0000-PETE docs/entwurf-datenschutz-paeffgen-it.html --apply` erst nach deiner Freigabe** |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
