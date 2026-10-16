@@ -18,6 +18,6 @@ export default defineEventHandler(async (event) => {
   const email = await consumeToken(tenantId, pre, 'reset')
   const acct = email ? await getAccount(tenantId, email) : undefined
   if (!email || !acct) throw createError({ statusCode: 400, message: 'Der Link ist ungültig oder abgelaufen. Bitte fordere einen neuen an.' })
-  await getDynamoClient().send(new UpdateCommand({ TableName: VISITORS_TABLE, Key: acctKey(tenantId, email), UpdateExpression: 'SET passwordHash = :h, verified = :v, sessVer = :n', ConditionExpression: 'attribute_exists(sk)', ExpressionAttributeValues: { ':h': await hashPassword(password), ':v': true, ':n': Number(acct.sessVer || 1) + 1 } }))
+  await getDynamoClient().send(new UpdateCommand({ TableName: VISITORS_TABLE, Key: acctKey(tenantId, email), UpdateExpression: 'SET passwordHash = :h, verified = :v, sessVer = :n REMOVE #t', ExpressionAttributeNames: { '#t': 'ttl' }, ConditionExpression: 'attribute_exists(sk)', ExpressionAttributeValues: { ':h': await hashPassword(password), ':v': true, ':n': Number(acct.sessVer || 1) + 1 } }))
   return { ok: true }
 })

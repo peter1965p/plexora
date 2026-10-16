@@ -2,7 +2,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { createHash } from 'node:crypto'
 import { getDynamoClient } from '../../../../utils/dynamodb'
 import { enforcePublicRateLimit, checkRateLimit } from '../../../../utils/rateLimit'
-import { loadSite, siteCommentsMode, siteOrigin, getAccount, hashPassword, createToken, sendVisitorMail, VISITORS_TABLE } from '../../../../utils/siteVisitor'
+import { UNVERIFIED_DAYS, loadSite, siteCommentsMode, siteOrigin, getAccount, hashPassword, createToken, sendVisitorMail, VISITORS_TABLE } from '../../../../utils/siteVisitor'
 import { parseRegistration, VisitorError } from '../../../../../shared/siteVisitors'
 
 // Konto für Kommentare anlegen. Die Antwort ist immer dieselbe (auch wenn die Adresse schon registriert ist), damit niemand Adressen ausprobieren kann.
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!(await checkRateLimit('visitor-register:email', createHash('sha256').update(tenantId + reg.email).digest('hex').slice(0, 32), 3, 3600))) return answer
   const existing = await getAccount(tenantId, reg.email)
   if (existing?.verified) return answer
-  await getDynamoClient().send(new PutCommand({ TableName: VISITORS_TABLE, Item: { tenantId, sk: `acct#${reg.email}`, email: reg.email, name: reg.name, passwordHash: await hashPassword(reg.password), verified: false, sessVer: 1, created: new Date().toISOString() } }))
+  await getDynamoClient().send(new PutCommand({ TableName: VISITORS_TABLE, Item: { tenantId, sk: `acct#${reg.email}`, email: reg.email, name: reg.name, passwordHash: await hashPassword(reg.password), verified: false, sessVer: 1, created: new Date().toISOString(), ttl: Math.floor(Date.now() / 1000) + UNVERIFIED_DAYS * 86400 } }))   // unbestätigte Konten verfallen von selbst
   const token = await createToken(tenantId, 'verify', reg.email)
   await sendVisitorMail(site, reg.email, `Bitte bestätige dein Konto bei ${site.companyName || 'uns'}`, `Hallo ${reg.name}, schön, dass du kommentieren möchtest. Bitte bestätige deine E-Mail-Adresse (der Link ist 24 Stunden gültig).`, 'Konto bestätigen', `${siteOrigin(site)}/konto/bestaetigen?t=${tenantId}&token=${token}`)
   return answer

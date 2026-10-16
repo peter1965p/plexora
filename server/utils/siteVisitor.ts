@@ -15,6 +15,8 @@ const SCRYPT = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }
 const sha = (s: string) => createHash('sha256').update(s).digest('hex')
 const nowSec = () => Math.floor(Date.now() / 1000)
 export const newToken = () => randomBytes(32).toString('base64url')
+/** Tage, nach denen ein nicht bestätigtes Konto automatisch gelöscht wird (DynamoDB-TTL, Attribut ttl; die Bestätigung entfernt es) */
+export const UNVERIFIED_DAYS = 7
 export const TTL = { verify: 24 * 3600, reset: 3600, session: 30 * 24 * 3600 }
 
 export async function hashPassword(pw: string): Promise<string> {

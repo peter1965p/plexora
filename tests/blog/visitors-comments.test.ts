@@ -24,7 +24,9 @@ const fakeDb = { async send(cmd: any) {
     if (i.TableName === 'plexora-newsletter-ratelimit') { const row = cur || {}; row.count = (row.count || 0) + 1; t.set(k, row); return { Attributes: { ...row } } }
     if (i.ConditionExpression?.startsWith('attribute_exists') && !cur) fail()
     const row = { ...(cur || {}) }
-    for (const a of names(i, String(i.UpdateExpression)).replace(/^SET /, '').split(',')) { const [l, r] = a.split('=').map(s => s.trim()); row[l] = v[r] }
+    const [setPart, removePart] = names(i, String(i.UpdateExpression)).replace(/^SET /, '').split(' REMOVE ')
+    for (const a of setPart.split(',')) { const [l, r] = a.split('=').map(s => s.trim()); row[l] = v[r] }
+    for (const r of (removePart || '').split(',').map(x => x.trim()).filter(Boolean)) delete row[r]
     t.set(k, row); return { Attributes: { ...row } }
   }
   return {}
@@ -98,6 +100,11 @@ describe('Registrieren und Bestätigen', () => {
     await register('T-A', { email: 'bert@beispiel.de' }); const old = lastToken()
     for (const [k, v] of tbl('plexora-site-visitors')) if (k.includes('tok#')) v.ttl = 1           // abgelaufen
     expect((await call(H.verify, pub('T-A', { token: old }))).code).toBe(400)
+  })
+  it('unbestätigte Konten verfallen nach 7 Tagen von selbst (ttl); mit der Bestätigung entfällt der Ablauf', async () => {
+    await register(); const acct = () => tbl('plexora-site-visitors').get('T-A|acct#anna@beispiel.de')!
+    const days = (acct().ttl - Math.floor(Date.now() / 1000)) / 86400; expect(days).toBeGreaterThan(6.9); expect(days).toBeLessThanOrEqual(7)
+    await call(H.verify, pub('T-A', { token: lastToken() })); expect(acct().verified).toBe(true); expect(acct()).not.toHaveProperty('ttl')
   })
   it('Token eines anderen Mandanten funktioniert nicht', async () => {
     await register('T-A'); const tok = lastToken()
