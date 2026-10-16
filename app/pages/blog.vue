@@ -110,6 +110,10 @@
               <input v-model="form.excerpt" placeholder="Kurzbeschreibung..." />
             </div>
             <div class="blog-field">
+              <label>Autor (wird beim Beitrag angezeigt)</label>
+              <input v-model="form.authorName" maxlength="80" placeholder="Name des Autors" />
+            </div>
+            <div class="blog-field">
               <label>Tags</label>
               <input v-model="tagsInput" placeholder="tag1, tag2" />
             </div>
@@ -216,6 +220,7 @@ const form = reactive({
   coverImageUrl:'',
   category:     '',
   tags:         [] as string[],
+  authorName:   '',
 })
 
 const tagsInput = computed({
@@ -314,7 +319,7 @@ async function generateBlogContent() {
 
 function resetForm() {
   form.title = ''; form.slug = ''; form.excerpt = ''; form.content = DEFAULT_CONTENT
-  form.contentType = 'html'; form.status = 'draft'; form.coverImageUrl = ''; form.category = ''; form.tags = []
+  form.contentType = 'html'; form.status = 'draft'; form.coverImageUrl = ''; form.category = ''; form.tags = []; form.authorName = ''
   editingId.value = ''
 }
 
@@ -336,6 +341,7 @@ function openEdit(p: BlogPost) {
   form.coverImageUrl = p.coverImageUrl || ''
   form.category      = p.category || ''
   form.tags          = p.tags || []
+  form.authorName    = (p as any).authorName || ''
   editingId.value    = p.postId
   showModal.value    = true
 }

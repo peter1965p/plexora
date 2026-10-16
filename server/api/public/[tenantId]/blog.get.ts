@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
       excerpt:      p.excerpt,
       coverImageUrl: p.coverImageUrl,
       tags:         p.tags,
+      authorName:   p.authorName,
       publishedAt:  p.publishedAt,
       contentType:  p.contentType,
     }))

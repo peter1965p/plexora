@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     ExpressionAttributeValues: { ':e': email },
   }))
   const tenantId = tenantRes.Items?.[0]?.tenantId
+  const tenantItem = tenantRes.Items?.[0] || {}
   if (!tenantId) throw createError({ statusCode: 404, message: 'Tenant nicht gefunden' })
 
   const now = new Date().toISOString()
@@ -30,6 +31,8 @@ export default defineEventHandler(async (event) => {
     coverImageUrl: body.coverImageUrl || '',
     category:      body.category       || '',
     tags:         body.tags          || [],
+    // Ersteller: angegebener Name, sonst der Name des angemeldeten Kontos, sonst die Firma (nur zur Anzeige)
+    authorName:   String(body.authorName || event.context.auth?.name || tenantItem.companyName || '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 80),
     publishedAt:  body.status === 'published' ? now : (body.publishedAt || ''),
     createdAt:    now,
     updatedAt:    now,
