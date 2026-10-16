@@ -20,27 +20,61 @@
       </button>
     </div>
 
+    <!-- Kommentare: Schalter und Moderation -->
+    <div v-if="activeTab === 'comments'">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><span class="card-title"><i class="ti ti-toggle-right" style="margin-right:8px;color:var(--accent)"></i>Kommentare auf der Webseite</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;max-width:640px">
+          <div style="font-size:12px;color:var(--text-muted)">Besucher können unter Beiträgen kommentieren, <strong>nachdem sie ein kostenloses Konto angelegt</strong> und ihre E-Mail-Adresse bestätigt haben. Du kannst die Funktion jederzeit abschalten; bestehende Kommentare bleiben gespeichert, werden aber nicht mehr angezeigt. Einzelne Beiträge schaltest du im Beitrag ab.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select v-model="commentsMode" class="form-select" style="height:34px"><option v-for="m in COMMENT_MODE_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option></select>
+            <button class="accent-btn" :disabled="savingMode" @click="saveCommentsMode"><i class="ti" :class="savingMode ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
+            <span v-if="modeMsg" style="font-size:12px;color:var(--text-muted)">{{ modeMsg }}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button v-for="f in COMMENT_FILTERS" :key="f.key" class="theme-opt" :class="{ active: commentFilter === f.key }" style="font-size:12px;padding:4px 12px" @click="commentFilter = f.key">{{ f.label }} <span style="opacity:.6">{{ f.key === 'all' ? comments.length : comments.filter(c => c.status === f.key).length }}</span></button>
+      </div>
+      <div v-if="commentsLoading" style="padding:30px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
+      <div v-else-if="!shownComments.length" style="padding:40px;text-align:center;color:var(--text-muted);border:1px dashed var(--border);border-radius:12px">Keine Kommentare in dieser Ansicht.</div>
+      <div v-else style="display:flex;flex-direction:column;gap:10px">
+        <div v-for="c in shownComments" :key="c.commentId" style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:6px">
+            <span><strong style="color:var(--text-primary)">{{ c.authorName }}</strong> · {{ c.authorEmail }} · zu „{{ postTitle(c) }}“</span>
+            <span>{{ new Date(c.created).toLocaleString('de-DE') }} · <span class="badge" :class="c.status === 'approved' ? 'badge-success' : c.status === 'pending' ? 'badge-warning' : ''">{{ c.status === 'approved' ? 'Sichtbar' : c.status === 'pending' ? 'Wartet' : 'Verborgen' }}</span></span>
+          </div>
+          <p style="margin:0 0 10px;font-size:13px;white-space:pre-line;overflow-wrap:anywhere">{{ c.text }}</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button v-if="c.status !== 'approved'" class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" :disabled="commentBusy === c.commentId" @click="moderate(c, 'approved')"><i class="ti ti-check"></i> Freigeben</button>
+            <button v-if="c.status !== 'hidden'" class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" :disabled="commentBusy === c.commentId" @click="moderate(c, 'hidden')"><i class="ti ti-eye-off"></i> Verbergen</button>
+            <button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px;color:var(--danger)" :disabled="commentBusy === c.commentId" @click="removeComment(c)"><i class="ti ti-trash"></i> Löschen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Kategorie Filter -->
-    <div v-if="allCategories.length" style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+    <div v-if="activeTab !== 'comments' && allCategories.length" style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text-muted);margin-right:2px">Kategorie:</span>
       <button class="theme-opt" :class="{ active: !categoryFilter }" @click="categoryFilter = ''" style="font-size:11px;padding:3px 10px">Alle</button>
       <button v-for="cat in allCategories" :key="cat" class="theme-opt" :class="{ active: categoryFilter === cat }" @click="categoryFilter = cat" style="font-size:11px;padding:3px 10px">{{ cat }}</button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
+    <div v-if="activeTab !== 'comments' && loading" style="display:flex;justify-content:center;padding:60px;color:var(--text-muted)">
       <i class="ti ti-loader-2 spin" style="font-size:28px"></i>
     </div>
 
     <!-- Empty -->
-    <div v-else-if="!filteredPosts.length" style="text-align:center;padding:80px 20px;color:var(--text-muted)">
+    <div v-else-if="activeTab !== 'comments' && !filteredPosts.length" style="text-align:center;padding:80px 20px;color:var(--text-muted)">
       <i class="ti ti-pencil-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
       <p style="font-size:14px;margin-bottom:16px">{{ activeTab === 'live' ? 'Noch keine veröffentlichten Beiträge.' : activeTab === 'draft' ? 'Keine Entwürfe vorhanden.' : 'Noch keine Beiträge.' }}</p>
       <button class="accent-btn" @click="openNew"><i class="ti ti-plus" style="margin-right:6px"></i>Ersten Beitrag erstellen</button>
     </div>
 
     <!-- Post Grid -->
-    <div v-else style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+    <div v-else-if="activeTab !== 'comments'" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
       <div v-for="p in filteredPosts" :key="p.postId"
         style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .15s;display:flex;flex-direction:column"
         @mouseenter="e => (e.currentTarget as HTMLElement).style.borderColor='var(--accent)'"
@@ -109,6 +143,7 @@
               <label>Excerpt</label>
               <input v-model="form.excerpt" placeholder="Kurzbeschreibung..." />
             </div>
+            <label class="blog-field" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" v-model="form.commentsEnabled" style="width:auto" /> Kommentare bei diesem Beitrag erlauben</label>
             <div class="blog-field">
               <label>Autor (wird beim Beitrag angezeigt)</label>
               <input v-model="form.authorName" maxlength="80" placeholder="Name des Autors" />
@@ -206,6 +241,7 @@ const tabs = [
   { key: 'all',   label: 'Alle',     icon: 'ti-list' },
   { key: 'live',  label: 'Live',     icon: 'ti-circle-check' },
   { key: 'draft', label: 'Entwürfe', icon: 'ti-pencil' },
+  { key: 'comments', label: 'Kommentare', icon: 'ti-message-circle' },
 ]
 
 const DEFAULT_CONTENT = '<h1>Neuer Beitrag</h1><p>Hier beginnt dein Text...</p>'
@@ -221,6 +257,7 @@ const form = reactive({
   category:     '',
   tags:         [] as string[],
   authorName:   '',
+  commentsEnabled: true,
 })
 
 const tagsInput = computed({
@@ -282,6 +319,7 @@ function tabCount(key: string) {
   if (key === 'all')   return posts.value.length || 0
   if (key === 'live')  return posts.value.filter(p => p.status === 'published').length || 0
   if (key === 'draft') return posts.value.filter(p => p.status !== 'published').length || 0
+  if (key === 'comments') return comments.value.filter(c => c.status === 'pending').length || 0      // wartet auf Freigabe
   return 0
 }
 
@@ -319,7 +357,7 @@ async function generateBlogContent() {
 
 function resetForm() {
   form.title = ''; form.slug = ''; form.excerpt = ''; form.content = DEFAULT_CONTENT
-  form.contentType = 'html'; form.status = 'draft'; form.coverImageUrl = ''; form.category = ''; form.tags = []; form.authorName = ''
+  form.contentType = 'html'; form.status = 'draft'; form.coverImageUrl = ''; form.category = ''; form.tags = []; form.authorName = ''; form.commentsEnabled = true
   editingId.value = ''
 }
 
@@ -342,6 +380,7 @@ function openEdit(p: BlogPost) {
   form.category      = p.category || ''
   form.tags          = p.tags || []
   form.authorName    = (p as any).authorName || ''
+  form.commentsEnabled = (p as any).commentsEnabled !== false
   editingId.value    = p.postId
   showModal.value    = true
 }
@@ -391,13 +430,40 @@ async function deletePost(p: BlogPost) {
   await loadPosts()
 }
 
+// ── Kommentare (Verwaltung) ──
+const COMMENT_MODE_OPTIONS = [{ key: 'off', label: 'Aus (keine Kommentare)' }, { key: 'open', label: 'An (sofort sichtbar)' }, { key: 'moderated', label: 'An (erst nach deiner Freigabe)' }]
+const COMMENT_FILTERS = [{ key: 'pending', label: 'Wartet' }, { key: 'approved', label: 'Sichtbar' }, { key: 'hidden', label: 'Verborgen' }, { key: 'all', label: 'Alle' }]
+const comments = ref<any[]>([]), commentsLoading = ref(false), commentFilter = ref('pending'), commentBusy = ref('')
+const commentsMode = ref('off'), savingMode = ref(false), modeMsg = ref('')
+const shownComments = computed(() => comments.value.filter(c => commentFilter.value === 'all' || c.status === commentFilter.value))
+const postTitle = (c: any) => posts.value.find(p => p.postId === c.postId)?.title || c.slug || '–'
+async function loadComments() {
+  commentsLoading.value = true
+  try { comments.value = (await ofetch<{ comments: any[] }>(useApiUrl('/api/blog/comments'), { headers: await useAuthHeader() })).comments || [] } catch {} finally { commentsLoading.value = false }
+}
+async function loadCommentsMode() { try { commentsMode.value = (await ofetch<{ mode: string }>(useApiUrl('/api/blog/comments-settings'), { headers: await useAuthHeader() })).mode } catch {} }
+async function saveCommentsMode() {
+  savingMode.value = true; modeMsg.value = ''
+  try { const r = await ofetch<{ mode: string }>(useApiUrl('/api/blog/comments-settings'), { method: 'POST', headers: await useAuthHeader(), body: { mode: commentsMode.value } }); commentsMode.value = r.mode; modeMsg.value = 'Gespeichert.' }
+  catch (e: any) { modeMsg.value = e?.data?.message || 'Speichern fehlgeschlagen.' } finally { savingMode.value = false }
+}
+async function moderate(c: any, status: 'approved' | 'hidden') {
+  commentBusy.value = c.commentId
+  try { await ofetch(useApiUrl(`/api/blog/comments/${c.commentId}`), { method: 'PATCH', headers: await useAuthHeader(), body: { status } }); c.status = status } catch (e: any) { alert(e?.data?.message || 'Das hat nicht geklappt.') } finally { commentBusy.value = '' }
+}
+async function removeComment(c: any) {
+  if (!window.confirm(`Kommentar von ${c.authorName} wirklich löschen?`)) return
+  commentBusy.value = c.commentId
+  try { await ofetch(useApiUrl(`/api/blog/comments/${c.commentId}`), { method: 'DELETE', headers: await useAuthHeader() }); comments.value = comments.value.filter(x => x.commentId !== c.commentId) } catch (e: any) { alert(e?.data?.message || 'Das hat nicht geklappt.') } finally { commentBusy.value = '' }
+}
+
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
   userId.value    = u.userId || ''
-  await Promise.all([loadPosts(), loadBlogCategories()])
+  await Promise.all([loadPosts(), loadBlogCategories(), loadComments(), loadCommentsMode()])
 })
 </script>
 

@@ -1,7 +1,7 @@
 # Status aller Aufträge (Stand 08.10.2026)
 
 Stände: **erledigt** · **offen** (meine Arbeit) · **wartet auf dich** · **wartet auf Rechte** (Administrator nötig).
-Live: Backend Version 35 (previous 34), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
+Live: Backend Version 38 (previous 37), Pre-signup Version 2, alle drei Prüfungen grün (`check-public-flows.sh`, `check-demo-login.sh`, `check-storage.sh`).
 
 ## 1. Sicherheit: Review (Phase A) und was daraus wurde
 
@@ -108,6 +108,14 @@ Live: Backend Version 35 (previous 34), Pre-signup Version 2, alle drei Prüfung
 | Abo-Link (.ics) für Google/Apple/Outlook, Kalenderdatei (.ics) in der Terminbestätigung | erledigt, live | wartet auf dich: Abo-Link einrichten und eine Testbuchung machen |
 | Video-Termine: Jitsi ist jetzt der Standard | erledigt | – |
 | Gantt-Projektplaner (wie MS Project) in Projekte → Reiter "Planer": Balken mit Fortschritt, Meilensteine, Abhängigkeiten mit Pfeilen, Zuständige, kritischer Pfad, Ziehen/Dehnen/Verknüpfen mit der Maus | **erledigt, live (Version 35)** | wartet auf dich: ausprobieren (Projekt anlegen, Vorgänge anlegen) |
+
+## 11. Blog: Tags, Autor, Kommentare (neu, 16.10.2026)
+
+| Punkt | Stand | Was noch fehlt |
+|---|---|---|
+| Tags sind anklickbar, `/blog?tag=…` filtert die Liste, Tag-Leiste oben | erledigt, live (Website) | – |
+| Autor wird beim Beitrag und in der Liste angezeigt (Feld "Autor" im Editor, Standard: Kontoname bzw. Firma) | erledigt, live | wartet auf dich: bei älteren Beiträgen den Autor eintragen (bis dahin steht der Firmenname) |
+| Kommentare nur mit Konto (Registrierung mit Mail-Bestätigung, Anmeldung, Passwort vergessen, Konto selbst löschen); Schalter Aus / sofort sichtbar / erst nach Freigabe; Beitrag kann einzeln abschalten; Verwaltung im Blog-Admin (Reiter "Kommentare") | erledigt, live (Backend Version 38 + Website + Verwaltung); **standardmäßig AUS** | wartet auf dich: im Blog-Admin → Kommentare einschalten, mit eigener Adresse Konto anlegen und kommentieren; **Datenschutzerklärung der Webseite um den Absatz zu Besucher-Konten ergänzen** (Name, E-Mail, Kommentare, Löschung möglich) |
 
 ## Empfohlene Reihenfolge
 0. Erledigt am 08.10.: Zahlungs-Secrets verschlüsselt.
