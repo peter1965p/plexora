@@ -3,6 +3,8 @@
 // kommentieren, freigeben (direkt in der Datenbank, wie es der Inhaber im Admin tut), Passwort zurücksetzen, abmelden, Konto löschen.
 // Räumt alles auf (das Löschen des Kontos entfernt auch den Testkommentar). Gibt keine Schlüssel, Tokens oder Passwörter aus.
 //   node scripts/security/visitor-comments-live-test.mjs <mandant> <slug> <testadresse>
+// Hinweis: Ist unter Einstellungen → Bot-Schutz "Konto und Kommentare schützen" an, verlangt die Registrierung eine Cloudflare-Prüfung, die ein Skript nicht lösen kann.
+// Der Test bricht dann bei der Registrierung mit 403 ab (das ist das gewünschte Verhalten). Zum Durchlauf den Schalter kurz ausschalten.
 import { execFileSync } from 'node:child_process'
 const [, , TENANT, SLUG, EMAIL] = process.argv
 if (!TENANT || !SLUG || !EMAIL) { console.error('Aufruf: node visitor-comments-live-test.mjs <mandant> <slug> <testadresse>'); process.exit(2) }
