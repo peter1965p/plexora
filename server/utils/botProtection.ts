@@ -16,11 +16,13 @@ export interface BotSettings {
   secretMasked: string
   mode: WidgetMode
   contactProtection: boolean
+  /** Konto-Registrierung, Passwort-Mail und Kommentare der Webseite (Besucher-Konten) */
+  visitorProtection: boolean
   hostnames: string[]
 }
 
 export const EMPTY_BOT_SETTINGS: BotSettings = {
-  enabled: false, siteKey: '', secretEncrypted: '', secretMasked: '', mode: 'managed', contactProtection: false, hostnames: [],
+  enabled: false, siteKey: '', secretEncrypted: '', secretMasked: '', mode: 'managed', contactProtection: false, visitorProtection: false, hostnames: [],
 }
 
 // Cloudflare-Sitekeys beginnen mit 0x…, die Testschlüssel mit 1x/2x/3x…
@@ -46,6 +48,7 @@ export async function getBotSettings(ownerScope: string): Promise<BotSettings> {
     secretMasked: String(it.secretMasked || ''),
     mode: it.mode === 'invisible' ? 'invisible' : 'managed',
     contactProtection: it.contactProtection === true,
+    visitorProtection: it.visitorProtection === true,
     hostnames: Array.isArray(it.hostnames) ? it.hostnames.map(String) : [],
   }
 }
@@ -62,7 +65,7 @@ export function readSecret(s: BotSettings): string {
 export function describeForOwner(s: BotSettings) {
   return {
     enabled: s.enabled, siteKey: s.siteKey, secretConfigured: !!s.secretEncrypted, secretMasked: s.secretMasked,
-    mode: s.mode, contactProtection: s.contactProtection, hostnames: s.hostnames, defaultHostnames: DEFAULT_HOSTNAMES,
+    mode: s.mode, contactProtection: s.contactProtection, visitorProtection: s.visitorProtection, hostnames: s.hostnames, defaultHostnames: DEFAULT_HOSTNAMES,
   }
 }
 

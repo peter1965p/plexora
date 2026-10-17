@@ -32,6 +32,10 @@ const fakeDb = { async send(cmd: any) {
   return {}
 } }
 vi.mock('../../server/utils/dynamodb', () => ({ getDynamoClient: () => fakeDb }))
+vi.mock('../../server/utils/tenant', () => ({ resolveUserId: async (e: string) => e }))
+const bot = { on: false, visitor: true, down: false }
+vi.mock('../../server/utils/botProtection', async (orig) => ({ ...(await orig() as any), getBotSettings: async () => ({ enabled: bot.on, siteKey: bot.on ? '1x00000000000000000000AA' : '', secretEncrypted: bot.on ? 'x' : '', secretMasked: '', mode: 'managed', contactProtection: false, visitorProtection: bot.visitor, hostnames: [] }), readSecret: () => 'geheim' }))
+vi.mock('../../server/utils/turnstile', () => { class TurnstileUnavailable extends Error {} return { TurnstileUnavailable, siteverify: async (_s: string, token: string) => { if (bot.down) throw new TurnstileUnavailable('down'); return { success: token.startsWith('gut'), hostname: token.includes('fremd') ? 'boese.example' : 'www.firma-a.de', errorCodes: [] } } } })
 vi.mock('../../server/utils/mailer', () => ({ sendMail: async (m: any) => { st.mails.push(m); return 'sent' } }))
 vi.mock('../../server/utils/notifications', () => ({ notifySystem: async (n: any) => { st.notes.push(n) } }))
 vi.mock('../../server/utils/auth', () => ({ requireTenantId: async (e: any) => { if (!e.context.auth?.email) throw new HttpError({ statusCode: 401, message: 'x' }); return e.context.auth.email === 'chef@firma.de' ? 'T-A' : 'T-B' } }))
@@ -64,7 +68,7 @@ const register = (tenant = 'T-A', over: any = {}) => call(H.register, pub(tenant
 const registered = async (tenant = 'T-A', email = 'anna@beispiel.de') => { await register(tenant, { email }); const r = await call(H.verify, pub(tenant, { token: lastToken() })); return r.res.token as string }
 
 beforeEach(() => {
-  T.clear(); st.mails.length = 0; st.notes.length = 0
+  T.clear(); st.mails.length = 0; st.notes.length = 0; bot.on = false; bot.visitor = true; bot.down = false
   for (const id of ['T-A', 'T-B']) tbl('plexora-nexora').set(id, { tenantId: id, status: 'active', blogEnabled: true, companyName: 'Firma ' + id, email: id === 'T-A' ? 'chef@firma.de' : 'fremd@firma.de', customDomain: id === 'T-A' ? 'www.firma-a.de' : '', blogCommentsMode: 'open' })
   tbl('plexora-blog').set('T-A|p1', { tenantId: 'T-A', postId: 'p1', slug: 'hallo', title: 'Hallo Welt', status: 'published' })
   tbl('plexora-blog').set('T-A|p2', { tenantId: 'T-A', postId: 'p2', slug: 'still', title: 'Still', status: 'published', commentsEnabled: false })
@@ -120,6 +124,34 @@ describe('Registrieren und Bestätigen', () => {
   it('höchstens 3 Bestätigungsmails je Adresse und Stunde (Mail-Schleuder verhindern)', async () => {
     for (let n = 0; n < 6; n++) await register()
     expect(st.mails.length).toBe(3)
+  })
+})
+
+describe('Bot-Schutz (Cloudflare Turnstile)', () => {
+  const reg = (token?: any) => call(H.register, pub('T-A', { name: 'Anna Muster', email: 'anna@beispiel.de', password: PW, ...(token !== undefined ? { turnstileToken: token } : {}) }))
+  it('aus: Registrierung ohne Token wie bisher; die Webseite bekommt kein Widget', async () => {
+    expect((await reg()).code).toBe(200); expect((await call(H.cGet, pub('T-A', undefined, { slug: 'hallo' }))).res.botProtection).toBeNull()
+  })
+  it('an: ohne Token 403 und keine Mail; falsches Token 403; Token von fremder Seite 403; gutes Token 200 mit Mail', async () => {
+    bot.on = true
+    expect((await reg()).code).toBe(403); expect((await reg('schlecht')).code).toBe(403); expect((await reg('gut-fremd')).code).toBe(403); expect(st.mails).toHaveLength(0)
+    expect((await reg('gut-1')).code).toBe(200); expect(st.mails).toHaveLength(1)
+  })
+  it('an: auch "Passwort vergessen" verlangt das Token; die Webseite bekommt Sitekey und Modus (nie das Secret)', async () => {
+    bot.on = true; await registered().catch(() => '')
+    expect((await call(H.forgot, pub('T-A', { email: 'anna@beispiel.de' }))).code).toBe(403)
+    expect((await call(H.forgot, pub('T-A', { email: 'anna@beispiel.de', turnstileToken: 'gut-2' }))).code).toBe(200)
+    const w = (await call(H.cGet, pub('T-A', undefined, { slug: 'hallo' }))).res.botProtection
+    expect(w).toEqual({ siteKey: '1x00000000000000000000AA', mode: 'managed' }); expect(JSON.stringify(w)).not.toContain('geheim')
+  })
+  it('Hauptschalter an, aber Schalter "Konto und Kommentare" aus: keine Prüfung, kein Widget', async () => {
+    bot.on = true; bot.visitor = false
+    expect((await reg()).code).toBe(200); expect((await call(H.cGet, pub('T-A', undefined, { slug: 'hallo' }))).res.botProtection).toBeNull()
+  })
+  it('Cloudflare nicht erreichbar: geschlossen (503), keine Mail', async () => { bot.on = true; bot.down = true; expect((await reg('gut-3')).code).toBe(503); expect(st.mails).toHaveLength(0) })
+  it('Anmelden und Lesen brauchen kein Token (Drosselung genügt)', async () => {
+    bot.on = true; bot.visitor = false; const tok = await registered(); bot.visitor = true
+    expect((await call(H.login, pub('T-A', { email: 'anna@beispiel.de', password: PW }))).code).toBe(200); expect((await call(H.me, pub('T-A', { token: tok }))).code).toBe(200)
   })
 })
 

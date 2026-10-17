@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { enforcePublicRateLimit, checkRateLimit } from '../../../../utils/rateLimit'
+import { visitorIsProtected, verifyBotToken } from '../../../../utils/botGuard'
 import { loadSite, siteCommentsMode, siteOrigin, getAccount, createToken, sendVisitorMail } from '../../../../utils/siteVisitor'
 import { normalizeEmail, validEmail } from '../../../../../shared/siteVisitors'
 
@@ -10,6 +11,8 @@ export default defineEventHandler(async (event) => {
   const tenantId = String(getRouterParam(event, 'tenantId') || '')
   const site = await loadSite(tenantId)
   const body: any = await readBody(event).catch(() => ({}))
+  const guard = await visitorIsProtected(String(site.email || ''))
+  if (guard.protected && siteCommentsMode(site) !== 'off') await verifyBotToken(event, guard.ownerScope, body?.turnstileToken, site.customDomain)
   const email = normalizeEmail(body?.email)
   const answer = { ok: true, message: 'Wenn es zu dieser Adresse ein Konto gibt, haben wir dir eine E-Mail mit einem Link zum Zurücksetzen geschickt.' }
   if (!validEmail(email) || siteCommentsMode(site) === 'off') return answer

@@ -101,6 +101,13 @@ export async function contactIsProtected(ownerEmail: string): Promise<{ protecte
   return { protected: s.contactProtection, ownerScope }
 }
 
+/** Besucher-Konten und Kommentare der Webseite: geschützt, wenn der Schalter "Konto und Kommentare" an ist (Entscheidung nur aus gespeicherten Daten) */
+export async function visitorIsProtected(ownerEmail: string): Promise<{ protected: boolean; ownerScope: string }> {
+  const ownerScope = await resolveUserId(ownerEmail)
+  const s = await getBotSettings(ownerScope)
+  return { protected: s.visitorProtection, ownerScope }
+}
+
 // Widget-Daten für die öffentliche Seite: nur Sitekey und Modus (nie das Secret). null = kein Widget anzeigen.
 // Spiegelt die Entscheidung des Servers: Widget nur, wenn der Hauptschalter an ist, Schlüssel da sind und der Schutz greift.
 export async function widgetConfig(ownerScope: string, protectedHere: boolean): Promise<{ siteKey: string; mode: string } | null> {

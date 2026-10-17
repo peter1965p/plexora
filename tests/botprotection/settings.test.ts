@@ -51,6 +51,7 @@ describe('Bot-Schutz-Einstellungen: Speichern', () => {
   it('Einschalten (Hauptschalter oder Kontaktseite) geht nur mit Schlüsseln', async () => {
     expect(await code(save(OWNER, { enabled: true }))).toBe(400)
     expect(await code(save(OWNER, { contactProtection: true }))).toBe(400)
+    expect(await code(save(OWNER, { visitorProtection: true }))).toBe(400)            // Konto und Kommentare: ebenfalls nur mit Schlüsseln
     await save(OWNER, { siteKey: SITEKEY, secret: 'good-secret-123' })
     expect(await code(save(OWNER, { enabled: true, contactProtection: true }))).toBe(200)
   })

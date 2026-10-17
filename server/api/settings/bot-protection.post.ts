@@ -36,10 +36,10 @@ export default defineEventHandler(async (event) => {
 
   // Schlüssel entfernen: nur, wenn nichts mehr davon abhängt (sonst wären Formulare ausgesperrt)
   if (body.remove === true) {
-    if (inUseCampaigns > 0 || current.contactProtection) {
+    if (inUseCampaigns > 0 || current.contactProtection || current.visitorProtection) {
       throw createError({
         statusCode: 409,
-        message: `Der Bot-Schutz wird noch verwendet (${inUseCampaigns} Kampagne(n)${current.contactProtection ? ', Kontaktseite' : ''}). Bitte zuerst dort ausschalten.`,
+        message: `Der Bot-Schutz wird noch verwendet (${inUseCampaigns} Kampagne(n)${current.contactProtection ? ', Kontaktseite' : ''}${current.visitorProtection ? ', Konto und Kommentare' : ''}). Bitte zuerst dort ausschalten.`,
       })
     }
     return save({ ...EMPTY_BOT_SETTINGS })
@@ -87,8 +87,9 @@ export default defineEventHandler(async (event) => {
 
   if (body.enabled !== undefined) next.enabled = body.enabled === true
   if (body.contactProtection !== undefined) next.contactProtection = body.contactProtection === true
+  if (body.visitorProtection !== undefined) next.visitorProtection = body.visitorProtection === true
 
-  if ((next.enabled || next.contactProtection) && !hasKeys(next)) {
+  if ((next.enabled || next.contactProtection || next.visitorProtection) && !hasKeys(next)) {
     throw createError({ statusCode: 400, message: 'Bot-Schutz lässt sich nur mit gültigem Sitekey und Secret einschalten.' })
   }
   return save(next)

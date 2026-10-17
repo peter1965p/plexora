@@ -1676,6 +1676,10 @@
           <input type="checkbox" v-model="bot.contactProtection" :disabled="isDemo" />
           <span><strong>Kontaktformular der Website schützen</strong> <span style="color:var(--text-muted);font-weight:400">(z. B. paeffgen-it.de/kontakt)</span></span>
         </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" v-model="bot.visitorProtection" :disabled="isDemo" />
+          <span><strong>Konto anlegen und Passwort-Mail bei Blog-Kommentaren schützen</strong> <span style="color:var(--text-muted);font-weight:400">(verhindert, dass Programme Mails auslösen)</span></span>
+        </label>
 
         <div class="auth-field">
           <label>Weitere erlaubte Domains <span style="font-weight:400;color:var(--text-muted)">(optional, kommagetrennt)</span></label>
@@ -2190,7 +2194,7 @@ onBeforeUnmount(() => { if (backupTimer) clearInterval(backupTimer) })
 
 // ── Bot-Schutz (Cloudflare Turnstile) ──────────────────────────────────
 const botInfo = reactive({ secretConfigured: false, secretMasked: '', protectedCampaigns: 0, defaultHostnames: [] as string[] })
-const bot = reactive({ enabled: false, siteKey: '', secret: '', secretVisible: false, mode: 'managed', contactProtection: false, hostnamesText: '' })
+const bot = reactive({ enabled: false, siteKey: '', secret: '', secretVisible: false, mode: 'managed', contactProtection: false, visitorProtection: false, hostnamesText: '' })
 const botSaving = ref(false)
 
 function applyBotInfo(res: any) {
@@ -2202,6 +2206,7 @@ function applyBotInfo(res: any) {
   bot.siteKey = res.siteKey || ''
   bot.mode = res.mode || 'managed'
   bot.contactProtection = !!res.contactProtection
+  bot.visitorProtection = !!res.visitorProtection
   bot.hostnamesText = (res.hostnames || []).join(', ')
   bot.secret = ''
 }
@@ -2234,6 +2239,7 @@ async function saveBotProtection() {
         mode: bot.mode,
         enabled: bot.enabled,
         contactProtection: bot.contactProtection,
+        visitorProtection: bot.visitorProtection,
         hostnames: bot.hostnamesText.split(',').map(h => h.trim()).filter(Boolean),
       },
     })
