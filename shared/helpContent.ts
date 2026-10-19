@@ -261,6 +261,16 @@ export const HELP_TOPICS: HelpTopic[] = [
     steps: ['Öffne den Modul-Store.', 'Schalte ein Modul ein oder aus. Gesperrte Module gehören zu einem höheren Tarif.'],
   },
   {
+    id: 'eigene-module', group: 'system', title: 'Eigene Module einbinden', icon: 'ti-puzzle', route: '/store', role: 'Inhaber',
+    summary: 'Kleine eigene Module (zum Beispiel Listen oder Checklisten) kannst du als Zero-Deploy-Plugin einbinden. Größere Module werden in Plexora eingebaut.',
+    steps: [
+      'Schreibe das Modul als .mjs-Datei nach der Vorlage docs/vorlagen/plugin-vorlage.mjs und lege sie auf eine https-Adresse, der du vertraust.',
+      'Öffne den Modul-Store, Reiter „Branchen-Pakete“, und klicke auf „Neues Modul registrieren“ (nur Plattform-Admins).',
+      'Trage Key, Name, Icon, Preis, Beschreibung und die Adresse der Datei ein. Danach erscheint es in der Seitenleiste unter „BRANCHE“.',
+    ],
+    tips: ['Das Modul darf nur über die vorgegebenen Funktionen Daten lesen und speichern (höchstens 200 KB) und soll die Farben des Themes nutzen.', 'Plugins laufen mit deiner Sitzung: nur Code aus eigener, vertrauenswürdiger Quelle eintragen.'],
+  },
+  {
     id: 'team', group: 'system', title: 'Team verwalten', icon: 'ti-users', route: '/team', role: 'Inhaber',
     summary: 'Personen einladen, Rollen ändern und sehen, wer was darf.',
     steps: ['Öffne Team und klicke auf „Mitglied einladen“.', 'Gib die E-Mail ein und wähle die Rolle. Die Person bekommt einen Einladungslink.', 'Später kannst du die Rolle in der Liste ändern.'],

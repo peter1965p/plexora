@@ -1,13 +1,14 @@
 import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../../utils/dynamodb'
 import { requireAuth } from '../../../utils/verifyAuth'
+import { isPluginKey } from '../../../../shared/pluginData'
 
 // Generische Datenablage für Zero-Deploy-Plugins: ein JSON-Blob pro Tenant+Plugin.
 // Einfache Module (Listen, Einstellungen) brauchen dadurch keine eigene Server-Route.
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
   const pluginKey = getRouterParam(event, 'key')
-  if (!pluginKey) throw createError({ statusCode: 400, message: 'pluginKey erforderlich' })
+  if (!isPluginKey(pluginKey)) throw createError({ statusCode: 400, message: 'pluginKey ungültig (nur a-z, 0-9, -)' })
 
   const dynamo = getDynamoClient()
 
