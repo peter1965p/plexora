@@ -69,7 +69,7 @@
             <div class="store-price">
               <span v-if="mod.owned" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
               <template v-else>
-                <span style="font-size:18px;font-weight:700;color:var(--text)">{{ mod.price }}</span>
+                <span style="font-size:18px;font-weight:700;color:var(--text-primary)">{{ mod.price }}</span>
                 <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
               </template>
             </div>
@@ -112,7 +112,7 @@
             <div class="store-price">
               <span v-if="branchStatus(pkg.key) !== 'not-installed'" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
               <template v-else>
-                <span style="font-size:18px;font-weight:700;color:var(--text)">€{{ pkg.price }}</span>
+                <span style="font-size:18px;font-weight:700;color:var(--text-primary)">€{{ pkg.price }}</span>
                 <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
               </template>
             </div>
@@ -464,6 +464,17 @@ async function checkout() {
 </script>
 
 <style scoped>
+.modal { background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 16px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 24px 64px rgba(0,0,0,.4); box-sizing: border-box }
+.field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px }
+.field-input { display: block; width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13px; font-family: inherit; color: var(--text-primary); background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: 10px; outline: none }
+.field-input:focus { border-color: var(--accent) }
+.field-input::placeholder { color: var(--text-muted) }
+.btn-secondary, .btn-accent { display: inline-flex; align-items: center; justify-content: center; height: 38px; padding: 0 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit }
+.btn-secondary { background: transparent; color: var(--text-primary); border: 0.5px solid var(--border) }
+.btn-secondary:hover { background: var(--bg-hover) }
+.btn-accent { background: var(--accent); color: #fff; border: 0 }
+.btn-accent:hover:not(:disabled) { opacity: .88 }
+.btn-accent:disabled { opacity: .5; cursor: default }
 .store-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
