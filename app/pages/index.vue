@@ -92,7 +92,7 @@
     <!-- STATS STRIP -->
     <section class="lp-wrap lp-stats-section lp-reveal">
       <div class="lp-stats-row">
-        <div class="lp-stat" v-for="(s, i) in t.stats.items" :key="i">
+        <div class="lp-stat" v-for="(s, i) in statItems" :key="i">
           <div class="lp-stat-num">{{ s.num }}</div>
           <div class="lp-stat-label">{{ s.label }}</div>
         </div>
@@ -405,7 +405,7 @@ const i18n = {
     },
     stats: {
       items: [
-        { num: '6', label: 'Module in einer Lizenz' },
+        { num: '', label: 'Module in einer Lizenz' },
         { num: '1', label: 'Login statt 10+ Tools' },
         { num: 'Frankfurt', label: 'AWS-Hosting, DSGVO-konform' },
         { num: 'ab 49€', label: 'Alle Module inklusive' },
@@ -504,7 +504,7 @@ const i18n = {
     },
     stats: {
       items: [
-        { num: '6', label: 'modules in one license' },
+        { num: '', label: 'modules in one license' },
         { num: '1', label: 'login instead of 10+ tools' },
         { num: 'Frankfurt', label: 'AWS hosting, GDPR-compliant' },
         { num: 'from €49', label: 'all modules included' },
@@ -784,6 +784,11 @@ const branchItems = computed(() => {
     return { key: p.key, name: st?.name || p.name, desc: st?.desc || p.desc, features: st?.features || p.features, price: p.price, icon: BRANCH_ICONS[p.icon] || Puzzle }
   })
 })
+
+// Zahl "Module in einer Lizenz": Basis-Module (Seitenleiste: CRM, Support, Finanzen, Projekte, Verträge, HR, Marketing, Shop, Formulare, Termine,
+// Newsletter, Blog, Analytics, SEO/GEO, Website) plus die Branchen-Pakete aus dem Modul-Store. Bei neuen Basis-Modulen CORE_MODULE_COUNT anheben.
+const CORE_MODULE_COUNT = 15
+const statItems = computed(() => (t.value.stats.items as any[]).map((s, i) => i === 0 ? { ...s, num: String(CORE_MODULE_COUNT + branchItems.value.length) } : s))
 
 const { data: pagesData } = await useFetch(useApiUrl('/api/pages'))
 const navPages = computed(() =>
