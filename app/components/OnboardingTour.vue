@@ -41,8 +41,8 @@ onBeforeUnmount(() => window.removeEventListener('plexora:start-tour', start))
 .tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 16px }
 .tour-card { background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: 18px; max-width: 460px; width: 100%; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.5) }
 .tour-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--accent-dim, rgba(124,92,255,.15)); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 14px }
-.tour-title { font-size: 20px; font-weight: 800; margin: 0 0 8px }
-.tour-text { font-size: 14px; line-height: 1.55; color: var(--text-muted); margin: 0 0 18px }
+.tour-title { color: var(--text-primary); font-size: 20px; font-weight: 800; margin: 0 0 8px }
+.tour-text { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 18px }
 .tour-dots { display: flex; gap: 6px; margin-bottom: 18px }
 .tour-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--border) }
 .tour-dots span.on { background: var(--accent) }

@@ -65,25 +65,25 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.help-search { width: 100%; height: 42px; padding: 0 14px; border-radius: 12px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text); font-size: 14px; margin-bottom: 16px; box-sizing: border-box }
+.help-search { width: 100%; height: 42px; padding: 0 14px; border-radius: 12px; border: 0.5px solid var(--border); background: var(--bg-elevated); color: var(--text-primary); font-size: 14px; margin-bottom: 16px; box-sizing: border-box }
 .help-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start }
 .help-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 8px }
-.help-nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--text); font-size: 13px; cursor: pointer; text-align: left }
+.help-nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--text-primary); font-size: 13px; cursor: pointer; text-align: left }
 .help-nav-item:hover { background: var(--bg-hover) }
 .help-nav-item.on { background: var(--accent-dim, rgba(124,92,255,.15)); color: var(--accent); font-weight: 700 }
 .help-main { display: flex; flex-direction: column; gap: 10px }
 .help-topic.focus { border-color: var(--accent) }
-.help-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; background: transparent; border: 0; color: var(--text); cursor: pointer }
+.help-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; background: transparent; border: 0; color: var(--text-primary); cursor: pointer }
 .help-ico { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-dim, rgba(124,92,255,.15)); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0 }
 .help-title { display: block; font-weight: 700; font-size: 14px }
-.help-sum { display: block; font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.4 }
+.help-sum { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4 }
 .help-role { font-size: 11px; padding: 2px 8px; border-radius: 99px; border: 0.5px solid var(--border); color: var(--text-muted); white-space: nowrap }
 .help-body { padding: 0 18px 16px 66px; font-size: 13px; line-height: 1.55 }
 .help-body h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin: 14px 0 6px }
 .help-body ol, .help-body ul { margin: 0; padding-left: 20px }
 .help-body li { margin-bottom: 4px }
 .help-faq { margin-bottom: 8px }
-.help-faq div { color: var(--text-muted) }
+.help-faq div { color: var(--text-secondary) }
 @media (max-width: 800px) {
   .help-layout { grid-template-columns: 1fr }
   .help-nav { flex-direction: row; flex-wrap: wrap; position: static }
