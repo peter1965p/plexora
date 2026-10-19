@@ -352,6 +352,7 @@ import {
   Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble, Puzzle,
   Check, X, Info, UserRound, Rocket, Zap,
   LogIn, SlidersHorizontal, Cloud, CreditCard, ShieldCheck,
+  Megaphone, ShoppingCart, ClipboardList, CalendarDays, Mail, Newspaper, FileText, Search, Globe,
 } from 'lucide-vue-next'
 
 definePageMeta({ layout: false })
@@ -428,7 +429,7 @@ const i18n = {
         { name: 'Cloudflare', sub: 'Auslieferung & DDoS-Schutz' },
       ],
     },
-    modules: { label: 'Klicken Sie ein Modul an', active: 'Aktiv' },
+    modules: { label: 'Basis-Module · in jeder Lizenz enthalten · zum Ausprobieren anklicken', active: 'Aktiv', base: 'Basis', branch: 'Branche', countBase: 'Basis', countBranch: 'Branchen-Pakete' },
     savings: {
       label: 'Ihre monatliche Ersparnis',
       unit: '/ Monat',
@@ -527,7 +528,7 @@ const i18n = {
         { name: 'Cloudflare', sub: 'Delivery & DDoS protection' },
       ],
     },
-    modules: { label: 'Click a module to activate', active: 'Active' },
+    modules: { label: 'Base modules · included in every license · click to try', active: 'Active', base: 'Base', branch: 'Industry', countBase: 'base', countBranch: 'industry packages' },
     savings: {
       label: 'Your monthly savings',
       unit: '/ month',
@@ -601,6 +602,15 @@ const moduleData = {
     { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Mitarbeiter, Urlaub, Zeiterfassung',on: false, cost: 40 },
     { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Kunden-Portal',       on: false, cost: 30 },
     { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',         on: false, cost: 25 },
+    { key: 'contracts', name: 'Verträge',   icon: FileText,  desc: 'Laufzeiten, Fristen, Ablage',       on: false, cost: 0 },
+    { key: 'marketing', name: 'Marketing',  icon: Megaphone, desc: 'Kampagnen, Lead-Seiten, Bot-Schutz',on: false, cost: 0 },
+    { key: 'shop',      name: 'Shop',       icon: ShoppingCart, desc: 'Produkte und Bestellungen',      on: false, cost: 0 },
+    { key: 'forms',     name: 'Formulare',  icon: ClipboardList, desc: 'Eigene Formulare, Antworten im CRM', on: false, cost: 0 },
+    { key: 'termine',   name: 'Termine',    icon: CalendarDays, desc: 'Kalender, Online-Buchung, Planer', on: false, cost: 0 },
+    { key: 'newsletter',name: 'Newsletter', icon: Mail,      desc: 'Abonnenten und Rundmails',          on: false, cost: 0 },
+    { key: 'blog',      name: 'Blog',       icon: Newspaper, desc: 'Beiträge, Tags, Kommentare',        on: false, cost: 0 },
+    { key: 'seo',       name: 'SEO / GEO',  icon: Search,    desc: 'Besser gefunden werden',            on: false, cost: 0 },
+    { key: 'website',   name: 'Website',    icon: Globe,     desc: 'Eigene Website mit Nexora',         on: false, cost: 0 },
   ],
   en: [
     { key: 'crm',       name: 'CRM',        icon: Users,     desc: 'Contacts, Pipelines, Deals',       on: true,  cost: 45 },
@@ -609,6 +619,15 @@ const moduleData = {
     { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Employees, Leave, Time Tracking',  on: false, cost: 40 },
     { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Client Portal',      on: false, cost: 30 },
     { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',        on: false, cost: 25 },
+    { key: 'contracts', name: 'Contracts',  icon: FileText,  desc: 'Terms, deadlines, filing',         on: false, cost: 0 },
+    { key: 'marketing', name: 'Marketing',  icon: Megaphone, desc: 'Campaigns, lead pages, bot protection', on: false, cost: 0 },
+    { key: 'shop',      name: 'Shop',       icon: ShoppingCart, desc: 'Products and orders',           on: false, cost: 0 },
+    { key: 'forms',     name: 'Forms',      icon: ClipboardList, desc: 'Custom forms, answers in CRM', on: false, cost: 0 },
+    { key: 'termine',   name: 'Appointments', icon: CalendarDays, desc: 'Calendar, online booking, planner', on: false, cost: 0 },
+    { key: 'newsletter',name: 'Newsletter', icon: Mail,      desc: 'Subscribers and mailings',         on: false, cost: 0 },
+    { key: 'blog',      name: 'Blog',       icon: Newspaper, desc: 'Posts, tags, comments',            on: false, cost: 0 },
+    { key: 'seo',       name: 'SEO / GEO',  icon: Search,    desc: 'Get found more easily',            on: false, cost: 0 },
+    { key: 'website',   name: 'Website',    icon: Globe,     desc: 'Your own website with Nexora',     on: false, cost: 0 },
   ],
 }
 
@@ -785,10 +804,9 @@ const branchItems = computed(() => {
   })
 })
 
-// Zahl "Module in einer Lizenz": Basis-Module (Seitenleiste: CRM, Support, Finanzen, Projekte, Verträge, HR, Marketing, Shop, Formulare, Termine,
-// Newsletter, Blog, Analytics, SEO/GEO, Website) plus die Branchen-Pakete aus dem Modul-Store. Bei neuen Basis-Modulen CORE_MODULE_COUNT anheben.
-const CORE_MODULE_COUNT = 15
-const statItems = computed(() => (t.value.stats.items as any[]).map((s, i) => i === 0 ? { ...s, num: String(CORE_MODULE_COUNT + branchItems.value.length) } : s))
+// Zahl "Module in einer Lizenz": Basis-Module (die Kacheln im Abschnitt Module) plus die Branchen-Pakete aus dem Modul-Store. Bei neuen Basis-Modulen CORE_MODULE_COUNT anheben.
+const CORE_MODULE_COUNT = moduleData.de.length          // = Basis-Module (Kacheln oben); neues Basis-Modul = neue Kachel
+const statItems = computed(() => (t.value.stats.items as any[]).map((s, i) => i === 0 ? { ...s, num: String(CORE_MODULE_COUNT + branchItems.value.length), label: `${s.label} (${CORE_MODULE_COUNT} ${t.value.modules.countBase} + ${branchItems.value.length} ${t.value.modules.countBranch})` } : s))
 
 const { data: pagesData } = await useFetch(useApiUrl('/api/pages'))
 const navPages = computed(() =>
