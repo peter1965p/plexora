@@ -17,7 +17,7 @@
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <div class="card-header"><span class="card-title"><i class="ti ti-users" style="margin-right:8px;color:var(--accent)"></i>Mitglieder</span></div>
+      <div class="card-header"><span class="card-title"><i class="ti ti-users" style="margin-right:8px;color:var(--accent)"></i>Mitglieder<HelpTip k="rollen" /></span></div>
       <div v-if="loading" style="padding:20px;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
       <div v-else-if="loadError" class="err" style="margin:12px">{{ loadError }}</div>
       <table v-else class="data-table">

@@ -2,7 +2,7 @@
   <div class="gt">
     <div class="gt-bar">
       <div class="seg"><button v-for="z in ZOOMS" :key="z.key" :class="{ on: zoom === z.key }" @click="zoom = z.key as any">{{ z.label }}</button></div>
-      <label class="chk"><input type="checkbox" v-model="showCritical" /> Kritischer Pfad</label>
+      <label class="chk"><input type="checkbox" v-model="showCritical" /> Kritischer Pfad <HelpTip k="kritisch" /></label>
       <button class="mini" @click="scrollToToday"><i class="ti ti-calendar-event"></i> Heute</button>
       <span style="flex:1"></span>
       <span class="prog" :title="'Gesamtfortschritt (nach Dauer gewichtet)'">{{ total }} % fertig</span>

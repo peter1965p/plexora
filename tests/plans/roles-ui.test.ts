@@ -7,13 +7,13 @@ import { shouldRedirectToLogin } from '../../app/utils/apiAuth'
 describe('Oberfläche: Rollen', () => {
   it('Seitenpfade werden Bereichen zugeordnet (an der Segmentgrenze)', () => {
     expect(areaForPath('/finance')?.area).toBe('Finanzen'); expect(areaForPath('/finance?tab=catalog')?.area).toBe('Finanzen'); expect(areaForPath('/hr/leave')?.area).toBe('HR')
-    expect(areaForPath('/crm')?.role).toBe('member'); expect(areaForPath('/financeX')).toBeNull(); expect(areaForPath('/dashboard')).toBeNull(); expect(areaForPath('/profile')).toBeNull(); expect(areaForPath('/kein-zugriff')).toBeNull()
+    expect(areaForPath('/crm')?.role).toBe('member'); expect(areaForPath('/financeX')).toBeNull(); expect(areaForPath('/dashboard')).toBeNull(); expect(areaForPath('/profile')).toBeNull(); expect(areaForPath('/help')).toBeNull(); expect(areaForPath('/kein-zugriff')).toBeNull()
   })
   it('jeder Menüpunkt der Seitenleiste ist einem Bereich zugeordnet oder bewusst für alle (Dashboard, Profil)', () => {
     const src = readFileSync('app/components/AppSidebar.vue', 'utf8')
     const fixed = [...src.matchAll(/\{ to: '([^'?]+)'/g)].map(m => m[1])
     const dynamic = Object.values(Object.fromEntries([...src.matchAll(/(\w+): '(\/[a-z-]+)'/g)].map(m => [m[1], m[2]])))
-    const targets = [...new Set([...fixed, ...dynamic])].filter(p => !['/dashboard'].includes(p))
+    const targets = [...new Set([...fixed, ...dynamic])].filter(p => !['/dashboard', '/help'].includes(p))
     const unmapped = targets.filter(p => !areaForPath(p) && !p.startsWith('/plugins') && !p.startsWith('/website'))
     expect(unmapped, `Menüpunkte ohne Eintrag in AREA_ROLES (shared/roles.ts): ${unmapped.join(', ')}`).toEqual([])
     expect(targets.length).toBeGreaterThan(12)

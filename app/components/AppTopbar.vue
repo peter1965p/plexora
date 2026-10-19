@@ -4,6 +4,7 @@
     <div class="topbar-actions">
       <AppIdleTimer />
       <button class="icon-btn" title="Suche"><i class="ti ti-search"></i></button>
+      <button class="icon-btn" title="Hilfe zu dieser Seite" aria-label="Hilfe" @click="openHelp"><i class="ti ti-help-circle"></i></button>
       <div style="position:relative">
         <button class="icon-btn" style="position:relative" title="Benachrichtigungen" @click="showNotifications=!showNotifications">
           <i class="ti ti-bell"></i>
@@ -97,6 +98,9 @@ import { signOut, getCurrentUser } from 'aws-amplify/auth'
 const route  = useRoute()
 const router = useRouter()
 const { t, lang } = useLang()
+
+import { topicForPath } from '~~/shared/helpContent'
+const openHelp = () => { const tp = topicForPath(route.path); router.push(tp ? { path: '/help', query: { topic: tp.id } } : '/help') }
 
 const title = computed(() => t.value.pageTitles[route.path] || 'Plexora')
 

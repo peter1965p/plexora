@@ -8,5 +8,6 @@
     <ConfirmDialog />
     <AiAssistantWidget />
     <PlanNotice />
+    <OnboardingTour />
   </div>
 </template>

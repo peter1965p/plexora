@@ -7,7 +7,7 @@
         <i class="ti ti-building-store" style="font-size:18px;color:#fff"></i>
       </div>
       <div>
-        <div style="font-size:18px;font-weight:700">Modul-Store</div>
+        <div style="font-size:18px;font-weight:700">Modul-Store<HelpTip k="modulstore" /></div>
         <div style="font-size:12px;color:var(--text-muted)">Erweitere Plexora mit Branchen-Modulen & Add-ons</div>
       </div>
     </div>

@@ -96,7 +96,7 @@ defineExpose({ openNewForm })
 <template>
   <div class="card">
     <div class="card-header">
-      <span class="card-title">Angebote</span>
+      <span class="card-title">Angebote<HelpTip k="angebot" /></span>
       <span style="font-size:12px;color:var(--text-muted)">{{ stats.open }} offen ({{ eur(stats.sum) }}) · {{ stats.accepted }} angenommen</span>
       <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openNewForm"><i class="ti ti-plus"></i> Neues Angebot</button>
     </div>

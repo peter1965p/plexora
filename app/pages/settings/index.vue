@@ -1620,7 +1620,7 @@
 
     <div v-if="tab === 'botprotection'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>Bot-Schutz (Turnstile)</span>
+        <span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>Bot-Schutz (Turnstile)<HelpTip k="botschutz" /></span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || botSaving" @click="saveBotProtection">
           <i class="ti" :class="botSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
         </button>

@@ -23,7 +23,7 @@
     <!-- Kommentare: Schalter und Moderation -->
     <div v-if="activeTab === 'comments'">
       <div class="card" style="margin-bottom:16px">
-        <div class="card-header"><span class="card-title"><i class="ti ti-toggle-right" style="margin-right:8px;color:var(--accent)"></i>Kommentare auf der Webseite</span></div>
+        <div class="card-header"><span class="card-title"><i class="ti ti-toggle-right" style="margin-right:8px;color:var(--accent)"></i>Kommentare auf der Webseite<HelpTip k="kommentare" /></span></div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:10px;max-width:640px">
           <div style="font-size:12px;color:var(--text-muted)">Besucher können unter Beiträgen kommentieren, <strong>nachdem sie ein kostenloses Konto angelegt</strong> und ihre E-Mail-Adresse bestätigt haben. Du kannst die Funktion jederzeit abschalten; bestehende Kommentare bleiben gespeichert, werden aber nicht mehr angezeigt. Einzelne Beiträge schaltest du im Beitrag ab.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">

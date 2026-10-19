@@ -121,6 +121,7 @@ const navSections = computed(() => [
   {
     label: t.value.navSystem,
     items: [
+      { to: '/help',     label: 'Hilfe',             icon: 'ti-help-circle',    key: 'help'     },
       { to: '/team',     label: 'Team',              icon: 'ti-users',          key: 'team'     },
       { to: '/settings', label: t.value.settings,  icon: 'ti-settings',       key: 'settings' },
       { to: '/seo',      label: 'SEO / GEO',        icon: 'ti-chart-line',     key: 'seo'      },
