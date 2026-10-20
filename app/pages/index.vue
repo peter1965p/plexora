@@ -109,7 +109,9 @@
           class="lp-mod"
           :class="{ active: mod.on, 'lp-mod-featured': i === 0 }"
           :style="{ transitionDelay: (i * 0.06) + 's' }"
+          tabindex="0"
           @click="mod.on = !mod.on"
+          @keydown.enter.prevent="mod.on = !mod.on"
         >
           <div class="lp-mod-icon-badge">
             <component :is="mod.icon" :size="i === 0 ? 26 : 20" :stroke-width="1.75" />
@@ -117,6 +119,10 @@
           <div class="lp-mod-name">{{ mod.name }}</div>
           <div class="lp-mod-desc">{{ mod.desc }}</div>
           <span v-if="mod.on" class="lp-mod-badge">{{ t.modules.active }}</span>
+          <div v-if="moduleDetails(mod.key).length" class="lp-mod-pop" role="tooltip">
+            <div class="lp-mod-pop-title">{{ mod.name }}</div>
+            <ul><li v-for="d in moduleDetails(mod.key)" :key="d">{{ d }}</li></ul>
+          </div>
         </div>
       </div>
     </section>
@@ -599,37 +605,76 @@ const moduleData = {
     { key: 'crm',       name: 'CRM',       icon: Users,     desc: 'Kontakte, Pipelines, Deals',        on: true,  cost: 45 },
     { key: 'projects',  name: 'Projekte',   icon: Kanban,    desc: 'Kanban, Meilensteine, Teams',       on: true,  cost: 35 },
     { key: 'finance',   name: 'Finanzen',   icon: Receipt,   desc: 'Rechnungen, Ausgaben, Berichte',    on: true,  cost: 55 },
-    { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Mitarbeiter, Urlaub, Zeiterfassung',on: false, cost: 40 },
-    { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Kunden-Portal',       on: false, cost: 30 },
-    { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',         on: false, cost: 25 },
-    { key: 'contracts', name: 'Verträge',   icon: FileText,  desc: 'Laufzeiten, Fristen, Ablage',       on: false, cost: 0 },
-    { key: 'marketing', name: 'Marketing',  icon: Megaphone, desc: 'Kampagnen, Lead-Seiten, Bot-Schutz',on: false, cost: 0 },
-    { key: 'shop',      name: 'Shop',       icon: ShoppingCart, desc: 'Produkte und Bestellungen',      on: false, cost: 0 },
-    { key: 'forms',     name: 'Formulare',  icon: ClipboardList, desc: 'Eigene Formulare, Antworten im CRM', on: false, cost: 0 },
-    { key: 'termine',   name: 'Termine',    icon: CalendarDays, desc: 'Kalender, Online-Buchung, Planer', on: false, cost: 0 },
-    { key: 'newsletter',name: 'Newsletter', icon: Mail,      desc: 'Abonnenten und Rundmails',          on: false, cost: 0 },
-    { key: 'blog',      name: 'Blog',       icon: Newspaper, desc: 'Beiträge, Tags, Kommentare',        on: false, cost: 0 },
-    { key: 'seo',       name: 'SEO / GEO',  icon: Search,    desc: 'Besser gefunden werden',            on: false, cost: 0 },
-    { key: 'website',   name: 'Website',    icon: Globe,     desc: 'Eigene Website mit Nexora',         on: false, cost: 0 },
+    { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Mitarbeiter, Urlaub, Zeiterfassung',on: true  , cost: 40 },
+    { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Kunden-Portal',       on: true  , cost: 30 },
+    { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',         on: true  , cost: 25 },
+    { key: 'contracts', name: 'Verträge',   icon: FileText,  desc: 'Laufzeiten, Fristen, Ablage',       on: true  , cost: 0 },
+    { key: 'marketing', name: 'Marketing',  icon: Megaphone, desc: 'Kampagnen, Lead-Seiten, Bot-Schutz',on: true  , cost: 0 },
+    { key: 'shop',      name: 'Shop',       icon: ShoppingCart, desc: 'Produkte und Bestellungen',      on: true  , cost: 0 },
+    { key: 'forms',     name: 'Formulare',  icon: ClipboardList, desc: 'Eigene Formulare, Antworten im CRM', on: true  , cost: 0 },
+    { key: 'termine',   name: 'Termine',    icon: CalendarDays, desc: 'Kalender, Online-Buchung, Planer', on: true  , cost: 0 },
+    { key: 'newsletter',name: 'Newsletter', icon: Mail,      desc: 'Abonnenten und Rundmails',          on: true  , cost: 0 },
+    { key: 'blog',      name: 'Blog',       icon: Newspaper, desc: 'Beiträge, Tags, Kommentare',        on: true  , cost: 0 },
+    { key: 'seo',       name: 'SEO / GEO',  icon: Search,    desc: 'Besser gefunden werden',            on: true  , cost: 0 },
+    { key: 'website',   name: 'Website',    icon: Globe,     desc: 'Eigene Website mit Nexora',         on: true  , cost: 0 },
   ],
   en: [
     { key: 'crm',       name: 'CRM',        icon: Users,     desc: 'Contacts, Pipelines, Deals',       on: true,  cost: 45 },
     { key: 'projects',  name: 'Projects',   icon: Kanban,    desc: 'Kanban, Milestones, Teams',        on: true,  cost: 35 },
     { key: 'finance',   name: 'Finance',    icon: Receipt,   desc: 'Invoices, Expenses, Reports',      on: true,  cost: 55 },
-    { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Employees, Leave, Time Tracking',  on: false, cost: 40 },
-    { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Client Portal',      on: false, cost: 30 },
-    { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',        on: false, cost: 25 },
-    { key: 'contracts', name: 'Contracts',  icon: FileText,  desc: 'Terms, deadlines, filing',         on: false, cost: 0 },
-    { key: 'marketing', name: 'Marketing',  icon: Megaphone, desc: 'Campaigns, lead pages, bot protection', on: false, cost: 0 },
-    { key: 'shop',      name: 'Shop',       icon: ShoppingCart, desc: 'Products and orders',           on: false, cost: 0 },
-    { key: 'forms',     name: 'Forms',      icon: ClipboardList, desc: 'Custom forms, answers in CRM', on: false, cost: 0 },
-    { key: 'termine',   name: 'Appointments', icon: CalendarDays, desc: 'Calendar, online booking, planner', on: false, cost: 0 },
-    { key: 'newsletter',name: 'Newsletter', icon: Mail,      desc: 'Subscribers and mailings',         on: false, cost: 0 },
-    { key: 'blog',      name: 'Blog',       icon: Newspaper, desc: 'Posts, tags, comments',            on: false, cost: 0 },
-    { key: 'seo',       name: 'SEO / GEO',  icon: Search,    desc: 'Get found more easily',            on: false, cost: 0 },
-    { key: 'website',   name: 'Website',    icon: Globe,     desc: 'Your own website with Nexora',     on: false, cost: 0 },
+    { key: 'hr',        name: 'HR',         icon: IdCard,    desc: 'Employees, Leave, Time Tracking',  on: true  , cost: 40 },
+    { key: 'support',   name: 'Support',    icon: Headset,   desc: 'Tickets, SLA, Client Portal',      on: true  , cost: 30 },
+    { key: 'analytics', name: 'Analytics',  icon: BarChart3, desc: 'Dashboards, KPIs, Exports',        on: true  , cost: 25 },
+    { key: 'contracts', name: 'Contracts',  icon: FileText,  desc: 'Terms, deadlines, filing',         on: true  , cost: 0 },
+    { key: 'marketing', name: 'Marketing',  icon: Megaphone, desc: 'Campaigns, lead pages, bot protection', on: true  , cost: 0 },
+    { key: 'shop',      name: 'Shop',       icon: ShoppingCart, desc: 'Products and orders',           on: true  , cost: 0 },
+    { key: 'forms',     name: 'Forms',      icon: ClipboardList, desc: 'Custom forms, answers in CRM', on: true  , cost: 0 },
+    { key: 'termine',   name: 'Appointments', icon: CalendarDays, desc: 'Calendar, online booking, planner', on: true  , cost: 0 },
+    { key: 'newsletter',name: 'Newsletter', icon: Mail,      desc: 'Subscribers and mailings',         on: true  , cost: 0 },
+    { key: 'blog',      name: 'Blog',       icon: Newspaper, desc: 'Posts, tags, comments',            on: true  , cost: 0 },
+    { key: 'seo',       name: 'SEO / GEO',  icon: Search,    desc: 'Get found more easily',            on: true  , cost: 0 },
+    { key: 'website',   name: 'Website',    icon: Globe,     desc: 'Your own website with Nexora',     on: true  , cost: 0 },
   ],
 }
+
+// Was steckt in einem Basis-Modul? Erscheint beim Darüberfahren (Maus) bzw. Antippen/Fokus. Nur Funktionen, die es wirklich gibt (siehe shared/helpContent.ts).
+const MODULE_DETAILS: Record<'de' | 'en', Record<string, string[]>> = {
+  de: {
+    crm: ['Kontakte und Firmen mit Verlauf und Notizen', 'Pipeline mit Deals und Phasen', 'Anfragen aus Formularen und Kampagnen landen automatisch hier', 'Suche nach Name oder E-Mail'],
+    projects: ['Aufgaben und Meilensteine mit Verantwortlichen', 'Planer (Gantt) mit Abhängigkeiten, Fortschritt und kritischem Pfad', 'Balken per Maus verschieben und verlängern'],
+    finance: ['Rechnungen schreiben, versenden und online bezahlen lassen', 'Angebote, die Kunden online annehmen', 'Leistungskatalog und eigenes Rechnungs-Design', 'Mahnwesen'],
+    hr: ['Mitarbeiter und Urlaub verwalten', 'Offene Stellen veröffentlichen, Bewerbungen sammeln', 'Onboarding-Checklisten'],
+    support: ['Tickets mit Status und Priorität', 'Antworten im Ticket', 'Kundenportal für eigene Angebote und Rechnungen'],
+    analytics: ['Besucher und Umsatz im Zeitraumvergleich', 'Kennzahlen auf einen Blick im Dashboard'],
+    contracts: ['Verträge mit Partner, Laufzeit und Kündigungsfrist', 'Ablaufdaten im Blick behalten'],
+    marketing: ['Kampagnen planen', 'Lead-Seiten mit Formular und Vertrauenspunkten', 'Bot-Schutz gegen Spam (Cloudflare Turnstile)', 'Entwürfe werden automatisch gespeichert'],
+    shop: ['Produkte mit Preis und Beschreibung', 'Bestellungen bearbeiten und Status setzen'],
+    forms: ['Eigene Formulare bauen und einbetten', 'Antworten in der Liste und im CRM'],
+    termine: ['Eigener Kalender mit Monat, Woche und Tag', 'Terminarten und Online-Buchung', 'Erinnerungen und iCal-Abo fürs Handy'],
+    newsletter: ['Abonnenten sammeln', 'Rundmails erstellen und testen', 'Abmelden per Link'],
+    blog: ['Beiträge mit Tags und Autor', 'Besucher filtern nach Tags', 'Kommentare mit Konto, jederzeit abschaltbar'],
+    seo: ['Hinweise zu Titel, Beschreibung und Struktur', 'Besser in Suchmaschinen und KI-Antworten gefunden werden'],
+    website: ['Eigene Website mit Nexora: Seiten, Blog, Kontaktformular', 'Seiten mit eigenem HTML', 'Farben der Startseite einstellbar'],
+  },
+  en: {
+    crm: ['Contacts and companies with history and notes', 'Pipeline with deals and stages', 'Requests from forms and campaigns arrive automatically', 'Search by name or email'],
+    projects: ['Tasks and milestones with assignees', 'Planner (Gantt) with dependencies, progress and critical path', 'Move and resize bars with the mouse'],
+    finance: ['Write, send and collect invoices online', 'Quotes customers can accept online', 'Service catalog and your own invoice design', 'Dunning'],
+    hr: ['Manage employees and leave', 'Publish open positions, collect applications', 'Onboarding checklists'],
+    support: ['Tickets with status and priority', 'Replies inside the ticket', 'Customer portal for their own quotes and invoices'],
+    analytics: ['Visitors and revenue compared over time', 'Key figures at a glance on the dashboard'],
+    contracts: ['Contracts with partner, term and notice period', 'Keep expiry dates in view'],
+    marketing: ['Plan campaigns', 'Lead pages with form and trust points', 'Bot protection against spam (Cloudflare Turnstile)', 'Drafts are saved automatically'],
+    shop: ['Products with price and description', 'Process orders and set their status'],
+    forms: ['Build and embed your own forms', 'Answers in the list and in the CRM'],
+    termine: ['Own calendar with month, week and day', 'Appointment types and online booking', 'Reminders and iCal subscription for your phone'],
+    newsletter: ['Collect subscribers', 'Create and test mailings', 'Unsubscribe by link'],
+    blog: ['Posts with tags and author', 'Visitors filter by tag', 'Comments with an account, can be switched off any time'],
+    seo: ['Hints on title, description and structure', 'Get found in search engines and AI answers'],
+    website: ['Your own website with Nexora: pages, blog, contact form', 'Pages with your own HTML', 'Start page colors adjustable'],
+  },
+}
+const moduleDetails = (key: string) => MODULE_DETAILS[lang.value as 'de' | 'en']?.[key] || []
 
 const moduleState = reactive({ de: moduleData.de.map(m => ({ ...m })), en: moduleData.en.map(m => ({ ...m })) })
 const modules = computed(() => moduleState[lang.value])
@@ -1164,6 +1209,13 @@ onMounted(() => {
 .lp-mod-featured .lp-mod-name { font-size: 18px; }
 .lp-mod-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
 .lp-mod-featured .lp-mod-desc { font-size: 13px; }
+.lp-mod-pop { display: none; position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: min(300px, 86vw); padding: 14px 16px; background: var(--card); border: 1px solid var(--accent); border-radius: 14px; box-shadow: 0 16px 40px rgba(var(--shadow),0.35); z-index: 30; cursor: default; text-align: left }
+.lp-mod-pop-title { font-family: "Space Grotesk", sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text-strong) }
+.lp-mod-pop ul { margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.5; color: var(--body) }
+.lp-mod-pop li { margin-bottom: 3px }
+.lp-mod:hover, .lp-mod:focus-within { z-index: 20 }
+.lp-mod:hover .lp-mod-pop, .lp-mod:focus .lp-mod-pop, .lp-mod:focus-within .lp-mod-pop { display: block }
+.lp-mod:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 .lp-mod-badge {
   position: absolute; top: 12px; right: 12px; font-size: 9px; letter-spacing: 1px;
   text-transform: uppercase; background: rgba(var(--blue-rgb),0.15); color: var(--blue);
