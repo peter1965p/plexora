@@ -276,7 +276,7 @@
     </section>
 
     <!-- BRANCHEN-PAKETE -->
-    <section v-if="branchItems.length" class="lp-wrap lp-branchen-section lp-reveal" id="branchen">
+    <section v-if="branchItems.length" class="lp-branchen-section lp-reveal" id="branchen">
       <div class="lp-branchen-panel">
         <div class="lp-section-label">{{ t.branchen.label }}</div>
         <h2 class="lp-section-title" style="text-align:center;margin-bottom:8px">{{ t.branchen.heading }}</h2>
@@ -1356,7 +1356,7 @@ onMounted(() => {
 .lp-reveal.lp-in .lp-mod, .lp-reveal.lp-in .lp-bcard { opacity: 1; transform: translateY(0); }
 
 /* BRANCHEN-PAKETE */
-.lp-branchen-section { padding: 0 0 64px; }
+.lp-branchen-section { padding: 0 24px 64px; }      /* über die ganze Seitenbreite (nicht im schmalen Seitenrahmen) */
 .lp-branchen-panel {
   max-width: none; margin: 0 auto; position: relative; overflow: hidden;
   background: linear-gradient(160deg, rgba(var(--accent-rgb),0.06), var(--card2) 55%);
@@ -1368,8 +1368,7 @@ onMounted(() => {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(ellipse 60% 50% at 15% 0%, rgba(var(--blue-rgb),0.10), transparent 70%);
 }
-.lp-branchen-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; position: relative; z-index: 1; }
-@media (max-width: 1180px) { .lp-branchen-grid { grid-template-columns: repeat(2,1fr); } }
+.lp-branchen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; position: relative; z-index: 1; }
 .lp-bcard {
   background: rgba(var(--ink),0.02); border: 0.5px solid rgba(var(--ink),0.08);
   border-radius: 18px; padding: 26px 22px; display: flex; flex-direction: column;
