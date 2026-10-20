@@ -101,6 +101,12 @@
 
     <!-- MODULE GRID (BENTO) -->
     <section class="lp-wrap lp-modules-section lp-reveal" id="modules">
+      <div class="lp-modules-head">
+        <div class="lp-section-label" style="margin-bottom:10px">{{ t.modules.kicker }}</div>
+        <h2 class="lp-section-title" style="text-align:center;margin-bottom:10px">{{ t.modules.heading }}</h2>
+        <p class="lp-modules-sub">{{ t.modules.sub }}</p>
+        <div class="lp-modules-chips"><span v-for="c in t.modules.chips" :key="c" class="lp-chip"><Check :size="13" /> {{ c }}</span></div>
+      </div>
       <div class="lp-modules-grid">
         <div
           v-for="(mod, i) in modules"
@@ -130,7 +136,7 @@
     <section class="lp-wrap lp-einv-section lp-reveal" id="e-rechnung">
       <div class="lp-einv">
         <div>
-          <div class="lp-section-label" style="text-align:left;margin-bottom:10px">{{ t.einvoice.label }}</div>
+          <div class="lp-section-label" style="text-align:left;margin-bottom:10px">{{ t.einvoice.label }} <span class="lp-chip" style="margin-left:8px;letter-spacing:0;text-transform:none"><Check :size="12" /> {{ t.einvoice.included }}</span></div>
           <h2 class="lp-section-title" style="text-align:left;margin-bottom:10px">{{ t.einvoice.heading }}</h2>
           <p class="lp-einv-text">{{ t.einvoice.text }}</p>
           <p class="lp-einv-note"><ShieldCheck :size="14" /> {{ t.einvoice.proof }}</p>
@@ -440,6 +446,7 @@ const i18n = {
     },
     einvoice: {
       label: 'E-Rechnung zum Anfassen',
+      included: 'In jeder Lizenz enthalten',
       heading: 'Bereit für die E-Rechnungspflicht',
       text: 'Plexora erzeugt Rechnungen als XRechnung 3.0 und als ZUGFeRD (PDF mit eingebetteter Rechnung) nach EN 16931 und liest eingehende E-Rechnungen. Lade dir eine Beispielrechnung herunter und öffne sie in deinem Buchhaltungsprogramm.',
       proof: 'Geprüft mit dem offiziellen KoSIT-Prüfwerkzeug (XRechnung 3.0) und mit Mustang/veraPDF (PDF/A-3).',
@@ -464,7 +471,13 @@ const i18n = {
         { name: 'Cloudflare', sub: 'Auslieferung & DDoS-Schutz' },
       ],
     },
-    modules: { active: 'Aktiv', base: 'Basis', branch: 'Branche', countBase: 'Basis', countBranch: 'Branchen-Pakete' },
+    modules: {
+      kicker: 'Grundausstattung',
+      heading: 'Alle Basis-Module sind in deiner Lizenz enthalten',
+      sub: 'CRM, Finanzen, Projekte, Termine, Blog und alle weiteren Basis-Module gehören zum Paket, genau wie die E-Rechnung (XRechnung und ZUGFeRD). Branchen-Pakete kommen bei Bedarf dazu.',
+      chips: ['Alle Basis-Module', 'E-Rechnung inklusive', 'Ein Login'],
+      active: 'Aktiv', base: 'Basis', branch: 'Branche', countBase: 'Basis', countBranch: 'Branchen-Pakete',
+    },
     savings: {
       label: 'Ihre monatliche Ersparnis',
       unit: '/ Monat',
@@ -548,6 +561,7 @@ const i18n = {
     },
     einvoice: {
       label: 'E-invoicing you can try',
+      included: 'Included in every license',
       heading: 'Ready for mandatory e-invoicing',
       text: 'Plexora creates invoices as XRechnung 3.0 and as ZUGFeRD (PDF with embedded invoice) per EN 16931, and reads incoming e-invoices. Download a sample invoice and open it in your accounting software.',
       proof: 'Checked with the official KoSIT validator (XRechnung 3.0) and with Mustang/veraPDF (PDF/A-3).',
@@ -572,7 +586,13 @@ const i18n = {
         { name: 'Cloudflare', sub: 'Delivery & DDoS protection' },
       ],
     },
-    modules: { active: 'Active', base: 'Base', branch: 'Industry', countBase: 'base', countBranch: 'industry packages' },
+    modules: {
+      kicker: 'Standard equipment',
+      heading: 'All base modules are included in your license',
+      sub: 'CRM, finance, projects, appointments, blog and every other base module come with the package, just like e-invoicing (XRechnung and ZUGFeRD). Industry packages can be added as needed.',
+      chips: ['All base modules', 'E-invoicing included', 'One login'],
+      active: 'Active', base: 'Base', branch: 'Industry', countBase: 'base', countBranch: 'industry packages',
+    },
     savings: {
       label: 'Your monthly savings',
       unit: '/ month',
@@ -1390,6 +1410,10 @@ onMounted(() => {
 .lp-reveal.lp-in .lp-mod, .lp-reveal.lp-in .lp-bcard { opacity: 1; transform: translateY(0); }
 
 /* BRANCHEN-PAKETE */
+.lp-modules-head { text-align: center; max-width: 760px; margin: 0 auto 32px }
+.lp-modules-sub { font-size: 15px; line-height: 1.65; color: var(--body); margin: 0 0 16px }
+.lp-modules-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap }
+.lp-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 99px; background: rgba(var(--accent-rgb),0.12); border: 0.5px solid rgba(var(--accent-rgb),0.3); color: var(--orange2) }
 .lp-einv-section { padding: 0 0 56px; }
 .lp-einv { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; padding: 36px 40px; border-radius: 24px; background: linear-gradient(160deg, rgba(var(--accent-rgb),0.07), var(--card2) 60%); border: 0.5px solid rgba(var(--ink),0.08) }
 .lp-einv-text { font-size: 15px; line-height: 1.65; color: var(--body); margin: 0 0 12px }
