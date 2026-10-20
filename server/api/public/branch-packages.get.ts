@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   setResponseHeaders(event, { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' })
   try {
     const [all, shown] = await Promise.all([listStorePackages(), loadShownKeys()])
-    return { packages: selectPackages(all, parseLandingPackages(shown)) }
+    return { packages: selectPackages(all, parseLandingPackages(shown)).map(({ plugin: _p, ...pub }) => pub) }     // 'plugin' dient nur der Sortierung
   } catch {
     return { packages: [], unavailable: true }     // Abruf gescheitert: die Startseite zeigt ihre festen Einträge
   }

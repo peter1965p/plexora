@@ -141,8 +141,9 @@ export function parseLandingPackages(raw: unknown): string[] | null {
   return out.slice(0, 24)
 }
 /** Wendet die Auswahl auf die verfügbaren Pakete an: ohne Auswahl alle (nach Name), sonst nur die gewählten in gewählter Reihenfolge; unbekannte Schlüssel entfallen */
-export function selectPackages<T extends { key: string; name: string }>(all: T[], shown: string[] | null): T[] {
-  if (shown === null) return [...all].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+export function selectPackages<T extends { key: string; name: string; plugin?: boolean }>(all: T[], shown: string[] | null): T[] {
+  // ohne Auswahl: eingebaute Pakete nach Name, danach die Plugins (z. B. Friseur & Beauty) nach Name
+  if (shown === null) return [...all].sort((a, b) => Number(!!a.plugin) - Number(!!b.plugin) || a.name.localeCompare(b.name, 'de'))
   const byKey = new Map(all.map(p => [p.key, p]))
   return shown.map(k => byKey.get(k)).filter((p): p is T => !!p)
 }

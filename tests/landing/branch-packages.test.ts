@@ -44,9 +44,10 @@ describe('Auswahl prüfen und anwenden', () => {
 })
 
 describe('Öffentliche Branchen-Pakete', () => {
-  it('nur eingebaute, kostenpflichtige Pakete; nur die erlaubten Felder; ohne Auswahl alle nach Name', async () => {
+  it('kostenpflichtige Pakete (eingebaute nach Name, danach Plugins); nur die erlaubten Felder, nie die Plugin-Adresse; ohne Auswahl alle', async () => {
     const r = await H.pub({})
-    expect(r.packages.map((p: any) => p.key)).toEqual(['fewo', 'praxis'])
+    expect(r.packages.map((p: any) => p.key)).toEqual(['fewo', 'praxis', 'plug'])
+    expect(Object.keys(r.packages[2]).sort()).toEqual(['desc', 'features', 'icon', 'key', 'name', 'price'])
     expect(Object.keys(r.packages[1]).sort()).toEqual(['desc', 'features', 'icon', 'key', 'name', 'price'])
     expect(r.packages[1].features).toEqual(['a', 'b'])
     expect(r.packages[0].price).toBe(79)
@@ -55,7 +56,7 @@ describe('Öffentliche Branchen-Pakete', () => {
   it('mit Auswahl: nur die gewählten, in gewählter Reihenfolge; Pakete, die es nicht (mehr) gibt, entfallen', async () => {
     shownSetting = ['praxis', 'gibtsnicht', 'fewo']
     expect((await H.pub({})).packages.map((p: any) => p.key)).toEqual(['praxis', 'fewo'])
-    shownSetting = ['plug', 'gratis']                        // nicht eingebaut bzw. kostenlos: nie öffentlich
+    shownSetting = ['gratis', 'Böse Key!']                  // kostenlos bzw. ungültiger Schlüssel: nie öffentlich
     expect((await H.pub({})).packages).toEqual([])
   })
   it('Datenbankfehler wird als "nicht verfügbar" gemeldet (die Startseite zeigt dann ihre festen Einträge, anders als bei bewusst leerer Auswahl)', async () => { fail = true; expect(await H.pub({})).toEqual({ packages: [], unavailable: true }) })
@@ -70,7 +71,7 @@ describe('Einstellungen: Auswahl', () => {
   it('Betreiber sieht alle Store-Pakete (nur Name, Symbol, Preis) und die gespeicherte Auswahl', async () => {
     shownSetting = ['fewo']
     const r = await H.get(ev(['admins']))
-    expect(r.available.map((p: any) => p.key)).toEqual(['fewo', 'praxis'])
+    expect(r.available.map((p: any) => p.key)).toEqual(['fewo', 'plug', 'praxis'])
     expect(Object.keys(r.available[0]).sort()).toEqual(['icon', 'key', 'name', 'price'])
     expect(r.shown).toEqual(['fewo'])
   })
