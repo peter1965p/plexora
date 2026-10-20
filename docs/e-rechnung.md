@@ -25,3 +25,6 @@ Firma: Name, Straße, PLZ/Ort, USt-IdNr. oder Steuernummer, IBAN (Prüfziffer); 
 - Rechnungs-PDFs mit eingebetteten Bildern oder besonderen Schriften wurden nicht einzeln auf PDF/A geprüft; maßgeblich für Programme ist die eingebettete XML.
 - Die Kundenanschrift steht erst bei neu angelegten Rechnungen im Datensatz; alte Rechnungen ohne Anschrift zeigen unter „E-Rechnung prüfen“, was fehlt.
 - Rechtsfragen (Fristen, Aufbewahrung) bitte mit dem Steuerberater klären.
+
+## Demo-Konto
+Das Demo-Konto (demo@plexora.eu) ist für die E-Rechnung vorbereitet (`npx vite-node scripts/demo/seed-einvoice.mjs --apply`): Firmenangaben der fiktiven „Beispiel Software GmbH“, Rechnungseinstellungen, Kundenanschriften an den acht Demo-Rechnungen und zwei Eingangsrechnungen. „E-Rechnung prüfen“ ist grün, XRechnung und ZUGFeRD lassen sich herunterladen (live mit KoSIT-Validator und Mustang/veraPDF geprüft). Speichern bleibt dem Demo-Konto verwehrt.
