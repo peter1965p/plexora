@@ -1413,9 +1413,20 @@
           <div v-if="ltWarnings.length" style="padding:10px 12px;border-radius:8px;background:#F0B42822;color:#8a5d00;font-size:12px;display:flex;flex-direction:column;gap:6px"><div v-for="w in ltWarnings" :key="w"><i class="ti ti-alert-triangle"></i> {{ w }}</div></div>
           <div v-else style="font-size:12px;color:#00A844"><i class="ti ti-circle-check"></i> Lesbarkeit in Ordnung (Text {{ ltResult?.info.textContrast }}:1, Schaltflächen {{ ltResult?.info.buttonContrast }}:1)</div>
         </template>
+        <div>
+          <div class="lt-label">Kennzahlen-Display (die Leiste „22 Module · 1 Login · Frankfurt · ab 49 €“)</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.display.on" /> als Display darstellen</label>
+          <template v-if="lt.display.on">
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Hintergrund</span><input type="color" v-model="lt.display.bg" class="lt-color" /><input v-model="lt.display.bg" maxlength="7" style="width:96px;font-family:monospace" /></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Deckkraft</span><input type="range" min="0" max="100" v-model.number="lt.display.bgOpacity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.display.bgOpacity }} %</strong></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Zahlenfarbe</span><input type="color" v-model="lt.display.fg" class="lt-color" /><input v-model="lt.display.fg" maxlength="7" style="width:96px;font-family:monospace" /></div>
+            <div class="lt-disp" :style="ltDisp.vars"><div v-for="c in [['22','Module'],['1','Login'],['Frankfurt','Hosting'],['ab 49 €','Preis']]" :key="c[0]" style="text-align:center"><div class="lt-disp-n">{{ c[0] }}</div><div class="lt-disp-l">{{ c[1] }}</div></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ist die Zahlenfarbe auf dem Hintergrund zu dunkel, wird sie automatisch aufgehellt (zurzeit {{ ltDisp.fg }}, Kontrast {{ ltDisp.contrast }}:1).</div>
+          </template>
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
-          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light' })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
+          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display } })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
           <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Startseite öffnen</a>
         </div>
       </div>
@@ -1850,7 +1861,7 @@
 <script setup lang="ts">
 import { hasTurnstilePrivacy, withTurnstilePrivacy } from '~~/shared/turnstilePrivacy'
 import { marked } from 'marked'
-import { parseLandingTheme, customTheme, themeWarnings, PRESETS as LANDING_PRESETS, DEFAULT_LANDING_THEME, type LandingTheme } from '~~/shared/landingTheme'
+import { parseLandingTheme, customTheme, themeWarnings, displayVars, PRESETS as LANDING_PRESETS, DEFAULT_LANDING_THEME, type LandingTheme } from '~~/shared/landingTheme'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore, THEMES } from '~/stores/app'
 
@@ -3008,7 +3019,7 @@ async function saveTestimonials() {
 
 // ── Startseite (Design) ──
 const LT_MODES = [{ key: 'light', label: 'Freundlich hell', icon: 'ti-sun' }, { key: 'dark', label: 'Dunkel', icon: 'ti-moon' }, { key: 'custom', label: 'Eigene Farben', icon: 'ti-palette' }]
-const lt = reactive<LandingTheme>({ ...DEFAULT_LANDING_THEME })
+const lt = reactive<LandingTheme>({ ...DEFAULT_LANDING_THEME, display: { ...DEFAULT_LANDING_THEME.display } })
 const ltSaving = ref(false)
 let ltLoaded = false
 const ltResult = computed(() => (lt.mode === 'custom' ? customTheme(parseLandingTheme(lt)) : null))
@@ -3023,6 +3034,7 @@ const ltPreviewVars = computed(() => {
   const v = r.vars
   return { '--bg': v['--bg'], '--card': v['--card'], '--text-strong': v['--text-strong'], '--muted': v['--muted'], '--accent': v['--btn'], '--accent2': v['--orange2'], '--blue': v['--blue'], '--btn': v['--btn'], '--btn-text': v['--btn-text'], '--line': `rgba(${v['--ink']},.12)` }
 })
+const ltDisp = computed(() => displayVars(parseLandingTheme(lt).display, String((ltPreviewVars.value as any)['--bg'] || '#fff8f1')))
 async function loadLanding() {
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
@@ -3031,7 +3043,7 @@ async function loadLanding() {
   } catch {}
 }
 watch(tab, (v) => { if (v === 'landing' && !ltLoaded) { ltLoaded = true; loadLanding() } })
-function applyLandingPreset(t: LandingTheme) { Object.assign(lt, t) }
+function applyLandingPreset(t: Omit<LandingTheme, 'display'>) { Object.assign(lt, t) }
 async function saveLanding() {
   ltSaving.value = true
   try {
@@ -3191,6 +3203,9 @@ async function saveFallbackLink(which: 'jitsi' | 'link' = 'link') {
 .lt-nav { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 15px }
 .lt-pill { border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px; font-size: 12px; display: inline-block }
 .lt-btn { background: var(--btn); color: var(--btn-text); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; display: inline-block }
+.lt-disp { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; padding: 14px 10px; border-radius: 14px; background: var(--disp-bg); border: 1px solid var(--disp-border); box-shadow: 0 0 22px var(--disp-border) }
+.lt-disp-n { font-size: 18px; font-weight: 800; color: var(--disp-fg); text-shadow: 0 0 14px var(--disp-glow) }
+.lt-disp-l { font-size: 11px; color: var(--disp-label) }
 .lt-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: center }
 .lp-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-surface) }
 </style>

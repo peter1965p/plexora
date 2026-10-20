@@ -91,7 +91,7 @@
 
     <!-- STATS STRIP -->
     <section class="lp-wrap lp-stats-section lp-reveal">
-      <div class="lp-stats-row">
+      <div class="lp-stats-row" :class="{ 'lp-stats-display': config.display.on }" :style="statsDisplayStyle">
         <div class="lp-stat" v-for="(s, i) in statItems" :key="i">
           <div class="lp-stat-num">{{ s.num }}</div>
           <div class="lp-stat-label">{{ s.label }}</div>
@@ -352,7 +352,7 @@
 </template>
 
 <script setup lang="ts">
-import { parseLandingTheme, customTheme } from '~~/shared/landingTheme'
+import { parseLandingTheme, customTheme, displayVars } from '~~/shared/landingTheme'
 import {
   Users, Kanban, Receipt, IdCard, Headset, BarChart3,
   Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble, Puzzle,
@@ -380,6 +380,9 @@ const customStyle = computed(() => customResult.value?.vars || {})
 const visitorTheme = ref<'light'|'dark'|''>('')
 const theme = computed<'light'|'dark'>(() => visitorTheme.value || (config.value.mode === 'dark' ? 'dark' : 'light'))
 const isLight = computed(() => (customResult.value ? !customResult.value.dark : theme.value === 'light'))
+// Kennzahlen-Leiste als "Display": Farben legt der Betreiber fest (Einstellungen → Startseite); gerechnet wird auf der tatsächlichen Seitenfarbe, damit die Zahlen lesbar bleiben
+const pageBgNow = computed(() => customResult.value?.info.bg || (isLight.value ? '#fff8f1' : '#1a1723'))
+const statsDisplayStyle = computed(() => (config.value.display.on ? displayVars(config.value.display, pageBgNow.value).vars : {}))
 function toggleTheme() {
   visitorTheme.value = theme.value === 'light' ? 'dark' : 'light'
   // Die Wahl gilt nur zur aktuellen Betreiber-Einstellung: ändert sich diese, zählt wieder der neue Standard
@@ -1179,6 +1182,9 @@ onMounted(() => {
 .lp-stat { text-align: center; }
 .lp-stat-num { font-family: "Space Grotesk", sans-serif; font-size: 26px; font-weight: 800; color: var(--orange2); line-height: 1.2; }
 .lp-stat-label { font-size: 12px; color: var(--muted2); margin-top: 4px; }
+.lp .lp-stats-row.lp-stats-display { background: var(--disp-bg); border: 1px solid var(--disp-border); box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset, 0 10px 34px rgba(0,0,0,.35), 0 0 30px var(--disp-border); backdrop-filter: blur(6px); }
+.lp-stats-display .lp-stat-num { color: var(--disp-fg); text-shadow: 0 0 18px var(--disp-glow); letter-spacing: .5px; }
+.lp-stats-display .lp-stat-label { color: var(--disp-label); }
 
 /* MODULES (BENTO) */
 .lp-modules-section { padding: 48px 0; }

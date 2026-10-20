@@ -9,10 +9,14 @@ export interface LandingTheme {
   accent: string
   /** Textfarbe; leer = automatisch passend zum Hintergrund */
   text: string
+  /** Kennzahlen-Leiste unter dem Kopfbereich ("Display"): eigener Hintergrund und eigene Zahlenfarbe, unabhängig vom Design */
+  display: LandingDisplay
 }
-export const DEFAULT_LANDING_THEME: LandingTheme = { mode: 'light', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '' }
+export interface LandingDisplay { on: boolean; bg: string; bgOpacity: number; fg: string }
+export const DEFAULT_DISPLAY: LandingDisplay = { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' }
+export const DEFAULT_LANDING_THEME: LandingTheme = { mode: 'light', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', display: { ...DEFAULT_DISPLAY } }
 
-export const PRESETS: Array<{ key: string; label: string; theme: LandingTheme }> = [
+export const PRESETS: Array<{ key: string; label: string; theme: Omit<LandingTheme, 'display'> }> = [
   { key: 'deepblue', label: 'Deep Blue auf 75 % Schwarz', theme: { mode: 'custom', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '' } },
   { key: 'midnight', label: 'Mitternacht & Orange', theme: { mode: 'custom', bg: '#0b1020', bgOpacity: 100, accent: '#ea580c', text: '' } },
   { key: 'ocean', label: 'Ozean (hell)', theme: { mode: 'custom', bg: '#e0f2fe', bgOpacity: 100, accent: '#0369a1', text: '' } },
@@ -34,6 +38,18 @@ export function parseLandingTheme(raw: any): LandingTheme {
     bgOpacity: Number.isFinite(op) ? Math.min(100, Math.max(0, op)) : DEFAULT_LANDING_THEME.bgOpacity,
     accent: hexOr(b.accent, DEFAULT_LANDING_THEME.accent),
     text: isHex(b.text) ? b.text.toLowerCase() : '',
+    display: parseDisplay(b.display),
+  }
+}
+
+export function parseDisplay(raw: any): LandingDisplay {
+  const d = raw && typeof raw === 'object' ? raw : {}
+  const op = Math.round(Number(d.bgOpacity))
+  return {
+    on: d.on === false ? false : true,
+    bg: hexOr(d.bg, DEFAULT_DISPLAY.bg),
+    bgOpacity: Number.isFinite(op) && d.bgOpacity !== null && d.bgOpacity !== '' ? Math.min(100, Math.max(0, op)) : DEFAULT_DISPLAY.bgOpacity,
+    fg: hexOr(d.fg, DEFAULT_DISPLAY.fg),
   }
 }
 
@@ -56,6 +72,22 @@ export function readableOn(color: string, bgHex: string, min = 4.5): string {
   return c
 }
 const rgbCsv = (hex: string) => hexToRgb(hex).join(',')
+
+/** Farben der Kennzahlen-Leiste. pageBg = tatsächliche Seitenfarbe dahinter: darauf wird die Deckkraft gerechnet und die Zahlenfarbe bei Bedarf aufgehellt (Zahlen sind große Schrift: Kontrast ab 3:1). */
+export function displayVars(d: LandingDisplay, pageBg: string): { vars: Record<string, string>; effectiveBg: string; fg: string; contrast: number } {
+  const effectiveBg = blend(d.bg, d.bgOpacity / 100, pageBg)
+  const fg = readableOn(d.fg, effectiveBg, 3)
+  return {
+    effectiveBg, fg, contrast: round1(contrast(fg, effectiveBg)),
+    vars: {
+      '--disp-bg': `rgba(${rgbCsv(d.bg)},${d.bgOpacity / 100})`,
+      '--disp-fg': fg,
+      '--disp-glow': `rgba(${rgbCsv(fg)},0.55)`,
+      '--disp-border': `rgba(${rgbCsv(fg)},0.35)`,
+      '--disp-label': mix(fg, luminance(effectiveBg) < 0.4 ? '#ffffff' : '#000000', 0.7),
+    },
+  }
+}
 
 export interface ThemeResult { dark: boolean; vars: Record<string, string>; info: { bg: string; text: string; textContrast: number; accentOnBgContrast: number; buttonText: string; buttonContrast: number } }
 

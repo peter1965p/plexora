@@ -26,7 +26,7 @@ describe('Startseiten-Design: Routen', () => {
     fail = true; expect((await H.pub(ev(null))).theme.mode).toBe('light')
   })
   it('Speichern nur für Betreiber (Gruppe admins): anonym 401, Kunde 403, Betreiber 200', async () => {
-    const body = { mode: 'custom', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '' }
+    const body = { mode: 'custom', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', display: { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' } }
     expect((await call(H.post, ev(null, body))).code).toBe(401)
     expect((await call(H.post, ev(['customers'], body))).code).toBe(403)
     expect((await call(H.get, ev(['customers']))).code).toBe(403)
@@ -37,11 +37,16 @@ describe('Startseiten-Design: Routen', () => {
   it('gespeichert wird nur die geprüfte Form: kein Roh-Body, keine Fremdfelder, kein Code in Farben', async () => {
     await H.post(ev(['admins'], { mode: 'custom', bg: 'red; background:url(//evil)', bgOpacity: 9999, accent: '#ABCDEF', text: '</style><script>', extra: 'x', __proto__: { a: 1 } }))
     const saved = store.get('landing-theme|global').theme
-    expect(saved).toEqual({ mode: 'custom', bg: '#000000', bgOpacity: 100, accent: '#abcdef', text: '' })
-    expect(Object.keys(saved).sort()).toEqual(['accent', 'bg', 'bgOpacity', 'mode', 'text'])
+    expect(saved).toEqual({ mode: 'custom', bg: '#000000', bgOpacity: 100, accent: '#abcdef', text: '', display: { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' } })
+    expect(Object.keys(saved).sort()).toEqual(['accent', 'bg', 'bgOpacity', 'display', 'mode', 'text'])
+  })
+  it('Kennzahlen-Display: eigene Werte werden geprüft gespeichert und öffentlich geliefert', async () => {
+    const body = { mode: 'light', display: { on: false, bg: '#102030', bgOpacity: 400, fg: 'javascript:1', evil: 'x' } }
+    expect((await call(H.post, ev(['admins'], body))).code).toBe(200)
+    expect((await H.pub(ev(null))).theme.display).toEqual({ on: false, bg: '#102030', bgOpacity: 100, fg: '#2f7bff' })
   })
   it('die öffentliche Route gibt nie Fremdfelder aus der Datenbank heraus', async () => {
     store.set('landing-theme|global', { theme: { mode: 'dark', bg: '#111111', bgOpacity: 50, accent: '#222222', text: '', geheim: 'x' }, intern: 'y' })
-    expect(Object.keys((await H.pub(ev(null))).theme).sort()).toEqual(['accent', 'bg', 'bgOpacity', 'mode', 'text'])
+    expect(Object.keys((await H.pub(ev(null))).theme).sort()).toEqual(['accent', 'bg', 'bgOpacity', 'display', 'mode', 'text'])
   })
 })
