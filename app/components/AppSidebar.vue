@@ -59,7 +59,7 @@ const branchRegistry = computed(() => Object.fromEntries(
 // abbilden, damit das bestehende Nav-Markup unverändert bleibt.
 const LUCIDE_TO_TABLER: Record<string, string> = {
   Car: 'ti-car', Store: 'ti-shopping-bag', UtensilsCrossed: 'ti-tools-kitchen-2',
-  Hammer: 'ti-hammer', Home: 'ti-building-estate', Stethoscope: 'ti-stethoscope',
+  Hammer: 'ti-hammer', Home: 'ti-building-estate', Stethoscope: 'ti-stethoscope', HeartHandshake: 'ti-heart-handshake',
   Scissors: 'ti-scissors', BedDouble: 'ti-bed',
 }
 

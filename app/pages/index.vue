@@ -355,7 +355,7 @@
 import { parseLandingTheme, customTheme, displayVars } from '~~/shared/landingTheme'
 import {
   Users, Kanban, Receipt, IdCard, Headset, BarChart3,
-  Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble, Puzzle,
+  Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, HeartHandshake, Scissors, BedDouble, Puzzle,
   Check, X, Info, UserRound, Rocket, Zap,
   LogIn, SlidersHorizontal, Cloud, CreditCard, ShieldCheck,
   Megaphone, ShoppingCart, ClipboardList, CalendarDays, Mail, Newspaper, FileText, Search, Globe,
@@ -838,7 +838,7 @@ onMounted(() => {
 })
 
 // Branchen-Pakete kommen aus dem Modul-Store (Preise und Texte werden dort gepflegt); bei einem Abruffehler zeigt die Seite die festen Einträge.
-const BRANCH_ICONS: Record<string, any> = { Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, Scissors, BedDouble }
+const BRANCH_ICONS: Record<string, any> = { Car, UtensilsCrossed, Building2, Store, Hammer, Home, Stethoscope, HeartHandshake, Scissors, BedDouble }
 const { data: branchData } = useFetch(useApiUrl('/api/public/branch-packages'), { server: false })
 const branchItems = computed(() => {
   const d = branchData.value as any

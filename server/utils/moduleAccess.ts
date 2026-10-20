@@ -67,7 +67,7 @@ export const MODULE_RULES: ModuleRule[] = [
   // ── Branchenpakete ──
   { prefix: '/api/automotive', need: { branch: 'automotive' }, note: 'Branchenpaket Automotive' },
   { prefix: '/api/workshop', need: { branch: 'automotive' }, note: 'Werkstatt gehört zum Paket Automotive' },
-  { prefix: '/api/praxis', need: { branch: 'praxis' }, note: 'Branchenpaket Praxis (Patientendaten)' },
+  { prefix: '/api/praxis', need: { branch: 'praxis' }, note: 'Branchenpaket Pflegedienste (Klientendaten)' },
   { prefix: '/api/handwerk', need: { branch: 'handwerk' }, note: 'Branchenpaket Handwerk' },
   { prefix: '/api/gastro-', need: { branch: 'gastro' }, note: 'Branchenpaket Gastronomie' },
   { prefix: '/api/properties', need: { branch: 'immobilien' }, note: 'Branchenpaket Immobilien' },

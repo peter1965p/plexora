@@ -182,7 +182,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   // ── Branchen-Pakete ──
   {
     id: 'branchen', group: 'branche', title: 'Branchen-Pakete aktivieren', icon: 'ti-puzzle', route: '/store', role: 'Inhaber',
-    summary: 'Zusätzliche Module für deine Branche: Automotive, Einzelhandel, Gastronomie, Praxis, Handwerk, Immobilien, Friseur & Beauty und Ferienwohnungen.',
+    summary: 'Zusätzliche Module für deine Branche: Automotive, Einzelhandel, Gastronomie, Pflegedienste, Handwerk, Immobilien, Friseur & Beauty und Ferienwohnungen.',
     steps: ['Öffne den Modul-Store.', 'Schalte das passende Branchen-Paket ein. Es erscheint in der Seitenleiste unter „BRANCHE“.', 'Du kannst auswählen, welche Pakete auf deiner Startseite angezeigt werden.'],
   },
   {
@@ -203,8 +203,8 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary: 'Speisekarte, Reservierungen und Tische.', steps: ['Öffne Gastronomie.', 'Pflege die Speisekarte und nimm Reservierungen an.'],
   },
   {
-    id: 'praxis', group: 'branche', title: 'Gesundheit / Praxis', icon: 'ti-stethoscope', route: '/praxis', role: 'Admin',
-    summary: 'Patienten und Behandlungstermine.', steps: ['Öffne Praxis.', 'Lege Patienten an und plane Behandlungen.'],
+    id: 'praxis', group: 'branche', title: 'Pflegedienste', icon: 'ti-heart-handshake', route: '/praxis', role: 'Admin',
+    summary: 'Klienten verwalten und Termine planen. Das Paket ist keine Medizinsoftware: Es führt keine Diagnosen, Rezepte oder Behandlungsakten.', steps: ['Öffne Pflegedienste.', 'Lege Klienten an und plane Termine.', 'Die Klientenübersicht zeigt Kontaktdaten, Kasse und Notizen mit den Terminen.'],
   },
   {
     id: 'handwerk', group: 'branche', title: 'Handwerk', icon: 'ti-hammer', route: '/handwerk', role: 'Admin',

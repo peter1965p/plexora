@@ -18,7 +18,7 @@ const MODULE_NAMES: Record<string, string> = {
   gastro:       'Gastronomie',
   handwerk:     'Handwerk',
   immobilien:   'Immobilien',
-  gesundheit:   'Gesundheit / Praxis',
+  gesundheit:   'Pflegedienste',
 }
 
 // Muss mit branchenPakete in app/pages/store.vue und BRANCH_MODULES in

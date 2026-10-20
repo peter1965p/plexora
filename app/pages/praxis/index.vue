@@ -4,11 +4,11 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Gesundheit <span style="color:var(--accent)">/ Praxis</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Patienten, Terminplanung & Karteikarte</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">Pflege<span style="color:var(--accent)">dienste</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Klienten, Terminplanung & Klientenübersicht</p>
       </div>
       <button v-if="activeTab==='patienten'" class="accent-btn" @click="openNewPatient">
-        <i class="ti ti-plus"></i> Patient anlegen
+        <i class="ti ti-plus"></i> Klient anlegen
       </button>
       <button v-if="activeTab==='termine'" class="accent-btn" @click="openNewTermin">
         <i class="ti ti-plus"></i> Termin anlegen
@@ -45,7 +45,7 @@
           </tr>
         </tbody>
       </table>
-      <div v-if="!patienten.length" style="text-align:center;padding:40px;color:var(--text-muted)">Noch keine Patienten angelegt.</div>
+      <div v-if="!patienten.length" style="text-align:center;padding:40px;color:var(--text-muted)">Noch keine Klienten angelegt.</div>
     </div>
 
     <!-- TERMINE -->
@@ -53,7 +53,7 @@
       <table style="width:100%;border-collapse:collapse">
         <thead>
           <tr style="text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase">
-            <th style="padding:8px">Datum</th><th style="padding:8px">Zeit</th><th style="padding:8px">Patient</th>
+            <th style="padding:8px">Datum</th><th style="padding:8px">Zeit</th><th style="padding:8px">Klient</th>
             <th style="padding:8px">Grund</th><th style="padding:8px">Status</th><th style="padding:8px"></th>
           </tr>
         </thead>
@@ -77,7 +77,7 @@
     <!-- KARTEIKARTE -->
     <div v-if="activeTab==='karteikarte'">
       <div class="auth-field" style="max-width:340px;margin-bottom:20px">
-        <label>Patient auswählen</label>
+        <label>Klient auswählen</label>
         <select v-model="karteikartePatientId" class="form-select">
           <option value="">— wählen —</option>
           <option v-for="p in patienten" :key="p.patientId" :value="p.patientId">{{ p.name }}</option>
@@ -105,34 +105,16 @@
             </div>
             <div v-if="!patientTermine.length" style="color:var(--text-muted);font-size:13px">Keine Termine.</div>
           </div>
-
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-              <div style="font-weight:700;font-size:14px">Rezepte</div>
-              <button class="icon-btn" @click="openNewRezept"><i class="ti ti-plus"></i> Rezept ausstellen</button>
-            </div>
-            <div v-for="r in patientRezepte" :key="r.rezeptId" style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div style="font-size:12px;color:var(--text-muted)">{{ formatDate(r.issuedAt) }}</div>
-                <div style="display:flex;gap:4px">
-                  <button class="icon-btn" style="width:24px;height:24px" @click="downloadRezeptPdf(r)"><i class="ti ti-file-download"></i></button>
-                  <button class="icon-btn" style="width:24px;height:24px" @click="deleteRezept(r)"><i class="ti ti-trash"></i></button>
-                </div>
-              </div>
-              <div style="font-size:13px;margin-top:6px;white-space:pre-wrap">{{ r.text }}</div>
-            </div>
-            <div v-if="!patientRezepte.length" style="color:var(--text-muted);font-size:13px">Keine Rezepte.</div>
-          </div>
         </div>
       </div>
-      <div v-else style="text-align:center;padding:40px;color:var(--text-muted)">Bitte einen Patienten auswählen.</div>
+      <div v-else style="text-align:center;padding:40px;color:var(--text-muted)">Bitte einen Klienten auswählen.</div>
     </div>
 
     <!-- PATIENT MODAL -->
     <div v-if="showPatientModal" class="modal-overlay" @click.self="showPatientModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">{{ editingPatientId ? 'Patient bearbeiten' : 'Patient anlegen' }}</div>
+          <div style="font-size:16px;font-weight:700">{{ editingPatientId ? 'Klient bearbeiten' : 'Klient anlegen' }}</div>
           <button class="icon-btn" @click="showPatientModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="auth-field" style="margin-bottom:12px"><label>Name</label><input v-model="pForm.name" placeholder="Vor- und Nachname" /></div>
@@ -140,7 +122,7 @@
           <div class="auth-field"><label>Geburtsdatum</label><input v-model="pForm.birthDate" type="date" /></div>
           <div class="auth-field"><label>Telefon</label><input v-model="pForm.phone" placeholder="+49..." /></div>
         </div>
-        <div class="auth-field" style="margin-bottom:12px"><label>E-Mail</label><input v-model="pForm.email" placeholder="patient@beispiel.de" /></div>
+        <div class="auth-field" style="margin-bottom:12px"><label>E-Mail</label><input v-model="pForm.email" placeholder="klient@beispiel.de" /></div>
         <div class="auth-field" style="margin-bottom:12px"><label>Adresse</label><input v-model="pForm.address" placeholder="Straße, PLZ Ort" /></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div class="auth-field"><label>Versicherungsart</label>
@@ -164,7 +146,7 @@
           <div style="font-size:16px;font-weight:700">{{ editingTerminId ? 'Termin bearbeiten' : 'Termin anlegen' }}</div>
           <button class="icon-btn" @click="showTerminModal=false"><i class="ti ti-x"></i></button>
         </div>
-        <div class="auth-field" style="margin-bottom:12px"><label>Patient</label>
+        <div class="auth-field" style="margin-bottom:12px"><label>Klient</label>
           <select v-model="tForm.patientId" class="form-select">
             <option value="">— wählen —</option>
             <option v-for="p in patienten" :key="p.patientId" :value="p.patientId">{{ p.name }}</option>
@@ -187,23 +169,6 @@
       </div>
     </div>
 
-    <!-- REZEPT MODAL -->
-    <div v-if="showRezeptModal" class="modal-overlay" @click.self="showRezeptModal=false">
-      <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">Rezept ausstellen</div>
-          <button class="icon-btn" @click="showRezeptModal=false"><i class="ti ti-x"></i></button>
-        </div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Interne Notiz für die Akte — kein eRezept, keine Apotheken-Anbindung.</div>
-        <div class="auth-field" style="margin-bottom:20px"><label>Text</label>
-          <textarea v-model="rForm.text" style="height:120px;resize:none;width:100%" class="form-select" placeholder="Medikament, Dosierung, Hinweise..."></textarea>
-        </div>
-        <button class="auth-btn" :disabled="!rForm.text" @click="saveRezept">
-          <i class="ti ti-device-floppy" style="margin-right:6px"></i>Ausstellen
-        </button>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -215,12 +180,11 @@ const authToken = ref('')
 const activeTab = ref('patienten')
 const patienten = ref<any[]>([])
 const termine   = ref<any[]>([])
-const rezepte   = ref<any[]>([])
 
 const tabs = [
-  { key: 'patienten',   label: 'Patienten',   icon: 'ti-users' },
+  { key: 'patienten',   label: 'Klienten',   icon: 'ti-users' },
   { key: 'termine',     label: 'Termine',     icon: 'ti-calendar' },
-  { key: 'karteikarte', label: 'Karteikarte', icon: 'ti-notebook' },
+  { key: 'karteikarte', label: 'Klientenübersicht', icon: 'ti-notebook' },
 ]
 
 function authHeaders() { return { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } }
@@ -230,9 +194,6 @@ async function loadPatienten() {
 }
 async function loadTermine() {
   try { const r = await $fetch<any>(useApiUrl('/api/praxis/termine'), { headers: authHeaders() }); termine.value = r.termine || [] } catch {}
-}
-async function loadRezepte() {
-  try { const r = await $fetch<any>(useApiUrl('/api/praxis/rezepte'), { headers: authHeaders() }); rezepte.value = r.rezepte || [] } catch {}
 }
 
 function patientName(id: string) { return patienten.value.find(p => p.patientId === id)?.name || '—' }
@@ -273,7 +234,7 @@ async function savePatient() {
   } catch {}
 }
 async function deletePatient(p: any) {
-  if (!confirm(`Patient "${p.name}" wirklich löschen?`)) return
+  if (!confirm(`Klient "${p.name}" wirklich löschen?`)) return
   await $fetch(useApiUrl(`/api/praxis/patienten/${p.patientId}`), { method: 'DELETE', headers: authHeaders() })
   await loadPatienten()
 }
@@ -315,44 +276,12 @@ async function deleteTermin(t: any) {
 const karteikartePatientId = ref('')
 const karteikartePatient = computed(() => patienten.value.find(p => p.patientId === karteikartePatientId.value) || null)
 const patientTermine = computed(() => termineSorted.value.filter(t => t.patientId === karteikartePatientId.value))
-const patientRezepte = computed(() => rezepte.value.filter(r => r.patientId === karteikartePatientId.value))
-
-// Rezepte
-const showRezeptModal = ref(false)
-const rForm = reactive({ text: '' })
-
-function openNewRezept() {
-  if (!karteikartePatientId.value) return
-  Object.assign(rForm, { text: '' })
-  showRezeptModal.value = true
-}
-async function saveRezept() {
-  try {
-    await $fetch(useApiUrl('/api/praxis/rezepte'), { method: 'POST', headers: authHeaders(), body: { patientId: karteikartePatientId.value, text: rForm.text } })
-    showRezeptModal.value = false
-    await loadRezepte()
-  } catch {}
-}
-async function deleteRezept(r: any) {
-  if (!confirm('Rezept löschen?')) return
-  await $fetch(useApiUrl(`/api/praxis/rezepte/${r.rezeptId}`), { method: 'DELETE', headers: authHeaders() })
-  await loadRezepte()
-}
-async function downloadRezeptPdf(r: any) {
-  const blob = await $fetch<Blob>(useApiUrl(`/api/praxis/rezepte/${r.rezeptId}/pdf`), { headers: authHeaders(), responseType: 'blob' } as any)
-  const blobUrl = URL.createObjectURL(blob as any)
-  const a = document.createElement('a')
-  a.href = blobUrl
-  a.download = `Rezept-${(patientName(r.patientId) || 'Patient').replace(/\s+/g,'_')}.pdf`
-  a.click()
-  URL.revokeObjectURL(blobUrl)
-}
 
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
   const u = await useAuthUser()
   userEmail.value = u.email || ''
   authToken.value = u.idToken || ''
-  await Promise.all([loadPatienten(), loadTermine(), loadRezepte()])
+  await Promise.all([loadPatienten(), loadTermine()])
 })
 </script>
