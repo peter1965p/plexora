@@ -20,7 +20,8 @@ Firma: Name, Straße, PLZ/Ort, USt-IdNr. oder Steuernummer, IBAN (Prüfziffer); 
 
 ## Grenzen
 - Kein Versand über Peppol oder Behörden-Portale (Datei herunterladen und hochladen/mailen).
-- Positionen haben Menge, Nettopreis, Steuersatz; keine Rabatte/Zuschläge, keine Anzahlungen, keine Gutschriften als Ausgangsdokument (Gutschriften werden nur beim Lesen erkannt).
+- Eine Rechnung hat einen Steuersatz (Rechnungseinstellungen) oder ist steuerfrei (Kleinunternehmer). Das XML kann mehrere Sätze je Position abbilden, die Rechnungs-PDF zeigt aber nur einen Satz; deshalb legt die Oberfläche keine gemischten Sätze an (sonst würden PDF und eingebettetes XML abweichen).
+- Positionen haben Menge und Nettopreis; keine Rabatte/Zuschläge, keine Anzahlungen, keine Gutschriften als Ausgangsdokument (Gutschriften werden nur beim Lesen erkannt).
 - Rechnungs-PDFs mit eingebetteten Bildern oder besonderen Schriften wurden nicht einzeln auf PDF/A geprüft; maßgeblich für Programme ist die eingebettete XML.
 - Die Kundenanschrift steht erst bei neu angelegten Rechnungen im Datensatz; alte Rechnungen ohne Anschrift zeigen unter „E-Rechnung prüfen“, was fehlt.
 - Rechtsfragen (Fristen, Aufbewahrung) bitte mit dem Steuerberater klären.

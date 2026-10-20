@@ -127,6 +127,23 @@
       </div>
     </section>
 
+    <!-- E-RECHNUNG ZUM ANFASSEN -->
+    <section class="lp-wrap lp-einv-section lp-reveal" id="e-rechnung">
+      <div class="lp-einv">
+        <div>
+          <div class="lp-section-label" style="text-align:left;margin-bottom:10px">{{ t.einvoice.label }}</div>
+          <h2 class="lp-section-title" style="text-align:left;margin-bottom:10px">{{ t.einvoice.heading }}</h2>
+          <p class="lp-einv-text">{{ t.einvoice.text }}</p>
+          <p class="lp-einv-note"><ShieldCheck :size="14" /> {{ t.einvoice.proof }}</p>
+        </div>
+        <div class="lp-einv-links">
+          <a class="lp-einv-link" href="/beispiele/beispiel-zugferd.pdf" download><FileText :size="20" /><span><strong>{{ t.einvoice.zugferd }}</strong><small>{{ t.einvoice.zugferdSub }}</small></span></a>
+          <a class="lp-einv-link" href="/beispiele/beispiel-xrechnung.xml" download><FileCode :size="20" /><span><strong>{{ t.einvoice.xrechnung }}</strong><small>{{ t.einvoice.xrechnungSub }}</small></span></a>
+          <div class="lp-einv-fine">{{ t.einvoice.fine }}</div>
+        </div>
+      </div>
+    </section>
+
     <!-- HOW IT WORKS -->
     <section class="lp-wrap lp-howit-section lp-reveal">
       <div class="lp-section-label">{{ t.howItWorks.label }}</div>
@@ -359,7 +376,7 @@ import {
   Dumbbell, GraduationCap, PartyPopper, SprayCan, Trophy, CarTaxiFront,
   Check, X, Info, UserRound, Rocket, Zap,
   LogIn, SlidersHorizontal, Cloud, CreditCard, ShieldCheck,
-  Megaphone, ShoppingCart, ClipboardList, CalendarDays, Mail, Newspaper, FileText, Search, Globe,
+  Megaphone, ShoppingCart, ClipboardList, CalendarDays, Mail, Newspaper, FileText, FileCode, Search, Globe,
 } from 'lucide-vue-next'
 
 definePageMeta({ layout: false })
@@ -421,6 +438,15 @@ const i18n = {
         { num: 'Frankfurt', label: 'AWS-Hosting, DSGVO-konform' },
         { num: 'ab 49€', label: 'Alle Module inklusive' },
       ],
+    },
+    einvoice: {
+      label: 'E-Rechnung zum Anfassen',
+      heading: 'Bereit für die E-Rechnungspflicht',
+      text: 'Plexora erzeugt Rechnungen als XRechnung 3.0 und als ZUGFeRD (PDF mit eingebetteter Rechnung) nach EN 16931 und liest eingehende E-Rechnungen. Lade dir eine Beispielrechnung herunter und öffne sie in deinem Buchhaltungsprogramm.',
+      proof: 'Geprüft mit dem offiziellen KoSIT-Prüfwerkzeug (XRechnung 3.0) und mit Mustang/veraPDF (PDF/A-3).',
+      zugferd: 'ZUGFeRD-Beispiel (PDF)', zugferdSub: 'Lesbare Rechnung mit eingebetteter XML',
+      xrechnung: 'XRechnung-Beispiel (XML)', xrechnungSub: 'Für Behörden und Portale',
+      fine: 'Fiktive Musterdaten (Beispiel Software GmbH). Keine echte Rechnung.',
     },
     howItWorks: {
       label: 'So einfach geht\'s',
@@ -520,6 +546,15 @@ const i18n = {
         { num: 'Frankfurt', label: 'AWS hosting, GDPR-compliant' },
         { num: 'from €49', label: 'all modules included' },
       ],
+    },
+    einvoice: {
+      label: 'E-invoicing you can try',
+      heading: 'Ready for mandatory e-invoicing',
+      text: 'Plexora creates invoices as XRechnung 3.0 and as ZUGFeRD (PDF with embedded invoice) per EN 16931, and reads incoming e-invoices. Download a sample invoice and open it in your accounting software.',
+      proof: 'Checked with the official KoSIT validator (XRechnung 3.0) and with Mustang/veraPDF (PDF/A-3).',
+      zugferd: 'ZUGFeRD sample (PDF)', zugferdSub: 'Readable invoice with embedded XML',
+      xrechnung: 'XRechnung sample (XML)', xrechnungSub: 'For public authorities and portals',
+      fine: 'Fictional sample data (Beispiel Software GmbH). Not a real invoice.',
     },
     howItWorks: {
       label: 'It\'s that simple',
@@ -1356,6 +1391,17 @@ onMounted(() => {
 .lp-reveal.lp-in .lp-mod, .lp-reveal.lp-in .lp-bcard { opacity: 1; transform: translateY(0); }
 
 /* BRANCHEN-PAKETE */
+.lp-einv-section { padding: 0 0 56px; }
+.lp-einv { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; padding: 36px 40px; border-radius: 24px; background: linear-gradient(160deg, rgba(var(--accent-rgb),0.07), var(--card2) 60%); border: 0.5px solid rgba(var(--ink),0.08) }
+.lp-einv-text { font-size: 15px; line-height: 1.65; color: var(--body); margin: 0 0 12px }
+.lp-einv-note { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin: 0 }
+.lp-einv-links { display: flex; flex-direction: column; gap: 10px }
+.lp-einv-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: var(--card); border: 0.5px solid rgba(var(--ink),0.1); color: var(--text-strong); text-decoration: none; transition: border-color .2s, transform .15s }
+.lp-einv-link:hover { border-color: var(--accent); transform: translateY(-2px) }
+.lp-einv-link span { display: flex; flex-direction: column; font-size: 14px }
+.lp-einv-link small { font-size: 12px; color: var(--muted); margin-top: 2px }
+.lp-einv-fine { font-size: 11px; color: var(--faint2) }
+@media (max-width: 900px) { .lp-einv { grid-template-columns: 1fr; padding: 28px 22px } }
 .lp-branchen-section { padding: 0 24px 64px; }      /* über die ganze Seitenbreite (nicht im schmalen Seitenrahmen) */
 .lp-branchen-panel {
   max-width: none; margin: 0 auto; position: relative; overflow: hidden;

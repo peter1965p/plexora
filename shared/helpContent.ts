@@ -97,7 +97,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     ],
     tips: [
       'Unterstützt werden die Syntaxen CII (XRechnung, ZUGFeRD) und UBL (nur beim Lesen). Die erzeugten Dateien wurden mit dem offiziellen Prüfwerkzeug der KoSIT (XRechnung 3.0) und mit Mustang/veraPDF (PDF/A-3) geprüft.',
-      'Kleinunternehmer (§ 19 UStG) und mehrere Steuersätze in einer Rechnung werden unterstützt.',
+      'Kleinunternehmer (§ 19 UStG) werden unterstützt. Eine Rechnung hat einen Steuersatz (aus den Rechnungseinstellungen).',
       'Der Empfang von E-Rechnungen ist im Geschäftsverkehr zwischen Unternehmen seit 2025 Pflicht, das Ausstellen wird nach Umsatz gestaffelt ab 2027 und 2028 Pflicht. Bitte kläre Einzelfragen mit deinem Steuerberater.',
       'Ein Versand über das Peppol-Netzwerk oder eine Behörden-Schnittstelle ist nicht eingebaut: Du lädst die Datei herunter oder verschickst sie per Mail.',
     ],
