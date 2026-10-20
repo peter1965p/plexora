@@ -31,6 +31,7 @@
     <!-- TABS -->
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="theme-opt" :class="{ active: tab==='invoices' }"   @click="tab='invoices'">  <i class="ti ti-receipt"></i> {{ t.finance.invoices }}</button>
+      <button class="theme-opt" :class="{ active: tab==='incoming' }"   @click="tab='incoming'">  <i class="ti ti-inbox"></i> Eingangsrechnungen</button>
       <button class="theme-opt" :class="{ active: tab==='quotes' }"     @click="tab='quotes'">    <i class="ti ti-file-text"></i> Angebote</button>
       <button class="theme-opt" :class="{ active: tab==='cashbook' }"   @click="tab='cashbook'">  <i class="ti ti-cash"></i> {{ t.finance.cashbook }}</button>
       <button class="theme-opt" :class="{ active: tab==='bank' }"       @click="tab='bank'">      <i class="ti ti-building-bank"></i> {{ t.finance.bankImport }}</button>
@@ -38,6 +39,9 @@
       <button class="theme-opt" :class="{ active: tab==='catalog' }"    @click="tab='catalog'">   <i class="ti ti-box"></i> {{ t.finance.catalog }}</button>
       <button class="theme-opt" :class="{ active: tab==='articles' }"   @click="tab='articles'">  <i class="ti ti-package"></i> Artikel</button>
     </div>
+
+    <!-- ═══ TAB: EINGANGSRECHNUNGEN (E-Rechnung lesen) ═══ -->
+    <EInvoiceIncoming v-if="tab==='incoming'" />
 
     <!-- ═══ TAB: RECHNUNGEN ═══ -->
     <div v-if="tab==='invoices'" class="card">
@@ -91,6 +95,13 @@
                 </button>
                 <button class="icon-btn" :title="t.finance.downloadXRechnung" @click="downloadXRechnung(i)">
                   <i class="ti ti-file-code"></i>
+                </button>
+                <button class="icon-btn" title="ZUGFeRD herunterladen (PDF mit E-Rechnung)" @click="downloadZugferd(i)">
+                  <i class="ti ti-file-certificate"></i>
+                </button>
+                <button class="icon-btn" title="E-Rechnung prüfen: fehlen Pflichtangaben?" @click="checkEInvoice(i)">
+                  <i v-if="checking===i.invoiceId" class="ti ti-loader-2 spin"></i>
+                  <i v-else class="ti ti-checklist"></i>
                 </button>
                 <button class="icon-btn" :title="t.finance.sendMail" :disabled="!i.clientEmail || sending===i.invoiceId" @click="sendMail(i)" style="color:var(--accent)">
                   <i v-if="sending===i.invoiceId" class="ti ti-loader-2 spin"></i>
@@ -367,6 +378,33 @@
       </table>
     </div>
 
+    <!-- E-RECHNUNG PRÜFEN -->
+    <div v-if="checkInvoice" class="modal-overlay" @click.self="checkInvoice = null">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="card-title"><i class="ti ti-checklist" style="margin-right:8px;color:var(--accent)"></i>E-Rechnung {{ checkInvoice.number }}</span>
+          <button class="icon-btn" @click="checkInvoice = null"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div v-if="checkError" style="padding:10px 12px;border-radius:8px;background:rgba(224,92,92,.12);color:#E05C5C;font-size:13px">{{ checkError }}</div>
+          <template v-if="checkResult">
+            <div v-for="k in (['xrechnung', 'zugferd'] as const)" :key="k" style="margin-bottom:12px">
+              <div style="font-weight:700;font-size:13px;margin-bottom:6px">
+                <i class="ti" :class="checkResult[k].some((p: any) => p.level === 'error') ? 'ti-alert-triangle' : 'ti-circle-check'" :style="{ color: checkResult[k].some((p: any) => p.level === 'error') ? '#E05C5C' : '#22c55e' }"></i>
+                {{ k === 'xrechnung' ? 'XRechnung 3.0 (XML)' : 'ZUGFeRD (PDF mit E-Rechnung)' }}
+                <span style="font-weight:400;color:var(--text-muted)">{{ checkResult[k].some((p: any) => p.level === 'error') ? 'noch nicht vollständig' : 'bereit' }}</span>
+              </div>
+              <ul v-if="checkResult[k].length" style="margin:0;padding-left:20px;font-size:12px;line-height:1.6">
+                <li v-for="(p, i) in checkResult[k]" :key="i" :style="{ color: p.level === 'error' ? 'var(--text-primary)' : 'var(--text-muted)' }"><strong>{{ p.field }}:</strong> {{ p.message }}</li>
+              </ul>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">Summe: {{ formatEur(checkResult.totals.net) }} netto, {{ formatEur(checkResult.totals.tax) }} Umsatzsteuer, {{ formatEur(checkResult.totals.gross) }} brutto.</div>
+          </template>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:10px">Firmendaten (Anschrift, USt-IdNr., IBAN, Ansprechpartner) pflegst du unter <NuxtLink to="/settings" style="color:var(--accent)">Einstellungen → Firma</NuxtLink>, die Kundenanschrift beim Anlegen der Rechnung.</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ADD RECHNUNG MODAL -->
     <div v-if="showAdd" class="modal-overlay" @click.self="showAdd=false">
       <div class="modal-card">
@@ -379,6 +417,20 @@
             <div class="auth-field"><label>{{ t.finance.client }}</label><input v-model="newInv.client" placeholder="Firma GmbH" /></div>
             <div class="auth-field"><label>{{ t.finance.clientEmail }}</label><input v-model="newInv.clientEmail" placeholder="kunde@firma.de" /></div>
           </div>
+
+          <details style="margin-top:8px">
+            <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted)">Anschrift &amp; E-Rechnung (für XRechnung und ZUGFeRD nötig) <HelpTip k="erechnung" /></summary>
+            <div class="auth-row" style="margin-top:8px">
+              <div class="auth-field"><label>Straße und Nr.</label><input v-model="newInv.clientStreet" placeholder="Marktplatz 1" /></div>
+              <div class="auth-field"><label>PLZ</label><input v-model="newInv.clientZip" placeholder="80331" /></div>
+              <div class="auth-field"><label>Ort</label><input v-model="newInv.clientCity" placeholder="München" /></div>
+            </div>
+            <div class="auth-row">
+              <div class="auth-field"><label>USt-IdNr. des Kunden</label><input v-model="newInv.clientVatId" placeholder="DE123456789" /></div>
+              <div class="auth-field"><label>Leitweg-ID / Käuferreferenz</label><input v-model="newInv.buyerReference" placeholder="bei Behörden: Leitweg-ID" /></div>
+              <div class="auth-field"><label>Leistungsdatum</label><input v-model="newInv.serviceDate" type="date" /></div>
+            </div>
+          </details>
 
           <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin:10px 0 6px">{{ t.finance.positions }}</label>
           <div v-for="(item, idx) in newInv.items" :key="idx" style="display:flex;gap:6px;align-items:flex-end;margin-bottom:8px;flex-wrap:wrap">
@@ -662,7 +714,7 @@ const statusSaving    = ref<string | null>(null)
 const toast    = ref('')
 
 function emptyItem() { return { description: '', qty: 1, price: 0 } }
-const newInv = reactive({ client: '', clientEmail: '', items: [emptyItem()], dueDate: '', status: 'pending' })
+const newInv = reactive({ client: '', clientEmail: '', clientStreet: '', clientZip: '', clientCity: '', clientVatId: '', buyerReference: '', serviceDate: '', items: [emptyItem()], dueDate: '', status: 'pending' })
 const newCash = reactive({ date: new Date().toISOString().slice(0, 10), description: '', amount: 0, type: 'ausgabe' })
 const newInvTotal = computed(() => newInv.items.reduce((sum, i: any) => sum + (Number(i.qty) || 0) * (Number(i.price) || 0), 0))
 
@@ -720,7 +772,7 @@ async function addInvoice(sendMailFlag: boolean) {
       showToast('Rechnung gespeichert!')
     }
     showAdd.value = false
-    Object.assign(newInv, { client: '', clientEmail: '', items: [emptyItem()], dueDate: '', status: 'pending' })
+    Object.assign(newInv, { client: '', clientEmail: '', clientStreet: '', clientZip: '', clientCity: '', clientVatId: '', buyerReference: '', serviceDate: '', items: [emptyItem()], dueDate: '', status: 'pending' })
   } catch (e: any) {
     if (created) {
       // Rechnung existiert, nur der Versand ist fehlgeschlagen
@@ -809,8 +861,26 @@ function downloadPdf(invoice: any) {
   downloadBlob(useApiUrl(`/api/finance/${invoice.invoiceId}/pdf?userId=${invoice.userId || userId}`), `${invoice.number || invoice.invoiceId}.pdf`)
 }
 
-function downloadXRechnung(invoice: any) {
-  downloadBlob(useApiUrl(`/api/finance/${invoice.invoiceId}/xrechnung?userId=${invoice.userId || userId}`), `${invoice.number || invoice.invoiceId}_XRechnung.xml`)
+// E-Rechnung laden; bei fehlenden Pflichtangaben (422) steht die Meldung des Servers in einem Fenster, nicht nur ein Netzwerkfehler
+async function downloadEInvoice(invoice: any, kind: 'xrechnung' | 'zugferd') {
+  const name = `${invoice.number || invoice.invoiceId}_${kind === 'xrechnung' ? 'XRechnung.xml' : 'ZUGFeRD.pdf'}`
+  try { await downloadBlob(useApiUrl(`/api/finance/${invoice.invoiceId}/${kind}`), name) }
+  catch (e: any) {
+    let msg = e?.data?.message || ''
+    if (!msg && e?.data instanceof Blob) { try { msg = JSON.parse(await e.data.text()).message || '' } catch { /* keine Meldung */ } }
+    checkInvoice.value = invoice; checkResult.value = null; checkError.value = msg || 'Die E-Rechnung konnte nicht erstellt werden.'
+  }
+}
+const downloadXRechnung = (invoice: any) => downloadEInvoice(invoice, 'xrechnung')
+const downloadZugferd = (invoice: any) => downloadEInvoice(invoice, 'zugferd')
+
+const checking = ref('')
+const checkInvoice = ref<any>(null), checkResult = ref<any>(null), checkError = ref('')
+async function checkEInvoice(invoice: any) {
+  checking.value = invoice.invoiceId; checkError.value = ''
+  try { checkResult.value = await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/einvoice-check`), { headers: authHeaders }); checkInvoice.value = invoice }
+  catch (e: any) { showToast(apiErrorMessage(e, 'Prüfung fehlgeschlagen')) }
+  finally { checking.value = '' }
 }
 
 const { openConfirm } = useConfirm()

@@ -85,6 +85,25 @@ export const HELP_TOPICS: HelpTopic[] = [
     faq: [{ q: 'Wo pflege ich meine Preise?', a: 'Unter „Leistungen“ (Finanzen, Reiter Katalog). Von dort übernimmst du Positionen in Rechnungen und Angebote.' }],
   },
   {
+    id: 'erechnung', group: 'kunden', title: 'E-Rechnung (XRechnung und ZUGFeRD)', icon: 'ti-file-certificate', route: '/finance?tab=incoming', role: 'Admin',
+    summary: 'Rechnungen als E-Rechnung nach der europäischen Norm EN 16931 erstellen (XRechnung 3.0 als XML, ZUGFeRD als PDF mit eingebetteter Rechnung) und eingehende E-Rechnungen lesen.',
+    steps: [
+      'Pflege unter Einstellungen → Firma: Firmenname, Straße, PLZ und Ort („12345 Stadt“), USt-IdNr. oder Steuernummer, Ansprechpartner, Telefon, E-Mail und IBAN.',
+      'Trage beim Anlegen einer Rechnung unter „Anschrift & E-Rechnung“ Straße, PLZ, Ort und E-Mail des Kunden ein. Bei Behörden kommt die Leitweg-ID in das Feld Käuferreferenz.',
+      'In der Rechnungsliste öffnet „E-Rechnung prüfen“ eine Liste: Sie nennt, was für XRechnung und ZUGFeRD noch fehlt.',
+      'Mit „XRechnung herunterladen“ bekommst du die XML-Datei (für Behörden und Portale), mit „ZUGFeRD herunterladen“ die PDF, in der die Rechnung als Datei steckt (für Unternehmen und Steuerberater).',
+      'Unter Einstellungen → Rechnung wählst du, was beim Versand per Mail mitgeht: normale PDF, ZUGFeRD oder XRechnung zusätzlich. Fehlen Pflichtangaben, wird nicht gesendet und die fehlenden Angaben werden genannt.',
+      'Eingehende E-Rechnungen lädst du im Reiter „Eingangsrechnungen“ hoch (XML oder ZUGFeRD-PDF). Plexora liest sie, prüft die Summen, und du setzt sie auf „bezahlt“, sobald sie beglichen ist.',
+    ],
+    tips: [
+      'Unterstützt werden die Syntaxen CII (XRechnung, ZUGFeRD) und UBL (nur beim Lesen). Die erzeugten Dateien wurden mit dem offiziellen Prüfwerkzeug der KoSIT (XRechnung 3.0) und mit Mustang/veraPDF (PDF/A-3) geprüft.',
+      'Kleinunternehmer (§ 19 UStG) und mehrere Steuersätze in einer Rechnung werden unterstützt.',
+      'Der Empfang von E-Rechnungen ist im Geschäftsverkehr zwischen Unternehmen seit 2025 Pflicht, das Ausstellen wird nach Umsatz gestaffelt ab 2027 und 2028 Pflicht. Bitte kläre Einzelfragen mit deinem Steuerberater.',
+      'Ein Versand über das Peppol-Netzwerk oder eine Behörden-Schnittstelle ist nicht eingebaut: Du lädst die Datei herunter oder verschickst sie per Mail.',
+    ],
+    faq: [{ q: 'Was ist der Unterschied zwischen XRechnung und ZUGFeRD?', a: 'Beide enthalten dieselben Daten nach EN 16931. XRechnung ist nur die XML-Datei, ZUGFeRD ist eine lesbare PDF mit der Rechnung als Anhang.' }],
+  },
+  {
     id: 'angebote', group: 'kunden', title: 'Angebote', icon: 'ti-file-description', route: '/finance?tab=quotes', role: 'Admin',
     summary: 'Angebote schreiben, per Link verschicken und vom Kunden online annehmen lassen.',
     steps: ['Öffne Finanzen, Reiter „Angebote“, und klicke auf „Neues Angebot“.', 'Wähle den Kunden, füge Positionen hinzu und setze die Gültigkeit.', 'Verschicke das Angebot. Der Kunde bekommt einen persönlichen Link (/angebot/…) zum Ansehen und Annehmen.', 'Nach der Annahme kannst du das Angebot in eine Rechnung umwandeln.'],
@@ -296,6 +315,7 @@ export const HELP_TIPS: Record<string, string> = {
   angebot: 'Der Kunde bekommt einen persönlichen Link, sieht das Angebot und kann es online annehmen.',
   kommentare: 'Kommentieren dürfen nur Besucher mit bestätigtem Konto. Du kannst die Funktion jederzeit abschalten.',
   ical: 'Mit dem iCal-Link gleichst du Buchungen mit anderen Portalen ab, zum Beispiel Booking.com.',
+  erechnung: 'ZUGFeRD ist eine PDF mit eingebetteter Rechnungsdatei, XRechnung eine reine XML-Datei (für Behörden). Beide folgen der europäischen Norm EN 16931. Dafür brauchst du Firmenanschrift, USt-IdNr. oder Steuernummer, IBAN und Ansprechpartner.',
   modulstore: 'Gesperrte Module gehören zu einem höheren Tarif. Ausgeschaltete Module behalten ihre Daten.',
   entwurf: 'Entwürfe werden automatisch zwischengespeichert. Sie erscheinen erst nach dem Veröffentlichen öffentlich.',
   tags: 'Besucher können auf einen Tag klicken und sehen alle Beiträge dazu.',

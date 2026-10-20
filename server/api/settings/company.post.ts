@@ -25,6 +25,8 @@ export default defineEventHandler(async (event) => {
       email:         body.email         || '',
       phone:         body.phone         || '',
       vatId:         body.vatId         || '',
+      taxNumber:     String(body.taxNumber || '').slice(0, 40),
+      contactName:   String(body.contactName || '').slice(0, 80),
       register:      body.register      || '',
       registerCourt: body.registerCourt || '',
       iban:          body.iban          || '',

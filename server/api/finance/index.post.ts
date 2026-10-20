@@ -4,6 +4,8 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { randomUUID } from 'crypto'
 import { requireAuth } from '../../utils/verifyAuth'
 
+const s = (v: unknown, max: number) => String(v ?? '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max)
+
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
   const client = getDynamoClient()
@@ -20,6 +22,10 @@ export default defineEventHandler(async (event) => {
     number:      'INV-' + Date.now(),
     client:      body.client,
     clientEmail: body.clientEmail || '',
+    // Angaben für die E-Rechnung (XRechnung/ZUGFeRD): Anschrift, USt-IdNr., Leitweg-ID bzw. Käuferreferenz, Leistungsdatum
+    clientStreet: s(body.clientStreet, 120), clientZip: s(body.clientZip, 10), clientCity: s(body.clientCity, 80), clientCountry: s(body.clientCountry, 40) || 'DE',
+    clientVatId: s(body.clientVatId, 20), buyerReference: s(body.buyerReference, 60),
+    ...(/^\d{4}-\d{2}-\d{2}$/.test(String(body.serviceDate || '')) ? { serviceDate: body.serviceDate } : {}),
     description: body.description || items?.[0]?.description || '',
     amount,
     ...(items ? { items } : {}),

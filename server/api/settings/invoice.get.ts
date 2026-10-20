@@ -3,7 +3,7 @@ import { getDynamoClient } from '../../utils/dynamodb'
 import { resolveUserId } from '../../utils/tenant'
 import { requireAuth } from '../../utils/verifyAuth'
 
-const DEFAULTS = { dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false }
+const DEFAULTS = { dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false, einvoiceFormat: 'pdf' }
 
 export default defineEventHandler(async (event) => {
   const client = getDynamoClient()

@@ -93,6 +93,10 @@
    "mode": "owner",
    "attr": "userId"
   },
+  "plexora-finance-incoming": {
+   "mode": "owner",
+   "attr": "userId"
+  },
   "plexora-forms": {
    "mode": "owner",
    "attr": "userId"

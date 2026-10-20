@@ -7,6 +7,9 @@ import { resolveUserId } from '../../../utils/tenant'
 import { assertMailQuota } from '../../../utils/mailQuota'
 import { renderInvoiceTemplateToPdf } from '../../../utils/invoiceTemplate'
 import { getPresetHtml } from '../../../utils/invoicePresets'
+import { embedZugferd } from '../../../utils/zugferd'
+import { assertValidFor } from '../../../utils/einvoiceContext'
+import { fromRecord, toCii, type EProfile } from '../../../../shared/einvoice'
 
 export default defineEventHandler(async (event) => {
   requireMailSender(event) // Anmeldung Pflicht, Demo-Konto gesperrt
@@ -66,7 +69,14 @@ export default defineEventHandler(async (event) => {
     if (tpl.Item?.html) templateHtml = tpl.Item.html
   } catch {}
 
-  const pdfBuffer = await renderInvoiceTemplateToPdf(templateHtml, invoice, branding, company, invoiceSettings, paymentPrefs)
+  // Format laut Einstellung: normale PDF (Standard), ZUGFeRD (PDF mit eingebetteter E-Rechnung) oder XRechnung (XML zusätzlich). Fehlen Pflichtangaben: nicht senden, fehlende nennen.
+  const format = (['zugferd', 'xrechnung'] as string[]).includes((invoiceSettings as any).einvoiceFormat) ? (invoiceSettings as any).einvoiceFormat as EProfile : 'pdf'
+  const model = fromRecord(invoice, company, invoiceSettings)
+  if (format !== 'pdf') assertValidFor(model, format)
+  let pdfBuffer: Buffer = await renderInvoiceTemplateToPdf(templateHtml, invoice, branding, company, invoiceSettings, paymentPrefs)
+  const extraAttachments: Array<{ filename: string; content: Buffer }> = []
+  if (format === 'zugferd') pdfBuffer = Buffer.from(await embedZugferd(pdfBuffer, toCii(model, 'zugferd'), `Rechnung ${model.number}`))
+  if (format === 'xrechnung') extraAttachments.push({ filename: `${String(model.number).replace(/[^\w.-]/g, '_')}_XRechnung.xml`, content: Buffer.from(toCii(model, 'xrechnung'), 'utf8') })
 
   // Mail via Resend senden
   const subject  = `Rechnung ${invoice.number || invoiceId?.slice(0,8).toUpperCase()} von ${branding.brandName}`
@@ -89,7 +99,7 @@ export default defineEventHandler(async (event) => {
     attachments: [{
       filename: `Rechnung-${invoice.number || invoiceId?.slice(0,8)}.pdf`,
       content:  pdfBuffer,
-    }],
+    }, ...extraAttachments],
   })
 
   // Status auf 'sent' aktualisieren

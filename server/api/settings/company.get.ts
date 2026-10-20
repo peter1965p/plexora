@@ -12,6 +12,8 @@ const DEFAULTS = {
   email: '',
   phone: '',
   vatId: '',
+  taxNumber: '',
+  contactName: '',
   register: '',
   registerCourt: '',
   iban: '',

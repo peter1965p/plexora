@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
       vatRate:       body.vatRate ?? 19,
       priceDisplay:  body.priceDisplay || 'netto',
       smallBusiness: !!body.smallBusiness,
+      einvoiceFormat: ['pdf', 'zugferd', 'xrechnung'].includes(body.einvoiceFormat) ? body.einvoiceFormat : 'pdf',     // Format beim Versenden per Mail
       updated:       new Date().toISOString(),
     }
   }))

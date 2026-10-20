@@ -109,6 +109,14 @@
             <input v-model="company.vatId" placeholder="DE123456789" />
           </div>
           <div class="auth-field">
+            <label>Steuernummer <span style="font-weight:400;color:var(--text-muted)">(wenn keine USt-IdNr.)</span></label>
+            <input v-model="company.taxNumber" placeholder="12/345/67890" />
+          </div>
+          <div class="auth-field">
+            <label>Ansprechpartner/in <span style="font-weight:400;color:var(--text-muted)">(E-Rechnung)</span></label>
+            <input v-model="company.contactName" placeholder="Vor- und Nachname" />
+          </div>
+          <div class="auth-field">
             <label>E-Mail</label>
             <input v-model="company.email" placeholder="kontakt@paeffgen-it.de" />
           </div>
@@ -342,6 +350,15 @@
                 </span>
               </div>
             </div>
+          </div>
+          <div class="auth-field" style="margin-top:14px">
+            <label>E-Rechnung beim Versand per Mail <HelpTip k="erechnung" /></label>
+            <select v-model="invoiceSettings.einvoiceFormat" class="form-select">
+              <option value="pdf">Normale PDF-Rechnung</option>
+              <option value="zugferd">ZUGFeRD (PDF mit eingebetteter E-Rechnung)</option>
+              <option value="xrechnung">XRechnung (XML) zusätzlich zur PDF</option>
+            </select>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ab 2027 sollten Rechnungen an Unternehmen als E-Rechnung gehen. Fehlen Pflichtangaben (Anschrift, USt-IdNr., IBAN …), wird nicht gesendet und die fehlenden Angaben werden genannt.</div>
           </div>
           <div v-if="invoiceSettings.smallBusiness"
             style="margin-top:12px;padding:12px;background:rgba(var(--accent-rgb),0.08);border-radius:8px;font-size:12px;color:var(--text-muted)">
@@ -2537,7 +2554,7 @@ const brandLast  = computed(() => brand.brandName.slice(-1))
 const companySaving = ref(false)
 const company = reactive({
   legalName: '', representedBy: '', street: '', zipCity: '', country: 'Deutschland',
-  email: '', phone: '', vatId: '', register: '', registerCourt: '',
+  email: '', phone: '', vatId: '', taxNumber: '', contactName: '', register: '', registerCourt: '',
   iban: '', bic: '', bankName: '', paymentNote: ''
 })
 
@@ -2553,7 +2570,7 @@ const datenschutzPreview = computed(() => marked.parse(datenschutz.content || ''
 
 // ── Rechnungen ────────────────────────────────────────
 const invoiceSaving = ref(false)
-const invoiceSettings = reactive({ dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false })
+const invoiceSettings = reactive({ dueDays: 7, dueText: 'Zahlbar innerhalb von 7 Tagen netto', vatRate: 19, priceDisplay: 'netto', smallBusiness: false, einvoiceFormat: 'pdf' })
 const invoicePayment = reactive({ sepaEnabled: true, stripeEnabled: true })
 
 // ── Kategorien ────────────────────────────────────────
