@@ -3,6 +3,7 @@ import { listRoutes, concretePath } from '../security/routeScan'
 import { isPublicRoute } from '../../server/utils/routePolicy'
 import { MODULE_RULES, findModuleRule, describeNeed } from '../../server/utils/moduleAccess'
 import { TIER_FALLBACK_MODULES } from '../../shared/plans'
+import { KIT_PACKAGES } from '../../shared/branchKit'
 
 const routes = listRoutes()
 const ALL = new Set(Object.values(TIER_FALLBACK_MODULES).flat())
@@ -14,7 +15,8 @@ describe('Modul-Zuordnung der Routen', () => {
     expect(missing, `Routen ohne Modulregel – in server/utils/moduleAccess.ts eintragen:\n${missing.join('\n')}`).toEqual([])
   })
   it('jede Regel trifft mindestens eine Route (keine Altlasten)', () => {
-    const unused = MODULE_RULES.filter(rule => !routes.some(r => findModuleRule(concretePath(r.path), r.method) === rule)).map(r => r.prefix || String(r.pattern))
+    const kitKeys = new Set(KIT_PACKAGES.map(p => `Branchenpaket ${p.name}`))      // je Paket eine Regel; die Route der Seite heißt in der Prüfung nur [pkg]
+    const unused = MODULE_RULES.filter(rule => !kitKeys.has(rule.note)).filter(rule => !routes.some(r => findModuleRule(concretePath(r.path), r.method) === rule)).map(r => r.prefix || String(r.pattern))
     expect(unused).toEqual([])
   })
   it('Lizenzmodule in den Regeln sind echte Module der Tarife', () => {
@@ -35,7 +37,9 @@ describe('Modul-Zuordnung der Routen', () => {
     expect(needOf('/api/hr/leave')).toBe('hr')
     expect(needOf('/api/newsletter/campaigns')).toBe('newsletter')
     expect(needOf('/api/contacts')).toBe('crm')
-    expect(needOf('/api/praxis/patients')).toBe('branch:praxis')
+    expect(needOf('/api/branchen/fitness/mitglieder')).toBe('branch:fitness')
+    expect(needOf('/api/branchen/taxi/fahrten', 'POST')).toBe('branch:taxi')
+    expect(needOf('/api/branchen/gibtsnicht/x')).toBe('paid')
     expect(needOf('/api/gastro-orders')).toBe('branch:gastro')
     expect(needOf('/api/gastro-tables/x')).toBe('branch:gastro')
     expect(needOf('/api/termine/types')).toBe('marketing|nexora')

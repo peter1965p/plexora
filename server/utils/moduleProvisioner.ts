@@ -2,6 +2,7 @@ import { PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
 import type { Resend } from 'resend'
 import { randomBytes } from 'crypto'
+import { KIT_PACKAGES } from '../../shared/branchKit'
 
 const MODULE_NAMES: Record<string, string> = {
   crm:          'CRM',
@@ -18,12 +19,12 @@ const MODULE_NAMES: Record<string, string> = {
   gastro:       'Gastronomie',
   handwerk:     'Handwerk',
   immobilien:   'Immobilien',
-  gesundheit:   'Pflegedienste',
+  ...Object.fromEntries(KIT_PACKAGES.map(p => [p.key, p.name])),     // Branchen-Baukasten
 }
 
 // Muss mit branchenPakete in app/pages/store.vue und BRANCH_MODULES in
 // AppSidebar.vue synchron gehalten werden.
-const BRANCH_PACKAGE_KEYS = new Set(['automotive', 'einzelhandel', 'gastro', 'handwerk', 'immobilien', 'gesundheit'])
+const BRANCH_PACKAGE_KEYS = new Set(['automotive', 'einzelhandel', 'gastro', 'handwerk', 'immobilien', ...KIT_PACKAGES.map(p => p.key)])
 
 async function findNexoraTenant(dynamo: DynamoDBDocumentClient, email: string) {
   const res = await dynamo.send(new ScanCommand({

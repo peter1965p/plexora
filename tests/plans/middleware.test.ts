@@ -60,8 +60,9 @@ describe('Scharf (NUXT_PLAN_ENFORCE=true)', () => {
     expect((await run('/api/hr')).status).toBe(402)
   })
   it('Branchenpaket: Free mit installiertem Paket ja, ohne nein', async () => {
-    expect((await run('/api/praxis/patients')).status).toBe(402)
-    plan = { ...plan, branches: ['praxis'] }; expect((await run('/api/praxis/patients')).status).toBe(200)
+    expect((await run('/api/branchen/fitness/mitglieder')).status).toBe(402)
+    plan = { ...plan, branches: ['fitness'] }; expect((await run('/api/branchen/fitness/mitglieder')).status).toBe(200)
+    expect((await run('/api/branchen/taxi/fahrten')).status).toBe(402)               // anderes Paket: nein
   })
   it('eine Route ganz ohne Modulregel wird wie "paid" behandelt (Free 402), nie stillschweigend frei', async () => {
     expect((await run('/api/erfunden/neu')).status).toBe(402)

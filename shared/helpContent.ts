@@ -1,4 +1,5 @@
 // Hilfe-Inhalte für Plexora und Nexora: reine Daten, ohne Netz und Oberfläche. Die Hilfe-Seite, die Tooltips und die Einführung lesen alle hieraus.
+import { KIT_PACKAGES, KIT_ROUTE } from './branchKit'
 // Regel: nur beschreiben, was es wirklich gibt. Bei neuen Modulen hier ein Thema ergänzen (der Test tests/help/content.test.ts prüft die Abdeckung).
 export interface HelpFaq { q: string; a: string }
 export interface HelpTopic {
@@ -182,7 +183,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   // ── Branchen-Pakete ──
   {
     id: 'branchen', group: 'branche', title: 'Branchen-Pakete aktivieren', icon: 'ti-puzzle', route: '/store', role: 'Inhaber',
-    summary: 'Zusätzliche Module für deine Branche: Automotive, Einzelhandel, Gastronomie, Pflegedienste, Handwerk, Immobilien, Friseur & Beauty und Ferienwohnungen.',
+    summary: 'Zusätzliche Module für deine Branche: Automotive, Einzelhandel, Gastronomie, Handwerk, Immobilien, Friseur & Beauty, Ferienwohnungen, Fitness & Sport, Bildung & Kurse, Veranstaltungen, Reinigung & Gebäudeservice, Verein sowie Taxi & Fahrdienst.',
     steps: ['Öffne den Modul-Store.', 'Schalte das passende Branchen-Paket ein. Es erscheint in der Seitenleiste unter „BRANCHE“.', 'Du kannst auswählen, welche Pakete auf deiner Startseite angezeigt werden.'],
   },
   {
@@ -201,10 +202,6 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: 'gastro', group: 'branche', title: 'Gastronomie', icon: 'ti-tools-kitchen-2', route: '/gastro', role: 'Admin',
     summary: 'Speisekarte, Reservierungen und Tische.', steps: ['Öffne Gastronomie.', 'Pflege die Speisekarte und nimm Reservierungen an.'],
-  },
-  {
-    id: 'praxis', group: 'branche', title: 'Pflegedienste', icon: 'ti-heart-handshake', route: '/praxis', role: 'Admin',
-    summary: 'Klienten verwalten und Termine planen. Das Paket ist keine Medizinsoftware: Es führt keine Diagnosen, Rezepte oder Behandlungsakten.', steps: ['Öffne Pflegedienste.', 'Lege Klienten an und plane Termine.', 'Die Klientenübersicht zeigt Kontaktdaten, Kasse und Notizen mit den Terminen.'],
   },
   {
     id: 'handwerk', group: 'branche', title: 'Handwerk', icon: 'ti-hammer', route: '/handwerk', role: 'Admin',
@@ -282,6 +279,13 @@ export const HELP_TOPICS: HelpTopic[] = [
     faq: [{ q: 'Ich habe mein Passwort vergessen.', a: 'Auf der Anmeldeseite „Passwort vergessen“ wählen. Du bekommst eine Mail mit einem Link.' }],
   },
 ]
+
+// Branchen-Baukasten: je Paket ein Thema, erzeugt aus der Paketbeschreibung (shared/branchKit.ts)
+for (const p of KIT_PACKAGES) HELP_TOPICS.push({
+  id: `kit-${p.key}`, group: 'branche', title: p.name, icon: p.tablerIcon, route: KIT_ROUTE(p.key), role: 'Admin', summary: p.desc,
+  steps: ['Schalte das Paket im Modul-Store ein. Es erscheint in der Seitenleiste unter „BRANCHE“.', ...p.steps],
+  tips: ['Das Paket führt Listen und Stände. Es bucht kein Geld und stellt keine Rechnungen aus; Rechnungen schreibst du unter Finanzen.', 'Gespeichert werden nur die Felder der Listen. Gib keine Gesundheits- oder sonstigen besonders sensiblen Daten ein.'],
+})
 
 /** Kurze Erklärungen für das Fragezeichen-Symbol (HelpTip) an einzelnen Bedienelementen */
 export const HELP_TIPS: Record<string, string> = {

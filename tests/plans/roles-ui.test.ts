@@ -22,7 +22,7 @@ describe('Oberfläche: Rollen', () => {
     const MAIN: Record<string, string> = {
       '/crm': '/api/contacts', '/support': '/api/support', '/projects': '/api/projects', '/termine': '/api/termine/bookings', '/marketing': '/api/marketing', '/forms': '/api/forms',
       '/finance': '/api/finance', '/contracts': '/api/contracts', '/hr': '/api/hr', '/shop-admin': '/api/shop', '/newsletter': '/api/newsletter/campaigns', '/blog': '/api/blog',
-      '/automotive': '/api/automotive/vehicles', '/immobilien': '/api/properties', '/gastro': '/api/gastro-orders', '/handwerk': '/api/handwerk/jobs', '/praxis': '/api/praxis/patients',
+      '/automotive': '/api/automotive/vehicles', '/immobilien': '/api/properties', '/gastro': '/api/gastro-orders', '/handwerk': '/api/handwerk/jobs', '/branche': '/api/branchen/fitness/mitglieder',
       '/retail': '/api/retail/stock', '/rechnungs-design': '/api/settings/invoice-template', '/settings': '/api/settings/invoice', '/store': '/api/store/checkout',
     }
     for (const a of AREA_ROLES) {

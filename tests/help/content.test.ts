@@ -5,6 +5,7 @@ import { AREA_ROLES } from '../../shared/roles'
 
 const pageExists = (route: string) => {
   const p = route.split('?')[0].replace(/^\//, '')
+  if (p.startsWith('branche/')) return existsSync('app/pages/branche/[pkg].vue')      // Branchen-Baukasten: eine Seite für alle Pakete
   return ['', '/index'].some(sfx => existsSync(`app/pages/${p}${sfx}.vue`)) || existsSync(`app/pages/${p}/index.vue`)
 }
 

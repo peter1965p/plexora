@@ -31,7 +31,7 @@ describe('Rollen-Zuordnung der Routen', () => {
       expect(needOf(p, m), `${m} ${p}`).toBe('member')
   })
   it('Admin: Finanzen, Verträge, HR, Newsletter, Branchenmodule, KI, Einstellungen, Termin-Einstellungen/Google-Kalender, Mail-Protokoll', () => {
-    for (const [p, m] of [['/api/finance', 'GET'], ['/api/finance/x/send', 'POST'], ['/api/contracts', 'GET'], ['/api/hr/leave', 'POST'], ['/api/newsletter/campaigns/x/send', 'POST'], ['/api/praxis/patients', 'GET'], ['/api/gastro-orders', 'GET'], ['/api/ai/assistant/execute', 'POST'], ['/api/settings/invoice', 'POST'], ['/api/termine/settings', 'PUT'], ['/api/termine/google-calendars', 'GET'], ['/api/mail-log', 'GET'], ['/api/shop', 'GET']] as const)
+    for (const [p, m] of [['/api/finance', 'GET'], ['/api/finance/x/send', 'POST'], ['/api/contracts', 'GET'], ['/api/hr/leave', 'POST'], ['/api/newsletter/campaigns/x/send', 'POST'], ['/api/branchen/fitness/mitglieder', 'GET'], ['/api/gastro-orders', 'GET'], ['/api/ai/assistant/execute', 'POST'], ['/api/settings/invoice', 'POST'], ['/api/termine/settings', 'PUT'], ['/api/termine/google-calendars', 'GET'], ['/api/mail-log', 'GET'], ['/api/shop', 'GET']] as const)
       expect(needOf(p, m), `${m} ${p}`).toBe('admin')
   })
   it('Inhaber: Team, Sicherung, Abrechnung, Modul-Kauf, KI- und Zahlungsschlüssel, Einladungsvorlage', () => {

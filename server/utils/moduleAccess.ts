@@ -1,4 +1,5 @@
 import type { ModuleNeed } from '../../shared/plans'
+import { KIT_PACKAGES } from '../../shared/branchKit'
 
 // Welche Route gehört zu welchem Modul bzw. Tarif? Eine Tabelle für die Middleware (server/middleware/plan.ts) und den Routen-Test.
 // Die erste passende Regel gilt (spezifisch vor allgemein). Öffentliche Routen (routePolicy.ts) kommen hier nie an.
@@ -67,7 +68,9 @@ export const MODULE_RULES: ModuleRule[] = [
   // ── Branchenpakete ──
   { prefix: '/api/automotive', need: { branch: 'automotive' }, note: 'Branchenpaket Automotive' },
   { prefix: '/api/workshop', need: { branch: 'automotive' }, note: 'Werkstatt gehört zum Paket Automotive' },
-  { prefix: '/api/praxis', need: { branch: 'praxis' }, note: 'Branchenpaket Pflegedienste (Klientendaten)' },
+  // Branchen-Baukasten: je Paket eine Regel (/api/branchen/<paket>/…)
+  ...KIT_PACKAGES.map(p => ({ pattern: new RegExp(`^/api/branchen/${p.key}(/|$)`), need: { branch: p.key }, note: `Branchenpaket ${p.name}` })),
+  { prefix: '/api/branchen', need: 'paid', note: 'Branchen-Baukasten: unbekanntes Paket (der Handler antwortet 404); sicherheitshalber wie bezahlt behandelt' },
   { prefix: '/api/handwerk', need: { branch: 'handwerk' }, note: 'Branchenpaket Handwerk' },
   { prefix: '/api/gastro-', need: { branch: 'gastro' }, note: 'Branchenpaket Gastronomie' },
   { prefix: '/api/properties', need: { branch: 'immobilien' }, note: 'Branchenpaket Immobilien' },

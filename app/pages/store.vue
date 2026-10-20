@@ -343,7 +343,7 @@ const branchModulesLoading = ref(true)
 
 const LUCIDE_TO_TABLER: Record<string, string> = {
   Car: 'ti-car', Store: 'ti-building-store', UtensilsCrossed: 'ti-tools-kitchen-2',
-  Hammer: 'ti-hammer', Home: 'ti-home', BedDouble: 'ti-bed', Stethoscope: 'ti-stethoscope', HeartHandshake: 'ti-heart-handshake', Scissors: 'ti-scissors',
+  Hammer: 'ti-hammer', Home: 'ti-home', BedDouble: 'ti-bed', Stethoscope: 'ti-stethoscope', HeartHandshake: 'ti-heart-handshake', Dumbbell: 'ti-barbell', GraduationCap: 'ti-school', PartyPopper: 'ti-confetti', SprayCan: 'ti-brush', Trophy: 'ti-trophy', CarTaxiFront: 'ti-steering-wheel', Scissors: 'ti-scissors',
 }
 function lucideToTabler(icon: string) { return LUCIDE_TO_TABLER[icon] || 'ti-puzzle' }
 

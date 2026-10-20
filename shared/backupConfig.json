@@ -35,6 +35,10 @@
    "mode": "ownerTenant",
    "attr": "tenantId"
   },
+  "plexora-branch-records": {
+   "mode": "ownerTenant",
+   "attr": "tenantId"
+  },
   "plexora-campaigns": {
    "mode": "owner",
    "attr": "userId"
@@ -84,10 +88,6 @@
   "plexora-fewo-units": {
    "mode": "owner",
    "attr": "tenantId"
-  },
-  "plexora-quotes": {
-   "mode": "owner",
-   "attr": "userId"
   },
   "plexora-finance": {
    "mode": "owner",
@@ -232,6 +232,10 @@
    "attr": "tenantId"
   },
   "plexora-purchase-orders": {
+   "mode": "owner",
+   "attr": "userId"
+  },
+  "plexora-quotes": {
    "mode": "owner",
    "attr": "userId"
   },
