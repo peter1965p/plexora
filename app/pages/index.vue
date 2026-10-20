@@ -101,7 +101,6 @@
 
     <!-- MODULE GRID (BENTO) -->
     <section class="lp-wrap lp-modules-section lp-reveal" id="modules">
-      <div class="lp-section-label">{{ t.modules.label }}</div>
       <div class="lp-modules-grid">
         <div
           v-for="(mod, i) in modules"
@@ -465,7 +464,7 @@ const i18n = {
         { name: 'Cloudflare', sub: 'Auslieferung & DDoS-Schutz' },
       ],
     },
-    modules: { label: 'Basis-Module · in jeder Lizenz enthalten · zum Ausprobieren anklicken', active: 'Aktiv', base: 'Basis', branch: 'Branche', countBase: 'Basis', countBranch: 'Branchen-Pakete' },
+    modules: { active: 'Aktiv', base: 'Basis', branch: 'Branche', countBase: 'Basis', countBranch: 'Branchen-Pakete' },
     savings: {
       label: 'Ihre monatliche Ersparnis',
       unit: '/ Monat',
@@ -573,7 +572,7 @@ const i18n = {
         { name: 'Cloudflare', sub: 'Delivery & DDoS protection' },
       ],
     },
-    modules: { label: 'Base modules · included in every license · click to try', active: 'Active', base: 'Base', branch: 'Industry', countBase: 'base', countBranch: 'industry packages' },
+    modules: { active: 'Active', base: 'Base', branch: 'Industry', countBase: 'base', countBranch: 'industry packages' },
     savings: {
       label: 'Your monthly savings',
       unit: '/ month',
