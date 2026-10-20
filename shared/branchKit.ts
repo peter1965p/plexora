@@ -31,16 +31,19 @@ const sel = (key: string, label: string, options: string[], extra: Partial<KitFi
 export const KIT_PACKAGES: KitPackage[] = [
   {
     key: 'fitness', name: 'Fitness & Sport', icon: 'Dumbbell', tablerIcon: 'ti-barbell', price: 39,
-    desc: 'Mitglieder, Kurse mit Anmeldung, Probetraining und Beitragsliste für Studios und Sportanbieter.',
-    features: ['Mitglieder', 'Kurse & Anmeldung', 'Probetraining', 'Beitragsliste'],
-    steps: ['Lege Mitglieder mit Tarif und Status an.', 'Erfasse Kurse mit Wochentag, Uhrzeit und Plätzen und trage Anmeldungen ein.', 'Probetrainings durchlaufen die Stufen neu, vereinbart, erschienen und Mitglied.', 'In der Beitragsliste siehst du pro Monat, wer bezahlt hat. Rechnungen schreibst du weiter unter Finanzen.'],
+    desc: 'Mitglieder, Mitarbeiter und Trainer, Kurse mit Anmeldung, Probetraining und Beitragsliste für Studios und Sportanbieter.',
+    features: ['Mitglieder', 'Mitarbeiter & Trainer', 'Kurse & Anmeldung', 'Probetraining', 'Beitragsliste'],
+    steps: ['Lege Mitglieder mit Tarif und Status an und deine Mitarbeiter und Trainer unter „Mitarbeiter & Trainer“.', 'Erfasse Kurse mit Kursleitung, Wochentag, Uhrzeit und Plätzen und trage Anmeldungen ein.', 'Probetrainings durchlaufen die Stufen neu, vereinbart, erschienen und Mitglied.', 'In der Beitragsliste siehst du pro Monat, wer bezahlt hat. Rechnungen schreibst du weiter unter Finanzen.'],
     entities: [
       { key: 'mitglieder', label: 'Mitglieder', one: 'Mitglied', icon: 'ti-users', title: 'name', list: ['name', 'tarif', 'beginn', 'status'], fields: [
         t('name', 'Name', { required: true }), { key: 'email', label: 'E-Mail', type: 'email' }, { key: 'telefon', label: 'Telefon', type: 'phone' },
         t('tarif', 'Tarif', { placeholder: 'z. B. Monatsbeitrag Standard' }), { key: 'beginn', label: 'Mitglied seit', type: 'date' },
         sel('status', 'Status', ['aktiv', 'pausiert', 'gekündigt'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
-      { key: 'kurse', label: 'Kurse', one: 'Kurs', icon: 'ti-calendar-event', title: 'titel', list: ['titel', 'trainer', 'wochentag', 'uhrzeit', 'plaetze'], fields: [
-        t('titel', 'Kurs', { required: true }), t('trainer', 'Trainer/in'), sel('wochentag', 'Wochentag', ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']),
+      { key: 'mitarbeiter', label: 'Mitarbeiter & Trainer', one: 'Mitarbeiter/in', icon: 'ti-user-star', title: 'name', list: ['name', 'funktion', 'telefon', 'status'], fields: [
+        t('name', 'Name', { required: true }), sel('funktion', 'Funktion', ['Trainer/in', 'Kursleitung', 'Empfang', 'Studioleitung', 'Sonstiges']), { key: 'telefon', label: 'Telefon', type: 'phone' },
+        { key: 'email', label: 'E-Mail', type: 'email' }, sel('status', 'Status', ['aktiv', 'Urlaub', 'inaktiv'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
+      { key: 'kurse', label: 'Kurse', one: 'Kurs', icon: 'ti-calendar-event', title: 'titel', list: ['titel', 'leitung', 'wochentag', 'uhrzeit', 'plaetze'], fields: [
+        t('titel', 'Kurs', { required: true }), { key: 'leitung', label: 'Kursleitung', type: 'ref', ref: 'mitarbeiter' }, sel('wochentag', 'Wochentag', ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']),
         { key: 'uhrzeit', label: 'Uhrzeit', type: 'time' }, { key: 'dauer', label: 'Dauer (Minuten)', type: 'number' }, { key: 'plaetze', label: 'Plätze', type: 'number' }, { key: 'preis', label: 'Preis (€)', type: 'money' }] },
       { key: 'anmeldungen', label: 'Kursanmeldungen', one: 'Anmeldung', icon: 'ti-checklist', title: 'kurs', list: ['kurs', 'mitglied', 'datum', 'status'], fields: [
         { key: 'kurs', label: 'Kurs', type: 'ref', ref: 'kurse', required: true }, { key: 'mitglied', label: 'Mitglied', type: 'ref', ref: 'mitglieder', required: true },
@@ -55,16 +58,19 @@ export const KIT_PACKAGES: KitPackage[] = [
   },
   {
     key: 'bildung', name: 'Bildung & Kurse', icon: 'GraduationCap', tablerIcon: 'ti-school', price: 39,
-    desc: 'Teilnehmer, Kurstermine, Anwesenheit und Gebührenliste für Nachhilfe, Fahrschule und Musikschule.',
-    features: ['Teilnehmer', 'Kurstermine', 'Anwesenheit', 'Gebührenliste'],
-    steps: ['Lege Teilnehmer an.', 'Plane Kurstermine mit Datum, Uhrzeit, Ort und Lehrkraft.', 'Halte pro Termin die Anwesenheit fest.', 'Die Gebührenliste zeigt offene und bezahlte Gebühren.'],
+    desc: 'Teilnehmer, Lehrkräfte, Kurstermine, Anwesenheit und Gebührenliste für Nachhilfe, Fahrschule und Musikschule.',
+    features: ['Teilnehmer', 'Lehrkräfte', 'Kurstermine', 'Anwesenheit', 'Gebührenliste'],
+    steps: ['Lege Teilnehmer und Lehrkräfte an.', 'Plane Kurstermine mit Datum, Uhrzeit, Ort und Lehrkraft.', 'Halte pro Termin die Anwesenheit fest.', 'Die Gebührenliste zeigt offene und bezahlte Gebühren.'],
     entities: [
       { key: 'teilnehmer', label: 'Teilnehmer', one: 'Teilnehmer', icon: 'ti-users', title: 'name', list: ['name', 'kontakt', 'beginn', 'status'], fields: [
         t('name', 'Name', { required: true }), { key: 'email', label: 'E-Mail', type: 'email' }, { key: 'telefon', label: 'Telefon', type: 'phone' }, t('kontakt', 'Ansprechperson (z. B. Eltern)'),
         { key: 'beginn', label: 'Beginn', type: 'date' }, sel('status', 'Status', ['aktiv', 'pausiert', 'beendet'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
-      { key: 'termine', label: 'Kurstermine', one: 'Kurstermin', icon: 'ti-calendar-event', title: 'titel', list: ['titel', 'datum', 'uhrzeit', 'lehrkraft', 'ort'], fields: [
+      { key: 'lehrkraefte', label: 'Lehrkräfte', one: 'Lehrkraft', icon: 'ti-user-star', title: 'name', list: ['name', 'faecher', 'telefon', 'status'], fields: [
+        t('name', 'Name', { required: true }), t('faecher', 'Fächer / Bereiche'), { key: 'telefon', label: 'Telefon', type: 'phone' }, { key: 'email', label: 'E-Mail', type: 'email' },
+        sel('status', 'Status', ['aktiv', 'Urlaub', 'inaktiv'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
+      { key: 'termine', label: 'Kurstermine', one: 'Kurstermin', icon: 'ti-calendar-event', title: 'titel', list: ['titel', 'datum', 'uhrzeit', 'leitung', 'ort'], fields: [
         t('titel', 'Kurs / Fach', { required: true }), { key: 'datum', label: 'Datum', type: 'date', required: true }, { key: 'uhrzeit', label: 'Uhrzeit', type: 'time' },
-        t('lehrkraft', 'Lehrkraft'), t('ort', 'Ort / Raum'), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
+        { key: 'leitung', label: 'Lehrkraft', type: 'ref', ref: 'lehrkraefte' }, t('ort', 'Ort / Raum'), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
       { key: 'anwesenheit', label: 'Anwesenheit', one: 'Eintrag', icon: 'ti-checklist', title: 'termin', list: ['termin', 'teilnehmer', 'status'], fields: [
         { key: 'termin', label: 'Kurstermin', type: 'ref', ref: 'termine', required: true }, { key: 'teilnehmer', label: 'Teilnehmer', type: 'ref', ref: 'teilnehmer', required: true },
         sel('status', 'Anwesenheit', ['anwesend', 'entschuldigt', 'unentschuldigt'], { required: true })] },
@@ -91,18 +97,21 @@ export const KIT_PACKAGES: KitPackage[] = [
   },
   {
     key: 'reinigung', name: 'Reinigung & Gebäudeservice', icon: 'SprayCan', tablerIcon: 'ti-brush', price: 39,
-    desc: 'Objekte, Einsatzplanung und Stundennachweise für Reinigungs- und Gebäudedienste.',
-    features: ['Objekte', 'Einsatzplanung', 'Stundennachweise'],
-    steps: ['Lege die Objekte mit Adresse und Kontakt an.', 'Plane Einsätze mit Datum, Objekt und Mitarbeiter.', 'Erfasse Stundennachweise pro Mitarbeiter und Objekt. Die Summe der Stunden steht unter der Tabelle.'],
+    desc: 'Objekte, Mitarbeiter, Einsatzplanung und Stundennachweise für Reinigungs- und Gebäudedienste.',
+    features: ['Objekte', 'Mitarbeiter', 'Einsatzplanung', 'Stundennachweise'],
+    steps: ['Lege die Objekte mit Adresse und Kontakt und deine Mitarbeiter an.', 'Plane Einsätze mit Datum, Objekt und Mitarbeiter.', 'Erfasse Stundennachweise pro Mitarbeiter und Objekt. Die Summe der Stunden steht unter der Tabelle.'],
     entities: [
       { key: 'objekte', label: 'Objekte', one: 'Objekt', icon: 'ti-building', title: 'name', list: ['name', 'adresse', 'kontakt', 'turnus'], fields: [
         t('name', 'Objekt', { required: true }), t('adresse', 'Adresse'), t('kontakt', 'Ansprechperson'), { key: 'telefon', label: 'Telefon', type: 'phone' },
         t('turnus', 'Turnus', { placeholder: 'z. B. wöchentlich Dienstag' }), { key: 'notiz', label: 'Hinweise (Schlüssel, Zugang …)', type: 'longtext' }] },
-      { key: 'einsaetze', label: 'Einsätze', one: 'Einsatz', icon: 'ti-calendar-event', title: 'objekt', list: ['datum', 'objekt', 'mitarbeiter', 'status'], fields: [
+      { key: 'mitarbeiter', label: 'Mitarbeiter', one: 'Mitarbeiter/in', icon: 'ti-user-star', title: 'name', list: ['name', 'telefon', 'status'], fields: [
+        t('name', 'Name', { required: true }), { key: 'telefon', label: 'Telefon', type: 'phone' }, { key: 'email', label: 'E-Mail', type: 'email' },
+        sel('status', 'Status', ['aktiv', 'Urlaub', 'inaktiv'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
+      { key: 'einsaetze', label: 'Einsätze', one: 'Einsatz', icon: 'ti-calendar-event', title: 'objekt', list: ['datum', 'objekt', 'person', 'status'], fields: [
         { key: 'objekt', label: 'Objekt', type: 'ref', ref: 'objekte', required: true }, { key: 'datum', label: 'Datum', type: 'date', required: true }, { key: 'uhrzeit', label: 'Uhrzeit', type: 'time' },
-        t('mitarbeiter', 'Mitarbeiter/in'), sel('status', 'Stand', ['geplant', 'erledigt', 'ausgefallen'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
-      { key: 'stunden', label: 'Stundennachweise', one: 'Stundennachweis', icon: 'ti-clock', title: 'mitarbeiter', sum: 'stunden', list: ['datum', 'mitarbeiter', 'objekt', 'stunden'], fields: [
-        { key: 'datum', label: 'Datum', type: 'date', required: true }, t('mitarbeiter', 'Mitarbeiter/in', { required: true }), { key: 'objekt', label: 'Objekt', type: 'ref', ref: 'objekte' },
+        { key: 'person', label: 'Mitarbeiter/in', type: 'ref', ref: 'mitarbeiter' }, sel('status', 'Stand', ['geplant', 'erledigt', 'ausgefallen'], { required: true }), { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
+      { key: 'stunden', label: 'Stundennachweise', one: 'Stundennachweis', icon: 'ti-clock', title: 'person', sum: 'stunden', list: ['datum', 'person', 'objekt', 'stunden'], fields: [
+        { key: 'datum', label: 'Datum', type: 'date', required: true }, { key: 'person', label: 'Mitarbeiter/in', type: 'ref', ref: 'mitarbeiter', required: true }, { key: 'objekt', label: 'Objekt', type: 'ref', ref: 'objekte' },
         { key: 'stunden', label: 'Stunden', type: 'number', required: true }, { key: 'notiz', label: 'Notiz', type: 'longtext' }] },
     ],
   },
