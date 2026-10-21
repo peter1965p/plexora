@@ -7,7 +7,7 @@ import { assertNotDemo } from '../../utils/demoPolicy'
 
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
-  if (isDemoAccount(auth)) throw createError({ statusCode: 403, message: 'Im Demo-Zugang können keine Rechnungseinstellungen gespeichert werden.' })
+  if (isDemoAccount(auth) && !(auth as any).demoSandbox) throw createError({ statusCode: 403, message: 'Im Demo-Zugang können keine Rechnungseinstellungen gespeichert werden.' })
   const body = await readBody(event)
   assertNotDemo(requireAuth(event))
   const client = getDynamoClient()

@@ -18,6 +18,7 @@ export const MODULE_RULES: ModuleRule[] = [
   { prefix: '/api/team', need: 'none', note: 'Einladung annehmen/ansehen muss für jedes Konto gehen (auch Free), Mitgliederliste, Entfernen' },
   { prefix: '/api/auth', need: 'none', note: 'Passwort per Einmal-Link festlegen (öffentlich, routePolicy.ts)' },
   { prefix: '/api/plan', need: 'none', note: 'eigener Tarif und Tagesverbrauch (Anzeige in den Einstellungen)' },
+  { prefix: '/api/demo', need: 'none', note: 'Demo-Konto zurücksetzen (nur das Demo-Konto, prüft der Handler)' },
   { prefix: '/api/store', need: 'none', note: 'Kauf von Modulen muss ohne Lizenz möglich sein' },
   { prefix: '/api/billing', need: 'none', note: 'Abrechnungsportal' },
   { prefix: '/api/licenses', need: 'none', note: 'eigene Lizenz anzeigen; Verwaltung prüft die Gruppe admins im Handler' },

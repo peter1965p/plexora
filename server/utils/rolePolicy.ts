@@ -21,6 +21,7 @@ export const ROLE_RULES: RoleRule[] = [
 
   // ── jedes angemeldete Konto ──
   { prefix: '/api/drafts', role: 'self', note: 'eigene Entwürfe' },
+  { prefix: '/api/demo', role: 'self', note: 'Demo-Konto zurücksetzen (der Handler lässt nur das Demo-Konto zu)' },
   { prefix: '/api/notifications', role: 'self', note: 'eigene Benachrichtigungen' },
   { prefix: '/api/portal', role: 'self', note: 'Kundenportal (eigene Dokumente)' },
   { prefix: '/api/plan', role: 'self', note: 'eigener Tarif und Verbrauch' },

@@ -3,6 +3,7 @@
     <AppSidebar />
     <div class="main">
       <AppTopbar />
+      <DemoBanner />
       <slot />
     </div>
     <ConfirmDialog />

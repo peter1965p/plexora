@@ -6,6 +6,8 @@ export interface AuthUser {
   groups: string[]
   /** E-Mail-Adresse ist vom Anbieter (Cognito/Google) als verifiziert gemeldet */
   emailVerified?: boolean
+  /** Nur für das Demo-Konto: diese Anfrage hat die Erlaubnisliste des Sandkastens passiert (server/middleware/demo.ts) */
+  demoSandbox?: boolean
   /** Anzeigename aus dem Konto (nur zur Darstellung, nie zur Berechtigung) */
   name?: string
 }

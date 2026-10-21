@@ -875,6 +875,7 @@ async function startDemo() {
     } catch {
       await withTimeout(signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' }), 8000)
     }
+    await demoResetNow()            // jeder Demo-Start beginnt mit dem Standard (falls ein früherer Besucher die Seite einfach geschlossen hat)
     await navigateTo('/dashboard')
   } catch {
     await navigateTo('/login')

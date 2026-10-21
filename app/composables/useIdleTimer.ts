@@ -34,6 +34,7 @@ export function useIdleTimer() {
     if (interval) clearInterval(interval)
     clearLocalDrafts() // keine Formularinhalte im Browser zurücklassen (Server-Kopie bleibt)
     let isRealUser = false
+    await demoResetNow()            // Demo-Konto: Standard wiederherstellen, bevor das Token verschwindet
     try { await signOut(); isRealUser = true } catch {}
     if (typeof window !== 'undefined') {
       window.location.href = '/'
