@@ -5,11 +5,11 @@
 ## So geht's (ca. 3 Minuten, als Kontoinhaber in der AWS-Konsole)
 1. Region **Europa (Frankfurt) eu-central-1** wählen.
 2. **Service Quotas** öffnen → **AWS-Services** → **AWS Lambda** → **Concurrent executions** (Quota-Code **L-B99A9384**). Direktlink: https://eu-central-1.console.aws.amazon.com/servicequotas/home/services/lambda/quotas/L-B99A9384
-3. **Erhöhung auf Kontoebene beantragen**, neuer Wert **200**, den englischen Text unten in das Begründungsfeld kopieren (falls es keines gibt: über **Support Center → Fall erstellen → Service Limit Increase** mit demselben Text).
-4. Antwort kommt per Mail, meist innerhalb von Stunden bis wenigen Tagen. Lehnt AWS ab oder bietet weniger an (bei jungen Konten üblich): 100 annehmen und mit den Zahlen unten nachfragen.
+3. **Erhöhung auf Kontoebene beantragen**, neuer Wert **1000**. Das Formular erlaubt nur Werte ab dem Standardwert 1000 (neue Konten starten mit 10; 1000 ist der normale AWS-Standard). Das Formular hat kein Begründungsfeld: kleinere Erhöhungen werden oft automatisch genehmigt. Landet die Anfrage beim AWS Support, den englischen Text unten als Antwort im Fall einfügen (oder über **Support Center → Fall erstellen → Service Limit Increase**).
+4. Antwort kommt per Mail, meist innerhalb von Stunden bis wenigen Tagen. Bietet AWS weniger an (bei jungen Konten üblich): annehmen und mit den Zahlen unten nachfragen.
 5. Danach: mir Bescheid geben. Ich prüfe mit `aws lambda get-account-settings` den neuen Wert und kann dann Reservierungen für die öffentlichen Endpunkte einrichten.
 
-- Aktueller Wert: 10, gewünscht: 200 (100 wären der Mindestwert, um Reservierungen zu erlauben: Lambda verlangt mindestens 100 nicht reservierte Ausführungen im Konto)
+- Aktueller Wert: 10, gewünscht: 1000 (AWS-Standardwert). Danach Kostenbremse einbauen: Reservierung für plexora-api (z. B. 300) und/oder Drosselung am API Gateway, damit ein Ansturm oder Missbrauch nicht unbegrenzt Last und Kosten erzeugt.
 
 ## Text für das Anfrageformular (englisch, gemessene Werte)
 
@@ -22,10 +22,10 @@ Measured in CloudWatch for plexora-api, last 30 days (2026-09-21 to 2026-10-21):
 
 Cause: a single dashboard page load issues roughly a dozen parallel API calls, so one active user already uses most of the quota. Scheduled jobs (EventBridge) and a public demo (each demo start makes several consecutive calls) add to it.
 
-Request: please raise "Concurrent executions" to 200. We expect typical concurrency well below 50 and have no burst or batch workloads. The extra headroom lets us absorb normal peaks and lets us reserve concurrency for the critical public endpoints (Lambda requires at least 100 unreserved executions in the account). Costs are unaffected by the limit itself: we pay per request and duration, currently far inside the free tier, and we have rate limiting on all public routes and a budget alarm in place.
+Request: please raise "Concurrent executions" to 1000 (the standard default value; new accounts start at 10). We expect typical concurrency well below 50 and have no burst or batch workloads. The extra headroom lets us absorb normal peaks and lets us reserve concurrency for the critical public endpoints (Lambda requires at least 100 unreserved executions in the account). Costs are unaffected by the limit itself: we pay per request and duration, currently far inside the free tier, and we have rate limiting on all public routes and a budget alarm in place.
 
 ## Hintergrund (Zahlen live gelesen am 21.10.2026)
 - `aws lambda get-account-settings`: Limit 10, nicht reserviert 10.
 - Drosselungen je Tag (14.–20.10.): 75, 45, 30, 76, 18, 30, 60; Spitze der gleichzeitigen Ausführungen jeden Tag 10.
 - Alarm `plexora-lambda-throttles` besteht (Benachrichtigung über SNS `plexora-alerts`).
-- Beim Wert 200 empfohlene Folgeschritte: Reservierung für die öffentlichen Routen und den Demo-Start (damit ein Ansturm das Dashboard der Kunden nicht verdrängt), ein zweiter Budget-Alarm bei 5 bis 10 USD.
+- Beim Wert 1000 empfohlene Folgeschritte: Reservierung für die öffentlichen Routen und den Demo-Start (damit ein Ansturm das Dashboard der Kunden nicht verdrängt), ein zweiter Budget-Alarm bei 5 bis 10 USD.
