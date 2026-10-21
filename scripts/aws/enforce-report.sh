@@ -14,16 +14,20 @@ if [[ "${1:-}" == "--from-file" ]]; then cp "${2:?Datei fehlt}" "$SRC"
 else
   HOURS="${1:-24}"; [[ "$HOURS" =~ ^[0-9]+$ ]] || { echo "Aufruf: $0 [Stunden] | --from-file DATEI" >&2; exit 2; }
   START=$(( ( $(date +%s) - HOURS * 3600 ) * 1000 ))
-  for P in '"würde ablehnen"'; do
+  for P in '"[roles]"' '"[plan]"'; do      # nicht nach "würde ablehnen" filtern: CloudWatch findet Muster mit Umlaut nicht zuverlässig; ausgewertet wird unten
     aws logs filter-log-events --region "$REGION" --log-group-name "$GROUP" --start-time "$START" --filter-pattern "$P" --query 'events[].message' --output json >> "$SRC.json" 2>/dev/null || true
   done
   python3 - "$SRC.json" "$SRC" <<'PY'
 import json,sys
 msgs=[]
 try:
-    for chunk in open(sys.argv[1]).read().replace('][', ']\n[').split('\n'):
-        chunk=chunk.strip()
-        if chunk: msgs+= [str(m) for m in (json.loads(chunk) or [])]      # Seiten ohne Treffer liefert die AWS-CLI als null
+    # Die AWS-CLI gibt je Seite ein eigenes (mehrzeiliges) JSON-Dokument aus, Seiten ohne Treffer als null: alle nacheinander lesen
+    text=open(sys.argv[1]).read(); dec=json.JSONDecoder(); i=0
+    while i < len(text):
+        while i < len(text) and text[i].isspace(): i+=1
+        if i >= len(text): break
+        obj,i=dec.raw_decode(text,i)
+        msgs += [str(m) for m in (obj or [])]
 except Exception: pass
 open(sys.argv[2],'w').write('\n'.join(m.replace('\n',' ') for m in msgs))
 PY
