@@ -1441,7 +1441,27 @@
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ist die Zahlenfarbe auf dem Hintergrund zu dunkel, wird sie automatisch aufgehellt (zurzeit {{ ltDisp.fg }}, Kontrast {{ ltDisp.contrast }}:1).</div>
           </template>
         </div>
-        <div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
+          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display }, wall: { ...lt.wall, images: [...lt.wall.images] } })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
+          <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Startseite öffnen</a>
+        </div>
+      </div>
+
+      <!-- Live-Vorschau: dieselbe Farbrechnung wie auf der Startseite -->
+      <div>
+        <div class="lt-label">Vorschau</div>
+        <div class="lt-prev" :style="ltPreviewVars">
+          <div class="lt-nav"><strong>Plexo<span style="color:var(--accent)">ra</span></strong><span style="flex:1"></span><span class="lt-pill">Anmelden</span><span class="lt-btn">Preise</span></div>
+          <div style="padding:22px 18px 8px"><div style="font-size:11px;letter-spacing:2px;color:var(--blue)">BUSINESS PLATFORM</div>
+            <div style="font-size:30px;font-weight:800;line-height:1.1;margin:8px 0 4px;color:var(--text-strong)">Eine Lizenz.<br /><span style="color:var(--accent2)">Alles drin.</span></div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:14px">Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt?</div>
+            <span class="lt-btn" style="padding:9px 20px">Demo ausprobieren ↗</span> <span class="lt-pill" style="margin-left:6px">Preise ansehen</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px 18px">
+            <div v-for="c in [['6','Module'],['1','Login'],['49 €','ab']]" :key="c[0]" class="lt-card"><div style="font-size:20px;font-weight:800;color:var(--accent2)">{{ c[0] }}</div><div style="font-size:11px;color:var(--muted)">{{ c[1] }}</div></div>
+          </div>
+        </div>
+        <div class="lt-wall-box">
           <div class="lt-label">Hero-Bildwand &amp; fester Demo-Knopf</div>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.wall.on" /> Bildwand im Hero zeigen (geneigte Screenshots, richten sich beim Scrollen auf)</label>
           <template v-if="lt.wall.on">
@@ -1462,26 +1482,6 @@
           </template>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" v-model="lt.wall.stickyCta" /> Fester „Demo starten“-Knopf (erscheint nach dem Hero am Rand)</label>
           <input v-if="lt.wall.stickyCta" v-model="lt.wall.ctaLabel" maxlength="40" placeholder="Text des Knopfes (leer = „Demo ausprobieren“)" style="margin-top:6px;width:100%" />
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
-          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display }, wall: { ...lt.wall, images: [...lt.wall.images] } })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
-          <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Startseite öffnen</a>
-        </div>
-      </div>
-
-      <!-- Live-Vorschau: dieselbe Farbrechnung wie auf der Startseite -->
-      <div>
-        <div class="lt-label">Vorschau</div>
-        <div class="lt-prev" :style="ltPreviewVars">
-          <div class="lt-nav"><strong>Plexo<span style="color:var(--accent)">ra</span></strong><span style="flex:1"></span><span class="lt-pill">Anmelden</span><span class="lt-btn">Preise</span></div>
-          <div style="padding:22px 18px 8px"><div style="font-size:11px;letter-spacing:2px;color:var(--blue)">BUSINESS PLATFORM</div>
-            <div style="font-size:30px;font-weight:800;line-height:1.1;margin:8px 0 4px;color:var(--text-strong)">Eine Lizenz.<br /><span style="color:var(--accent2)">Alles drin.</span></div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:14px">Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt?</div>
-            <span class="lt-btn" style="padding:9px 20px">Demo ausprobieren ↗</span> <span class="lt-pill" style="margin-left:6px">Preise ansehen</span></div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px 18px">
-            <div v-for="c in [['6','Module'],['1','Login'],['49 €','ab']]" :key="c[0]" class="lt-card"><div style="font-size:20px;font-weight:800;color:var(--accent2)">{{ c[0] }}</div><div style="font-size:11px;color:var(--muted)">{{ c[1] }}</div></div>
-          </div>
         </div>
       </div>
     </div>
@@ -3246,6 +3246,7 @@ async function saveFallbackLink(which: 'jitsi' | 'link' = 'link') {
 .lt-nav { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 15px }
 .lt-pill { border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px; font-size: 12px; display: inline-block }
 .lt-btn { background: var(--btn); color: var(--btn-text); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; display: inline-block }
+.lt-wall-box { margin-top: 18px; padding: 14px 16px; border: 0.5px solid var(--border); border-radius: 14px }
 .lt-wall-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto }
 .lt-wall-item { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 4px 6px; border: 0.5px solid var(--border); border-radius: 10px; background: var(--bg-elevated) }
 .lt-wall-item img { width: 54px; height: 36px; object-fit: cover; object-position: top left; border-radius: 6px }
