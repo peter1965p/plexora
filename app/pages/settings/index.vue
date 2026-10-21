@@ -1441,9 +1441,31 @@
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ist die Zahlenfarbe auf dem Hintergrund zu dunkel, wird sie automatisch aufgehellt (zurzeit {{ ltDisp.fg }}, Kontrast {{ ltDisp.contrast }}:1).</div>
           </template>
         </div>
+        <div>
+          <div class="lt-label">Hero-Bildwand &amp; fester Demo-Knopf</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.wall.on" /> Bildwand im Hero zeigen (geneigte Screenshots, richten sich beim Scrollen auf)</label>
+          <template v-if="lt.wall.on">
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Neigung</span><input type="range" min="0" max="100" v-model.number="lt.wall.intensity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.wall.intensity }} %</strong></div>
+            <div style="font-size:11px;color:var(--text-muted);margin:4px 0 8px">0 % = flach, 100 % = stark geneigt. Auf dem Handy und bei abgeschalteter Bewegung bleibt das normale Hero-Bild.</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Gezeigt ({{ lt.wall.images.length }} von {{ WALL_MAX }}, mindestens 4; Reihenfolge: reihum auf 4 Spalten)</div>
+            <div class="lt-wall-list">
+              <div v-for="(k, i) in lt.wall.images" :key="k" class="lt-wall-item">
+                <img :src="`/wall/${k}-klein.webp`" alt="" /><span>{{ wallLabel(k) }}</span>
+                <button class="icon-btn" title="Nach vorn" :disabled="i === 0" @click="wallMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
+                <button class="icon-btn" title="Nach hinten" :disabled="i === lt.wall.images.length - 1" @click="wallMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
+                <button class="icon-btn" title="Entfernen" @click="lt.wall.images.splice(i, 1)"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+            <div v-if="wallFree.length" style="margin-top:8px"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Weitere Bilder</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="im in wallFree" :key="im.key" class="lt-chip" :disabled="lt.wall.images.length >= WALL_MAX" @click="lt.wall.images.push(im.key)">+ {{ im.label }}</button></div></div>
+            <div v-if="lt.wall.images.length < 4" style="font-size:12px;color:#8a5d00;margin-top:6px"><i class="ti ti-alert-triangle"></i> Mit weniger als 4 Bildern zeigt die Startseite die Bildwand nicht.</div>
+          </template>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" v-model="lt.wall.stickyCta" /> Fester „Demo starten“-Knopf (erscheint nach dem Hero am Rand)</label>
+          <input v-if="lt.wall.stickyCta" v-model="lt.wall.ctaLabel" maxlength="40" placeholder="Text des Knopfes (leer = „Demo ausprobieren“)" style="margin-top:6px;width:100%" />
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
-          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display } })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
+          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display }, wall: { ...lt.wall, images: [...lt.wall.images] } })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
           <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Startseite öffnen</a>
         </div>
       </div>
@@ -1878,6 +1900,7 @@
 <script setup lang="ts">
 import { hasTurnstilePrivacy, withTurnstilePrivacy } from '~~/shared/turnstilePrivacy'
 import { marked } from 'marked'
+import { WALL_IMAGES, WALL_MAX } from '~~/shared/landingWall'
 import { parseLandingTheme, customTheme, themeWarnings, displayVars, PRESETS as LANDING_PRESETS, DEFAULT_LANDING_THEME, type LandingTheme } from '~~/shared/landingTheme'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useAppStore, THEMES } from '~/stores/app'
@@ -3036,7 +3059,10 @@ async function saveTestimonials() {
 
 // ── Startseite (Design) ──
 const LT_MODES = [{ key: 'light', label: 'Freundlich hell', icon: 'ti-sun' }, { key: 'dark', label: 'Dunkel', icon: 'ti-moon' }, { key: 'custom', label: 'Eigene Farben', icon: 'ti-palette' }]
-const lt = reactive<LandingTheme>({ ...DEFAULT_LANDING_THEME, display: { ...DEFAULT_LANDING_THEME.display } })
+const lt = reactive<LandingTheme>({ ...DEFAULT_LANDING_THEME, display: { ...DEFAULT_LANDING_THEME.display }, wall: { ...DEFAULT_LANDING_THEME.wall, images: [...DEFAULT_LANDING_THEME.wall.images] } })
+const wallLabel = (k: string) => WALL_IMAGES.find(i => i.key === k)?.label || k
+const wallFree = computed(() => WALL_IMAGES.filter(i => !lt.wall.images.includes(i.key)))
+function wallMove(i: number, d: number) { const a = lt.wall.images; const j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]] }
 const ltSaving = ref(false)
 let ltLoaded = false
 const ltResult = computed(() => (lt.mode === 'custom' ? customTheme(parseLandingTheme(lt)) : null))
@@ -3220,6 +3246,10 @@ async function saveFallbackLink(which: 'jitsi' | 'link' = 'link') {
 .lt-nav { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 15px }
 .lt-pill { border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px; font-size: 12px; display: inline-block }
 .lt-btn { background: var(--btn); color: var(--btn-text); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; display: inline-block }
+.lt-wall-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto }
+.lt-wall-item { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 4px 6px; border: 0.5px solid var(--border); border-radius: 10px; background: var(--bg-elevated) }
+.lt-wall-item img { width: 54px; height: 36px; object-fit: cover; object-position: top left; border-radius: 6px }
+.lt-wall-item span { flex: 1 }
 .lt-disp { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; padding: 14px 10px; border-radius: 14px; background: var(--disp-bg); border: 1px solid var(--disp-border); box-shadow: 0 0 22px var(--disp-border) }
 .lt-disp-n { font-size: 18px; font-weight: 800; color: var(--disp-fg); text-shadow: 0 0 14px var(--disp-glow) }
 .lt-disp-l { font-size: 11px; color: var(--disp-label) }

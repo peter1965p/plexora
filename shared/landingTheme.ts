@@ -11,12 +11,15 @@ export interface LandingTheme {
   text: string
   /** Kennzahlen-Leiste unter dem Kopfbereich ("Display"): eigener Hintergrund und eigene Zahlenfarbe, unabhängig vom Design */
   display: LandingDisplay
+  /** Hero-Bildwand und fester Demo-Knopf der Startseite */
+  wall: LandingWall
 }
+import { DEFAULT_WALL, parseWall, type LandingWall } from './landingWall'
 export interface LandingDisplay { on: boolean; bg: string; bgOpacity: number; fg: string }
 export const DEFAULT_DISPLAY: LandingDisplay = { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' }
-export const DEFAULT_LANDING_THEME: LandingTheme = { mode: 'light', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', display: { ...DEFAULT_DISPLAY } }
+export const DEFAULT_LANDING_THEME: LandingTheme = { mode: 'light', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', display: { ...DEFAULT_DISPLAY }, wall: { ...DEFAULT_WALL, images: [...DEFAULT_WALL.images] } }
 
-export const PRESETS: Array<{ key: string; label: string; theme: Omit<LandingTheme, 'display'> }> = [
+export const PRESETS: Array<{ key: string; label: string; theme: Omit<LandingTheme, 'display' | 'wall'> }> = [
   { key: 'deepblue', label: 'Deep Blue auf 75 % Schwarz', theme: { mode: 'custom', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '' } },
   { key: 'midnight', label: 'Mitternacht & Orange', theme: { mode: 'custom', bg: '#0b1020', bgOpacity: 100, accent: '#ea580c', text: '' } },
   { key: 'ocean', label: 'Ozean (hell)', theme: { mode: 'custom', bg: '#e0f2fe', bgOpacity: 100, accent: '#0369a1', text: '' } },
@@ -39,6 +42,7 @@ export function parseLandingTheme(raw: any): LandingTheme {
     accent: hexOr(b.accent, DEFAULT_LANDING_THEME.accent),
     text: isHex(b.text) ? b.text.toLowerCase() : '',
     display: parseDisplay(b.display),
+    wall: parseWall(b.wall),
   }
 }
 

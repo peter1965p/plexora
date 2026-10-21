@@ -33,10 +33,22 @@
     </nav>
 
     <!-- HERO -->
+    <div ref="stageRef" class="lp-hero-stage" :class="{ 'lp-wall-live': wallLive }">
     <section class="lp-hero">
       <canvas ref="networkRef" class="lp-network"></canvas>
+      <!-- Bildwand: geneigte Plexora-Screenshots, richten sich beim Scrollen auf (nur Desktop, nicht bei reduzierter Bewegung) -->
+      <div v-if="wallOn" class="lp-wall" aria-hidden="true">
+        <div ref="wallWrapRef" class="lp-wall-wrapper">
+          <div ref="wallGridRef" class="lp-wall-grid">
+            <div v-for="(col, ci) in wallCols" :key="ci" :ref="(el: any) => { wallColRefs[ci] = el }" class="lp-wall-col">
+              <img v-for="k in col" :key="k" class="lp-wall-img" :src="`/wall/${k}.webp`" :srcset="`/wall/${k}-klein.webp 384w, /wall/${k}.webp 800w`" sizes="25vw" alt="" loading="lazy" decoding="async" />
+            </div>
+          </div>
+        </div>
+        <div ref="wallFadeRef" class="lp-wall-fade"></div>
+      </div>
       <div class="lp-wrap lp-hero-inner">
-        <div class="lp-hero-text">
+        <div ref="heroTextRef" class="lp-hero-text">
         <div class="lp-eyebrow">Business Platform</div>
         <h1 class="lp-h1">
           <span class="lp-h1-line">
@@ -88,6 +100,12 @@
         </div>
       </div>
     </section>
+    </div>
+
+    <!-- Fester Demo-Knopf: erscheint nach dem Hero und bleibt am Rand -->
+    <button v-if="wallCfg.stickyCta" class="lp-sticky-cta" :class="{ show: showSticky }" :disabled="demoLoading" :tabindex="showSticky ? 0 : -1" @click="startDemo">
+      <Rocket :size="16" /> {{ wallCfg.ctaLabel || t.hero.ctaDemo }}
+    </button>
 
     <!-- STATS STRIP -->
     <section class="lp-wrap lp-stats-section lp-reveal">
@@ -374,6 +392,7 @@
 </template>
 
 <script setup lang="ts">
+import { wallColumns, wallFrame, scrollProgress } from '~~/shared/landingWall'
 import { parseLandingTheme, customTheme, displayVars } from '~~/shared/landingTheme'
 import {
   Users, Kanban, Receipt, IdCard, Headset, BarChart3,
@@ -406,6 +425,43 @@ const isLight = computed(() => (customResult.value ? !customResult.value.dark : 
 // Kennzahlen-Leiste als "Display": Farben legt der Betreiber fest (Einstellungen → Startseite); gerechnet wird auf der tatsächlichen Seitenfarbe, damit die Zahlen lesbar bleiben
 const pageBgNow = computed(() => customResult.value?.info.bg || (isLight.value ? '#fff8f1' : '#1a1723'))
 const statsDisplayStyle = computed(() => (config.value.display.on ? displayVars(config.value.display, pageBgNow.value).vars : {}))
+// Hero-Bildwand: Einstellung kommt aus dem Betreiber-Bereich (Startseite → Hero-Bildwand), die Bewegung ist hier
+const wallCfg = computed(() => config.value.wall)
+const wallOn = computed(() => wallCfg.value.on && wallCfg.value.images.length >= 4)
+const wallCols = computed(() => wallColumns(wallCfg.value.images))
+const stageRef = ref<HTMLElement | null>(null), wallWrapRef = ref<HTMLElement | null>(null), wallGridRef = ref<HTMLElement | null>(null), wallFadeRef = ref<HTMLElement | null>(null), heroTextRef = ref<HTMLElement | null>(null)
+const wallColRefs: Array<HTMLElement | null> = []
+const wallLive = ref(false), showSticky = ref(false)
+let wallTarget = 0, wallPos = 0, wallRaf = 0
+function wallApply(p: number) {
+  const f = wallFrame(p, wallCfg.value.intensity / 100)
+  if (wallWrapRef.value) wallWrapRef.value.style.transform = f.wrapper
+  if (wallGridRef.value) wallGridRef.value.style.transform = f.grid
+  wallColRefs.forEach((el, i) => { if (el) el.style.transform = f.cols[i] })
+  if (wallFadeRef.value) wallFadeRef.value.style.opacity = String(f.fade)
+  if (heroTextRef.value) { heroTextRef.value.style.opacity = String(f.textOpacity); heroTextRef.value.style.transform = `translate3d(${f.textShift}px, 0, 0)`; heroTextRef.value.style.pointerEvents = f.textOpacity < 0.2 ? 'none' : '' }
+}
+function wallMeasure() {
+  showSticky.value = window.scrollY > window.innerHeight * 0.7
+  if (!wallLive.value || !stageRef.value) return
+  const r = stageRef.value.getBoundingClientRect()
+  wallTarget = scrollProgress(r.top, r.height, window.innerHeight)
+  if (!wallRaf) wallRaf = requestAnimationFrame(wallTick)
+}
+function wallTick() {
+  wallPos += (wallTarget - wallPos) * 0.12                // weiches Nachziehen statt Ruckeln
+  if (Math.abs(wallTarget - wallPos) < 0.001) { wallPos = wallTarget; wallApply(wallPos); wallRaf = 0; return }
+  wallApply(wallPos); wallRaf = requestAnimationFrame(wallTick)
+}
+function wallSetup() {
+  const live = wallOn.value && window.matchMedia('(min-width: 1100px) and (prefers-reduced-motion: no-preference)').matches
+  if (live !== wallLive.value) { wallLive.value = live; if (!live && heroTextRef.value) { heroTextRef.value.style.opacity = ''; heroTextRef.value.style.transform = ''; heroTextRef.value.style.pointerEvents = '' } }
+  nextTick(() => { wallMeasure(); wallPos = wallTarget; if (live) wallApply(wallPos) })
+}
+onMounted(() => { window.addEventListener('scroll', wallMeasure, { passive: true }); window.addEventListener('resize', wallSetup); wallSetup() })
+onBeforeUnmount(() => { window.removeEventListener('scroll', wallMeasure); window.removeEventListener('resize', wallSetup); if (wallRaf) cancelAnimationFrame(wallRaf) })
+watch([wallOn, () => wallCfg.value.intensity, () => wallCfg.value.images.join()], () => nextTick(wallSetup))
+
 function toggleTheme() {
   visitorTheme.value = theme.value === 'light' ? 'dark' : 'light'
   // Die Wahl gilt nur zur aktuellen Betreiber-Einstellung: ändert sich diese, zählt wieder der neue Standard
@@ -1414,6 +1470,31 @@ onMounted(() => {
 .lp-modules-sub { font-size: 15px; line-height: 1.65; color: var(--body); margin: 0 0 16px }
 .lp-modules-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap }
 .lp-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 99px; background: rgba(var(--accent-rgb),0.12); border: 0.5px solid rgba(var(--accent-rgb),0.3); color: var(--orange2) }
+/* ── Hero-Bildwand (nur Desktop, nur ohne reduzierte Bewegung; Farben bleiben die der Startseite) ── */
+.lp-wall { display: none; }
+.lp-wall-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, var(--bg) 0%, var(--bg) 34%, transparent 68%); }
+.lp-wall-img { display: block; width: 100%; height: auto; border-radius: 14px; border: 0.5px solid rgba(var(--ink),0.14); box-shadow: 0 18px 40px rgba(var(--shadow),0.35); background: var(--card); }
+@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+  .lp-hero-stage.lp-wall-live { height: 240vh; position: relative; }
+  .lp-hero-stage.lp-wall-live .lp-hero { position: sticky; top: 0; height: 100vh; padding: 0; display: flex; align-items: center; overflow: hidden; }
+  .lp-hero-stage.lp-wall-live .lp-hero-inner { width: 100%; }
+  .lp-hero-stage.lp-wall-live .lp-hero-visual { visibility: hidden; }
+  .lp-hero-stage.lp-wall-live .lp-wall { display: block; position: absolute; inset: 0; perspective: 1600px; overflow: hidden; pointer-events: none; z-index: 0; }
+  .lp-wall-wrapper { position: absolute; inset: 0; will-change: transform; transform-origin: 50% 50%; }
+  .lp-wall-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6vw; padding: 0 1.6vw; will-change: transform; }
+  .lp-wall-col { display: flex; flex-direction: column; gap: 1.6vw; will-change: transform; }
+  .lp-hero-stage.lp-wall-live .lp-hero-text { will-change: transform, opacity; position: relative; z-index: 2; }
+}
+.lp-sticky-cta {
+  position: fixed; right: 24px; bottom: 24px; z-index: 60; display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 22px; border: 0; border-radius: 99px; cursor: pointer;
+  font-size: 14px; font-weight: 700; font-family: inherit; color: var(--btn-text); background: var(--btn); box-shadow: 0 10px 30px rgba(var(--accent-rgb),0.35), 0 2px 8px rgba(0,0,0,0.25);
+  opacity: 0; transform: translateY(16px); pointer-events: none; transition: opacity .3s, transform .3s, filter .2s;
+}
+.lp-sticky-cta.show { opacity: 1; transform: none; pointer-events: auto; }
+.lp-sticky-cta:hover { filter: brightness(1.08); }
+.lp-sticky-cta:disabled { opacity: .7; cursor: wait; }
+@media (max-width: 600px) { .lp-sticky-cta { right: 14px; bottom: 14px; height: 44px; padding: 0 16px; font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .lp-sticky-cta { transition: none; } }
 .lp-einv-section { padding: 0 0 56px; }
 .lp-einv { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; padding: 36px 40px; border-radius: 24px; background: linear-gradient(160deg, rgba(var(--accent-rgb),0.07), var(--card2) 60%); border: 0.5px solid rgba(var(--ink),0.08) }
 .lp-einv-text { font-size: 15px; line-height: 1.65; color: var(--body); margin: 0 0 12px }

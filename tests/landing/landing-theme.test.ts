@@ -6,10 +6,10 @@ describe('Auswahl prüfen', () => {
     expect(parseLandingTheme(undefined).mode).toBe('light')
     expect(parseLandingTheme(null)).toEqual({ ...DEFAULT_LANDING_THEME, mode: 'light' })
     const t = parseLandingTheme({ mode: 'hack', bg: 'red', bgOpacity: 'x', accent: 'url(javascript:1)', text: '<script>' })
-    expect(t).toEqual({ mode: 'light', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', display: { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' } })
+    expect(t).toEqual({ mode: 'light', bg: '#000000', bgOpacity: 75, accent: '#1e3a8a', text: '', display: { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' }, wall: DEFAULT_LANDING_THEME.wall })
   })
   it('Farben nur als #rrggbb (kleingeschrieben), Deckkraft 0 bis 100', () => {
-    expect(parseLandingTheme({ mode: 'custom', bg: '#AABBCC', accent: '#0A2A8A', text: '#FFFFFF', bgOpacity: 250 })).toEqual({ mode: 'custom', bg: '#aabbcc', bgOpacity: 100, accent: '#0a2a8a', text: '#ffffff', display: { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' } })
+    expect(parseLandingTheme({ mode: 'custom', bg: '#AABBCC', accent: '#0A2A8A', text: '#FFFFFF', bgOpacity: 250 })).toEqual({ mode: 'custom', bg: '#aabbcc', bgOpacity: 100, accent: '#0a2a8a', text: '#ffffff', display: { on: true, bg: '#000000', bgOpacity: 70, fg: '#2f7bff' }, wall: DEFAULT_LANDING_THEME.wall })
     expect(parseLandingTheme({ bgOpacity: -5 }).bgOpacity).toBe(0)
     for (const bad of ['#fff', '#12345g', 'rgb(0,0,0)', '#1234567', '"><img>']) expect(parseLandingTheme({ accent: bad }).accent, bad).toBe('#1e3a8a')
   })
