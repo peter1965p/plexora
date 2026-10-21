@@ -1476,7 +1476,7 @@ onMounted(() => {
 .lp-wall-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, var(--bg) 0%, var(--bg) 34%, transparent 68%); }
 .lp-wall-img { display: block; width: 100%; height: auto; border-radius: 14px; border: 0.5px solid rgba(var(--ink),0.14); box-shadow: 0 18px 40px rgba(var(--shadow),0.35); background: var(--card); }
 @media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
-  .lp-hero-stage.lp-wall-live { height: 240vh; position: relative; }
+  .lp-hero-stage.lp-wall-live { height: 240vh; position: relative; margin-bottom: clamp(48px, 7vh, 88px); }      /* Abstand zur Kennzahlen-Leiste: die Bildwand soll sie nicht berühren */
   .lp-hero-stage.lp-wall-live .lp-hero { position: sticky; top: 0; height: 100vh; padding: 0; display: flex; align-items: center; overflow: hidden; }
   .lp-hero-stage.lp-wall-live .lp-hero-inner { width: 100%; }
   .lp-hero-stage.lp-wall-live .lp-hero-visual { visibility: hidden; }
