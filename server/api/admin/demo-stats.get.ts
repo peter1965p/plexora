@@ -1,7 +1,7 @@
 import { getDemoStats } from '../../utils/demoTracker'
-import { requireAdmin } from '../../utils/verifyAuth'
+import { requireAdminOrDemoRead } from '../../utils/demoRead'
 
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
+  requireAdminOrDemoRead(event)
   return getDemoStats()
 })

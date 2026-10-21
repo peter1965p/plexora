@@ -45,6 +45,15 @@ describe('Scharf (NUXT_ROLES_ENFORCE=true)', () => {
     role = 'owner'; expect((await run('/api/finance')).status).toBe(200); expect((await run('/api/backup/jobs', 'POST')).status).toBe(200); expect((await run('/api/aws/dynamo')).status).toBe(403)
     role = 'platform'; expect((await run('/api/aws/dynamo')).status).toBe(200); expect((await run('/api/backup/jobs', 'POST')).status).toBe(200)
   })
+  it('Demo-Konto: darf ausgewählte Betreiber-Seiten nur LESEN; Schreiben, AWS, Lizenzen und Datenintegrität bleiben zu', async () => {
+    role = 'owner'
+    const demo = { userId: 'd', email: 'demo@plexora.eu', groups: ['customers'] }
+    for (const p of ['/api/settings/dunning', '/api/settings/payment', '/api/settings/testimonials', '/api/settings/landing-theme', '/api/settings/landing-packages', '/api/admin/demo-stats', '/api/admin/seo-stats', '/api/analytics/vitals-stats'])
+      expect((await run(p, 'GET', demo)).status, p).toBe(200)
+    for (const [p, m] of [['/api/settings/landing-theme', 'POST'], ['/api/settings/payment', 'POST'], ['/api/settings/dunning', 'PUT'], ['/api/aws/dynamo', 'GET'], ['/api/aws/s3-delete', 'POST'], ['/api/licenses', 'GET'], ['/api/admin/data-integrity/scan', 'GET'], ['/api/finance/batch-dunning', 'POST']])
+      expect((await run(p, m, demo)).status, `${m} ${p}`).toBe(403)
+    expect((await run('/api/settings/payment', 'GET', { ...AUTH, email: 'chef@firma.de' })).status).toBe(403)          // andere Konten: weiter nur Betreiber
+  })
   it('jedes Konto: Entwürfe, Einladung annehmen, Upload – auch ohne Rollenabfrage (kein Ausfall möglich)', async () => {
     roleError = Object.assign(new Error('x'), { statusCode: 503 })
     for (const [p, m] of [['/api/drafts/x', 'GET'], ['/api/team/accept', 'POST'], ['/api/team/invite-preview', 'POST'], ['/api/aws/s3-upload', 'POST'], ['/api/team/role', 'GET'], ['/api/notifications', 'GET']] as const) expect((await run(p, m)).status, `${m} ${p}`).toBe(200)

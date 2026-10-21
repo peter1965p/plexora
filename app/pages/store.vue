@@ -86,7 +86,7 @@
       <div style="margin-bottom:20px;padding:14px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center">
         <i class="ti ti-info-circle" style="color:var(--accent);font-size:16px;flex-shrink:0"></i>
         <span style="flex:1">Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.</span>
-        <button v-if="isAdmin" class="btn-buy" style="flex-shrink:0" @click="showNewModuleForm = true">
+        <button v-if="isAdmin || isDemo" class="btn-buy" style="flex-shrink:0" @click="showNewModuleForm = true">
           <i class="ti ti-plus" style="margin-right:4px"></i>Neues Modul registrieren
         </button>
       </div>
@@ -384,6 +384,7 @@ const newModule = reactive({
 })
 
 async function registerNewModule() {
+  if (isDemo.value) { alert('Im Demo-Zugang nicht möglich: Hier kannst du alles ansehen, aber nichts ändern.'); return }
   if (!newModule.key.trim() || !newModule.name.trim()) { alert('Key und Name sind Pflicht.'); return }
   registeringModule.value = true
   try {

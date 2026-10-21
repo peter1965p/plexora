@@ -3,6 +3,7 @@ import { findPublicRule } from '../utils/routePolicy'
 import { needForRoute } from '../utils/rolePolicy'
 import { resolveRole, rolesEnforced } from '../utils/teamRole'
 import { roleAllows, ROLE_LABELS, type Role } from '../../shared/roles'
+import { isDemoReadAllowed } from '../utils/demoRead'
 
 // Zentrale Rollenprüfung (Inhaber, Admin, Mitglied): läuft nach der Anmeldung (auth.ts) und vor jedem Handler.
 // Beobachtungsmodus (NUXT_ROLES_ENFORCE nicht "true"): es wird nur protokolliert, was abgelehnt WÜRDE ("[roles] würde ablehnen …"), nichts wird abgelehnt.
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
 
   const { need, rule } = needForRoute(path, method)
   if (need === 'self') return                               // jedes angemeldete Konto: keine Abfrage nötig
+  if (need === 'platform' && isDemoReadAllowed(auth, method, path)) return      // Demo-Konto darf ausgewählte Betreiber-Seiten ansehen (der Handler gibt nur die unkritische Sicht heraus)
 
   const enforce = rolesEnforced()
   let me

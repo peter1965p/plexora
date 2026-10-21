@@ -1020,7 +1020,8 @@
           <i class="ti" :class="awsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> {{ awsLoading ? 'Lädt...' : 'Aktualisieren' }}
         </button>
       </div>
-      <div class="card-body">
+      <div v-if="isDemo" class="card-body" style="font-size:13px;color:var(--text-muted)"><i class="ti ti-lock"></i> Das AWS Controlcenter (Datenbank, Dateispeicher, Funktionen, Protokolle) zeigt die echte Infrastruktur und ist im Demo-Zugang aus Sicherheitsgründen nicht einsehbar.</div>
+      <div v-else class="card-body">
         <!-- Status Pills -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
           <div class="infra-pill"><i class="ti ti-shield-check" style="color:#00D4B4"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">AWS Cognito</div><div style="font-size:11px;color:var(--text-muted)">Auth — Frankfurt</div></div></div>
@@ -1388,7 +1389,7 @@
             </div>
           </details>
         </div>
-        <button class="accent-btn" style="align-self:flex-start" :disabled="savingTestimonials" @click="saveTestimonials">
+        <button class="accent-btn" style="align-self:flex-start" :disabled="savingTestimonials || isDemo" @click="saveTestimonials">
           <i class="ti" :class="savingTestimonials ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>Speichern
         </button>
       </div>
@@ -2061,7 +2062,7 @@ const tabs = computed(() => {
   const integrityExtra = isAdmin.value
     ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
     : []
-  const adminExtra = isAdmin.value ? ADMIN_TABS : []
+  const adminExtra = isAdmin.value || isDemo.value ? ADMIN_TABS : []       // Demo-Konto sieht die Betreiber-Reiter schreibgeschützt (Datenintegrität und Gesamtsicherung nicht)
   return [...BASE_TABS, ...adminExtra, ...extra, ...aiExtra, ...integrityExtra]
 })
 

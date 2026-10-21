@@ -1,4 +1,4 @@
-import { requireAdmin } from '../../utils/verifyAuth'
+import { requireAdminOrDemoRead } from '../../utils/demoRead'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
@@ -9,7 +9,7 @@ const DEFAULTS = {
 }
 
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
+  requireAdminOrDemoRead(event)
   const client = getDynamoClient()
   try {
     const result = await client.send(new GetCommand({

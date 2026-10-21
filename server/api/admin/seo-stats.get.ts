@@ -1,7 +1,8 @@
 import { getSeoStats } from '../../utils/analyticsTracker'
-import { requireAdmin } from '../../utils/verifyAuth'
+import { requireAdminOrDemoRead } from '../../utils/demoRead'
 
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
-  return getSeoStats()
+  const { demo } = requireAdminOrDemoRead(event)
+  const stats: any = await getSeoStats()
+  return demo ? { ...stats, recentIps: [] } : stats          // Demo-Konto: keine Besucher-IP-Adressen
 })

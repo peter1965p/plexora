@@ -1,11 +1,11 @@
-import { requireAdmin } from '../../utils/verifyAuth'
+import { requireAdminOrDemoRead } from '../../utils/demoRead'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 
 // Payment ist eine plattformweite Einstellung (EIN Stripe/PayPal/Mollie-Konto für
 // die gesamte Plattform inkl. aller Tenant-Shops/-Rechnungen) — admin-only.
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
+  const { demo } = requireAdminOrDemoRead(event)
   const client = getDynamoClient()
   try {
     const res = await client.send(new GetCommand({
@@ -20,14 +20,14 @@ export default defineEventHandler(async (event) => {
       payment: {
         activeGateway:                 item.activeGateway        || 'stripe',
         stripeSecretKeyConfigured:     !!item.stripeSecretKey,
-        stripePublishableKey:          item.stripePublishableKey || '',
+        stripePublishableKey:          demo ? '' : (item.stripePublishableKey || ''),      // Demo-Konto: keine Schlüssel und Adressen, nur ob eingerichtet
         stripeWebhookSecretConfigured: !!item.stripeWebhookSecret,
-        paypalClientId:                item.paypalClientId      || '',
+        paypalClientId:                demo ? '' : (item.paypalClientId      || ''),
         paypalSecretConfigured:        !!item.paypalSecret,
         paypalSandbox:                 item.paypalSandbox       ?? true,
         mollieApiKeyConfigured:        !!item.mollieApiKey,
-        customName:                    item.customName          || '',
-        customApiUrl:                  item.customApiUrl        || '',
+        customName:                    demo ? '' : (item.customName          || ''),
+        customApiUrl:                  demo ? '' : (item.customApiUrl        || ''),
         customApiKeyConfigured:        !!item.customApiKey,
         updated:                       item.updated,
       }
