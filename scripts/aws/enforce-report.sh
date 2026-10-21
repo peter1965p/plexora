@@ -23,7 +23,7 @@ msgs=[]
 try:
     for chunk in open(sys.argv[1]).read().replace('][', ']\n[').split('\n'):
         chunk=chunk.strip()
-        if chunk: msgs+= [str(m) for m in json.loads(chunk)]
+        if chunk: msgs+= [str(m) for m in (json.loads(chunk) or [])]      # Seiten ohne Treffer liefert die AWS-CLI als null
 except Exception: pass
 open(sys.argv[2],'w').write('\n'.join(m.replace('\n',' ') for m in msgs))
 PY

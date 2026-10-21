@@ -1,4 +1,5 @@
 import { trackVisit } from '../utils/analyticsTracker'
+import { clientIp } from '../utils/rateLimit'
 
 const PUBLIC_PAGES = ['/', '/kaufen', '/login', '/impressum', '/datenschutz', '/agb']
 
@@ -16,9 +17,9 @@ export default defineEventHandler((event) => {
 
   const ua      = getHeader(event, 'user-agent') || ''
   const referrer = getHeader(event, 'referer') || ''
+  const fwd     = clientIp(event)                      // letzter X-Forwarded-For-Eintrag: den hängt API Gateway an, der erste ist frei wählbar
   const ip      = getHeader(event, 'cf-connecting-ip')
-    || getHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim()
-    || ''
+    || (fwd !== 'unknown' ? fwd : '')
   const country = getHeader(event, 'cf-ipcountry') || ''
   const city    = getHeader(event, 'cf-ipcity')    || ''
 
