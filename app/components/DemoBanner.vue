@@ -7,12 +7,13 @@
 </template>
 
 <script setup lang="ts">
+import { isDemoEmail } from '~~/shared/demo'
 const show = ref(false)
 onMounted(async () => {
   try {
     const { useAuthUser } = await import('~/composables/useAuth')
     const u = await useAuthUser()
-    if ((u.email || '').toLowerCase() === 'demo@plexora.eu' && sessionStorage.getItem('plx-demo-banner') !== '0') show.value = true
+    if (isDemoEmail(u.email) && sessionStorage.getItem('plx-demo-banner') !== '0') show.value = true
   } catch { /* ohne Banner weiter */ }
 })
 const hide = () => { show.value = false; try { sessionStorage.setItem('plx-demo-banner', '0') } catch { /* egal */ } }

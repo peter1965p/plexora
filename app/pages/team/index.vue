@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { isDemoEmail } from '~~/shared/demo'
 import { AREA_ROLES, ROLE_DESCRIPTIONS, roleAllows, type Role } from '~~/shared/roles'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
@@ -115,7 +116,7 @@ async function load() {
 }
 onMounted(async () => {
   const { useAuthUser } = await import('~/composables/useAuth')
-  try { const u: any = await useAuthUser(); userEmail.value = u.email || userEmail.value; isDemo.value = u.email === 'demo@plexora.eu' } catch {}
+  try { const u: any = await useAuthUser(); userEmail.value = u.email || userEmail.value; isDemo.value = isDemoEmail(u.email) } catch {}
   roles.load(); load()
 })
 

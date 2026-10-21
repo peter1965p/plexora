@@ -862,20 +862,28 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ])
 }
 
+// "Demo starten": kurz mit dem Ausgangskonto anmelden (Lobby), dort ein freies Demo-Konto aus dem Pool anfordern und damit anmelden.
+// So arbeitet jeder Besucher in seiner eigenen Kopie der Demo-Daten. Ist alles belegt oder etwas schief, bleibt das gemeinsame Ausgangskonto (wird dann zurückgesetzt).
+const DEMO_PW = 'Demo1234!'
 async function startDemo() {
   demoLoading.value = true
   try {
-    const { signIn, signOut, getCurrentUser } = await import('aws-amplify/auth')
+    const { signIn, signOut } = await import('aws-amplify/auth')
+    await demoResetNow(true)                                            // war schon jemand als Demo angemeldet: dessen Konto freigeben
+    try { await withTimeout(signOut(), 8000) } catch { /* nicht angemeldet */ }
+    await withTimeout(signIn({ username: 'demo@plexora.eu', password: DEMO_PW }), 8000)
+    let target = 'demo@plexora.eu'
     try {
-      const current = await withTimeout(getCurrentUser(), 8000)
-      if (current.username !== 'demo-plexora') {
-        await withTimeout(signOut(), 8000)
-        await withTimeout(signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' }), 8000)
-      }
-    } catch {
-      await withTimeout(signIn({ username: 'demo@plexora.eu', password: 'Demo1234!' }), 8000)
+      const { useAuthHeader } = await import('~/composables/useAuth')
+      const r: any = await withTimeout($fetch(useApiUrl('/api/demo/lease'), { method: 'POST', headers: await useAuthHeader() }), 30000)
+      if (r?.email) target = String(r.email)
+    } catch { /* Pool nicht erreichbar: Ausgangskonto */ }
+    if (target !== 'demo@plexora.eu') {
+      await withTimeout(signOut(), 8000)
+      await withTimeout(signIn({ username: target, password: DEMO_PW }), 8000)
+    } else {
+      await demoResetNow()                                              // gemeinsames Konto: mit dem Standard beginnen
     }
-    await demoResetNow()            // jeder Demo-Start beginnt mit dem Standard (falls ein früherer Besucher die Seite einfach geschlossen hat)
     await navigateTo('/dashboard')
   } catch {
     await navigateTo('/login')

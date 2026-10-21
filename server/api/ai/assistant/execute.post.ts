@@ -1,3 +1,4 @@
+import { isDemoEmail } from '../../../../shared/demo'
 import { requireAuth } from '../../../utils/verifyAuth'
 import { ACTIONS, executeAction } from '../../../utils/ai/actions'
 
@@ -5,7 +6,7 @@ import { ACTIONS, executeAction } from '../../../utils/ai/actions'
 // nach expliziter Bestätigung durch den Nutzer im Chat-Widget aufgerufen.
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
-  if (auth.email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine Aktionen ausführen' })
+  if (isDemoEmail(auth.email)) throw createError({ statusCode: 403, message: 'Demo-Account kann keine Aktionen ausführen' })
 
   const body = await readBody(event)
   const name = String(body?.name || '')

@@ -241,6 +241,7 @@
 </template>
 
 <script setup lang="ts">
+import { isDemoEmail } from '~~/shared/demo'
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const store = useAppStore()
@@ -356,7 +357,7 @@ const userEmail = ref('')
 const authToken = ref('')
 const userId = ref('demo-user')
 const isAdmin = ref(false)
-const isDemo = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
+const isDemo = computed(() => isDemoEmail(userEmail.value) || userId.value === 'demo-user')
 const branchApiUrl = useApiUrl('/api/settings/branch-packages')
 const checkoutApiUrl = useApiUrl('/api/store/checkout')
 

@@ -1,3 +1,4 @@
+import { isDemoEmail } from '../../../shared/demo'
 import { requireAuth } from '../../utils/verifyAuth'
 import { resolveUserId } from '../../utils/tenant'
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
@@ -10,7 +11,7 @@ const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'unqualified']
 
 export default defineEventHandler(async (event) => {
   const { email } = requireAuth(event)
-  if (email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine Automatisierungen anlegen' })
+  if (isDemoEmail(email)) throw createError({ statusCode: 403, message: 'Demo-Account kann keine Automatisierungen anlegen' })
   const userId = await resolveUserId(email)
   const body = await readBody(event)
 

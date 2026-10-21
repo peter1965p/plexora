@@ -15,5 +15,5 @@ export default defineEventHandler(async (event) => {
   if (!auth || !isDemoAccount(auth)) return
   if (!isDemoWriteAllowed(method, path)) throw createError({ statusCode: 403, message: 'Im Demo-Zugang nicht möglich: Das hat Außenwirkung oder betrifft die Sicherheit. Du kannst es dir ansehen, aber nicht ändern.' })
   auth.demoSandbox = true
-  if (path !== '/api/demo/reset') await markDemoWrite()
+  if (path !== '/api/demo/reset' && path !== '/api/demo/lease') await markDemoWrite(auth.email)
 })

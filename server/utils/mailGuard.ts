@@ -2,10 +2,11 @@ import { requireAuth, type AuthUser } from './verifyAuth'
 
 // Konto, dessen Zugangsdaten öffentlich auf der Startseite stehen (Demo). Erkannt wird es am verifizierten
 // Token (E-Mail bzw. Cognito-Gruppe "demo"), nie an Werten aus dem Request-Body.
+import { isDemoEmail } from '../../shared/demo'
 export const DEMO_ACCOUNT_EMAIL = 'demo@plexora.eu'
 
 export function isDemoAccount(auth: Pick<AuthUser, 'email' | 'groups'>): boolean {
-  return (auth.email || '').toLowerCase() === DEMO_ACCOUNT_EMAIL || (auth.groups || []).includes('demo')
+  return isDemoEmail(auth.email) || (auth.groups || []).includes('demo')
 }
 
 /**

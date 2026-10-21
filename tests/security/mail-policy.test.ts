@@ -53,7 +53,7 @@ describe('sendMail (zentral, alle Pfade über Resend)', () => {
   it('Demo-Besitzer: kein Resend-Aufruf, Ergebnis skipped, Protokolleintrag ohne Empfängeradresse', async () => {
     for (const id of DEMO_OWNER_IDS) expect(await sendMail({ ...MAIL, userId: id })).toBe('skipped')
     expect(resendCalls).toHaveLength(0)
-    expect(store.logs).toHaveLength(3); expect(store.logs.every(l => l.status === 'skipped' && l.to === '(nicht gesendet)')).toBe(true)
+    expect(store.logs).toHaveLength(DEMO_OWNER_IDS.length); expect(store.logs.every(l => l.status === 'skipped' && l.to === '(nicht gesendet)')).toBe(true)
   })
   it('echter Mandant: wird gesendet', async () => {
     expect(await sendMail({ ...MAIL, userId: 'chef@firma.de' })).toBe('sent')

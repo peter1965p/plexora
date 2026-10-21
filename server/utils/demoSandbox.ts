@@ -3,11 +3,13 @@ import { DescribeTableCommand } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
 import { getDynamoClient } from './dynamodb'
 import { isDemoAccount, DEMO_ACCOUNT_EMAIL } from './mailGuard'
+import { DEMO_BASE_TENANT, DEMO_BASE_EMAIL, DEMO_POOL, demoTenantId, demoSlot, isDemoEmail, isPoolEmail } from '../../shared/demo'
 import { BACKUP_TABLES } from './backup/config'
 
 // Demo-Konto als Sandkasten: Besucher dürfen im Demo-Konto ausprobieren (Daten anlegen, ändern, löschen), alles wird beim Abmelden, beim nächsten Demo-Start und nach Leerlauf auf den
 // gespeicherten Standard zurückgesetzt. Was Außenwirkung hat oder sicherheitsrelevant ist (E-Mail-Versand, Dateien, KI, Zahlung, Anmeldung, Team, Sicherung, Blog, Lead-Seiten, Website), bleibt gesperrt.
-export const DEMO_TENANT_ID = 'PLXR-DEMO-0000-0000-DEMO'
+export const DEMO_TENANT_ID = DEMO_BASE_TENANT
+export const LEASE_MINUTES = 45                             // so lange gehört ein Poolkonto einem Besucher, falls er sich nicht abmeldet
 export const DEMO_WRITE_LIMIT = 1500                         // Schreibzugriffe zwischen zwei Zurücksetzungen (Missbrauchsbremse)
 export const DEMO_IDLE_MINUTES = 30                           // so lange ohne Schreibzugriff, dann setzt der Zeitplan zurück
 const SETTINGS = 'plexora-settings'
@@ -33,22 +35,23 @@ export const isSafeMethod = (m: string) => ['GET', 'HEAD', 'OPTIONS'].includes(m
 export function isDemoWriteAllowed(method: string, path: string): boolean {
   const p = path.split('?')[0], m = method.toUpperCase()
   if (isSafeMethod(m)) return true
-  if (p === '/api/demo/reset' && m === 'POST') return true
+  if ((p === '/api/demo/reset' || p === '/api/demo/lease') && m === 'POST') return true
   if (DEMO_WRITE_DENY.some(d => d.re.test(p) && (!d.methods || d.methods.includes(m)))) return false
   return DEMO_WRITE_ALLOW.some(r => r.test(p))
 }
 /** Wird von der Middleware für erlaubte Schreibzugriffe des Demo-Kontos gesetzt: dann gelten die einzelnen assertNotDemo-Prüfungen nicht (die Sperre entscheidet die Erlaubnisliste) */
 export const isSandboxed = (auth: any): boolean => !!auth?.demoSandbox
 
-// ── Stand: wurde etwas verändert? ──
-const stateKey = { settingId: 'demo-state', scope: 'global' }
-export interface DemoState { dirty?: boolean; writes?: number; lastWriteAt?: string; lastResetAt?: string; resettingAt?: string }
-export async function getDemoState(): Promise<DemoState> {
-  return ((await getDynamoClient().send(new GetCommand({ TableName: SETTINGS, Key: stateKey }))).Item as DemoState) || {}
+// ── Stand je Konto: wurde etwas verändert? Wem gehört es gerade? ──
+// Das Ausgangskonto behält den alten Schlüssel "demo-state", die Poolkonten haben "demo-state:<E-Mail>".
+export const stateKey = (email: string) => ({ settingId: email === DEMO_BASE_EMAIL ? 'demo-state' : `demo-state:${email}`, scope: 'global' })
+export interface DemoState { dirty?: boolean; writes?: number; lastWriteAt?: string; lastResetAt?: string; resettingAt?: string; leasedAt?: string }
+export async function getDemoState(email: string = DEMO_BASE_EMAIL): Promise<DemoState> {
+  return ((await getDynamoClient().send(new GetCommand({ TableName: SETTINGS, Key: stateKey(email) }))).Item as DemoState) || {}
 }
 /** Vermerkt einen Schreibzugriff des Demo-Kontos; wirft 429, wenn das Limit seit dem letzten Zurücksetzen erreicht ist */
-export async function markDemoWrite(): Promise<void> {
-  const r: any = await getDynamoClient().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey, UpdateExpression: 'SET dirty = :t, lastWriteAt = :n ADD writes :one', ExpressionAttributeValues: { ':t': true, ':n': new Date().toISOString(), ':one': 1 }, ReturnValues: 'UPDATED_NEW' }))
+export async function markDemoWrite(email: string = DEMO_BASE_EMAIL): Promise<void> {
+  const r: any = await getDynamoClient().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey(email), UpdateExpression: 'SET dirty = :t, lastWriteAt = :n ADD writes :one', ExpressionAttributeValues: { ':t': true, ':n': new Date().toISOString(), ':one': 1 }, ReturnValues: 'UPDATED_NEW' }))
   if (Number(r?.Attributes?.writes) > DEMO_WRITE_LIMIT) throw createError({ statusCode: 429, message: 'Im Demo-Zugang sind sehr viele Änderungen passiert. Bitte melde dich ab und starte die Demo neu.' })
 }
 
@@ -61,20 +64,23 @@ export const RESET_EXCLUDE = new Set([
   'plexora-praxis-patienten', 'plexora-praxis-rezepte', 'plexora-praxis-termine',
 ])
 export interface ResetTable { table: string; attr: string; value: string }
-export function resetTables(): ResetTable[] {
+export function resetTables(email: string = DEMO_BASE_EMAIL): ResetTable[] {
+  const tenant = demoTenantId(email)
   const out: ResetTable[] = []
   for (const [table, rule] of Object.entries(BACKUP_TABLES)) {
     if (RESET_EXCLUDE.has(table)) continue
-    if (rule.mode === 'ownerTenant') out.push({ table, attr: rule.attr, value: DEMO_TENANT_ID })
-    else if (rule.mode === 'owner') out.push({ table, attr: rule.attr, value: rule.attr === 'tenantId' ? DEMO_TENANT_ID : DEMO_ACCOUNT_EMAIL })
+    if (rule.mode === 'ownerTenant') out.push({ table, attr: rule.attr, value: tenant })
+    else if (rule.mode === 'owner') out.push({ table, attr: rule.attr, value: rule.attr === 'tenantId' ? tenant : email })
   }
   return out
 }
 
 const db = () => getDynamoClient()
+const KS = new Map<string, string[]>()
 async function keySchema(table: string): Promise<string[]> {
+  const hit = KS.get(table); if (hit) return hit
   const r: any = await db().send(new DescribeTableCommand({ TableName: table }))
-  return (r?.Table?.KeySchema || []).map((k: any) => k.AttributeName)
+  const k = (r?.Table?.KeySchema || []).map((x: any) => x.AttributeName); KS.set(table, k); return k
 }
 /** Alle Zeilen des Demo-Kontos in einer Tabelle (Abfrage über den Schlüssel, wenn möglich, sonst Scan mit Filter) */
 async function demoRows(t: ResetTable, keys: string[]): Promise<Record<string, any>[]> {
@@ -90,7 +96,10 @@ async function demoRows(t: ResetTable, keys: string[]): Promise<Record<string, a
   return rows
 }
 const keyOf = (row: any, keys: string[]) => keys.map(k => String(row[k])).join('\u0001')
+// Kanonische Form für den Vergleich: DynamoDB liefert Attribute in anderer Reihenfolge und Mengen (SS/NS) unsortiert zurück
+const canon = (v: any): any => Array.isArray(v) ? v.map(canon) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, ((k === 'SS' || k === 'NS' || k === 'BS') && Array.isArray(v[k])) ? [...v[k]].sort() : canon(v[k])])) : v
 const ser = (row: any) => JSON.stringify(marshall(row, { removeUndefinedValues: true, convertClassInstanceToMap: true }))
+const same = (a: string, b: string) => JSON.stringify(canon(JSON.parse(a))) === JSON.stringify(canon(JSON.parse(b)))
 const CHUNK = 300_000
 const snapId = (table: string, n: number) => ({ settingId: `demo-snapshot:${table}:${n}`, scope: 'global' })
 
@@ -122,37 +131,93 @@ async function loadSnapshotRows(table: string): Promise<string[]> {
 }
 
 export interface ResetResult { reset: boolean; reason?: string; deleted?: number; restored?: number; tables?: number }
-/** Setzt das Demo-Konto auf den gespeicherten Standard zurück: Zeilen, die nicht im Standard stehen, werden gelöscht, fehlende oder veränderte wiederhergestellt. Ohne gespeicherten Standard geschieht nichts. */
-export async function resetDemo(opts: { force?: boolean; onlyIfIdleMinutes?: number } = {}): Promise<ResetResult> {
-  const now = Date.now(), state = await getDemoState()
-  if (!opts.force && !state.dirty) return { reset: false, reason: 'unverändert' }
+import { unmarshall } from '@aws-sdk/util-dynamodb'
+const unmarshallRow = (json: string): Record<string, any> => unmarshall(JSON.parse(json))
+const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/** Wandelt eine Zeile der Vorlage (Ausgangskonto) in die Zeile eines Poolkontos um: E-Mail und Mandanten-ID ersetzen, und jede Kennung (Rechnungs-, Kontakt-, Eintrags-ID …) bekommt ein eindeutiges Ende "-dNN".
+ *  Nötig, weil manche Abfragen nur nach der Kennung suchen: gleiche Kennungen in zehn Konten würden sich verwechseln. Verweise zwischen Zeilen (z. B. Mitglied → Beitrag) werden dabei mit umgestellt. */
+export function makeTransform(templates: Array<{ table: string; keys: string[]; owner: string; rows: string[] }>, email: string): (json: string) => string {
+  if (!isPoolEmail(email)) return j => j
+  const ids = new Set<string>()
+  for (const t of templates) {
+    if (t.table === SETTINGS) continue                       // Einstellungs-Schlüssel (Namen wie "company") sind keine Kennungen
+    for (const j of t.rows) {
+      const r = JSON.parse(j)
+      for (const k of t.keys) if (k !== t.owner) { const v = r[k]?.S; if (typeof v === 'string') { const id = v.includes('#') ? v.split('#').pop()! : v; if (id.length >= 4) ids.add(id) } }     // zusammengesetzte Schlüssel (paket#liste#id): die Kennung am Ende
+      if (typeof r.id?.S === 'string' && r.id.S.length >= 4) ids.add(r.id.S)
+    }
+  }
+  const slot = demoSlot(email), tenant = demoTenantId(email)
+  const re = ids.size ? new RegExp(`(?<![A-Za-z0-9-])(${[...ids].sort((a, b) => b.length - a.length).map(esc).join('|')})(?![A-Za-z0-9-])`, 'g') : null
+  return (json: string) => {
+    let out = json.split(DEMO_BASE_EMAIL).join(email).split(DEMO_BASE_TENANT).join(tenant)
+    if (re) out = out.replace(re, `$1-d${slot}`)
+    return out
+  }
+}
+
+/** Setzt ein Demo-Konto auf den gespeicherten Standard zurück: Zeilen, die nicht im Standard stehen, werden gelöscht, fehlende oder veränderte wiederhergestellt. Poolkonten bekommen dafür ihre eigene Kopie der Vorlage.
+ *  Ohne gespeicherten Standard geschieht nichts. release = das Konto danach wieder für den nächsten Besucher freigeben. */
+export async function resetDemo(opts: { email?: string; force?: boolean; onlyIfIdleMinutes?: number; release?: boolean } = {}): Promise<ResetResult> {
+  const email = opts.email || DEMO_BASE_EMAIL, sk = stateKey(email)
+  const now = Date.now(), state = await getDemoState(email)
+  if (!opts.force && !state.dirty) { if (opts.release && state.leasedAt) await db().send(new UpdateCommand({ TableName: SETTINGS, Key: sk, UpdateExpression: 'REMOVE leasedAt' })); return { reset: false, reason: 'unverändert' } }
   if (opts.onlyIfIdleMinutes && state.lastWriteAt && now - Date.parse(state.lastWriteAt) < opts.onlyIfIdleMinutes * 60_000) return { reset: false, reason: 'noch in Benutzung' }
   if (state.resettingAt && now - Date.parse(state.resettingAt) < 90_000) return { reset: false, reason: 'läuft schon' }
-  if (!opts.force && state.lastResetAt && now - Date.parse(state.lastResetAt) < 8_000) return { reset: false, reason: 'gerade erst zurückgesetzt' }
   const manifest: any = (await db().send(new GetCommand({ TableName: SETTINGS, Key: { settingId: 'demo-snapshot', scope: 'global' } }))).Item
   if (!manifest?.tables?.length) return { reset: false, reason: 'kein Standard gespeichert' }
-  await db().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey, UpdateExpression: 'SET resettingAt = :n', ExpressionAttributeValues: { ':n': new Date(now).toISOString() } }))
+  await db().send(new UpdateCommand({ TableName: SETTINGS, Key: sk, UpdateExpression: 'SET resettingAt = :n', ExpressionAttributeValues: { ':n': new Date(now).toISOString() } }))
   let deleted = 0, restored = 0
   try {
     const known = new Set<string>(manifest.tables)
-    for (const t of resetTables()) {
-      if (!known.has(t.table)) continue                       // Tabelle war beim Speichern des Standards nicht dabei: nicht anfassen
-      const keys = await keySchema(t.table)
+    const tables = resetTables(email).filter(t => known.has(t.table))
+    const templates: Array<{ table: string; keys: string[]; owner: string; rows: string[] }> = []
+    for (const t of tables) templates.push({ table: t.table, keys: await keySchema(t.table), owner: t.attr, rows: await loadSnapshotRows(t.table) })
+    const tr = makeTransform(templates, email)
+    for (const t of tables) {
+      const tpl = templates.find(x => x.table === t.table)!, keys = tpl.keys
       const current = await demoRows(t, keys)
-      const std = (await loadSnapshotRows(t.table)).map(j => ({ json: j, row: unmarshallRow(j) }))
-      const stdByKey = new Map(std.map(s => [keyOf(s.row, keys), s]))
+      const std = tpl.rows.map(j => { const x = tr(j); return { json: x, row: unmarshallRow(x) } })
+      const stdByKey = new Map(std.map(r => [keyOf(r.row, keys), r]))
       const curByKey = new Map(current.map(r => [keyOf(r, keys), r]))
       for (const [k, r] of curByKey) if (!stdByKey.has(k)) { await db().send(new DeleteCommand({ TableName: t.table, Key: Object.fromEntries(keys.map(x => [x, r[x]])) })); deleted++ }
-      for (const [k, s] of stdByKey) { const c = curByKey.get(k); if (!c || ser(c) !== s.json) { await db().send(new PutCommand({ TableName: t.table, Item: s.row })); restored++ } }
+      for (const [k, r] of stdByKey) { const c = curByKey.get(k); if (!c || !same(ser(c), r.json)) { await db().send(new PutCommand({ TableName: t.table, Item: r.row })); restored++ } }
     }
   } finally {
-    await db().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey, UpdateExpression: 'SET dirty = :f, writes = :z, lastResetAt = :n REMOVE resettingAt', ExpressionAttributeValues: { ':f': false, ':z': 0, ':n': new Date().toISOString() } }))
+    await db().send(new UpdateCommand({ TableName: SETTINGS, Key: sk, UpdateExpression: opts.release ? 'SET dirty = :f, writes = :z, lastResetAt = :n REMOVE resettingAt, leasedAt' : 'SET dirty = :f, writes = :z, lastResetAt = :n REMOVE resettingAt', ExpressionAttributeValues: { ':f': false, ':z': 0, ':n': new Date().toISOString() } }))
   }
   return { reset: true, deleted, restored, tables: manifest.tables.length }
 }
-import { unmarshall } from '@aws-sdk/util-dynamodb'
-const unmarshallRow = (json: string): Record<string, any> => unmarshall(JSON.parse(json))
 
-/** Für den Zeitplan (alle 5 Minuten): setzt zurück, wenn verändert und lange nichts mehr geschrieben wurde */
-export const demoResetIfIdle = () => resetDemo({ onlyIfIdleMinutes: DEMO_IDLE_MINUTES })
-export { isDemoAccount }
+/** Vergibt ein freies Poolkonto an einen Besucher (Besitz für LEASE_MINUTES oder bis zum Abmelden), füllt es frisch und gibt seine E-Mail zurück. Ist alles belegt, gilt das gemeinsame Ausgangskonto. */
+export async function leaseDemoAccount(): Promise<{ email: string; shared: boolean }> {
+  const order = [...DEMO_POOL].sort(() => Math.random() - 0.5)
+  for (const email of order) {
+    const cutoff = new Date(Date.now() - LEASE_MINUTES * 60_000).toISOString()
+    try {
+      await db().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey(email), UpdateExpression: 'SET leasedAt = :n', ConditionExpression: 'attribute_not_exists(leasedAt) OR leasedAt < :c', ExpressionAttributeValues: { ':n': new Date().toISOString(), ':c': cutoff } }))
+    } catch (e: any) { if (e?.name === 'ConditionalCheckFailedException') continue; throw e }
+    const st = await getDemoState(email)
+    const r = await resetDemo({ email, force: !st.lastResetAt || !!st.dirty })     // frisch befüllen (beim ersten Mal aus der Vorlage)
+    if (r.reset || r.reason === 'unverändert' || r.reason === 'gerade erst zurückgesetzt') return { email, shared: false }
+    await db().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey(email), UpdateExpression: 'REMOVE leasedAt' }))     // Konto nicht nutzbar (z. B. kein Standard gespeichert): freigeben und das nächste versuchen
+  }
+  return { email: DEMO_BASE_EMAIL, shared: true }
+}
+
+/** Für den Zeitplan (alle 5 Minuten): jedes Demo-Konto, das verändert wurde und lange nicht mehr benutzt wird, zurücksetzen und freigeben; abgelaufene Besitzvermerke aufheben */
+export async function demoResetIfIdle(): Promise<{ reset: string[] }> {
+  const done: string[] = []
+  for (const email of DEMO_ACCOUNTS_ALL) {
+    const st = await getDemoState(email)
+    if (!st.dirty && !st.leasedAt) continue
+    const leaseExpired = !!st.leasedAt && Date.now() - Date.parse(st.leasedAt) > LEASE_MINUTES * 60_000
+    const r = await resetDemo({ email, onlyIfIdleMinutes: DEMO_IDLE_MINUTES, release: leaseExpired || !!st.dirty })
+    if (r.reset) done.push(email)
+    else if (leaseExpired && !st.dirty) await db().send(new UpdateCommand({ TableName: SETTINGS, Key: stateKey(email), UpdateExpression: 'REMOVE leasedAt' }))
+  }
+  return { reset: done }
+}
+const DEMO_ACCOUNTS_ALL = [DEMO_BASE_EMAIL, ...DEMO_POOL]
+export { isDemoAccount, isDemoEmail }

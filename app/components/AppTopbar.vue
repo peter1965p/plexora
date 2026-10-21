@@ -150,7 +150,7 @@ async function logout() {
   // Offene Entwürfe noch auf den Server sichern (keepalive), danach lokale Kopien entfernen
   window.dispatchEvent(new CustomEvent('plx:session-expiring'))
   clearLocalDrafts()
-  await demoResetNow()            // Demo-Konto: Standard wiederherstellen, bevor das Token verschwindet
+  await demoResetNow(true)        // Demo-Konto: Standard wiederherstellen und das Konto freigeben, bevor das Token verschwindet
   try { await signOut() } catch {}
   await router.push('/login')
   router.go(0)

@@ -19,3 +19,10 @@ Demo-Banner im Dashboard-Layout (`DemoBanner.vue`, ausblendbar). Betreiber-Reite
 
 ## Prüfung
 `DEMO_PASSWORD=… scripts/aws/check-demo-login.sh` (Lesen, Sperren, Anlegen und Zurücksetzen live), Tests `tests/security/demo-sandbox.test.ts`, `demo-read.test.ts`.
+
+## Pool: eigenes Konto je Besucher (Stand 21.10.2026)
+- **Konten:** `demo@plexora.eu` (Ausgangskonto, „Lobby“, Vorlage) und zehn Poolkonten `demo01` bis `demo10@plexora.eu` (gleiches öffentliches Passwort, Gruppe customers). Erkennung überall über `shared/demo.ts` (`isDemoEmail`).
+- **Ablauf „Demo ausprobieren“:** Anmeldung mit dem Ausgangskonto → `POST /api/demo/lease` vergibt ein freies Poolkonto (Besitz 45 Minuten oder bis zum Abmelden, Drossel 12 Starts je Stunde und Adresse) und füllt es aus der Vorlage → Wechsel auf das Poolkonto. Ist alles belegt oder etwas schiefgeht, arbeitet der Besucher im Ausgangskonto (gemeinsam, wird zurückgesetzt).
+- **Eigene Kopie:** Die Vorlage (gespeicherter Standard des Ausgangskontos) wird je Poolkonto umgeschrieben: E-Mail und Mandanten-ID ersetzt, jede Kennung (Rechnungs-, Kontakt-, Eintrags-ID …) bekommt ein eindeutiges Ende `-dNN`, Verweise zwischen Zeilen werden mitgeführt (`makeTransform`). So verwechseln Abfragen nach Kennung nichts.
+- **Abmelden und Leerlauf:** `POST /api/demo/reset` mit `release` setzt das eigene Konto zurück und gibt es frei; der 5-Minuten-Zeitplan setzt verlassene Konten nach 30 Minuten ohne Schreibzugriff zurück und hebt abgelaufene Besitzvermerke auf.
+- **Anlegen/Erneuern:** `DEMO_PASSWORD=… npx vite-node scripts/demo/provision-pool.mjs --apply` (Cognito-Konto, Mandant in plexora-nexora, erste Befüllung; Vorhandenes bleibt). Nach Änderungen am Ausgangskonto: `npx vite-node scripts/demo/snapshot.mjs`; Poolkonten holen die neue Vorlage beim nächsten Vergeben.

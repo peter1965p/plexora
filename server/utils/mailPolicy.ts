@@ -1,8 +1,9 @@
 // Feste Ausschlussregel für jeden Mailversand über Resend. Resend hat keine Sandbox und schützt hier nicht:
 // Demo-, Beispiel- und gesperrte Mandanten dürfen NIE Mails auslösen – weder durch Zeitpläne (Cron) noch durch öffentliche Formulare
 // noch durch mandantenübergreifende Läufe.
-export const DEMO_OWNER_IDS: readonly string[] = ['demo@plexora.eu', 'demo-plexora', 'demo-user']
-export const DEMO_TENANT_IDS: readonly string[] = ['PLXR-DEMO-0000-0000-DEMO']
+import { DEMO_ACCOUNTS, demoTenantId } from '../../shared/demo'
+export const DEMO_OWNER_IDS: readonly string[] = [...DEMO_ACCOUNTS, 'demo-plexora', 'demo-user']
+export const DEMO_TENANT_IDS: readonly string[] = [...new Set(DEMO_ACCOUNTS.map(demoTenantId))]
 
 export type MailBlock = 'demo' | 'tenant_inactive' | 'mail_blocked' | null
 

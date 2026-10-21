@@ -52,5 +52,28 @@ echo "$rs" | grep -q '"reset":true' && ok "Zurücksetzen: ${rs:0:80}" || bad "Zu
 c="$(code -X POST -H "Authorization: Bearer $TOKEN" "$API/api/demo/reset")"
 [[ "$c" == "200" ]] && ok "Zweites Zurücksetzen ohne Änderung: 200 (nichts zu tun)" || bad "Zweites Zurücksetzen: $c"
 c="$(code -X POST "$API/api/demo/reset")"; [[ "$c" == "401" ]] && ok "Zurücksetzen ohne Token: 401" || bad "Zurücksetzen ohne Token: $c (erwartet 401)"
+echo "== Demo-Pool: eigenes Konto je Besucher (Vergabe, getrennte Daten, Freigabe)"
+lease="$(curl -s -m 60 -X POST -H "Authorization: Bearer $TOKEN" "$API/api/demo/lease")"
+PEMAIL="$(printf '%s' "$lease" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('email','') if not d.get('shared') else '')" 2>/dev/null)"
+if [[ -z "$PEMAIL" ]]; then bad "Kein Poolkonto vergeben: ${lease:0:100}"; else
+  ok "Poolkonto vergeben: $PEMAIL"
+  PUSER="${PEMAIL%%@*}-plexora"
+  T2="$(DEMO_USERNAME="$PEMAIL" node scripts/aws/demo-login-token.mjs 2>/dev/null || true)"
+  if [[ -z "$T2" ]]; then bad "Anmeldung mit $PEMAIL fehlgeschlagen"; else
+    n2="$(curl -s -m 25 -H "Authorization: Bearer $T2" "$API/api/contacts" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d if isinstance(d,list) else d.get('contacts',[])))" 2>/dev/null)"
+    [[ "${n2:-0}" -ge 1 ]] && ok "Poolkonto hat eigene Beispieldaten ($n2 Kontakte)" || bad "Poolkonto ohne Beispieldaten"
+    m2="ZZ-Pool-$RANDOM"
+    c="$(code -X POST -H "Authorization: Bearer $T2" -H 'Content-Type: application/json' -d "{\"firstName\":\"$m2\",\"lastName\":\"T\",\"email\":\"pool@example.test\"}" "$API/api/contacts")"
+    [[ "$c" == "200" ]] && ok "Anlegen im Poolkonto: 200" || bad "Anlegen im Poolkonto: $c"
+    inbase="$(curl -s -m 25 -H "Authorization: Bearer $TOKEN" "$API/api/contacts" | grep -c "$m2" || true)"
+    [[ "$inbase" -eq 0 ]] && ok "Ausgangskonto sieht die Änderung nicht (getrennte Daten)" || bad "Ausgangskonto sieht die Änderung des Poolkontos!"
+    c="$(code -X POST -H "Authorization: Bearer $T2" -H 'Content-Type: application/json' -d '{}' "$API/api/blog")"
+    [[ "$c" == "403" ]] && ok "Poolkonto: Blog gesperrt (403)" || bad "Poolkonto: Blog $c (erwartet 403)"
+    rs2="$(curl -s -m 90 -X POST -H "Authorization: Bearer $T2" -H 'Content-Type: application/json' -d '{"release":true}' "$API/api/demo/reset")"
+    echo "$rs2" | grep -q '"reset":true' && ok "Poolkonto zurückgesetzt und freigegeben" || bad "Poolkonto-Reset: ${rs2:0:100}"
+    still="$(curl -s -m 25 -H "Authorization: Bearer $T2" "$API/api/contacts" | grep -c "$m2" || true)"
+    [[ "$still" -eq 0 ]] && ok "Änderung im Poolkonto nach dem Zurücksetzen weg" || bad "Änderung im Poolkonto noch da"
+  fi
+fi
 echo
 [[ $FAIL -eq 0 ]] && echo "Demo-Login: alle Prüfungen bestanden." || { echo "Demo-Login: es gibt Fehler."; exit 1; }

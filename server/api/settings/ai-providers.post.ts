@@ -1,3 +1,4 @@
+import { isDemoEmail } from '../../../shared/demo'
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { getDynamoClient } from '../../utils/dynamodb'
 import { requireAuth } from '../../utils/verifyAuth'
@@ -7,7 +8,7 @@ import { AI_PROVIDERS, type AiProvider } from '../../utils/ai/providers'
 
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
-  if (auth.email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine Keys hinterlegen' })
+  if (isDemoEmail(auth.email)) throw createError({ statusCode: 403, message: 'Demo-Account kann keine Keys hinterlegen' })
 
   const body = await readBody(event)
   const item = await getTenantByEmail(auth.email)

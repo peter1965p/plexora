@@ -1901,6 +1901,7 @@
 <script setup lang="ts">
 import { hasTurnstilePrivacy, withTurnstilePrivacy } from '~~/shared/turnstilePrivacy'
 import { marked } from 'marked'
+import { isDemoEmail } from '~~/shared/demo'
 import { WALL_IMAGES, WALL_MAX } from '~~/shared/landingWall'
 import { parseLandingTheme, customTheme, themeWarnings, displayVars, PRESETS as LANDING_PRESETS, DEFAULT_LANDING_THEME, type LandingTheme } from '~~/shared/landingTheme'
 import { getCurrentUser } from 'aws-amplify/auth'
@@ -2523,7 +2524,7 @@ async function selectModel(key: AiProviderKey, model: string) {
 const userName  = ref('–')
 const userEmail = ref('–')
 const userId    = ref('demo-user')
-const isDemo    = computed(() => userEmail.value === 'demo@plexora.eu' || userId.value === 'demo-user')
+const isDemo    = computed(() => isDemoEmail(userEmail.value) || userId.value === 'demo-user')
 
 // ── Account ───────────────────────────────────────────
 const accountSaving = ref(false)

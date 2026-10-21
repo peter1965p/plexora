@@ -1,3 +1,4 @@
+import { isDemoEmail } from '../../../shared/demo'
 import { requireAuth } from '../../utils/verifyAuth'
 import { resolveUserId } from '../../utils/tenant'
 import { PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
@@ -6,7 +7,7 @@ import { validateGraph } from '../../utils/sequences'
 
 export default defineEventHandler(async (event) => {
   const { email } = requireAuth(event)
-  if (email === 'demo@plexora.eu') throw createError({ statusCode: 403, message: 'Demo-Account kann keine Sequenzen ändern' })
+  if (isDemoEmail(email)) throw createError({ statusCode: 403, message: 'Demo-Account kann keine Sequenzen ändern' })
   const userId = await resolveUserId(email)
   const sequenceId = getRouterParam(event, 'id')
   const body = await readBody(event)
