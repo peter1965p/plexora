@@ -96,6 +96,7 @@ describe('PSC Manager: Stundenverlauf und anklickbare Hinweise', () => {
   })
   it('Seite: Balken in allen vier Spalten, Verlaufsgrafik, Ampel-Linien und klickbare Hinweise', () => {
     const p = readFileSync('app/pages/psc/index.vue', 'utf8')
-    expect((p.match(/class="psc-bar"/g) || []).length).toBe(4); expect(p).toContain('psc-spark'); expect(p).toContain('borderTopColor'); expect(p).toContain('@click="go(a.to)"')
+    expect((p.match(/class="psc-bar"/g) || []).length).toBe(5);       // vier Spalten der Übersicht plus Fortschritt im Reiter Notfall
+    expect(readFileSync('app/components/PscInfra.vue', 'utf8')).toContain('psc-top'); expect(readFileSync('app/components/PscIntegrity.vue', 'utf8')).toContain('psc-top'); expect(p).toContain('von {{ STEPS.length }} Schritten fertig'); expect(p).toContain('psc-spark'); expect(p).toContain('borderTopColor'); expect(p).toContain('@click="go(a.to)"')
   })
 })

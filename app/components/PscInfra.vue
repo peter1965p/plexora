@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="card psc-top" style="--psc-line:#10b981">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-cloud" style="margin-right:8px;color:var(--accent)"></i>AWS Controlcenter</span>
         <button class="accent-btn" style="height:32px;font-size:12px" @click="loadAws" :disabled="awsLoading">
@@ -9,21 +9,22 @@
       <div class="card-body">
         <!-- Status Pills -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
-          <div class="infra-pill"><i class="ti ti-shield-check" style="color:#00D4B4"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">AWS Cognito</div><div style="font-size:11px;color:var(--text-muted)">Auth — Frankfurt</div></div></div>
-          <div class="infra-pill"><i class="ti ti-database" style="color:var(--accent)"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">DynamoDB</div><div style="font-size:11px;color:var(--text-muted)">{{ awsData.tables.length }} Tabellen aktiv</div></div></div>
-          <div class="infra-pill"><i class="ti ti-world" style="color:#F0B428"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">Cloudflare</div><div style="font-size:11px;color:var(--text-muted)">app.plexora.eu</div></div></div>
+          <div class="infra-pill psc-top" style="--psc-line:#10b981"><i class="ti ti-shield-check" style="color:#00D4B4"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">AWS Cognito</div><div style="font-size:11px;color:var(--text-muted)">Auth — Frankfurt</div></div></div>
+          <div class="infra-pill psc-top" style="--psc-line:#10b981"><i class="ti ti-database" style="color:var(--accent)"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">DynamoDB</div><div style="font-size:11px;color:var(--text-muted)">{{ awsData.tables.length }} Tabellen aktiv</div></div></div>
+          <div class="infra-pill psc-top" style="--psc-line:#10b981"><i class="ti ti-world" style="color:#F0B428"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">Cloudflare</div><div style="font-size:11px;color:var(--text-muted)">app.plexora.eu</div></div></div>
         </div>
         <!-- DynamoDB -->
         <div style="margin-bottom:24px">
           <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-database" style="color:var(--accent);margin-right:6px"></i>DynamoDB Tabellen</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-            <div v-for="t in awsData.tables" :key="t.name" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
+            <div v-for="t in awsData.tables" :key="t.name" class="psc-top" :style="{ '--psc-line': t.status === 'ACTIVE' ? '#10b981' : '#e05c5c', background: 'var(--bg-elevated)', border: '0.5px solid var(--border)', borderRadius: '10px', padding: '12px' }">
               <div style="font-size:12px;font-weight:600;margin-bottom:4px">{{ t.name.replace('plexora-','') }}</div>
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <span style="font-size:11px;color:var(--text-muted)">{{ t.itemCount }} Items</span>
                 <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--bg-surface);color:#00D4B4">{{ t.status }}</span>
               </div>
               <div style="font-size:10px;color:var(--text-muted);margin-top:4px">{{ (t.sizeBytes/1024).toFixed(1) }} KB</div>
+              <div class="psc-minibar" title="Größe im Vergleich zur größten Tabelle"><i :style="{ width: tblPct(t) + '%' }"></i></div>
             </div>
           </div>
         </div>
@@ -31,7 +32,7 @@
         <div style="margin-bottom:24px">
           <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-bolt" style="color:var(--accent);margin-right:6px"></i>Lambda Functions</div>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
-            <div v-for="f in awsData.functions" :key="f.name" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
+            <div v-for="f in awsData.functions" :key="f.name" class="psc-top" style="--psc-line:#10b981;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
               <div style="font-size:12px;font-weight:600;margin-bottom:6px">{{ f.name }}</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap">
                 <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.runtime }}</span>
@@ -40,6 +41,7 @@
                 <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ (f.codeSize/1024/1024).toFixed(1) }} MB</span>
               </div>
               <div style="font-size:10px;color:var(--text-muted);margin-top:6px">{{ new Date(f.lastModified).toLocaleString('de-DE') }}</div>
+              <div class="psc-minibar" title="Codegröße im Vergleich zur größten Funktion"><i :style="{ width: fnPct(f) + '%' }"></i></div>
             </div>
           </div>
         </div>
@@ -209,5 +211,7 @@ async function loadAws() {
 }
 
 onMounted(() => { if (tab.value === 'infra') { loadAws(); loadS3() } })
+const tblPct = (t: any) => Math.max(3, Math.round(((t.sizeBytes || 0) / Math.max(1, ...awsData.tables.map((x: any) => x.sizeBytes || 0))) * 100))
+const fnPct = (f: any) => Math.max(3, Math.round(((f.codeSize || 0) / Math.max(1, ...awsData.functions.map((x: any) => x.codeSize || 0))) * 100))
 onMounted(() => { loadAws(); loadS3() })
 </script>

@@ -1192,3 +1192,9 @@ ul {
 .auth-field textarea:focus {
   border-color: var(--border-accent);
 }
+
+
+/* PSC Manager: Karten mit farbiger Linie oben (Ampelfarbe über --psc-line) und kleine Balken */
+.psc-top { border-top: 3px solid var(--psc-line, var(--border)) !important; }
+.psc-minibar { height: 5px; border-radius: 99px; background: var(--bg-hover); overflow: hidden; margin-top: 8px; }
+.psc-minibar i { display: block; height: 100%; border-radius: 99px; background: var(--accent); transition: width .4s; }

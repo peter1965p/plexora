@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="card psc-top" :style="{ '--psc-line': lineColor }">
       <div class="card-header">
         <span class="card-title"><i class="ti ti-database-cog" style="margin-right:8px;color:var(--accent)"></i>Datenintegrität</span>
         <button class="accent-btn" style="height:32px;font-size:12px" @click="loadIntegrityScan" :disabled="integrityScanning">
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-// Datenintegrität im PSC Manager: findet Datensätze mit veralteter Besitzer-Kennung (roher Cognito-ID) und ordnet sie nach Bestätigung zu. Aus den Einstellungen hierher verschoben.
+// Datenintegrität im PSC Manager (Linie oben: grau = nicht geprüft, grün = nichts gefunden, gelb = Funde): findet Datensätze mit veralteter Besitzer-Kennung (roher Cognito-ID) und ordnet sie nach Bestätigung zu. Aus den Einstellungen hierher verschoben.
 const integrityScanning  = ref(false)
 const integrityMigrating = ref(false)
 const integrityScanResult = ref<{ resolvable: any[]; unresolvable: any[] } | null>(null)
@@ -143,4 +143,5 @@ async function runIntegrityMigration() {
   integrityMigrating.value = false
 }
 
+const lineColor = computed(() => !integrityScanResult.value ? '#8b8fa8' : (integrityScanResult.value.resolvable.length || integrityScanResult.value.unresolvable.length) ? '#f0b428' : '#10b981')
 </script>

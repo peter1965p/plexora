@@ -121,8 +121,9 @@
       <PscIntegrity v-else-if="tab === 'integrity'" />
 
       <!-- ═══ SICHERUNG & NOTFALL ═══ -->
-      <div v-else-if="tab === 'notfall'" class="psc-card">
-        <div class="psc-head"><span class="psc-title">Sicherung &amp; Notfall</span></div>
+      <div v-else-if="tab === 'notfall'" class="psc-card" :style="{ borderTopColor: LEVEL_COLOR[doneSteps === STEPS.length ? 'ok' : 'warn'] }">
+        <div class="psc-head"><span class="psc-title">Sicherung &amp; Notfall</span><span class="psc-meta">{{ doneSteps }} von {{ STEPS.length }} Schritten fertig</span></div>
+        <div class="psc-bar" style="margin-bottom:16px"><i :style="barStyle(doneSteps === STEPS.length ? 'ok' : 'warn', pct(doneSteps, STEPS.length))"></i></div>
         <p style="font-size:13px;color:var(--text-secondary);margin:0 0 14px;line-height:1.6">Ziel: Plexora läuft auch dann weiter, wenn AWS nicht mehr zur Verfügung steht. Dazu braucht es eine vollständige Sicherung außerhalb von AWS und ein Ausweichsystem auf PostgreSQL oder MySQL.</p>
         <ol class="psc-steps">
           <li v-for="s in STEPS" :key="s.t"><i class="ti" :class="s.done ? 'ti-circle-check' : 'ti-circle-dashed'" :style="{ color: s.done ? LEVEL_COLOR.ok : 'var(--text-muted)' }"></i><div><strong>{{ s.t }}</strong><div>{{ s.d }}</div></div></li>
@@ -177,6 +178,7 @@ const chart = computed(() => {
 })
 const go = (to?: string) => { if (!to) return; if (to.startsWith('tab:')) { setTab(to.slice(4)); window.scrollTo({ top: 0, behavior: 'smooth' }) } else router.push(to) }
 const dots = computed(() => pr.value ? [{ k: 'Rollen', on: pr.value.roles }, { k: 'Tarif', on: pr.value.plan }, { k: 'Anmeldung', on: pr.value.auth }] : [])
+const doneSteps = computed(() => STEPS.filter(x => x.done).length)
 const advice = computed(() => adviceFrom(ov.value))
 const barStyle = (l: Level, p: number) => ({ width: Math.max(p, 2) + '%', background: LEVEL_COLOR[l] })
 const nf = (n: number) => Number(n || 0).toLocaleString('de-DE')
