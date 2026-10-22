@@ -42,7 +42,7 @@ const translations = {
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
     pageTitles: {
-      '/dashboard':  'Dashboard', '/help': 'Hilfe', '/crm':        'CRM',        '/projects':   'Projekte',
+      '/dashboard':  'Dashboard', '/help': 'Hilfe', '/psc': 'PSC Office', '/crm':        'CRM',        '/projects':   'Projekte',
       '/lead':       'Lead-Landingpage', '/finance': 'Finanzen', '/contracts':  'Verträge',
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/forms':      'Formulare',
@@ -358,7 +358,7 @@ const translations = {
 
     // ── Topbar titles ──────────────────────────────────────────────────────────
     pageTitles: {
-      '/dashboard':  'Dashboard', '/help': 'Help', '/crm':        'CRM',        '/projects':   'Projects',
+      '/dashboard':  'Dashboard', '/help': 'Help', '/psc': 'PSC Office', '/crm':        'CRM',        '/projects':   'Projects',
       '/lead':       'Lead Page',  '/finance':    'Finance',    '/contracts':  'Contracts',
       '/hr':         'HR',         '/support':    'Support',    '/marketing':  'Marketing',
       '/shop-admin': 'Shop',       '/forms':      'Forms',

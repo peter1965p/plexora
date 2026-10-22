@@ -1013,209 +1013,7 @@
       </div>
     </div>
 
-    <div v-if="tab === 'infra'" class="card">
-      <div class="card-header">
-        <span class="card-title"><i class="ti ti-cloud" style="margin-right:8px;color:var(--accent)"></i>AWS Controlcenter</span>
-        <button class="accent-btn" style="height:32px;font-size:12px" @click="loadAws" :disabled="awsLoading">
-          <i class="ti" :class="awsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> {{ awsLoading ? 'Lädt...' : 'Aktualisieren' }}
-        </button>
-      </div>
-      <div v-if="isDemo" class="card-body" style="font-size:13px;color:var(--text-muted)"><i class="ti ti-lock"></i> Das AWS Controlcenter (Datenbank, Dateispeicher, Funktionen, Protokolle) zeigt die echte Infrastruktur und ist im Demo-Zugang aus Sicherheitsgründen nicht einsehbar.</div>
-      <div v-else class="card-body">
-        <!-- Status Pills -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
-          <div class="infra-pill"><i class="ti ti-shield-check" style="color:#00D4B4"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">AWS Cognito</div><div style="font-size:11px;color:var(--text-muted)">Auth — Frankfurt</div></div></div>
-          <div class="infra-pill"><i class="ti ti-database" style="color:var(--accent)"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">DynamoDB</div><div style="font-size:11px;color:var(--text-muted)">{{ awsData.tables.length }} Tabellen aktiv</div></div></div>
-          <div class="infra-pill"><i class="ti ti-world" style="color:#F0B428"></i><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">Cloudflare</div><div style="font-size:11px;color:var(--text-muted)">app.plexora.eu</div></div></div>
-        </div>
-        <!-- DynamoDB -->
-        <div style="margin-bottom:24px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-database" style="color:var(--accent);margin-right:6px"></i>DynamoDB Tabellen</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-            <div v-for="t in awsData.tables" :key="t.name" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
-              <div style="font-size:12px;font-weight:600;margin-bottom:4px">{{ t.name.replace('plexora-','') }}</div>
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="font-size:11px;color:var(--text-muted)">{{ t.itemCount }} Items</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--bg-surface);color:#00D4B4">{{ t.status }}</span>
-              </div>
-              <div style="font-size:10px;color:var(--text-muted);margin-top:4px">{{ (t.sizeBytes/1024).toFixed(1) }} KB</div>
-            </div>
-          </div>
-        </div>
-        <!-- Lambda -->
-        <div style="margin-bottom:24px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-bolt" style="color:var(--accent);margin-right:6px"></i>Lambda Functions</div>
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
-            <div v-for="f in awsData.functions" :key="f.name" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:12px">
-              <div style="font-size:12px;font-weight:600;margin-bottom:6px">{{ f.name }}</div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap">
-                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.runtime }}</span>
-                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.memory }} MB</span>
-                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ f.timeout }}s</span>
-                <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg-surface);color:var(--text-muted)">{{ (f.codeSize/1024/1024).toFixed(1) }} MB</span>
-              </div>
-              <div style="font-size:10px;color:var(--text-muted);margin-top:6px">{{ new Date(f.lastModified).toLocaleString('de-DE') }}</div>
-            </div>
-          </div>
-        </div>
-        <!-- Logs -->
-        <div style="margin-bottom:24px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px"><i class="ti ti-terminal" style="color:var(--accent);margin-right:6px"></i>Letzte Lambda Logs</div>
-          <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:16px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto">
-            <div v-if="!awsData.logs.length" style="color:var(--text-muted)">Keine Logs — klick Aktualisieren</div>
-            <div v-for="(e,i) in awsData.logs" :key="i" style="margin-bottom:4px;line-height:1.5">
-              <span style="color:var(--text-muted)">{{ new Date(e.timestamp).toLocaleTimeString('de-DE') }}</span>
-              <span :style="`margin-left:8px;color:${e.message?.includes('ERROR') ? '#E05C5C' : e.message?.includes('REPORT') ? '#F0B428' : 'var(--text-primary)'}`">{{ e.message?.trim() }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- S3 Filemanager -->
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-folder" style="color:var(--accent);margin-right:6px"></i>S3 Filemanager — plexora-files</div>
-            <div style="display:flex;gap:8px">
-              <input ref="s3FileInput" type="file" style="display:none" @change="onS3FileChange" />
-              <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="s3Uploading" @click="s3FileInput?.click()">
-                <span v-if="s3Uploading"><i class="ti ti-loader-2 spin"></i></span>
-                <span v-else><i class="ti ti-upload"></i> Datei hochladen</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Breadcrumb -->
-          <div style="display:flex;align-items:center;gap:4px;margin-bottom:12px;font-size:12px;color:var(--text-muted)">
-            <button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;padding:0" @click="s3GoTo('')">
-              <i class="ti ti-folder"></i> plexora-files
-            </button>
-            <template v-for="(part, i) in s3Breadcrumbs" :key="i">
-              <span>/</span>
-              <button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;padding:0" @click="s3GoTo(s3Breadcrumbs.slice(0,i+1).join('/') + '/')">{{ part }}</button>
-            </template>
-          </div>
-
-          <div v-if="s3Loading" style="text-align:center;padding:24px;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i> Lädt...</div>
-
-          <div v-else style="border:0.5px solid var(--border);border-radius:10px;overflow:hidden">
-            <div v-if="!s3Data.folders.length && !s3Data.files.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
-              Dieser Ordner ist leer.
-            </div>
-
-            <div v-for="f in s3Data.folders" :key="f.prefix"
-              style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s"
-              @click="s3GoTo(f.prefix)"
-              @mouseenter="e => e.currentTarget.style.background='var(--bg-elevated)'"
-              @mouseleave="e => e.currentTarget.style.background='transparent'">
-              <i class="ti ti-folder-filled" style="color:var(--accent);font-size:18px"></i>
-              <span style="font-size:13px;font-weight:600">{{ f.name }}</span>
-            </div>
-
-            <div v-for="o in s3Data.files" :key="o.key"
-              style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--border)">
-              <i class="ti ti-file" style="color:var(--text-muted);font-size:18px"></i>
-              <span style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ o.name }}</span>
-              <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">{{ formatBytes(o.size) }}</span>
-              <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">{{ o.lastModified ? new Date(o.lastModified).toLocaleDateString('de-DE') : '' }}</span>
-              <button style="background:none;border:0.5px solid var(--border);border-radius:6px;color:var(--text-muted);cursor:pointer;padding:4px 8px;font-size:11px" @click="copyS3Url(o.url)" title="URL kopieren">
-                <i class="ti ti-link"></i>
-              </button>
-              <a :href="o.url" target="_blank" style="background:none;border:0.5px solid var(--border);border-radius:6px;color:var(--text-muted);cursor:pointer;padding:4px 8px;font-size:11px;text-decoration:none;display:inline-flex" title="Öffnen">
-                <i class="ti ti-external-link"></i>
-              </a>
-              <button style="background:none;border:0.5px solid var(--border);border-radius:6px;color:#E05C5C;cursor:pointer;padding:4px 8px;font-size:11px" @click="deleteS3Object(o.key)" title="Löschen">
-                <i class="ti ti-trash"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   <!-- DATENINTEGRITÄT -->
-    <div v-if="tab === 'integrity' && isAdmin" class="card">
-      <div class="card-header">
-        <span class="card-title"><i class="ti ti-database-cog" style="margin-right:8px;color:var(--accent)"></i>Datenintegrität</span>
-        <button class="accent-btn" style="height:32px;font-size:12px" @click="loadIntegrityScan" :disabled="integrityScanning">
-          <i class="ti" :class="integrityScanning ? 'ti-loader-2 spin' : 'ti-search'"></i> {{ integrityScanning ? 'Scannt...' : 'Scan starten' }}
-        </button>
-      </div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--text-muted);margin:0 0 20px">
-          Sucht in allen userId-gescopten Tabellen nach Datensätzen, deren Besitzer noch eine rohe Cognito-ID
-          statt der heutigen E-Mail-Identität ist (ein Artefakt aus der Zeit vor der aktuellen Konvention).
-          Diese Datensätze sind für ihren echten Besitzer unsichtbar. Nichts wird automatisch verändert —
-          erst nach Auswahl und expliziter Bestätigung unten.
-        </p>
-
-        <div v-if="!integrityScanResult && !integrityScanning" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px">
-          Noch kein Scan durchgeführt.
-        </div>
-        <div v-if="integrityScanning" style="padding:32px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin" style="font-size:24px"></i></div>
-
-        <template v-if="integrityScanResult && !integrityScanning">
-          <div v-if="!integrityScanResult.resolvable.length && !integrityScanResult.unresolvable.length"
-            style="padding:24px;text-align:center;color:#00D4B4;font-size:13px">
-            <i class="ti ti-circle-check"></i> Keine verwaisten Datensätze gefunden.
-          </div>
-
-          <!-- Zuordenbare Funde -->
-          <div v-if="integrityScanResult.resolvable.length" style="margin-bottom:24px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-              <div style="font-size:13px;font-weight:700">Zuordenbare Funde ({{ integrityScanResult.resolvable.length }})</div>
-              <button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px" @click="toggleAllIntegrity">
-                {{ allIntegritySelected ? 'Alle abwählen' : 'Alle auswählen' }}
-              </button>
-            </div>
-            <div style="border:0.5px solid var(--border);border-radius:10px;overflow:hidden">
-              <div v-for="g in integrityScanResult.resolvable" :key="integrityKey(g)"
-                style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:0.5px solid var(--border)">
-                <input type="checkbox" :checked="integritySelected.has(integrityKey(g))" @change="toggleIntegritySelection(g)" style="cursor:pointer" />
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:600">{{ g.table.replace('plexora-','') }} <span style="color:var(--text-muted);font-weight:400">· Feld {{ g.field }}</span></div>
-                  <div style="font-size:11px;color:var(--text-muted);font-family:monospace;overflow:hidden;text-overflow:ellipsis">{{ g.legacyId }}</div>
-                </div>
-                <div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ g.count }} {{ g.count === 1 ? 'Datensatz' : 'Datensätze' }}</div>
-                <div style="display:flex;align-items:center;gap:6px;white-space:nowrap">
-                  <i class="ti ti-arrow-right" style="color:var(--text-muted);font-size:12px"></i>
-                  <span style="font-size:12px;font-weight:600;color:#00D4B4">{{ g.suggestedTarget }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Nicht zuordenbar -->
-          <div v-if="integrityScanResult.unresolvable.length" style="margin-bottom:24px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-muted)">Nicht zuordenbar ({{ integrityScanResult.unresolvable.length }})</div>
-            <div style="border:0.5px solid var(--border);border-radius:10px;overflow:hidden;opacity:0.7">
-              <div v-for="g in integrityScanResult.unresolvable" :key="integrityKey(g)"
-                style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:0.5px solid var(--border)">
-                <i class="ti ti-help-circle" style="color:var(--text-muted)"></i>
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:600">{{ g.table.replace('plexora-','') }} <span style="color:var(--text-muted);font-weight:400">· Feld {{ g.field }}</span></div>
-                  <div style="font-size:11px;color:var(--text-muted);font-family:monospace">{{ g.legacyId }}</div>
-                </div>
-                <div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ g.count }} {{ g.count === 1 ? 'Datensatz' : 'Datensätze' }}</div>
-                <div style="font-size:11px;color:var(--text-muted)">Cognito-Nutzer nicht mehr auffindbar — manuelle Prüfung nötig</div>
-              </div>
-            </div>
-          </div>
-
-          <button v-if="integrityScanResult.resolvable.length" class="accent-btn" style="background:#E05C5C" :disabled="!integritySelected.size || integrityMigrating" @click="runIntegrityMigration">
-            <i class="ti" :class="integrityMigrating ? 'ti-loader-2 spin' : 'ti-arrow-move-right'"></i>
-            {{ integrityMigrating ? 'Migriert...' : `Migration bestätigen & ausführen (${integritySelected.size})` }}
-          </button>
-
-          <div v-if="integrityResult" style="margin-top:16px;padding:14px;border-radius:10px;background:var(--bg-elevated);border:0.5px solid var(--border)">
-            <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:#00D4B4">
-              <i class="ti ti-circle-check"></i> {{ integrityResult.totalMigrated }} Datensätze migriert
-            </div>
-            <div v-if="integrityResult.totalSkipped" style="font-size:12px;color:var(--text-muted)">{{ integrityResult.totalSkipped }} übersprungen (evtl. bereits migriert)</div>
-            <div v-if="integrityResult.errors?.length" style="font-size:12px;color:#E05C5C;margin-top:4px">{{ integrityResult.errors.length }} Fehler — siehe Konsole</div>
-          </div>
-        </template>
-      </div>
-    </div>
-
   <!-- VIDEO | KALENDER -->
   <div v-if="tab === 'video'" style="display:flex;flex-direction:column;gap:16px;max-width:860px">
     <div class="card">
@@ -1912,6 +1710,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const store = useAppStore()
 const route = useRoute()
 const tab   = ref(typeof route.query.tab === 'string' ? route.query.tab : 'branding')
+if (tab.value === 'infra' || tab.value === 'integrity') navigateTo('/psc?tab=' + tab.value)      // Infrastruktur und Datenintegrität sind jetzt im PSC Office
 
 const customAccent     = ref(store.accent)
 const appearanceSaving = ref(false)
@@ -2040,7 +1839,6 @@ const BASE_TABS = [
   { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
   { key: 'billing',     label: 'Abrechnung',       icon: 'ti-credit-card'     },
   { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
-  { key: 'infra',       label: 'Infrastruktur',    icon: 'ti-cloud'           },
   { key: 'team',        label: 'Team',             icon: 'ti-users'           },
 ]
 
@@ -2060,11 +1858,8 @@ const tabs = computed(() => {
     ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
     : []
   const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }, { key: 'backup', label: 'Sicherung', icon: 'ti-database-export' }, { key: 'mailtemplates', label: 'E-Mail-Vorlagen', icon: 'ti-mail-cog' }]
-  const integrityExtra = isAdmin.value
-    ? [{ key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }]
-    : []
   const adminExtra = isAdmin.value || isDemo.value ? ADMIN_TABS : []       // Demo-Konto sieht die Betreiber-Reiter schreibgeschützt (Datenintegrität und Gesamtsicherung nicht)
-  return [...BASE_TABS, ...adminExtra, ...extra, ...aiExtra, ...integrityExtra]
+  return [...BASE_TABS, ...adminExtra, ...extra, ...aiExtra]
 })
 
 // ── Datenintegrität (Admin-only, echte clientseitige Rollenprüfung) ────────────
@@ -2074,63 +1869,6 @@ onMounted(async () => {
   const u = await useAuthUser()
   isAdmin.value = u.role === 'admins'
 })
-
-const integrityScanning  = ref(false)
-const integrityMigrating = ref(false)
-const integrityScanResult = ref<{ resolvable: any[]; unresolvable: any[] } | null>(null)
-const integritySelected  = ref(new Set<string>())
-const integrityResult    = ref<any>(null)
-
-function integrityKey(g: { table: string; field: string; legacyId: string }) {
-  return `${g.table}|${g.field}|${g.legacyId}`
-}
-const allIntegritySelected = computed(() =>
-  !!integrityScanResult.value?.resolvable.length &&
-  integrityScanResult.value.resolvable.every(g => integritySelected.value.has(integrityKey(g)))
-)
-function toggleIntegritySelection(g: any) {
-  const k = integrityKey(g)
-  if (integritySelected.value.has(k)) integritySelected.value.delete(k)
-  else integritySelected.value.add(k)
-  integritySelected.value = new Set(integritySelected.value)
-}
-function toggleAllIntegrity() {
-  if (!integrityScanResult.value) return
-  if (allIntegritySelected.value) {
-    integritySelected.value = new Set()
-  } else {
-    integritySelected.value = new Set(integrityScanResult.value.resolvable.map(integrityKey))
-  }
-}
-
-async function loadIntegrityScan() {
-  integrityScanning.value = true
-  integrityResult.value = null
-  try {
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    const res = await $fetch(useApiUrl('/api/admin/data-integrity/scan'), { headers: await useAuthHeader() }) as any
-    integrityScanResult.value = { resolvable: res.resolvable || [], unresolvable: res.unresolvable || [] }
-    integritySelected.value = new Set(integrityScanResult.value.resolvable.map(integrityKey))
-  } catch (e) { console.error(e) }
-  integrityScanning.value = false
-}
-
-async function runIntegrityMigration() {
-  if (!integrityScanResult.value || !integritySelected.value.size) return
-  integrityMigrating.value = true
-  try {
-    const items = integrityScanResult.value.resolvable
-      .filter(g => integritySelected.value.has(integrityKey(g)))
-      .map(g => ({ table: g.table, field: g.field, legacyId: g.legacyId }))
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    const res = await $fetch(useApiUrl('/api/admin/data-integrity/migrate'), {
-      method: 'POST', headers: await useAuthHeader(), body: { items },
-    }) as any
-    integrityResult.value = res
-    await loadIntegrityScan()
-  } catch (e) { console.error(e) }
-  integrityMigrating.value = false
-}
 
 // ── Nexora / Website Domain ───────────────────────────
 const nexora       = ref<any>(null)
@@ -2914,96 +2652,6 @@ async function saveNavOrder() {
   savingNav.value = false
 }
 
-const awsLoading = ref(false)
-const awsData = reactive({ tables: [], functions: [], logs: [] })
-
-// ── S3 Filemanager ──────────────────────────────────
-const s3Loading = ref(false)
-const s3Uploading = ref(false)
-const s3Prefix = ref('')
-const s3FileInput = ref<HTMLInputElement | null>(null)
-const s3Data = reactive({ folders: [] as any[], files: [] as any[] })
-const s3Breadcrumbs = computed(() => s3Prefix.value.split('/').filter(Boolean))
-
-function formatBytes(bytes: number) {
-  if (!bytes) return '0 B'
-  const units = ['B','KB','MB','GB']
-  let i = 0
-  let n = bytes
-  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++ }
-  return `${n.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
-}
-
-async function loadS3() {
-  s3Loading.value = true
-  try {
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    const res = await $fetch(useApiUrl('/api/aws/s3'), { query: { prefix: s3Prefix.value }, headers: await useAuthHeader() }) as any
-    s3Data.folders = res.folders || []
-    s3Data.files = res.files || []
-  } catch(e) { console.error(e) }
-  s3Loading.value = false
-}
-
-function s3GoTo(prefix: string) {
-  s3Prefix.value = prefix
-  loadS3()
-}
-
-async function onS3FileChange(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  s3Uploading.value = true
-  try {
-    const reader = new FileReader()
-    const fileBase64 = await new Promise<string>((resolve, reject) => {
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    await $fetch(useApiUrl('/api/aws/s3-upload'), {
-      method: 'POST',
-      headers: await useAuthHeader(),
-      body: { fileBase64, fileName: file.name, prefix: s3Prefix.value }
-    })
-    await loadS3()
-  } finally {
-    s3Uploading.value = false
-    if (s3FileInput.value) s3FileInput.value.value = ''
-  }
-}
-
-async function deleteS3Object(key: string) {
-  if (!await openConfirm({ title: 'Datei löschen?', name: key, icon: 'ti-file-off' })) return
-  const { useAuthHeader } = await import('~/composables/useAuth')
-  await $fetch(useApiUrl('/api/aws/s3-delete'), { method: 'POST', headers: await useAuthHeader(), body: { key } })
-  await loadS3()
-}
-
-function copyS3Url(url: string) {
-  navigator.clipboard.writeText(url)
-}
-
-async function loadAws() {
-  awsLoading.value = true
-  try {
-    const { useAuthHeader } = await import('~/composables/useAuth')
-    const authHeaders = await useAuthHeader()
-    const [dynamo, lambda, logs] = await Promise.all([
-      $fetch(useApiUrl('/api/aws/dynamo'), { headers: authHeaders }),
-      $fetch(useApiUrl('/api/aws/lambda'), { headers: authHeaders }),
-      $fetch(useApiUrl('/api/aws/logs'), { headers: authHeaders }),
-    ])
-    awsData.tables    = (dynamo as any).tables    || []
-    awsData.functions = (lambda as any).functions || []
-    awsData.logs      = (logs as any).events      || []
-  } catch(e) { console.error(e) }
-  awsLoading.value = false
-}
-
-onMounted(() => { if (tab.value === 'infra') { loadAws(); loadS3() } })
-watch(tab, v => { if (v === 'infra') { loadAws(); loadS3() } })
 
 
 onMounted(async () => {
