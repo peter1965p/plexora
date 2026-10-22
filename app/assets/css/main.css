@@ -383,10 +383,14 @@ ul {
   padding: 18px 20px;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.2s;
+  border-top: 3px solid var(--card-line, var(--accent));
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .stat-card:hover {
   border-color: var(--border-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.08);
 }
 .stat-label {
   font-size: 11px;
@@ -437,6 +441,7 @@ ul {
   border: 0.5px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  border-top: 3px solid var(--card-line, var(--border-accent, var(--border)));
   box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
 }
 .card-header {
