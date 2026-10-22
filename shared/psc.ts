@@ -39,6 +39,19 @@ export function hourBuckets(points: Array<{ ts: string | number | Date; v: numbe
   return out.map(v => Math.round(v))
 }
 
+/** Neue Einträge je Woche (älteste zuerst) aus einem Zeitstempel-Feld; n Wochen bis end */
+export function weekBuckets(items: any[], field: string, end: number, n = 8): number[] {
+  const W = 7 * 86_400_000, start = end - n * W, out = Array.from({ length: n }, () => 0)
+  for (const it of items || []) { const t = new Date(it?.[field]).getTime(); if (!Number.isFinite(t) || t < start || t >= end) continue; out[Math.min(n - 1, Math.floor((t - start) / W))]++ }
+  return out
+}
+/** SVG-Punkte (viewBox 0 0 w h) für eine Verlaufslinie; leer, wenn nichts zu zeigen ist */
+export function sparkPoints(vals: number[], w = 100, h = 24): string {
+  if (!vals.length || !vals.some(v => v > 0)) return ''
+  const max = Math.max(...vals), step = vals.length > 1 ? w / (vals.length - 1) : w
+  return vals.map((v, i) => `${(i * step).toFixed(1)},${(h - 2 - (v / max) * (h - 4)).toFixed(1)}`).join(' ')
+}
+
 /** Ziel eines Hinweises: "tab:<name>" = Reiter im PSC Manager, sonst eine Seite */
 export interface Advice { level: Level; text: string; to?: string }
 /** Hinweise aus den Messwerten der Übersicht (Reihenfolge: kritisch zuerst). Fehlende Abschnitte (ok:false) erzeugen keine Hinweise. */

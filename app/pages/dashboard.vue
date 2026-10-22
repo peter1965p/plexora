@@ -8,24 +8,28 @@
         <div class="stat-label">{{ t.dash.weightedPipeline }}</div>
         <div class="stat-value">{{ formatEur(weightedPipeline) }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ deals.length }} {{ t.dash.dealsActive }}</div>
+        <svg v-if="sparkPipe" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkPipe" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
       <div class="stat-card">
         <i class="ti ti-briefcase stat-icon"></i>
         <div class="stat-label">{{ t.dash.activeDeals }}</div>
         <div class="stat-value">{{ deals.length }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} {{ t.dash.won }}</div>
+        <svg v-if="sparkDeals" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkDeals" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
       <div class="stat-card">
         <i class="ti ti-headset stat-icon"></i>
         <div class="stat-label">{{ t.dash.openTickets }}</div>
         <div class="stat-value">{{ openTickets }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ tickets.length }} {{ t.dash.total }}</div>
+        <svg v-if="sparkTickets" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkTickets" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
       <div class="stat-card">
         <i class="ti ti-users stat-icon"></i>
         <div class="stat-label">{{ t.dash.employees }}</div>
         <div class="stat-value">{{ employees.length }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ activeEmployees }} {{ t.dash.active }}</div>
+        <svg v-if="sparkEmp" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkEmp" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
     </div>
 
@@ -207,6 +211,7 @@
 </template>
 
 <script setup lang="ts">
+import { weekBuckets, sparkPoints } from '~~/shared/psc'
 import { calcWeightedPipeline, formatEur, stageLabel as dealStageLabel } from '~/modules/deals'
 import { statusLabel, statusBadge, sortByMostUsed } from '~/modules/contacts'
 import { priorityLabel, priorityBadge } from '~/modules/support'
@@ -275,6 +280,12 @@ const weightedPipeline = computed(() => calcWeightedPipeline(deals.value))
 const wonDeals         = computed(() => deals.value.filter((d: any) => d.status === 'success').length)
 const openTickets      = computed(() => tickets.value.filter((t: any) => t.status === 'open' || t.status === 'in_progress').length)
 const activeEmployees  = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
+
+const nowMs = Date.now()
+const sparkPipe    = computed(() => sparkPoints(weekBuckets(deals.value, 'created', nowMs)))
+const sparkDeals   = sparkPipe
+const sparkTickets = computed(() => sparkPoints(weekBuckets(tickets.value, 'created', nowMs)))
+const sparkEmp     = computed(() => sparkPoints(weekBuckets(employees.value, 'created', nowMs)))
 
 let _chartInstance: any = null
 

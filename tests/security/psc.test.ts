@@ -100,3 +100,21 @@ describe('PSC Manager: Stundenverlauf und anklickbare Hinweise', () => {
     expect(readFileSync('app/components/PscInfra.vue', 'utf8')).toContain('psc-top'); expect(readFileSync('app/components/PscIntegrity.vue', 'utf8')).toContain('psc-top'); expect(p).toContain('von {{ STEPS.length }} Schritten fertig'); expect(p).toContain('psc-spark'); expect(p).toContain('borderTopColor'); expect(p).toContain('@click="go(a.to)"')
   })
 })
+
+import { weekBuckets as _wb, sparkPoints as _sp } from '../../shared/psc'
+describe('Verlaufslinien (Dashboard)', () => {
+  const end = Date.UTC(2026, 9, 22)
+  it('zählt neue Einträge je Woche, ignoriert Ungültiges', () => {
+    const items = [{ c: end - 1000 }, { c: end - 8 * 86_400_000 }, { c: 'x' }, { c: end - 99 * 86_400_000 }, {}]
+    const b = _wb(items, 'c', end, 8)
+    expect(b).toHaveLength(8)
+    expect(b[7]).toBe(1)
+    expect(b[6]).toBe(1)
+    expect(b.reduce((a, c) => a + c, 0)).toBe(2)
+  })
+  it('liefert keine Linie ohne Daten', () => {
+    expect(_sp([0, 0, 0])).toBe('')
+    expect(_sp([])).toBe('')
+    expect(_sp([1, 3, 2]).split(' ')).toHaveLength(3)
+  })
+})
