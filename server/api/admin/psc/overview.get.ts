@@ -1,7 +1,7 @@
 import { requireAdmin } from '../../../utils/verifyAuth'
 import { section, lambdaSection, dbSection, protectionSection, demoSection, backupSection, runtimeSection } from '../../../utils/pscOverview'
 
-// PSC Office: Überblick über Plattform, Datenbank, Schutz, Demo-Pool und Sicherung. Nur Plattform-Betreiber (kein Demo-Zugriff, es zeigt die echte Infrastruktur).
+// PSC Manager: Überblick über Plattform, Datenbank, Schutz, Demo-Pool und Sicherung. Nur Plattform-Betreiber (kein Demo-Zugriff, es zeigt die echte Infrastruktur).
 export default defineEventHandler(async (event) => {
   const auth = requireAdmin(event)
   const force = String(getQuery(event).refresh || '') === '1'

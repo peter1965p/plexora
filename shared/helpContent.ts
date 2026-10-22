@@ -287,10 +287,10 @@ export const HELP_TOPICS: HelpTopic[] = [
     tips: ['Das Modul darf nur über die vorgegebenen Funktionen Daten lesen und speichern (höchstens 200 KB) und soll die Farben des Themes nutzen.', 'Plugins laufen mit deiner Sitzung: nur Code aus eigener, vertrauenswürdiger Quelle eintragen.'],
   },
   {
-    id: 'psc', group: 'system', title: 'PSC Office (Sicherheits-Center)', icon: 'ti-shield-lock', route: '/psc',
+    id: 'psc', group: 'system', title: 'PSC Manager (Sicherheits-Center)', icon: 'ti-shield-lock', route: '/psc',
     summary: 'Das Sicherheits-Center des Plattform-Betreibers: Zustand der Plattform, Schutz, Sicherung und Notfall-Vorsorge auf einen Blick. Nur für den Betreiber sichtbar.',
     steps: [
-      'Öffne „PSC Office“ in der Seitenleiste unter System.',
+      'Öffne „PSC Manager“ in der Seitenleiste unter System.',
       'Die Übersicht zeigt den Plattform-Monitor: gleichzeitige Ausführungen, Anfragen der letzten 24 Stunden mit Drosselungen und Fehlern, die Datenbank (Tabellen, Datensätze, Wiederherstellung) und die Funktion.',
       'Darunter stehen Kacheln zu Schutz (Rollen, Tarif, Anmeldung), Demo-Pool, Gesamtsicherung und Notfall-Bereitschaft sowie eine Liste von Hinweisen, was noch zu tun ist.',
       'Die Reiter „Infrastruktur“ und „Datenintegrität“ enthalten, was früher in den Einstellungen stand. „Sicherung & Notfall“ zeigt den Weg zu einem Ausweichsystem auf PostgreSQL oder MySQL.',

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { pct, loadLevel, errorLevel, recoveryLevel, backupLevel, ageText, adviceFrom, mb, kb } from '../../shared/psc'
 
-describe('PSC Office: Ampeln und Zahlen', () => {
+describe('PSC Manager: Ampeln und Zahlen', () => {
   it('Auslastung: unter 60 % ok, bis 85 % Warnung, darüber kritisch; Grenzwerte und Null', () => {
     expect(pct(3, 300)).toBe(1); expect(pct(400, 300)).toBe(100); expect(pct(5, 0)).toBe(0); expect(pct(-5, 10)).toBe(0)
     expect(loadLevel(10, 100)).toBe('ok'); expect(loadLevel(70, 100)).toBe('warn'); expect(loadLevel(90, 100)).toBe('bad'); expect(loadLevel(0, 0)).toBe('ok')
@@ -22,7 +22,7 @@ describe('PSC Office: Ampeln und Zahlen', () => {
   })
 })
 
-describe('PSC Office: Hinweise', () => {
+describe('PSC Manager: Hinweise', () => {
   const ok = <T>(data: T) => ({ ok: true as const, data })
   const base = () => ({ db: ok({ tables: 84, pitrEnabled: 0, deletionProtected: 0 }), lambda: ok({ throttles24h: 0, errors24h: 0, invocations24h: 100 }), protection: ok({ roles: false, plan: false, auth: false }), backups: ok({ last: null, external: false }) })
   it('heutiger Stand: Wiederherstellung fehlt (kritisch), keine Sicherung, keine Kopie außerhalb, Rollen/Tarif nur beobachtet', () => {
@@ -58,7 +58,7 @@ let H: any
 beforeAll(async () => { H = (await import('../../server/api/admin/psc/overview.get')).default })
 const ev = (groups: string[] | null, email = 'peter@x.de') => ({ context: { auth: groups ? { userId: 'u', email, groups } : undefined }, query: {} })
 const call = async (e: any) => { try { return { code: 200, res: await H(e) } } catch (x: any) { return { code: x.statusCode as number } } }
-describe('PSC Office: Route', () => {
+describe('PSC Manager: Route', () => {
   it('nur Plattform-Betreiber: anonym 401, Kunde 403, Demo 403', async () => {
     expect((await call(ev(null))).code).toBe(401); expect((await call(ev(['customers']))).code).toBe(403); expect((await call(ev(['customers'], 'demo@plexora.eu'))).code).toBe(403); expect((await call(ev(['customers'], 'demo05@plexora.eu'))).code).toBe(403)
   })
@@ -69,11 +69,11 @@ describe('PSC Office: Route', () => {
   })
 })
 
-describe('PSC Office: Einbau', () => {
-  it('Reiter Infrastruktur und Datenintegrität sind aus den Einstellungen in das PSC Office umgezogen', () => {
+describe('PSC Manager: Einbau', () => {
+  it('Reiter Infrastruktur und Datenintegrität sind aus den Einstellungen in das PSC Manager umgezogen', () => {
     const st = readFileSync('app/pages/settings/index.vue', 'utf8'), psc = readFileSync('app/pages/psc/index.vue', 'utf8')
     expect(st).not.toContain("tab === 'infra'"); expect(st).not.toContain("tab === 'integrity' && isAdmin"); expect(st).not.toContain('loadIntegrityScan'); expect(st).toContain("navigateTo('/psc?tab='")
     expect(psc).toContain('<PscInfra'); expect(psc).toContain('<PscIntegrity'); expect(readFileSync('app/components/PscInfra.vue', 'utf8')).toContain('loadAws'); expect(readFileSync('app/components/PscIntegrity.vue', 'utf8')).toContain('loadIntegrityScan')
   })
-  it('Seitenleiste zeigt PSC Office nur Betreibern', () => { const sb = readFileSync('app/components/AppSidebar.vue', 'utf8'); expect(sb).toContain("isPlatformAdmin.value ? [{ to: '/psc'") })
+  it('Seitenleiste zeigt PSC Manager nur Betreibern', () => { const sb = readFileSync('app/components/AppSidebar.vue', 'utf8'); expect(sb).toContain("isPlatformAdmin.value ? [{ to: '/psc'") })
 })

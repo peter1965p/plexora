@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-// Datenintegrität im PSC Office: findet Datensätze mit veralteter Besitzer-Kennung (roher Cognito-ID) und ordnet sie nach Bestätigung zu. Aus den Einstellungen hierher verschoben.
+// Datenintegrität im PSC Manager: findet Datensätze mit veralteter Besitzer-Kennung (roher Cognito-ID) und ordnet sie nach Bestätigung zu. Aus den Einstellungen hierher verschoben.
 const integrityScanning  = ref(false)
 const integrityMigrating = ref(false)
 const integrityScanResult = ref<{ resolvable: any[]; unresolvable: any[] } | null>(null)

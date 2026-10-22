@@ -75,7 +75,7 @@ onMounted(() => { loadBranchModules() })
 // Rollen: Menüpunkte, die die eigene Rolle nicht öffnen darf, werden ausgeblendet (nur wenn der Server die Rollen durchsetzt; der Server bleibt maßgeblich)
 const { load: loadRole, can: canRole } = useRole()
 onMounted(() => loadRole())
-// PSC Office (Sicherheits-Center): nur für den Plattform-Betreiber (Cognito-Gruppe admins) sichtbar
+// PSC Manager (Sicherheits-Center): nur für den Plattform-Betreiber (Cognito-Gruppe admins) sichtbar
 const isPlatformAdmin = ref(false)
 onMounted(async () => { try { const { useAuthUser } = await import('~/composables/useAuth'); isPlatformAdmin.value = (await useAuthUser()).role === 'admins' } catch { /* kein Eintrag */ } })
 
@@ -125,7 +125,7 @@ const navSections = computed(() => [
     label: t.value.navSystem,
     items: [
       { to: '/help',     label: 'Hilfe',             icon: 'ti-help-circle',    key: 'help'     },
-      ...(isPlatformAdmin.value ? [{ to: '/psc', label: 'PSC Office', icon: 'ti-shield-lock', key: 'psc' }] : []),
+      ...(isPlatformAdmin.value ? [{ to: '/psc', label: 'PSC Manager', icon: 'ti-shield-lock', key: 'psc' }] : []),
       { to: '/team',     label: 'Team',              icon: 'ti-users',          key: 'team'     },
       { to: '/settings', label: t.value.settings,  icon: 'ti-settings',       key: 'settings' },
       { to: '/seo',      label: 'SEO / GEO',        icon: 'ti-chart-line',     key: 'seo'      },

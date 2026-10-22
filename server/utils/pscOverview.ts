@@ -8,7 +8,7 @@ import { planEnforced } from './tenantPlan'
 import { DEMO_POOL, DEMO_BASE_EMAIL } from '../../shared/demo'
 import { stateKey } from './demoSandbox'
 
-// Datenquelle des PSC Office: gesammelte Plattform-Werte (nur für den Betreiber). Jeder Abschnitt fällt einzeln aus (fehlendes Recht, AWS nicht erreichbar), ohne die anderen zu stören.
+// Datenquelle des PSC Manager: gesammelte Plattform-Werte (nur für den Betreiber). Jeder Abschnitt fällt einzeln aus (fehlendes Recht, AWS nicht erreichbar), ohne die anderen zu stören.
 export type Section<T> = { ok: true; data: T } | { ok: false; error: string }
 export async function section<T>(fn: () => Promise<T>): Promise<Section<T>> {
   try { return { ok: true, data: await fn() } } catch (e: any) { return { ok: false, error: String(e?.name || 'Fehler').replace(/Exception$/, '').slice(0, 60) } }

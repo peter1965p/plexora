@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-// Infrastruktur im PSC Office: AWS-Überblick (Tabellen, Funktionen, Protokolle) und Dateiverwaltung des Speichers. Aus den Einstellungen hierher verschoben.
+// Infrastruktur im PSC Manager: AWS-Überblick (Tabellen, Funktionen, Protokolle) und Dateiverwaltung des Speichers. Aus den Einstellungen hierher verschoben.
 const { openConfirm } = useConfirm()
 const awsLoading = ref(false)
 const awsData = reactive({ tables: [], functions: [], logs: [] })

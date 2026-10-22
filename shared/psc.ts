@@ -1,4 +1,4 @@
-// PSC Office (Plexora Sicherheits-Center): reine Hilfen für die Übersicht (Ampelfarben, Prozent, Alter). Keine Datenbank, kein Netz.
+// PSC Manager (Plexora Sicherheits-Center): reine Hilfen für die Übersicht (Ampelfarben, Prozent, Alter). Keine Datenbank, kein Netz.
 export type Level = 'ok' | 'warn' | 'bad' | 'off'
 export const pct = (n: number, max: number) => (max > 0 ? Math.min(100, Math.max(0, Math.round((n / max) * 100))) : 0)
 

@@ -1710,7 +1710,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const store = useAppStore()
 const route = useRoute()
 const tab   = ref(typeof route.query.tab === 'string' ? route.query.tab : 'branding')
-if (tab.value === 'infra' || tab.value === 'integrity') navigateTo('/psc?tab=' + tab.value)      // Infrastruktur und Datenintegrität sind jetzt im PSC Office
+if (tab.value === 'infra' || tab.value === 'integrity') navigateTo('/psc?tab=' + tab.value)      // Infrastruktur und Datenintegrität sind jetzt im PSC Manager
 
 const customAccent     = ref(store.accent)
 const appearanceSaving = ref(false)

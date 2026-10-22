@@ -2,14 +2,14 @@
   <div class="page">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0"><i class="ti ti-shield-lock" style="color:var(--accent);margin-right:8px"></i>PSC <span style="color:var(--accent)">Office</span></h1>
+        <h1 style="font-size:22px;font-weight:800;margin:0"><i class="ti ti-shield-lock" style="color:var(--accent);margin-right:8px"></i>PSC <span style="color:var(--accent)">Manager</span></h1>
         <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Plexora Sicherheits-Center: Zustand der Plattform, Schutz, Sicherung und Notfall-Vorsorge</p>
       </div>
       <button v-if="admin && tab === 'overview'" class="accent-btn" :disabled="loading" @click="load(true)"><i class="ti" :class="loading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> Aktualisieren</button>
     </div>
 
     <div v-if="!ready" style="padding:40px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
-    <div v-else-if="!admin" class="card" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px"><i class="ti ti-lock" style="font-size:22px;display:block;margin-bottom:8px"></i>Das PSC Office zeigt die echte Infrastruktur und ist nur für den Plattform-Betreiber sichtbar.</div>
+    <div v-else-if="!admin" class="card" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px"><i class="ti ti-lock" style="font-size:22px;display:block;margin-bottom:8px"></i>Das PSC Manager zeigt die echte Infrastruktur und ist nur für den Plattform-Betreiber sichtbar.</div>
 
     <template v-else>
       <div class="psc-tabs">
