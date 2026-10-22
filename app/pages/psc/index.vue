@@ -34,9 +34,9 @@
             <div class="psc-col">
               <div class="psc-label">Anfragen (24 Std.)</div>
               <template v-if="lam">
-                <div class="psc-big">{{ nf(lam.invocations24h) }}</div>
                 <div class="psc-bar"><i :style="barStyle(errLevel, errPct)"></i></div>
-                <div class="psc-sub">{{ lam.throttles24h }} gedrosselt · {{ lam.errors24h }} Fehler · Ø {{ lam.avgMs }} ms</div>
+                <div class="psc-big" style="margin-bottom:2px">{{ nf(lam.invocations24h) }}</div>
+                <div class="psc-sub">Anfragen · {{ lam.throttles24h }} gedrosselt · {{ lam.errors24h }} Fehler · Ø {{ lam.avgMs }} ms</div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.lambda) }}</div>
             </div>
