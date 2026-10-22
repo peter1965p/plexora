@@ -1,120 +1,116 @@
-# Plexora — Business Platform
+<div align="center">
 
-> **Eine Lizenz. Alles drin.**
+# Plexora
 
-Warum 10 Tools bezahlen, wenn eines reicht? Plexora ist eine modulare
-All-in-One Business-Plattform für KMU — CRM, Projekte, HR, Finanzen
-und Support in einer Oberfläche.
+**Eine Lizenz. Alles drin.**
 
-Gebaut von einem Entwickler der selbst weiß wie es sich anfühlt, zwischen zu vielen Tools zu wechseln.
+Modulare All-in-One-Business-Plattform für kleine und mittlere Unternehmen:
+CRM, Projekte, Finanzen mit E-Rechnung, HR, Support und mehr in einer Oberfläche.
+
+[**Live ansehen → plexora.eu**](https://www.plexora.eu) · Demo-Zugang direkt auf der Startseite (Sandkasten, ohne Registrierung)
+
+</div>
 
 ---
 
 ## Screenshots
 
-### Dashboard
-![Dashboard](./public/screenshots/dashboard.overview.png)
-*Pipeline-Übersicht, aktive Deals, offene Tickets und Mitarbeiter auf einen Blick*
+![Dashboard](./public/screenshots/dashboard-light.png)
+*Dashboard mit Kennzahlen, Verlaufslinien und klickbaren Listen*
 
-### CRM
-![CRM](./public/screenshots/cmr.overview.png)
-*Kontakte, Deals mit Phasen, Pipeline-Wert und Win Rate*
+![Modul-Store](./public/screenshots/modulstore-light.png)
+*Modul-Store: Module und Branchen-Pakete einzeln dazubuchen*
 
-### Projekte
-![Projekte](./public/screenshots/project.overview.png)
-*Projektübersicht mit Deadlines, Fortschrittsbalken und Team-Zuordnung*
-
-### Finanzen
-![Finanzen](./public/screenshots/finance.overview.png)
-*Rechnungen, Zahlungsstatus, ausstehende und überfällige Beträge*
-
-### HR
-![HR](./public/screenshots/hr.overview.png)
-*Mitarbeiterverwaltung, Abteilungen, Urlaub und Offboarding*
-
-### Support
-![Support](./public/screenshots/support.overview.png)
-*Ticket-System mit Prioritäten, Status und Kunden-Zuordnung*
-
-### Einstellungen
-![Einstellungen](./public/screenshots/settings.overview.png)
-*Dark/Light Mode, Akzentfarben, Module ein/ausschalten, Infrastruktur-Status (AWS Cognito, DynamoDB, Cloudflare)*
-
-### Infrastruktur
-![AWS](./public/screenshots/aws.cocnito.png)
-*AWS Cognito Auth, DynamoDB 6 Tabellen aktiv, Cloudflare Deploy*
+![SEO und Besucherstatistik](./public/screenshots/seo-light.png)
+*Besucherstatistik und SEO-Auswertung*
 
 ---
 
-## Stack
+## Was Plexora kann
+
+| Bereich | Inhalt |
+|---------|--------|
+| **Basis-Module (15)** | Dashboard, CRM, Projekte, Finanzen, HR, Support, Verträge, Termine, Newsletter, Analytics, Team u. a. |
+| **E-Rechnung** | XRechnung 3.0 und ZUGFeRD (EN 16931, PDF/A-3b), Eingangsrechnungen einlesen; geprüft mit KoSIT-Validator und Mustang/veraPDF |
+| **Branchen-Pakete** | Gastro, Handwerk, Immobilien, Automotive, Fewo sowie ein Baukasten (Fitness, Bildung, Events, Reinigung, Vereine, Taxi) |
+| **Website-Engine** | Eigene Seiten, Blog mit Kommentaren, Lead-Seiten, Formulare, Funnels |
+| **Plugins und Store** | Module einzeln buchbar, eigene Module nach Anleitung ([docs/modul-schreiben.md](docs/modul-schreiben.md)) |
+| **Mandanten und Rollen** | Mehrere Firmen getrennt, Rollen je Bereich, Team-Verwaltung |
+| **Hilfe** | In-App-Hilfe mit Suche, Tooltips und Einführungstour |
+| **PSC Manager** | Sicherheits-Center für den Betreiber: Systemmonitor, Datenintegrität, Sicherung und Notfallplan |
+| **Demo-Sandkasten** | Besucher probieren alles aus, ändern dürfen sie nur in einer Erlaubnisliste; Zurücksetzen auf den Standard |
+
+---
+
+## Architektur
+
+```
+Browser ──► Cloudflare Pages (Nuxt 4, Vue 3, TypeScript)
+               │
+               ▼
+        API Gateway ──► AWS Lambda (Nuxt/Nitro, plexora-api)
+                              │
+              ┌───────────────┼────────────────┐
+              ▼               ▼                ▼
+          DynamoDB          Cognito            S3
+      (eine Tabelle     (Anmeldung,       (Dateien,
+       je Funktion)      E-Mail-Alias)     Sicherungen)
+```
 
 | Bereich | Technologie |
 |---------|-------------|
-| **Frontend** | Vue 3, Nuxt 4, TypeScript, Tailwind CSS |
-| **Backend** | Nuxt Server Routes, Node.js |
-| **Database** | AWS DynamoDB, Supabase |
-| **Auth** | JWT, Role-based Access Control |
-| **Deployment** | Vercel, GitHub CI/CD |
+| **Frontend** | Nuxt 4, Vue 3, TypeScript, Pinia, Chart.js |
+| **Backend** | Nitro-Serverrouten auf AWS Lambda hinter API Gateway |
+| **Daten** | DynamoDB (je Funktion eine Tabelle), S3 |
+| **Anmeldung** | AWS Cognito, rollenbasierte Zugriffsregeln |
+| **Betrieb** | Cloudflare Pages (Push auf `main` baut neu), Lambda-Versionen mit Rückweg-Skript, CloudWatch-Monitoring, Kostenbremse |
+| **Bot-Schutz** | Cloudflare Turnstile an öffentlichen Formularen |
 
 ---
 
-## Module
+## Qualität und Sicherheit
 
-| Modul | Features |
-|-------|----------|
-| **Dashboard** | Pipeline-Übersicht, KPIs, Live-Daten |
-| **CRM** | Kontakte, Deals, Pipelines, Win Rate |
-| **Projekte** | Kanban, Meilensteine, Deadlines, Team |
-| **Finanzen** | Rechnungen, Zahlungsstatus, Berichte |
-| **HR** | Mitarbeiter, Abteilungen, Urlaub, Offboarding |
-| **Support** | Tickets, Prioritäten, SLA, Kundenzuordnung |
-| **Analytics** | Auswertungen über alle Module |
-| **Einstellungen** | Multi-Tenant, Rollen, Konfiguration |
+- **Über 1.300 automatische Tests** (Vitest): Rechnungsformate, Rollen, Mandantentrennung, Demo-Sandkasten, Bot-Schutz, Speicher und mehr.
+- **Richtlinien als Code, vom Test erzwungen:** öffentliche Routen, Modulzugriff, Rollen und Sicherungsklassen jeder Tabelle sind in Tabellen festgehalten. Eine neue Route oder Tabelle ohne Eintrag lässt den Test scheitern.
+- **Deploy mit Sicherungsnetz:** Tests und Build vorab, danach Prüfläufe gegen das Live-System, jederzeit zurückrollbar.
+- **Keine Geheimnisse im Repository.** Schlüssel liegen in der Laufzeitumgebung.
+- Dokumentation: [Sicherheit](docs/security), [AWS](docs/aws), [E-Rechnung](docs/e-rechnung.md), [Demo-Sandkasten](docs/demo-sandkasten.md), [Branchen-Baukasten](docs/branchen-baukasten.md), [Hilfe-System](docs/hilfe-system.md).
 
 ---
 
-## Setup
+## Lokal starten
 
 ```bash
-# Dependencies installieren
 npm install
-
-# Entwicklungsserver starten
-npm run dev
-# → http://localhost:3001
-
-# Production Build
-npm run build
+npm run dev        # http://localhost:3001
+npm test           # alle Tests
+npm run build      # Produktionsbuild
 ```
 
-### Umgebungsvariablen
-
-```env
-DYNAMODB_ACCESS_KEY_ID=
-DYNAMODB_SECRET_ACCESS_KEY=
-DYNAMODB_REGION=
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-```
+Die Umgebungsvariablen (AWS-Region, Cognito, Tabellen, Schlüssel) werden in der Laufzeitumgebung gesetzt und gehören nicht ins Repository.
 
 ---
 
 ## Status
 
-🟢 **In aktiver Entwicklung**
+🟢 **In aktiver Entwicklung und live im Einsatz**
 
-- [x] Dashboard mit Live-Daten
-- [x] CRM mit Deal-Pipeline
-- [x] Projekt-Management
-- [x] Finanzen & Rechnungen
-- [x] HR & Mitarbeiterverwaltung
-- [x] Support-Ticketsystem
-- [ ] Analytics-Modul (in Arbeit)
+- [x] Dashboard, CRM, Projekte, Finanzen, HR, Support, Verträge, Termine
+- [x] E-Rechnung (XRechnung 3.0, ZUGFeRD) mit Eingangsrechnungen
+- [x] Branchen-Pakete und Baukasten
+- [x] Website-Engine mit Blog, Lead-Seiten und Bot-Schutz
+- [x] Modul-Store und Plugins
+- [x] Mandanten, Rollen, Team
+- [x] In-App-Hilfe und Einführung
+- [x] Demo-Sandkasten mit Zugangs-Pool
+- [x] PSC Manager (Systemmonitor, Datenintegrität, Notfallplan)
+- [ ] Gesamtsicherung und Ausweichsystem (PostgreSQL/MySQL) in Planung
+- [ ] Englische Hilfetexte
 - [ ] Mobile App
-- [ ] API für Drittanbieter
+- [ ] Öffentliche API für Drittanbieter
 
 ---
 
 ## Autor
 
-**Peter Päffgen** — [paeffgen-it.de](https://paeffgen-it.de) · [GitHub](https://github.com/peter1965p)
+**Peter Päffgen**: [paeffgen-it.de](https://paeffgen-it.de) · [GitHub](https://github.com/peter1965p)
