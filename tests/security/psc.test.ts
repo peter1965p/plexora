@@ -77,3 +77,25 @@ describe('PSC Manager: Einbau', () => {
   })
   it('Seitenleiste zeigt PSC Manager nur Betreibern', () => { const sb = readFileSync('app/components/AppSidebar.vue', 'utf8'); expect(sb).toContain("isPlatformAdmin.value ? [{ to: '/psc'") })
 })
+
+import { hourBuckets } from '../../shared/psc'
+describe('PSC Manager: Stundenverlauf und anklickbare Hinweise', () => {
+  const end = Date.parse('2026-10-22T12:00:00Z')
+  it('Messpunkte landen im richtigen Stunden-Eimer; außerhalb, ungültig und fehlend zählt nicht', () => {
+    const b = hourBuckets([{ ts: '2026-10-22T11:10:00Z', v: 5 }, { ts: '2026-10-22T11:50:00Z', v: 7 }, { ts: '2026-10-21T12:00:00Z', v: 3 }, { ts: '2026-10-21T11:59:00Z', v: 99 }, { ts: '2026-10-22T12:00:00Z', v: 99 }, { ts: 'kaputt', v: 1 }, { ts: end - 3_600_000 * 5 - 1000, v: 2.6 }], end)
+    expect(b.length).toBe(24); expect(b[23]).toBe(12); expect(b[0]).toBe(3); expect(b[18]).toBe(3); expect(b.reduce((s, v) => s + v, 0)).toBe(18)
+    expect(hourBuckets([], end, 3)).toEqual([0, 0, 0])
+  })
+  it('Hinweise führen zu einem Ziel: Sicherungsthemen zum Reiter Notfall, Drosselung zur Infrastruktur, Rollen zur Hilfe', () => {
+    const ok = <T>(data: T) => ({ ok: true as const, data })
+    const a = adviceFrom({ db: ok({ tables: 84, pitrEnabled: 0, deletionProtected: 0 }), lambda: ok({ throttles24h: 3, errors24h: 1, invocations24h: 100 }), protection: ok({ roles: false, plan: false }), backups: ok({ last: null, external: false }) })
+    const to = (re: RegExp) => a.find(x => re.test(x.text))?.to
+    expect(to(/keine der 84/)).toBe('tab:notfall'); expect(to(/Gesamtsicherung/)).toBe('tab:notfall'); expect(to(/Löschschutz/)).toBe('tab:notfall'); expect(to(/außerhalb von AWS/)).toBe('tab:notfall')
+    expect(to(/gedrosselt/)).toBe('tab:infra'); expect(to(/Funktionsfehler/)).toBe('tab:infra'); expect(to(/Rollenprüfung/)).toBe('/help?topic=rollen')
+    expect(a.every(x => !x.to || /^(tab:(notfall|infra|integrity|overview)|\/[a-z])/.test(x.to))).toBe(true)
+  })
+  it('Seite: Balken in allen vier Spalten, Verlaufsgrafik, Ampel-Linien und klickbare Hinweise', () => {
+    const p = readFileSync('app/pages/psc/index.vue', 'utf8')
+    expect((p.match(/class="psc-bar"/g) || []).length).toBe(4); expect(p).toContain('psc-spark'); expect(p).toContain('borderTopColor'); expect(p).toContain('@click="go(a.to)"')
+  })
+})

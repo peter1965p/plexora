@@ -7,6 +7,7 @@ import { rolesEnforced } from './teamRole'
 import { planEnforced } from './tenantPlan'
 import { DEMO_POOL, DEMO_BASE_EMAIL } from '../../shared/demo'
 import { stateKey } from './demoSandbox'
+import { hourBuckets } from '../../shared/psc'
 
 // Datenquelle des PSC Manager: gesammelte Plattform-Werte (nur für den Betreiber). Jeder Abschnitt fällt einzeln aus (fehlendes Recht, AWS nicht erreichbar), ohne die anderen zu stören.
 export type Section<T> = { ok: true; data: T } | { ok: false; error: string }
@@ -19,11 +20,17 @@ const metric = async (name: string, stat: 'Sum' | 'Maximum' | 'Average', minutes
   return (r.Datapoints || []).map(d => Number((d as any)[stat]) || 0)
 }
 const sum = (a: number[]) => a.reduce((s, v) => s + v, 0)
+// Stundenverlauf der letzten 24 Stunden (Summe je Stunde); die Stunde endet zur vollen Stunde nach jetzt
+const series = async (name: string) => {
+  const end = Math.ceil(Date.now() / 3_600_000) * 3_600_000, start = end - 24 * 3_600_000
+  const r = await new CloudWatchClient({ region: REGION }).send(new GetMetricStatisticsCommand({ Namespace: 'AWS/Lambda', MetricName: name, Dimensions: [{ Name: 'FunctionName', Value: FN }], StartTime: new Date(start), EndTime: new Date(end), Period: 3600, Statistics: ['Sum'] }))
+  return { from: start, values: hourBuckets((r.Datapoints || []).map(d => ({ ts: d.Timestamp as Date, v: Number(d.Sum) || 0 })), end, 24) }
+}
 
 export async function lambdaSection() {
   const lam = new LambdaClient({ region: REGION })
   const [acc, conc, cfg] = await Promise.all([lam.send(new GetAccountSettingsCommand({})), lam.send(new GetFunctionConcurrencyCommand({ FunctionName: FN })), lam.send(new GetFunctionConfigurationCommand({ FunctionName: FN }))])
-  const [now, inv, thr, err, dur] = await Promise.allSettled([metric('ConcurrentExecutions', 'Maximum', 30, 60), metric('Invocations', 'Sum', 1440, 3600), metric('Throttles', 'Sum', 1440, 3600), metric('Errors', 'Sum', 1440, 3600), metric('Duration', 'Average', 1440, 3600)])
+  const [now, inv, thr, err, dur, sInv, sThr] = await Promise.allSettled([metric('ConcurrentExecutions', 'Maximum', 30, 60), metric('Invocations', 'Sum', 1440, 3600), metric('Throttles', 'Sum', 1440, 3600), metric('Errors', 'Sum', 1440, 3600), metric('Duration', 'Average', 1440, 3600), series('Invocations'), series('Throttles')])
   const val = <T>(r: PromiseSettledResult<T>, d: T) => (r.status === 'fulfilled' ? r.value : d)
   const nowArr = val(now, [] as number[]), durArr = val(dur, [] as number[])
   return {
@@ -31,6 +38,7 @@ export async function lambdaSection() {
     memoryMb: cfg.MemorySize ?? 0, runtime: cfg.Runtime || '', timeoutS: cfg.Timeout ?? 0, lastModified: cfg.LastModified || '', version: (cfg as any).Version || '',
     concurrentNow: nowArr.length ? Math.max(...nowArr) : 0, invocations24h: Math.round(sum(val(inv, []))), throttles24h: Math.round(sum(val(thr, []))), errors24h: Math.round(sum(val(err, []))),
     avgMs: durArr.length ? Math.round(sum(durArr) / durArr.length) : 0, metricsOk: [now, inv, thr, err, dur].every(r => r.status === 'fulfilled'),
+    series: sInv.status === 'fulfilled' && sThr.status === 'fulfilled' ? { from: sInv.value.from, invocations: sInv.value.values, throttles: sThr.value.values } : null,
   }
 }
 

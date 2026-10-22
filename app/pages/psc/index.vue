@@ -20,14 +20,15 @@
       <template v-if="tab === 'overview'">
         <div v-if="error" class="err" style="margin-bottom:12px">{{ error }}</div>
 
-        <div class="psc-card">
+        <div class="psc-card" :style="{ borderTopColor: LEVEL_COLOR[monitorLevel] }">
           <div class="psc-head"><span class="psc-title">Plattform-Monitor</span><span class="psc-meta" v-if="rt">{{ rt.region }} · Node {{ rt.node }} · Version {{ rt.functionVersion || '—' }}</span></div>
           <div class="psc-cols">
             <div class="psc-col">
               <div class="psc-label">Gleichzeitige Ausführungen</div>
               <template v-if="lam">
                 <div class="psc-bar"><i :style="barStyle(concLevel, concPct)"></i></div>
-                <div class="psc-sub">{{ lam.concurrentNow }} von {{ cap }} {{ lam.reserved ? 'reserviert' : 'erlaubt' }} · Konto-Limit {{ lam.accountLimit }}</div>
+                <div class="psc-big">{{ lam.concurrentNow }} <small>jetzt gleichzeitig</small></div>
+                <div class="psc-sub">von {{ cap }} {{ lam.reserved ? 'reserviert' : 'erlaubt' }} · Konto-Limit {{ lam.accountLimit }}</div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.lambda) }}</div>
             </div>
@@ -37,12 +38,21 @@
                 <div class="psc-bar"><i :style="barStyle(errLevel, errPct)"></i></div>
                 <div class="psc-big" style="margin-bottom:2px">{{ nf(lam.invocations24h) }}</div>
                 <div class="psc-sub">Anfragen · {{ lam.throttles24h }} gedrosselt · {{ lam.errors24h }} Fehler · Ø {{ lam.avgMs }} ms</div>
+                <svg v-if="chart" class="psc-spark" :viewBox="`0 0 ${chart.w} ${chart.h}`" preserveAspectRatio="none" role="img" aria-label="Anfragen je Stunde der letzten 24 Stunden">
+                  <g v-for="b in chart.bars" :key="b.i">
+                    <title>{{ b.label }}: {{ nf(b.inv) }} Anfragen{{ b.thr ? `, ${b.thr} gedrosselt` : '' }}</title>
+                    <rect :x="b.x" :y="b.y" :width="chart.bw" :height="b.h" rx="1.5" :fill="LEVEL_COLOR.ok" opacity=".55" />
+                    <rect v-if="b.thr" :x="b.x" :y="b.ty" :width="chart.bw" :height="b.th" rx="1.5" :fill="LEVEL_COLOR.bad" />
+                  </g>
+                </svg>
+                <div v-if="chart" class="psc-axis"><span>vor 24 Std.</span><span>jetzt</span></div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.lambda) }}</div>
             </div>
             <div class="psc-col">
-              <div class="psc-label">Datenbank</div>
+              <div class="psc-label">Datenbank · Wiederherstellung</div>
               <template v-if="db">
+                <div class="psc-bar"><i :style="barStyle(recLevel, recPct)"></i></div>
                 <div class="psc-big">{{ db.tables }} <small>Tabellen</small></div>
                 <div class="psc-sub">{{ nf(db.items) }} Datensätze · {{ mbText(db.bytes) }}</div>
                 <div class="psc-sub" :style="{ color: LEVEL_COLOR[recLevel] }">{{ db.pitrEnabled }} von {{ db.tables }} wiederherstellbar</div>
@@ -52,6 +62,7 @@
             <div class="psc-col">
               <div class="psc-label">Funktion plexora-api</div>
               <template v-if="lam">
+                <div class="psc-bar"><i :style="barStyle(memLevel, memPct)"></i></div>
                 <div class="psc-big" style="color:var(--accent)">{{ lam.memoryMb }} <small>MB</small></div>
                 <div class="psc-sub">{{ lam.runtime }} · Zeitlimit {{ lam.timeoutS }} s</div>
                 <div class="psc-sub" v-if="rt">belegt {{ rt.rssMb }} MB · läuft seit {{ Math.round(rt.uptimeS / 60) }} Min.</div>
@@ -62,7 +73,7 @@
         </div>
 
         <div class="psc-tiles">
-          <div class="psc-tile">
+          <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[protLevel] }">
             <div class="psc-label">Schutz</div>
             <template v-if="pr">
               <div class="psc-big" :style="{ color: pr.roles && pr.plan ? LEVEL_COLOR.ok : LEVEL_COLOR.warn }">{{ pr.roles && pr.plan ? 'Scharf' : 'Beobachtung' }}</div>
@@ -70,7 +81,7 @@
             </template>
             <div v-else class="psc-na">{{ na(ov?.protection) }}</div>
           </div>
-          <div class="psc-tile">
+          <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[demoLevel] }">
             <div class="psc-label">Demo-Pool</div>
             <template v-if="demo">
               <div class="psc-big">{{ demo.leased }} <small>/ {{ demo.poolSize }} belegt</small></div>
@@ -78,7 +89,7 @@
             </template>
             <div v-else class="psc-na">{{ na(ov?.demo) }}</div>
           </div>
-          <div class="psc-tile">
+          <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[bkLevel] }">
             <div class="psc-label">Gesamtsicherung</div>
             <template v-if="bk">
               <div class="psc-big" :style="{ color: LEVEL_COLOR[bkLevel] }">{{ bk.last ? age(bk.last.at) : 'keine' }}</div>
@@ -86,7 +97,7 @@
             </template>
             <div v-else class="psc-na">{{ na(ov?.backups) }}</div>
           </div>
-          <div class="psc-tile">
+          <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR.warn }">
             <div class="psc-label">Notfall-Bereitschaft</div>
             <div class="psc-big" style="color:var(--text-muted)">In Aufbau</div>
             <div class="psc-sub">PostgreSQL / MySQL als Ausweichsystem, siehe Reiter „Sicherung &amp; Notfall“</div>
@@ -96,7 +107,12 @@
         <div class="psc-card" style="margin-top:12px">
           <div class="psc-head"><span class="psc-title">Hinweise</span><span class="psc-meta" v-if="ov">Stand {{ age(ov.generatedAt) }}</span></div>
           <div v-if="!advice.length" class="psc-ok"><i class="ti ti-circle-check"></i> Keine offenen Hinweise.</div>
-          <ul v-else class="psc-advice"><li v-for="(a, i) in advice" :key="i"><i class="ti" :class="a.level === 'bad' ? 'ti-alert-octagon' : 'ti-alert-triangle'" :style="{ color: LEVEL_COLOR[a.level] }"></i><span>{{ a.text }}</span></li></ul>
+          <ul v-else class="psc-advice">
+            <li v-for="(a, i) in advice" :key="i" :class="{ go: a.to }" :tabindex="a.to ? 0 : -1" :role="a.to ? 'link' : undefined" @click="go(a.to)" @keydown.enter="go(a.to)">
+              <i class="ti" :class="a.level === 'bad' ? 'ti-alert-octagon' : 'ti-alert-triangle'" :style="{ color: LEVEL_COLOR[a.level] }"></i><span>{{ a.text }}</span>
+              <i v-if="a.to" class="ti ti-chevron-right psc-go"></i>
+            </li>
+          </ul>
         </div>
       </template>
 
@@ -140,6 +156,26 @@ const errLevel = computed<Level>(() => lam.value ? errorLevel(lam.value.errors24
 const errPct = computed(() => lam.value ? Math.min(100, Math.round(((lam.value.errors24h + lam.value.throttles24h) / Math.max(1, lam.value.invocations24h + lam.value.throttles24h)) * 100)) : 0)
 const recLevel = computed<Level>(() => db.value ? recoveryLevel(db.value.pitrEnabled, db.value.tables) : 'off')
 const bkLevel = computed<Level>(() => backupLevel(bk.value?.last?.at))
+const recPct = computed(() => db.value ? pct(db.value.pitrEnabled, db.value.tables) : 0)
+const memPct = computed(() => lam.value && rt.value ? pct(rt.value.rssMb, lam.value.memoryMb) : 0)
+const memLevel = computed<Level>(() => lam.value && rt.value ? loadLevel(rt.value.rssMb, lam.value.memoryMb) : 'off')
+const worst = (...l: Level[]): Level => (['bad', 'warn', 'ok', 'off'] as Level[]).find(x => l.includes(x)) || 'off'
+const monitorLevel = computed<Level>(() => worst(...(lam.value ? [concLevel.value, errLevel.value, memLevel.value] : []), ...(db.value ? [recLevel.value] : [])))
+const protLevel = computed<Level>(() => !pr.value ? 'off' : pr.value.roles && pr.value.plan && pr.value.auth ? 'ok' : 'warn')
+const demoLevel = computed<Level>(() => !demo.value ? 'off' : loadLevel(demo.value.leased, demo.value.poolSize) === 'ok' ? 'ok' : loadLevel(demo.value.leased, demo.value.poolSize))
+// Verlauf der Anfragen je Stunde (Säulen; gedrosselte rot in der Säule)
+const chart = computed(() => {
+  const sr = lam.value?.series; if (!sr) return null
+  const w = 240, h = 40, n = sr.invocations.length, gap = 2, bw = (w - gap * (n - 1)) / n
+  const max = Math.max(1, ...sr.invocations.map((v: number, i: number) => v + (sr.throttles[i] || 0)))
+  const bars = sr.invocations.map((inv: number, i: number) => {
+    const thr = sr.throttles[i] || 0, total = inv + thr, bh = total ? Math.max(2, (total / max) * (h - 2)) : 1, th = thr ? Math.max(2, (thr / Math.max(1, total)) * bh) : 0
+    const hr = new Date(sr.from + i * 3_600_000).getHours()
+    return { i, x: i * (bw + gap), y: h - bh, h: bh, ty: h - th, th, inv, thr, label: `${String(hr).padStart(2, '0')}:00 Uhr` }
+  })
+  return { w, h, bw, bars }
+})
+const go = (to?: string) => { if (!to) return; if (to.startsWith('tab:')) { setTab(to.slice(4)); window.scrollTo({ top: 0, behavior: 'smooth' }) } else router.push(to) }
 const dots = computed(() => pr.value ? [{ k: 'Rollen', on: pr.value.roles }, { k: 'Tarif', on: pr.value.plan }, { k: 'Anmeldung', on: pr.value.auth }] : [])
 const advice = computed(() => adviceFrom(ov.value))
 const barStyle = (l: Level, p: number) => ({ width: Math.max(p, 2) + '%', background: LEVEL_COLOR[l] })
@@ -176,7 +212,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer) })
 .psc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; border-bottom: 0.5px solid var(--border) }
 .psc-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer }
 .psc-tab.on { color: var(--accent); border-bottom-color: var(--accent) }
-.psc-card { background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 14px; padding: 18px 20px }
+.psc-card { background: var(--bg-surface); border: 0.5px solid var(--border); border-top: 3px solid var(--border); border-radius: 14px; padding: 18px 20px }
 .psc-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px }
 .psc-title { font-weight: 700; font-size: 14px }
 .psc-meta { font-size: 11px; color: var(--text-muted) }
@@ -190,12 +226,18 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer) })
 .psc-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.5 }
 .psc-na { font-size: 12px; color: var(--text-muted) }
 .psc-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px }
-.psc-tile { background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 14px; padding: 16px 18px; min-width: 0 }
+.psc-tile { background: var(--bg-surface); border: 0.5px solid var(--border); border-top: 3px solid var(--border); border-radius: 14px; padding: 16px 18px; min-width: 0 }
 .psc-dots { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary) }
 .psc-dots span { display: inline-flex; align-items: center; gap: 5px }
 .psc-dots i { width: 8px; height: 8px; border-radius: 50% }
 .psc-advice { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px }
-.psc-advice li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5 }
+.psc-advice li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5; padding: 7px 10px; margin: 0 -10px; border-radius: 10px }
+.psc-advice li span { flex: 1 }
+.psc-advice li.go { cursor: pointer }
+.psc-advice li.go:hover, .psc-advice li.go:focus-visible { background: var(--bg-hover); outline: none }
+.psc-go { color: var(--text-muted); margin-top: 2px }
+.psc-spark { width: 100%; height: 40px; margin-top: 8px; display: block }
+.psc-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 2px }
 .psc-ok { color: #10b981; font-size: 13px }
 .psc-steps { margin: 0 0 14px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px }
 .psc-steps li { display: flex; gap: 12px; font-size: 13px; line-height: 1.5 }
