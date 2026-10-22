@@ -1228,3 +1228,24 @@ ul {
 .data-table tr.row-link:focus-visible { outline: none; }
 .card-action { transition: letter-spacing .15s, opacity .15s; }
 .card-action:hover { opacity: .8; letter-spacing: .3px; }
+
+/* MODERNES DESIGN: Knöpfe, Fortschritt, Fokus, Scrollleisten */
+.accent-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: opacity .15s, transform .12s, box-shadow .2s;
+}
+.accent-btn:hover { opacity: 1; box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 45%, transparent); transform: translateY(-1px); }
+.accent-btn:active, .icon-btn:active { transform: scale(.96); }
+.progress-fill { background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.progress-fill.cyan { background: linear-gradient(90deg, var(--accent-2), #00d4b4); }
+.stat-icon { transition: transform .25s, opacity .25s; }
+.stat-card:hover .stat-icon { transform: scale(1.12) rotate(-6deg); opacity: .8; }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.page { scrollbar-width: thin; scrollbar-color: var(--border-accent, var(--border)) transparent; }
+.page::-webkit-scrollbar { width: 8px; }
+.page::-webkit-scrollbar-thumb { background: var(--border-accent, var(--border)); border-radius: 99px; }
+@media (prefers-reduced-motion: reduce) {
+  .accent-btn, .stat-card, .stat-icon { transition: none; }
+  .stat-card:hover, .accent-btn:hover { transform: none; }
+}
