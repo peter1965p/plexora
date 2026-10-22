@@ -6,30 +6,30 @@
       <div class="stat-card">
         <i class="ti ti-trending-up stat-icon"></i>
         <div class="stat-label">{{ t.dash.weightedPipeline }}</div>
-        <div class="stat-value">{{ formatEur(weightedPipeline) }}</div>
+        <div class="stat-value">{{ formatEur(Math.round(cPipe)) }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ deals.length }} {{ t.dash.dealsActive }}</div>
-        <svg v-if="sparkPipe" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkPipe" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+        <svg v-if="sparkPipe" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline pathLength="1" :points="sparkPipe" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
       <div class="stat-card">
         <i class="ti ti-briefcase stat-icon"></i>
         <div class="stat-label">{{ t.dash.activeDeals }}</div>
-        <div class="stat-value">{{ deals.length }}</div>
+        <div class="stat-value">{{ Math.round(cDeals) }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} {{ t.dash.won }}</div>
-        <svg v-if="sparkDeals" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkDeals" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+        <svg v-if="sparkDeals" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline pathLength="1" :points="sparkDeals" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
       <div class="stat-card">
         <i class="ti ti-headset stat-icon"></i>
         <div class="stat-label">{{ t.dash.openTickets }}</div>
-        <div class="stat-value">{{ openTickets }}</div>
+        <div class="stat-value">{{ Math.round(cTickets) }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ tickets.length }} {{ t.dash.total }}</div>
-        <svg v-if="sparkTickets" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkTickets" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+        <svg v-if="sparkTickets" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline pathLength="1" :points="sparkTickets" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
       <div class="stat-card">
         <i class="ti ti-users stat-icon"></i>
         <div class="stat-label">{{ t.dash.employees }}</div>
-        <div class="stat-value">{{ employees.length }}</div>
+        <div class="stat-value">{{ Math.round(cEmp) }}</div>
         <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ activeEmployees }} {{ t.dash.active }}</div>
-        <svg v-if="sparkEmp" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline :points="sparkEmp" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+        <svg v-if="sparkEmp" class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline pathLength="1" :points="sparkEmp" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
       </div>
     </div>
 
@@ -87,7 +87,7 @@
           <tr v-if="!deals.length">
             <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.dash.noDeals }}</td>
           </tr>
-          <tr v-for="d in deals" :key="d.dealId">
+          <tr v-for="d in deals" :key="d.dealId" class="row-link" tabindex="0" @click="navigateTo('/crm')" @keydown.enter="navigateTo('/crm')">
             <td class="td-name">{{ d.name }}</td>
             <td>{{ d.value }}</td>
             <td>{{ d.stage }}</td>
@@ -126,7 +126,7 @@
           <tr v-if="!tickets.length">
             <td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.dash.noTickets }}</td>
           </tr>
-          <tr v-for="tkt in tickets" :key="tkt.ticketId">
+          <tr v-for="tkt in tickets" :key="tkt.ticketId" class="row-link" tabindex="0" @click="navigateTo('/support')" @keydown.enter="navigateTo('/support')">
             <td class="td-name">{{ tkt.title }}</td>
             <td>{{ tkt.client }}</td>
             <td><span class="badge" :class="priorityBadge(tkt.priority)">{{ t.priority[tkt.priority] || priorityLabel(tkt.priority) }}</span></td>
@@ -281,6 +281,10 @@ const wonDeals         = computed(() => deals.value.filter((d: any) => d.status 
 const openTickets      = computed(() => tickets.value.filter((t: any) => t.status === 'open' || t.status === 'in_progress').length)
 const activeEmployees  = computed(() => employees.value.filter((e: any) => e.status === 'active').length)
 
+const cPipe    = useCountUp(() => weightedPipeline.value)
+const cDeals   = useCountUp(() => deals.value.length)
+const cTickets = useCountUp(() => openTickets.value)
+const cEmp     = useCountUp(() => employees.value.length)
 const nowMs = Date.now()
 const sparkPipe    = computed(() => sparkPoints(weekBuckets(deals.value, 'created', nowMs)))
 const sparkDeals   = sparkPipe
