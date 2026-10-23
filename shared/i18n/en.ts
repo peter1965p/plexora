@@ -1,5 +1,7 @@
 // Englische Fassung fester deutscher Oberflächentexte (Schlüssel = deutscher Text, wie er im Quelltext steht). Fehlt ein Eintrag, bleibt der deutsche Text stehen.
 export const EN: Record<string, string> = {
+  "CRM, Support, Projekte, Termine, Marketing und Formulare": "CRM, support, projects, appointments, marketing and forms",
+  "Alles außer Team, Sicherung, Abrechnung und Zahlungs-/KI-Schlüssel": "Everything except team, backup, billing and payment/AI keys",
   "Formulare": "Forms",
   "Verträge": "Contracts",
   "Kontakte & Deals": "Contacts & deals",

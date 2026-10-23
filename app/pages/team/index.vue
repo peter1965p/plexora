@@ -49,11 +49,11 @@
 
     <div class="card">
       <div class="card-header"><span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Wer darf was') }}</span></div>
-      <div style="padding:0 16px 8px;font-size:12px;color:var(--text-muted)"><strong>{{ tr('Mitglied:') }}</strong> {{ ROLE_DESCRIPTIONS.member }}. <strong>{{ tr('Admin:') }}</strong> {{ ROLE_DESCRIPTIONS.admin }}{{ tr('. Die Rolle') }} <strong>{{ tr('Inhaber') }}</strong> {{ tr('hast nur du.') }}</div>
+      <div style="padding:0 16px 8px;font-size:12px;color:var(--text-muted)"><strong>{{ tr('Mitglied:') }}</strong> {{ tr(ROLE_DESCRIPTIONS.member) }}. <strong>{{ tr('Admin:') }}</strong> {{ tr(ROLE_DESCRIPTIONS.admin) }}{{ tr('. Die Rolle') }} <strong>{{ tr('Inhaber') }}</strong> {{ tr('hast nur du.') }}</div>
       <table class="data-table matrix">
         <thead><tr><th>{{ tr('Bereich') }}</th><th>{{ tr('Mitglied') }}</th><th>{{ tr('Admin') }}</th><th>{{ tr('Inhaber') }}</th></tr></thead>
         <tbody>
-          <tr v-for="a in matrix" :key="a.area"><td>{{ a.area }}</td><td v-for="r in ROLES" :key="r" :class="{ yes: roleAllows(r, a.role) }">{{ roleAllows(r, a.role) ? '✓' : '–' }}</td></tr>
+          <tr v-for="a in matrix" :key="a.area"><td>{{ tr(a.area) }}</td><td v-for="r in ROLES" :key="r" :class="{ yes: roleAllows(r, a.role) }">{{ roleAllows(r, a.role) ? '✓' : '–' }}</td></tr>
         </tbody>
       </table>
     </div>
@@ -66,7 +66,7 @@
         <div class="modal-body">
           <div v-if="inviteError" class="err">{{ inviteError }}</div>
           <div class="auth-field"><label>{{ tr('E-Mail-Adresse') }}</label><input v-model="invite.email" type="email" :placeholder="tr('name@firma.de')" @keydown.enter="sendInvite" /></div>
-          <div class="auth-field"><label>{{ tr('Rolle') }}</label><select v-model="invite.role" class="form-select"><option value="member">{{ tr('Mitglied:') }} {{ ROLE_DESCRIPTIONS.member }}</option><option value="admin">{{ tr('Admin:') }} {{ ROLE_DESCRIPTIONS.admin }}</option></select></div>
+          <div class="auth-field"><label>{{ tr('Rolle') }}</label><select v-model="invite.role" class="form-select"><option value="member">{{ tr('Mitglied:') }} {{ tr(ROLE_DESCRIPTIONS.member) }}</option><option value="admin">{{ tr('Admin:') }} {{ tr(ROLE_DESCRIPTIONS.admin) }}</option></select></div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">{{ tr('Die Person bekommt eine Mail mit einem Link (7 Tage gültig). Ihre Rolle kannst du jederzeit hier ändern.') }}</div>
           <button class="auth-btn" :disabled="inviting || !invite.email" style="width:100%" @click="sendInvite"><i class="ti" :class="inviting ? 'ti-loader-2 spin' : 'ti-send'"></i> {{ tr('Einladung senden') }}</button>
         </div>
