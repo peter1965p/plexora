@@ -1,5 +1,9 @@
 // Englische Fassung fester deutscher Oberflächentexte (Schlüssel = deutscher Text, wie er im Quelltext steht). Fehlt ein Eintrag, bleibt der deutsche Text stehen.
 export const EN: Record<string, string> = {
+  ", du bist als": ", you are logged in as",
+  "angemeldet.": "at the moment.",
+  " angemeldet.": "at the moment.",
+  "Abmelden und mit dem richtigen Konto fortfahren": "Log out and continue with the right account",
   "← Zurück zum Login": "← Back to login",
   "Einladung wird geprüft...": "Checking invitation...",
   "Einladung nicht möglich": "Invitation not possible",

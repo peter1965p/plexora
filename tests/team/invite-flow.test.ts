@@ -69,7 +69,7 @@ describe('Seiten: Kontenwähler und Meldung', () => {
     expect(login).toContain('options: { prompt: "SELECT_ACCOUNT" }'); expect(login).toContain('pendingInvite.value ?')
   })
   it('die Meldung bei falschem Konto nennt beide Adressen und bietet Abmelden und Fortfahren an', () => {
-    for (const t of ['Diese Einladung gilt für <strong>{{ view.invitedEmail }}</strong>, du bist als <strong>{{ view.signedInAs }}</strong> angemeldet.', 'Abmelden und mit dem richtigen Konto fortfahren', 'await signOut()', 'rememberInviteReturn(returnPath)']) expect(inv, t).toContain(t)
+    for (const t of ["{{ tr('Diese Einladung gilt für') }} <strong>{{ view.invitedEmail }}</strong>{{ tr(', du bist als') }} <strong>{{ view.signedInAs }}</strong> {{ tr('angemeldet.') }}", "{{ tr('Abmelden und mit dem richtigen Konto fortfahren') }}", 'await signOut()', 'rememberInviteReturn(returnPath)']) expect(inv, t).toContain(t)
   })
   it('nach der Anmeldung (Passwort, Passkey, Google-Rücksprung) geht es zur gemerkten Einladung zurück, sonst zum Dashboard', () => {
     expect((login.match(/takeInviteReturn\(\) \|\|/g) || []).length).toBe(4); expect(cb).toContain('takeInviteReturn() || path'); expect(cb).toMatch(/if \(path === "\/dashboard"\)/)
