@@ -4,34 +4,34 @@
     <template v-else>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
         <div>
-          <h1 style="font-size:22px;font-weight:800;margin:0"><i class="ti" :class="kit.tablerIcon" style="color:var(--accent);margin-right:8px"></i>{{ kit.name }}</h1>
-          <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ kit.desc }}</p>
+          <h1 style="font-size:22px;font-weight:800;margin:0"><i class="ti" :class="kit.tablerIcon" style="color:var(--accent);margin-right:8px"></i>{{ tr(kit.name) }}</h1>
+          <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr(kit.desc) }}</p>
         </div>
-        <button class="accent-btn" @click="openNew"><i class="ti ti-plus"></i> {{ entity.one }} {{ tr('anlegen') }}</button>
+        <button class="accent-btn" @click="openNew"><i class="ti ti-plus"></i> {{ tr(entity.one) }} {{ tr('anlegen') }}</button>
       </div>
 
       <div class="tabs">
         <button v-for="e in kit.entities" :key="e.key" class="tab" :class="{ on: e.key === tab }" @click="tab = e.key; query = ''">
-          <i class="ti" :class="e.icon"></i> {{ e.label }} <span class="cnt">{{ (data[e.key] || []).length }}</span>
+          <i class="ti" :class="e.icon"></i> {{ tr(e.label) }} <span class="cnt">{{ (data[e.key] || []).length }}</span>
         </button>
       </div>
 
       <div class="card">
         <div class="card-header" style="gap:12px">
-          <span class="card-title">{{ entity.label }}</span>
+          <span class="card-title">{{ tr(entity.label) }}</span>
           <input v-model="query" class="f-input" type="search" :placeholder="tr('Suchen …')" style="max-width:240px;margin-left:auto" :aria-label="tr('Suchen')" />
         </div>
         <div v-if="loading" style="padding:24px;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
         <div v-else-if="loadError" class="err" style="margin:12px">{{ loadError }}</div>
         <div v-else-if="!rows.length" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px">
-          {{ query ? tr('Kein Treffer.') : `Noch keine Einträge. Lege mit „${entity.one} anlegen“ den ersten an.` }}
+          {{ query ? tr('Kein Treffer.') : `${tr('Noch keine Einträge.')} ${tr('Lege den ersten Eintrag mit dem Knopf oben rechts an.')}` }}
         </div>
         <div v-else style="overflow-x:auto">
           <table class="data-table">
-            <thead><tr><th v-for="k in entity.list" :key="k">{{ field(k).label }}</th><th style="width:90px"></th></tr></thead>
+            <thead><tr><th v-for="k in entity.list" :key="k">{{ tr(field(k).label) }}</th><th style="width:90px"></th></tr></thead>
             <tbody>
               <tr v-for="r in rows" :key="r.id">
-                <td v-for="k in entity.list" :key="k"><span v-if="field(k).type === 'select'" class="pill" :class="pillClass(r[k])">{{ r[k] }}</span><template v-else>{{ show(field(k), r[k]) }}</template></td>
+                <td v-for="k in entity.list" :key="k"><span v-if="field(k).type === 'select'" class="pill" :class="pillClass(r[k])">{{ tr(r[k]) }}</span><template v-else>{{ show(field(k), r[k]) }}</template></td>
                 <td style="text-align:right;white-space:nowrap">
                   <button class="icon-btn" :title="tr('Bearbeiten')" @click="openEdit(r)"><i class="ti ti-edit"></i></button>
                   <button class="icon-btn" :title="tr('Löschen')" @click="remove(r)"><i class="ti ti-trash"></i></button>
@@ -47,27 +47,27 @@
       <p style="font-size:12px;color:var(--text-muted);margin-top:12px"><i class="ti ti-info-circle"></i> {{ tr('Dieses Paket führt Listen und Stände. Es bucht kein Geld und stellt keine Rechnungen aus (das machst du unter Finanzen). Bitte keine Gesundheitsdaten oder andere besonders sensible Angaben eintragen.') }}</p>
 
       <div v-if="showForm" class="modal-overlay" @click.self="showForm = false">
-        <div class="modal-card" role="dialog" aria-modal="true" :aria-label="entity.one">
+        <div class="modal-card" role="dialog" aria-modal="true" :aria-label="tr(entity.one)">
           <div class="modal-header">
-            <span class="card-title">{{ editingId ? entity.one + tr(' bearbeiten') : entity.one + tr(' anlegen') }}</span>
+            <span class="card-title">{{ editingId ? tr(entity.one) + tr(' bearbeiten') : tr(entity.one) + tr(' anlegen') }}</span>
             <button class="icon-btn" @click="showForm = false"><i class="ti ti-x"></i></button>
           </div>
           <form class="modal-body" @submit.prevent="save">
             <div v-for="f in entity.fields" :key="f.key">
-              <label v-if="f.type !== 'bool'" class="f-label">{{ f.label }}<span v-if="f.required" style="color:#E05C5C"> *</span></label>
+              <label v-if="f.type !== 'bool'" class="f-label">{{ tr(f.label) }}<span v-if="f.required" style="color:#E05C5C"> *</span></label>
               <textarea v-if="f.type === 'longtext'" v-model="form[f.key]" class="f-input" rows="3" maxlength="2000"></textarea>
               <select v-else-if="f.type === 'select'" v-model="form[f.key]" class="f-input">
                 <option v-if="!f.required" value="">—</option>
                 <option v-else value="" disabled>{{ tr('Bitte wählen') }}</option>
-                <option v-for="o in f.options" :key="o" :value="o">{{ o }}</option>
+                <option v-for="o in f.options" :key="o" :value="o">{{ tr(o) }}</option>
               </select>
               <select v-else-if="f.type === 'ref'" v-model="form[f.key]" class="f-input">
                 <option value="">{{ f.required ? tr('Bitte wählen') : '—' }}</option>
                 <option v-for="o in data[f.ref!] || []" :key="o.id" :value="o.id">{{ label(f.ref!, o) }}</option>
               </select>
-              <label v-else-if="f.type === 'bool'" style="display:flex;align-items:center;gap:8px;font-size:13px"><input v-model="form[f.key]" type="checkbox" /> {{ f.label }}</label>
-              <input v-else v-model="form[f.key]" class="f-input" :type="inputType(f)" :step="f.type === 'money' ? '0.01' : f.type === 'number' ? 'any' : undefined" :min="f.type === 'money' ? '0' : undefined" :placeholder="f.placeholder" maxlength="200" />
-              <div v-if="f.type === 'ref' && !(data[f.ref!] || []).length" style="font-size:11px;color:var(--text-muted);margin-top:3px">{{ tr('Lege zuerst unter „') }}{{ kit.entities.find(e => e.key === f.ref)?.label }}{{ tr('“ einen Eintrag an.') }}</div>
+              <label v-else-if="f.type === 'bool'" style="display:flex;align-items:center;gap:8px;font-size:13px"><input v-model="form[f.key]" type="checkbox" /> {{ tr(f.label) }}</label>
+              <input v-else v-model="form[f.key]" class="f-input" :type="inputType(f)" :step="f.type === 'money' ? '0.01' : f.type === 'number' ? 'any' : undefined" :min="f.type === 'money' ? '0' : undefined" :placeholder="f.placeholder ? tr(f.placeholder) : undefined" maxlength="200" />
+              <div v-if="f.type === 'ref' && !(data[f.ref!] || []).length" style="font-size:11px;color:var(--text-muted);margin-top:3px">{{ tr('Lege zuerst unter „') }}{{ tr(kit.entities.find(e => e.key === f.ref)?.label || '') }}{{ tr('“ einen Eintrag an.') }}</div>
             </div>
             <div v-if="formError" class="err">{{ formError }}</div>
             <div style="display:flex;gap:8px;justify-content:flex-end">
@@ -112,7 +112,7 @@ function show(f: KitField, v: any): string {
   if (f.type === 'date') return fmtDate(v)
   if (f.type === 'money') return fmtMoney(Number(v))
   if (f.type === 'ref') return label(f.ref!, (data[f.ref!] || []).find(r => r.id === v))
-  if (f.type === 'bool') return v ? 'ja' : 'nein'
+  if (f.type === 'bool') return v ? tr('ja') : tr('nein')
   return String(v)
 }
 const pillClass = (v: string) => (/^(aktiv|bezahlt|erledigt|erschienen|teilgenommen|anwesend|einsatzbereit|Mitglied geworden|durchgeführt|eingelassen)$/.test(v) ? 'ok' : /^(offen|neu|geplant|angemeldet|vereinbart|unterwegs|Anmeldung offen)$/.test(v) ? 'warn' : /^(gekündigt|abgesagt|storniert|ausgefallen|unentschuldigt|ausgetreten|außer Dienst|inaktiv|ausgebucht)$/.test(v) ? 'bad' : '')
@@ -127,8 +127,8 @@ const sumValue = computed(() => kitSum(entity.value, data[entity.value.key] || [
 const sumLabel = computed(() => {
   const e = entity.value
   if (!e.sum) return ''
-  const unit = field(e.sum).type === 'money' ? '' : ' (Stunden)'
-  return e.sumWhere ? `Summe „${field(e.sumWhere[0]).label}: ${e.sumWhere[1]}“${unit}` : `Summe${unit}`
+  const unit = field(e.sum).type === 'money' ? '' : tr(' (Stunden)')
+  return e.sumWhere ? `${tr('Summe')} „${tr(field(e.sumWhere[0]).label)}: ${tr(e.sumWhere[1])}“${unit}` : `${tr('Summe')}${unit}`
 })
 const sumText = computed(() => (entity.value.sum && field(entity.value.sum).type === 'money' ? fmtMoney(sumValue.value || 0) : String(sumValue.value)))
 
@@ -168,7 +168,7 @@ async function save() {
   } finally { saving.value = false }
 }
 async function remove(r: any) {
-  if (!confirm(`${entity.value.one} „${label(entity.value.key, r)}“ wirklich löschen?`)) return
+  if (!confirm(`${tr(entity.value.one)} „${label(entity.value.key, r)}“ ${tr('wirklich löschen?')}`)) return
   try { await $fetch(url(entity.value.key, r.id), { method: 'DELETE', headers: await headers() }); await loadAll() }
   catch (e: any) { loadError.value = e?.data?.message || tr('Löschen fehlgeschlagen.') }
 }

@@ -3,6 +3,7 @@ import * as vue from 'vue'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { EN } from '../../shared/i18n/en'
+import { KIT_PACKAGES } from '../../shared/branchKit'
 
 const walk = (d: string): string[] => readdirSync(d).flatMap(f => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p] })
 const files = ['app/pages', 'app/components', 'app/layouts'].flatMap(walk).filter(f => f.endsWith('.vue'))
@@ -31,5 +32,15 @@ describe('Englische Oberflächentexte', () => {
     uiLang.value = 'de'; expect(tr('Abbrechen')).toBe('Abbrechen')
     uiLang.value = 'en'; expect(tr('Abbrechen')).toBe('Cancel'); expect(tr('Unbekannter Text')).toBe('Unbekannter Text')
     uiLang.value = 'de'
+  })
+  it('Branchen-Pakete: Namen, Beschreibungen, Merkmale, Listen, Feldnamen, Auswahlwerte und Platzhalter haben eine englische Fassung', () => {
+    const need = new Set<string>()
+    const add = (x?: string) => { if (x && x.trim()) need.add(x) }
+    for (const p of KIT_PACKAGES) {
+      add(p.name); add(p.desc); (p.features || []).forEach(add)
+      for (const e of p.entities) { add(e.label); add(e.one); for (const f of e.fields) { add(f.label); add(f.placeholder); (f.options || []).forEach(add) } }
+    }
+    const missing = [...need].filter(k => !(k in EN) && GER.test(k) && !/Muster/.test(k))
+    expect(missing, `${missing.length} fehlen`).toEqual([])
   })
 })
