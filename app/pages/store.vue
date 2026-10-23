@@ -60,10 +60,10 @@
             <div v-if="mod.owned" class="badge-owned"><i class="ti ti-check"></i> {{ tr('Aktiv') }}</div>
             <div v-else-if="mod.badge" class="badge-new">{{ mod.badge }}</div>
           </div>
-          <div class="store-card-name">{{ mod.name }}</div>
+          <div class="store-card-name">{{ tr(mod.name) }}</div>
           <div class="store-card-desc">{{ mod.desc }}</div>
           <div class="store-card-features">
-            <span v-for="f in mod.features" :key="f" class="feature-tag">{{ f }}</span>
+            <span v-for="f in mod.features" :key="f" class="feature-tag">{{ tr(f) }}</span>
           </div>
           <div class="store-card-footer">
             <div class="store-price">
@@ -106,7 +106,7 @@
           <div class="store-card-name">{{ pkg.name }}</div>
           <div class="store-card-desc">{{ pkg.desc }}</div>
           <div class="store-card-features">
-            <span v-for="f in pkg.features" :key="f" class="feature-tag">{{ f }}</span>
+            <span v-for="f in pkg.features" :key="f" class="feature-tag">{{ tr(f) }}</span>
           </div>
           <div class="store-card-footer">
             <div class="store-price">
