@@ -2,16 +2,16 @@
   <div class="auth-wrap">
     <div class="auth-card" style="text-align: center">
       <div class="auth-logo auth-logo-boot">
-        Plexo<span :class="{ 'ra-pop': popping }">ra</span>
+        {{ tr('Plexo') }}<span :class="{ 'ra-pop': popping }">{{ tr('ra') }}</span>
       </div>
       <div v-if="!error && !popping" class="boot-bar"><div class="boot-bar-fill"></div></div>
       <div v-if="!error" class="auth-sub" style="margin-top: 12px">
-        <i class="ti ti-loader-2 spin"></i> Anmeldung wird abgeschlossen …
+        <i class="ti ti-loader-2 spin"></i> {{ tr('Anmeldung wird abgeschlossen …') }}
       </div>
       <template v-else>
         <div class="auth-error"><i class="ti ti-alert-circle"></i> {{ error }}</div>
         <NuxtLink to="/login" class="auth-btn-secondary" style="display: block; text-align: center">
-          ← Zurück zum Login
+          {{ tr('← Zurück zum Login') }}
         </NuxtLink>
       </template>
     </div>
@@ -59,7 +59,7 @@ onMounted(async () => {
     if (payload.event === "signInWithRedirect") {
       finish("/dashboard");
     } else if (payload.event === "signInWithRedirect_failure") {
-      finish("", "Google-Anmeldung fehlgeschlagen — bitte erneut versuchen.");
+      finish("", tr("Google-Anmeldung fehlgeschlagen — bitte erneut versuchen."));
     }
   });
 
@@ -73,7 +73,7 @@ onMounted(async () => {
 
   setTimeout(() => {
     stopListening();
-    finish("", "Die Anmeldung dauert ungewöhnlich lange — bitte erneut versuchen.");
+    finish("", tr("Die Anmeldung dauert ungewöhnlich lange — bitte erneut versuchen."));
   }, 10000);
 });
 </script>

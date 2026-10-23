@@ -1,15 +1,16 @@
 <template>
   <div class="auth-wrap">
+    <LangFlags />
     <div class="auth-card">
       <div class="auth-logo">Plexo<span>ra</span></div>
 
       <div v-if="idleLogout" class="auth-info" style="margin-bottom:12px">
         <i class="ti ti-clock-exclamation"></i>
-        Du wurdest aus Sicherheitsgründen automatisch abgemeldet.
+        {{ tr('Du wurdest aus Sicherheitsgründen automatisch abgemeldet.') }}
       </div>
 
       <template v-if="isForgot">
-        <div class="auth-title">Passwort vergessen?</div>
+        <div class="auth-title">{{ tr('Passwort vergessen?') }}</div>
         <div class="auth-sub">
           {{ forgotSent ? "E-Mail ist unterwegs" : "Wir senden dir einen Link zum Zurücksetzen" }}
         </div>
@@ -21,22 +22,21 @@
         <div class="auth-form">
           <template v-if="!forgotSent">
             <div class="auth-field">
-              <label>E-Mail</label>
-              <input v-model="email" type="email" placeholder="max@firma.de" />
+              <label>{{ tr('E-Mail') }}</label>
+              <input v-model="email" type="email" :placeholder="tr('max@firma.de')" />
             </div>
             <button class="auth-btn" :disabled="loading" @click="sendResetLink">
               <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
-              <span v-else>Link senden</span>
+              <span v-else>{{ tr('Link senden') }}</span>
             </button>
           </template>
           <template v-else>
             <div class="auth-info">
               <i class="ti ti-mail"></i>
-              Falls ein Konto mit <strong>{{ email }}</strong> existiert, wurde ein Link zum
-              Zurücksetzen des Passworts gesendet — bitte auch Spam prüfen!
+              {{ tr('Falls ein Konto mit') }} <strong>{{ email }}</strong> {{ tr('existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet — bitte auch Spam prüfen!') }}
             </div>
           </template>
-          <button class="auth-btn-secondary" @click="backToLogin">← Zurück zum Login</button>
+          <button class="auth-btn-secondary" @click="backToLogin">{{ tr('← Zurück zum Login') }}</button>
         </div>
       </template>
 
@@ -56,23 +56,23 @@
           <template v-if="isRegister && !needsConfirm">
             <div class="auth-row">
               <div class="auth-field">
-                <label>Vorname</label>
-                <input v-model="firstName" type="text" placeholder="Max" />
+                <label>{{ tr('Vorname') }}</label>
+                <input v-model="firstName" type="text" :placeholder="tr('Max')" />
               </div>
               <div class="auth-field">
-                <label>Nachname</label>
-                <input v-model="lastName" type="text" placeholder="Mustermann" />
+                <label>{{ tr('Nachname') }}</label>
+                <input v-model="lastName" type="text" :placeholder="tr('Mustermann')" />
               </div>
             </div>
           </template>
 
           <template v-if="!needsConfirm">
             <div class="auth-field">
-              <label>E-Mail</label>
-              <input v-model="email" type="email" placeholder="max@firma.de" />
+              <label>{{ tr('E-Mail') }}</label>
+              <input v-model="email" type="email" :placeholder="tr('max@firma.de')" />
             </div>
             <div class="auth-field">
-              <label>Passwort</label>
+              <label>{{ tr('Passwort') }}</label>
               <div class="auth-pw-wrap">
                 <input
                   v-model="password"
@@ -85,7 +85,7 @@
               </div>
             </div>
             <div v-if="!isRegister" class="auth-switch" style="margin:-4px 0 4px;text-align:right">
-              <span @click="isForgot = true; error = ''">Passwort vergessen?</span>
+              <span @click="isForgot = true; error = ''">{{ tr('Passwort vergessen?') }}</span>
             </div>
             <button
               class="auth-btn"
@@ -100,11 +100,10 @@
           <template v-else>
             <div class="auth-info">
               <i class="ti ti-mail"></i>
-              Bestätigungscode wurde an <strong>{{ email }}</strong> gesendet —
-              bitte auch Spam prüfen!
+              {{ tr('Bestätigungscode wurde an') }} <strong>{{ email }}</strong> {{ tr('gesendet — bitte auch Spam prüfen!') }}
             </div>
             <div class="auth-field">
-              <label>Bestätigungscode</label>
+              <label>{{ tr('Bestätigungscode') }}</label>
               <input
                 v-model="confirmCode"
                 type="text"
@@ -114,10 +113,10 @@
             </div>
             <button class="auth-btn" :disabled="loading" @click="confirmSignUp">
               <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
-              <span v-else>Code bestätigen ↗</span>
+              <span v-else>{{ tr('Code bestätigen ↗') }}</span>
             </button>
             <button class="auth-btn-secondary" @click="needsConfirm = false">
-              ← Zurück
+              {{ tr('← Zurück') }}
             </button>
           </template>
         </div>
@@ -134,10 +133,10 @@
           </span>
         </div>
 
-        <div v-if="pendingInvite" style="font-size:12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:10px"><i class="ti ti-users"></i> Du meldest dich für eine Einladung an. Nutze die Adresse, an die sie geschickt wurde.</div>
+        <div v-if="pendingInvite" style="font-size:12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:10px"><i class="ti ti-users"></i> {{ tr('Du meldest dich für eine Einladung an. Nutze die Adresse, an die sie geschickt wurde.') }}</div>
         <!-- Google-Login vorübergehend ausgeblendet: Anmeldung über Google-Redirect noch nicht stabil -->
         <template v-if="!needsConfirm && GOOGLE_LOGIN_ENABLED">
-          <div class="auth-divider"><span>oder</span></div>
+          <div class="auth-divider"><span>{{ tr('oder') }}</span></div>
           <button class="auth-btn-outline" :disabled="loading" @click="loginWithGoogle">
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
               <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/>
@@ -145,11 +144,11 @@
               <path fill="#FBBC05" d="M3.96 10.7A5.4 5.4 0 013.68 9c0-.59.1-1.17.28-1.7V4.96H.96A9 9 0 000 9c0 1.45.35 2.83.96 4.04l3-2.34z"/>
               <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/>
             </svg>
-            Mit Google anmelden
+            {{ tr('Mit Google anmelden') }}
           </button>
           <button v-if="!isRegister" class="auth-btn-outline" :disabled="loading" @click="loginWithPasskey">
             <i class="ti ti-fingerprint" style="font-size:17px"></i>
-            Mit Passkey anmelden
+            {{ tr('Mit Passkey anmelden') }}
           </button>
         </template>
       </template>
@@ -272,7 +271,7 @@ async function sendResetLink() {
     forgotSent.value = true;
   } catch (e: any) {
     if (e.name === "LimitExceededException") {
-      error.value = "Zu viele Versuche — bitte später erneut versuchen.";
+      error.value = tr("Zu viele Versuche — bitte später erneut versuchen.");
     } else {
       forgotSent.value = true;
     }
@@ -300,7 +299,7 @@ async function loginWithPasskey() {
       await fetchAuthSession({ forceRefresh: true });
       router.push(takeInviteReturn() || "/dashboard");
     } else {
-      error.value = "Für dieses Konto ist kein Passkey registriert.";
+      error.value = tr("Für dieses Konto ist kein Passkey registriert.");
     }
   } catch (e: any) {
     error.value =

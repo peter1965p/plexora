@@ -1,8 +1,9 @@
 <template>
   <div class="auth-wrap">
+    <LangFlags />
     <div class="auth-card">
       <div class="auth-logo">Plexo<span>ra</span></div>
-      <div class="auth-title">Neues Passwort setzen</div>
+      <div class="auth-title">{{ tr('Neues Passwort setzen') }}</div>
       <div class="auth-sub">{{ email || "Ungültiger Link" }}</div>
 
       <div v-if="error" class="auth-error">
@@ -11,7 +12,7 @@
 
       <div v-if="!done && email && code" class="auth-form">
         <div class="auth-field">
-          <label>Neues Passwort</label>
+          <label>{{ tr('Neues Passwort') }}</label>
           <div class="auth-pw-wrap">
             <input
               v-model="newPassword"
@@ -24,7 +25,7 @@
           </div>
         </div>
         <div class="auth-field">
-          <label>Passwort bestätigen</label>
+          <label>{{ tr('Passwort bestätigen') }}</label>
           <input
             v-model="confirmPassword"
             :type="showPw ? 'text' : 'password'"
@@ -33,20 +34,20 @@
         </div>
         <button class="auth-btn" :disabled="loading" @click="submit">
           <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else>Passwort setzen</span>
+          <span v-else>{{ tr('Passwort setzen') }}</span>
         </button>
       </div>
 
       <div v-else-if="done" class="auth-info">
         <i class="ti ti-circle-check"></i>
-        Passwort erfolgreich geändert!
+        {{ tr('Passwort erfolgreich geändert!') }}
       </div>
 
       <div v-if="done" class="auth-switch">
-        <NuxtLink to="/login">Jetzt anmelden →</NuxtLink>
+        <NuxtLink to="/login">{{ tr('Jetzt anmelden →') }}</NuxtLink>
       </div>
       <div v-else-if="!email || !code" class="auth-switch">
-        <NuxtLink to="/login">← Zurück zum Login</NuxtLink>
+        <NuxtLink to="/login">{{ tr('← Zurück zum Login') }}</NuxtLink>
       </div>
     </div>
   </div>
@@ -70,7 +71,7 @@ const done = ref(false);
 async function submit() {
   error.value = "";
   if (newPassword.value !== confirmPassword.value) {
-    error.value = "Passwörter stimmen nicht überein.";
+    error.value = tr("Passwörter stimmen nicht überein.");
     return;
   }
   if (newPassword.value.length < 8) {
@@ -86,7 +87,7 @@ async function submit() {
     });
     done.value = true;
   } catch (e: any) {
-    error.value = e.message || "Code ungültig oder abgelaufen.";
+    error.value = e.message || tr("Code ungültig oder abgelaufen.");
   } finally {
     loading.value = false;
   }

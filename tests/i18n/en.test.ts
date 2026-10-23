@@ -19,7 +19,7 @@ describe('Englische Oberflächentexte', () => {
         if (!(k in EN) && GER.test(k) && !/Muster|Päffgen|JetBrains/.test(k)) missing.push(`${f}: ${k}`)
       }
     }
-    expect(missing.slice(0, 40), `${missing.length} Texte ohne Übersetzung`).toEqual([])
+    expect(missing.slice(0, 300), `${missing.length} Texte ohne Übersetzung`).toEqual([])
   })
   it('Einträge sind nicht leer und nicht identisch mit dem Schlüssel', () => {
     for (const [k, v] of Object.entries(EN)) { expect(v.length, k).toBeGreaterThan(0); expect(v, k).not.toBe(k) }
