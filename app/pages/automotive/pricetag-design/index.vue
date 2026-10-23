@@ -32,7 +32,7 @@
       <div v-else class="template-grid">
         <div v-for="t in templates" :key="t.templateId" class="template-card" @click="openEditor(t)">
           <div class="template-name">{{ t.name }}</div>
-          <div class="template-meta">{{ presetLabel(t.presetKey) }} · {{ t.pageFormat }} · {{ t.orientation === 'landscape' ? tr('Quer') : tr('Hoch') }}</div>
+          <div class="template-meta">{{ tr(presetLabel(t.presetKey)) }} · {{ t.pageFormat }} · {{ t.orientation === 'landscape' ? tr('Quer') : tr('Hoch') }}</div>
           <div class="template-actions">
             <button class="icon-btn" :title="tr('Bearbeiten')" @click.stop="openEditor(t)"><i class="ti ti-edit"></i></button>
             <button class="icon-btn danger" :title="tr('Löschen')" @click.stop="deleteTemplate(t)"><i class="ti ti-trash"></i></button>

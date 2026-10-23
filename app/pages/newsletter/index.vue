@@ -44,7 +44,7 @@
         <tbody>
           <tr v-for="s in subscribers" :key="s.subscriberId">
             <td class="td-name">{{ s.email }}</td>
-            <td><span class="badge" :class="'badge-' + statusClass(s.status)">{{ statusLabel(s.status) }}</span></td>
+            <td><span class="badge" :class="'badge-' + statusClass(s.status)">{{ tr(statusLabel(s.status)) }}</span></td>
             <td style="font-size:12px;color:var(--text-muted)">{{ (s.tags || []).join(', ') }}</td>
             <td style="font-size:12px">{{ formatDate(s.createdAt) }}</td>
             <td style="font-size:12px">{{ formatDate(s.confirmedAt) }}</td>
@@ -78,7 +78,7 @@
           <tr v-for="c in campaigns" :key="c.campaignId" style="cursor:pointer" @click="openEditCampaign(c)">
             <td class="td-name">{{ c.name }}</td>
             <td style="font-size:12px;color:var(--text-muted)">{{ c.subject }}</td>
-            <td><span class="badge" :class="'badge-' + campaignStatusClass(c.status)">{{ campaignStatusLabel(c.status) }}</span></td>
+            <td><span class="badge" :class="'badge-' + campaignStatusClass(c.status)">{{ tr(campaignStatusLabel(c.status)) }}</span></td>
             <td style="font-size:12px">{{ c.status === 'draft' ? '–' : c.stats?.sentCount ?? 0 }}</td>
             <td style="font-size:12px">{{ c.status === 'draft' ? '–' : c.stats?.openCount ?? 0 }}</td>
             <td style="font-size:12px">{{ c.status === 'draft' ? '–' : c.stats?.clickCount ?? 0 }}</td>
@@ -133,7 +133,7 @@
         <tbody>
           <tr v-for="r in automationRules" :key="r.ruleId" style="cursor:pointer" @click="openEditRule(r)">
             <td class="td-name">{{ r.name }}</td>
-            <td style="font-size:12px;color:var(--text-muted)">{{ ruleTriggerLabel(r) }}</td>
+            <td style="font-size:12px;color:var(--text-muted)">{{ tr(ruleTriggerLabel(r)) }}</td>
             <td><span class="badge" :class="r.active ? 'badge-success' : 'badge-muted'">{{ r.active ? tr('Aktiv') : tr('Pausiert') }}</span></td>
             <td>
               <button @click.stop="deleteRule(r)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 6px">

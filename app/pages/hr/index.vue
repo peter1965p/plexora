@@ -58,7 +58,7 @@
             <td>{{ e.department }}</td>
             <td style="font-size:12px">{{ e.role }}</td>
             <td style="font-size:12px">{{ e.startDate }}</td>
-            <td><span class="badge" :class="statusBadge(e.status)">{{ statusLabel(e.status) }}</span></td>
+            <td><span class="badge" :class="statusBadge(e.status)">{{ tr(statusLabel(e.status)) }}</span></td>
           </tr>
         </tbody>
       </table>

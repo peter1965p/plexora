@@ -79,7 +79,7 @@
               </select>
               <span v-else class="badge" :class="statusBadge(i.status)" style="cursor:pointer" :title="tr('Status ändern')" @click="editingStatusId = i.invoiceId">
                 <i v-if="statusSaving===i.invoiceId" class="ti ti-loader-2 spin"></i>
-                <template v-else>{{ statusLabel(i.status) }}</template>
+                <template v-else>{{ tr(statusLabel(i.status)) }}</template>
               </span>
               <i v-if="i.mailSent"       class="ti ti-mail-check"   style="color:#00D4B4;margin-left:6px;font-size:12px" :title="t.finance.mailSent"></i>
               <i v-if="i.finalizedAt"    class="ti ti-lock"         style="color:#a78bfa;margin-left:6px;font-size:12px" :title="t.finance.archived"></i>

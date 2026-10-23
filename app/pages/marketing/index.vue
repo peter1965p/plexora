@@ -101,9 +101,9 @@
           <div class="auto-row-main">
             <div class="auto-row-name">{{ a.name }}</div>
             <div class="auto-flow">
-              <span class="auto-chip trig"><i class="ti ti-bolt"></i> {{ triggerLabel(a.trigger) }}</span>
+              <span class="auto-chip trig"><i class="ti ti-bolt"></i> {{ tr(triggerLabel(a.trigger)) }}</span>
               <i class="ti ti-arrow-right auto-arrow"></i>
-              <span class="auto-chip act"><i class="ti ti-player-play"></i> {{ actionLabel(a) }}</span>
+              <span class="auto-chip act"><i class="ti ti-player-play"></i> {{ tr(actionLabel(a)) }}</span>
             </div>
           </div>
           <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? tr('Aktiv') : tr('Pausiert') }}</span>
@@ -581,7 +581,7 @@
             <span class="mail-time">{{ fmtMailTime(m.created) }}</span>
           </div>
           <div class="mail-subj">{{ m.subject }}</div>
-          <div class="mail-kind">{{ mailKindLabel(m.kind) }}</div>
+          <div class="mail-kind">{{ tr(mailKindLabel(m.kind)) }}</div>
         </button>
       </section>
 
@@ -591,7 +591,7 @@
           <div class="mail-read-subj">{{ selectedMail.subject }}</div>
           <div class="mail-meta">
             <div><span>{{ tr('An') }}</span>{{ selectedMail.to }}</div>
-            <div><span>{{ tr('Art') }}</span>{{ mailKindLabel(selectedMail.kind) }}</div>
+            <div><span>{{ tr('Art') }}</span>{{ tr(mailKindLabel(selectedMail.kind)) }}</div>
             <div><span>{{ tr('Zeit') }}</span>{{ new Date(selectedMail.created).toLocaleString('de-DE') }}</div>
             <div><span>{{ tr('Status') }}</span><b :class="selectedMail.status">{{ selectedMail.status === 'sent' ? tr('Versendet') : tr('Fehlgeschlagen') }}</b></div>
           </div>

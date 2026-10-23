@@ -29,7 +29,7 @@
         <div style="flex:1;min-width:0;cursor:pointer" @click="openEdit(s)">
           <div class="fn-card-name">{{ s.name }}</div>
           <div class="fn-card-meta">
-            {{ tr('Auslöser:') }} {{ triggerLabel(s.trigger) }} · {{ s.graph?.nodes?.length || 0 }} {{ tr('Schritte') }}
+            {{ tr('Auslöser:') }} {{ tr(triggerLabel(s.trigger)) }} · {{ s.graph?.nodes?.length || 0 }} {{ tr('Schritte') }}
             <span v-if="runCounts[s.sequenceId]"> · {{ runCounts[s.sequenceId].waiting }} {{ tr('wartend,') }} {{ runCounts[s.sequenceId].done }} {{ tr('fertig') }}</span>
           </div>
         </div>

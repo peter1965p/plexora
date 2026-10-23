@@ -42,8 +42,8 @@
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
             <div style="width:80px"><div class="progress-bar"><div class="progress-fill" :class="p.progress===100?'cyan':''" :style="{width:(p.progress||0)+'%'}"></div></div></div>
             <span style="font-size:11px;color:var(--text-muted)">{{ p.progress||0 }}%</span>
-            <span class="badge" :class="statusBadge(p.status)">{{ statusLabel(p.status) }}</span>
-            <span class="badge" :class="priorityBadge(p.priority)">{{ priorityLabel(p.priority) }}</span>
+            <span class="badge" :class="statusBadge(p.status)">{{ tr(statusLabel(p.status)) }}</span>
+            <span class="badge" :class="priorityBadge(p.priority)">{{ tr(priorityLabel(p.priority)) }}</span>
             <span v-if="p.deadline" style="font-size:11px;color:var(--text-muted)">{{ fmtDate(p.deadline) }}</span>
             <button class="icon-btn" style="font-size:11px" :title="t.projects.createInvoice" @click.stop="createInvoiceFromProject(p)"><i class="ti ti-file-invoice"></i></button>
             <button class="icon-btn" style="font-size:11px" @click.stop="openEdit(p)"><i class="ti ti-pencil"></i></button>
@@ -66,7 +66,7 @@
               <div style="flex:1;min-width:0">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                   <span style="font-size:13px;font-weight:500" :style="tk.status==='done'?'text-decoration:line-through;color:var(--text-muted)':''">{{ tk.title }}</span>
-                  <span class="badge" :class="priorityBadge(tk.priority)" style="font-size:10px;padding:1px 6px">{{ priorityLabel(tk.priority) }}</span>
+                  <span class="badge" :class="priorityBadge(tk.priority)" style="font-size:10px;padding:1px 6px">{{ tr(priorityLabel(tk.priority)) }}</span>
                   <span v-if="tk.assignee" style="font-size:11px;color:var(--text-muted)"><i class="ti ti-user"></i> {{ tk.assignee }}</span>
                   <span v-if="tk.endDate" style="font-size:11px;color:var(--text-muted)"><i class="ti ti-calendar"></i> {{ fmtDate(tk.endDate) }}</span>
                   <span v-if="tk.estimatedHours" style="font-size:11px;color:var(--text-muted)">{{ (tk.loggedHours||0).toFixed(1) }}/{{ tk.estimatedHours }}h</span>

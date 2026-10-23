@@ -1398,7 +1398,7 @@
               <div style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted)">{{ idx + 1 }}</div>
               <!-- Icon + label -->
               <i class="ti" :class="navIcon(key)" style="font-size:16px;flex-shrink:0;color:var(--accent)"></i>
-              <div style="flex:1;font-size:13px;font-weight:600">{{ navLabel(key) }}</div>
+              <div style="flex:1;font-size:13px;font-weight:600">{{ tr(navLabel(key)) }}</div>
               <span v-if="!NAV_META[key]" style="font-size:10px;color:var(--text-muted);flex-shrink:0">{{ tr('eigene Seite') }}</span>
               <!-- Enabled indicator -->
               <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">

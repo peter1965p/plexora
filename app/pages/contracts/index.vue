@@ -51,13 +51,13 @@
               <i v-if="c.autoRenew" class="ti ti-refresh" :title="t.contracts.autoRenew" style="color:var(--text-muted);margin-left:4px"></i>
             </td>
             <td>{{ companyName(c) }}</td>
-            <td>{{ typeLabel(c.type) }}</td>
-            <td style="font-size:13px">{{ c.value || '—' }} <span style="color:var(--text-muted)">{{ billingCycleLabel(c.billingCycle) }}</span></td>
+            <td>{{ tr(typeLabel(c.type)) }}</td>
+            <td style="font-size:13px">{{ c.value || '—' }} <span style="color:var(--text-muted)">{{ tr(billingCycleLabel(c.billingCycle)) }}</span></td>
             <td style="font-size:12px">
               <div>{{ c.endDate ? fmtDate(c.endDate) : '—' }}</div>
               <span v-if="expiryInfo(c)" class="badge" :class="expiryInfo(c)!.badge" style="margin-top:2px;display:inline-block">{{ expiryInfo(c)!.label }}</span>
             </td>
-            <td><span class="badge" :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></td>
+            <td><span class="badge" :class="statusBadge(c.status)">{{ tr(statusLabel(c.status)) }}</span></td>
             <td>
               <div style="display:flex;gap:4px">
                 <button class="icon-btn" @click="openEdit(c)"><i class="ti ti-pencil"></i></button>

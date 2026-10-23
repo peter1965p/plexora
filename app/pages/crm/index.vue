@@ -59,7 +59,7 @@
               <td style="font-size:12px">{{ c.email }}</td>
               <td><span class="badge" :class="statusBadge(c.status)">{{ tr(t.contactStatus[c.status] || statusLabel(c.status)) }}</span></td>
               <td>
-                <span v-if="c.status === 'lead'" class="badge" :class="leadStatusBadge(c.leadStatus)">{{ leadStatusLabel(c.leadStatus) }}</span>
+                <span v-if="c.status === 'lead'" class="badge" :class="leadStatusBadge(c.leadStatus)">{{ tr(leadStatusLabel(c.leadStatus)) }}</span>
                 <span v-else style="color:var(--text-muted)">—</span>
               </td>
               <td>

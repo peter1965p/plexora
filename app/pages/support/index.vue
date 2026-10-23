@@ -76,14 +76,14 @@
               </td>
               <td style="font-size:12px">{{ tk.client }}</td>
               <td style="font-size:12px;color:var(--text-muted)">{{ tk.assignee || '–' }}</td>
-              <td><span class="badge" :class="priorityBadge(tk.priority)">{{ priorityLabel(tk.priority) }}</span></td>
+              <td><span class="badge" :class="priorityBadge(tk.priority)">{{ tr(priorityLabel(tk.priority)) }}</span></td>
               <td>
                 <div class="sla-bar-wrap" :title="slaTooltip(tk)">
                   <div class="sla-bar" :class="slaClass(tk)" :style="{ width: Math.min(slaPercent(tk), 100) + '%' }"></div>
-                  <span class="sla-label" :class="slaClass(tk)">{{ slaLabel(tk) }}</span>
+                  <span class="sla-label" :class="slaClass(tk)">{{ tr(slaLabel(tk)) }}</span>
                 </div>
               </td>
-              <td><span class="badge" :class="tk.status==='open'?'badge-danger':tk.status==='in_progress'?'badge-warning':'badge-success'">{{ statusLabel(tk.status) }}</span></td>
+              <td><span class="badge" :class="tk.status==='open'?'badge-danger':tk.status==='in_progress'?'badge-warning':'badge-success'">{{ tr(statusLabel(tk.status)) }}</span></td>
             </tr>
           </tbody>
         </table>

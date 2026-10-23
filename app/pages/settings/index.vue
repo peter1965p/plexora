@@ -1268,7 +1268,7 @@
             <div style="font-size:12px;font-weight:600;margin-bottom:6px">{{ tr('Gezeigt (') }}{{ lt.wall.images.length }} {{ tr('von') }} {{ WALL_MAX }}{{ tr(', mindestens 4; Reihenfolge: reihum auf 4 Spalten)') }}</div>
             <div class="lt-wall-list">
               <div v-for="(k, i) in lt.wall.images" :key="k" class="lt-wall-item">
-                <img :src="`/wall/${k}-klein.webp`" alt="" /><span>{{ wallLabel(k) }}</span>
+                <img :src="`/wall/${k}-klein.webp`" alt="" /><span>{{ tr(wallLabel(k)) }}</span>
                 <button class="icon-btn" :title="tr('Nach vorn')" :disabled="i === 0" @click="wallMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
                 <button class="icon-btn" :title="tr('Nach hinten')" :disabled="i === lt.wall.images.length - 1" @click="wallMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
                 <button class="icon-btn" :title="tr('Entfernen')" @click="lt.wall.images.splice(i, 1)"><i class="ti ti-x"></i></button>
@@ -1392,8 +1392,8 @@
 
           <div v-if="backupCurrent" style="border:1px solid var(--border);border-radius:10px;padding:14px">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
-              <strong>{{ backupKindLabel(backupCurrent.kind) }}</strong>
-              <span class="badge" :class="backupCurrent.status === 'done' ? 'badge-success' : backupCurrent.status === 'failed' ? 'badge-danger' : ''">{{ backupStatusLabel(backupCurrent.status) }}</span>
+              <strong>{{ tr(backupKindLabel(backupCurrent.kind)) }}</strong>
+              <span class="badge" :class="backupCurrent.status === 'done' ? 'badge-success' : backupCurrent.status === 'failed' ? 'badge-danger' : ''">{{ tr(backupStatusLabel(backupCurrent.status)) }}</span>
             </div>
             <div v-if="backupCurrent.status === 'queued' || backupCurrent.status === 'running'" style="margin-top:10px">
               <div style="height:8px;border-radius:6px;background:var(--border);overflow:hidden"><div :style="`height:100%;width:${backupPercent(backupCurrent)}%;background:var(--accent);transition:width .4s`"></div></div>
@@ -1421,8 +1421,8 @@
               <tbody>
                 <tr v-for="j in backupJobs" :key="j.jobId" style="border-top:0.5px solid var(--border)">
                   <td style="padding:6px 0">{{ new Date(j.createdAt).toLocaleString('de-DE') }}</td>
-                  <td>{{ backupKindLabel(j.kind) }}</td><td>{{ j.sizeBytes ? backupBytes(j.sizeBytes) : '–' }}</td><td>{{ j.by }}</td>
-                  <td>{{ backupStatusLabel(j.status) }}</td>
+                  <td>{{ tr(backupKindLabel(j.kind)) }}</td><td>{{ j.sizeBytes ? backupBytes(j.sizeBytes) : '–' }}</td><td>{{ j.by }}</td>
+                  <td>{{ tr(backupStatusLabel(j.status)) }}</td>
                   <td style="text-align:right;white-space:nowrap">
                     <button v-if="j.downloadable" class="theme-opt" :title="tr('Herunterladen (Link 10 Minuten gültig)')" @click="downloadBackup(j)"><i class="ti ti-download"></i></button>
                     <button v-if="j.status === 'done' || j.status === 'failed'" class="theme-opt" :title="tr('Löschen')" @click="deleteBackup(j)"><i class="ti ti-trash"></i></button>
@@ -1448,7 +1448,7 @@
       <!-- Passphrase-Dialog -->
       <div v-if="backupDialog" class="modal-overlay" @click.self="closeBackupDialog">
         <div class="modal" style="max-width:480px">
-          <div class="modal-header"><span class="modal-title">{{ backupKindLabel(backupDialog.kind) }} {{ tr('starten') }}</span><button class="icon-btn" @click="closeBackupDialog"><i class="ti ti-x"></i></button></div>
+          <div class="modal-header"><span class="modal-title">{{ tr(backupKindLabel(backupDialog.kind)) }} {{ tr('starten') }}</span><button class="icon-btn" @click="closeBackupDialog"><i class="ti ti-x"></i></button></div>
           <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
             <div style="font-size:12px;color:var(--text-muted);line-height:1.6">{{ tr('Wähle eine Passphrase (mindestens 12 Zeichen). Sie verschlüsselt die Datei und wird') }} <strong>{{ tr('nicht gespeichert') }}</strong> {{ tr('– notiere sie dir an einem sicheren Ort.') }}</div>
             <div class="auth-field"><label>{{ tr('Passphrase') }}</label><input v-model="backupPass" type="password" autocomplete="new-password" :placeholder="tr('mindestens 12 Zeichen')" /></div>
@@ -1620,14 +1620,14 @@
           <div v-if="configuredAiProviders.length > 1" class="auth-field">
             <label>{{ tr('Standard-Anbieter') }}</label>
             <select v-model="aiDefaultProvider" class="field-input" @change="saveAiDefaultProvider">
-              <option v-for="pk in configuredAiProviders" :key="pk" :value="pk">{{ aiLabel(pk) }}</option>
+              <option v-for="pk in configuredAiProviders" :key="pk" :value="pk">{{ tr(aiLabel(pk)) }}</option>
             </select>
           </div>
         </div>
 
         <div v-if="modelsPanelProvider" style="flex:1;min-width:300px;max-width:420px;border:1px solid var(--border);border-radius:10px;padding:14px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <strong style="font-size:13px">{{ tr('Modelle —') }} {{ aiLabel(modelsPanelProvider) }}</strong>
+            <strong style="font-size:13px">{{ tr('Modelle —') }} {{ tr(aiLabel(modelsPanelProvider)) }}</strong>
             <button class="icon-btn" @click="modelsPanelProvider = ''"><i class="ti ti-x"></i></button>
           </div>
           <div v-if="modelsLoading" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">
