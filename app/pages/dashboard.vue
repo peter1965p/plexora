@@ -59,7 +59,7 @@
               <div class="activity-text">
                 <NuxtLink :to="`/crm?edit=${c.contactId}`" style="color:var(--accent)">{{ c.firstName }} {{ c.lastName }}</NuxtLink>
               </div>
-              <div class="activity-time">{{ c.company }} · <span :class="statusBadge(c.status)">{{ t.contactStatus[c.status] || statusLabel(c.status) }}</span></div>
+              <div class="activity-time">{{ c.company }} · <span :class="statusBadge(c.status)">{{ tr(t.contactStatus[c.status] || statusLabel(c.status)) }}</span></div>
             </div>
           </div>
           <div v-if="!contacts.length" style="color:var(--text-muted);font-size:13px">{{ t.dash.noContacts }}</div>
@@ -90,7 +90,7 @@
           <tr v-for="d in deals" :key="d.dealId" class="row-link" tabindex="0" @click="navigateTo('/crm')" @keydown.enter="navigateTo('/crm')">
             <td class="td-name">{{ d.name }}</td>
             <td>{{ d.value }}</td>
-            <td>{{ d.stage }}</td>
+            <td>{{ tr(d.stage) }}</td>
             <td>
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="flex:1">

@@ -1,5 +1,14 @@
 // Englische Fassung fester deutscher Oberflächentexte (Schlüssel = deutscher Text, wie er im Quelltext steht). Fehlt ein Eintrag, bleibt der deutsche Text stehen.
 export const EN: Record<string, string> = {
+  "inaktiv": "inactive",
+  "Angebot": "Quote",
+  "Friseur & Beauty": "Hairdresser & beauty",
+  "Bildung & Kurse": "Education & courses",
+  "Fitness & Sport": "Fitness & sport",
+  "Reinigung & Gebäudeservice": "Cleaning & facility services",
+  "Veranstaltungen": "Events",
+  "Verein": "Club",
+  "Taxi & Fahrdienst": "Taxi & transport",
   " (aus ZUGFeRD-PDF)": " (from ZUGFeRD PDF)",
   " Zimmer": " room(s)",
   " anlegen": " create",

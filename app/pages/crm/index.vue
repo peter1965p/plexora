@@ -57,7 +57,7 @@
               <td class="td-name">{{ c.firstName }} {{ c.lastName }}</td>
               <td>{{ companyName(c) }}</td>
               <td style="font-size:12px">{{ c.email }}</td>
-              <td><span class="badge" :class="statusBadge(c.status)">{{ t.contactStatus[c.status] || statusLabel(c.status) }}</span></td>
+              <td><span class="badge" :class="statusBadge(c.status)">{{ tr(t.contactStatus[c.status] || statusLabel(c.status)) }}</span></td>
               <td>
                 <span v-if="c.status === 'lead'" class="badge" :class="leadStatusBadge(c.leadStatus)">{{ leadStatusLabel(c.leadStatus) }}</span>
                 <span v-else style="color:var(--text-muted)">—</span>
@@ -97,7 +97,7 @@
             <tr v-for="d in deals" :key="d.dealId">
               <td class="td-name">{{ d.name }}</td>
               <td>{{ d.value }}</td>
-              <td>{{ d.stage }}</td>
+              <td>{{ tr(d.stage) }}</td>
               <td><span class="badge" :class="'badge-'+d.status">{{ t.dealStage[d.status] || stageLabel[d.status] }}</span></td>
               <td>
                 <div style="display:flex;gap:4px">

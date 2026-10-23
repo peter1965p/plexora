@@ -118,7 +118,7 @@ const navSections = computed(() => [
       .filter(key => branchRegistry.value[key] && branchRegistry.value[key].route)
       .map(key => {
         const mod = branchRegistry.value[key]
-        return { to: mod.route, label: mod.name, icon: LUCIDE_TO_TABLER[mod.icon] || 'ti-puzzle', key }
+        return { to: mod.route, label: tr(mod.name), icon: LUCIDE_TO_TABLER[mod.icon] || 'ti-puzzle', key }
       }),
   }] : []),
   {
