@@ -14,8 +14,8 @@ describe('Englische Oberflächentexte', () => {
     const missing: string[] = []
     for (const f of files) {
       const s = readFileSync(f, 'utf8')
-      for (const m of s.matchAll(/\btr\('((?:[^'\\]|\\.)*)'\)/g)) {
-        const k = m[1].replace(/\\'/g, "'").replace(/\\\\/g, '\\')
+      for (const m of s.matchAll(/\btr\((?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\)/g)) {
+        const k = (m[1] ?? m[2]).replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\')
         if (!(k in EN) && GER.test(k) && !/Muster|Päffgen|JetBrains/.test(k)) missing.push(`${f}: ${k}`)
       }
     }

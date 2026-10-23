@@ -4,7 +4,7 @@
     <div class="auth-card">
       <div class="auth-logo">Plexo<span>ra</span></div>
       <div class="auth-title">{{ tr('Neues Passwort setzen') }}</div>
-      <div class="auth-sub">{{ email || "Ungültiger Link" }}</div>
+      <div class="auth-sub">{{ email || tr("Ungültiger Link") }}</div>
 
       <div v-if="error" class="auth-error">
         <i class="ti ti-alert-circle"></i> {{ error }}

@@ -12,7 +12,7 @@
       <template v-if="isForgot">
         <div class="auth-title">{{ tr('Passwort vergessen?') }}</div>
         <div class="auth-sub">
-          {{ forgotSent ? "E-Mail ist unterwegs" : "Wir senden dir einen Link zum Zurücksetzen" }}
+          {{ forgotSent ? tr("E-Mail ist unterwegs") : tr("Wir senden dir einen Link zum Zurücksetzen") }}
         </div>
 
         <div v-if="error" class="auth-error">
@@ -42,10 +42,10 @@
 
       <template v-else>
         <div class="auth-title">
-          {{ isRegister ? "Konto erstellen" : "Willkommen zurück" }}
+          {{ isRegister ? tr("Konto erstellen") : tr("Willkommen zurück") }}
         </div>
         <div class="auth-sub">
-          {{ isRegister ? "Starten Sie kostenlos" : "Melden Sie sich an" }}
+          {{ isRegister ? tr("Starten Sie kostenlos") : tr("Melden Sie sich an") }}
         </div>
 
         <div v-if="error" class="auth-error">
@@ -93,7 +93,7 @@
               @click="isRegister ? register() : login()"
             >
               <span v-if="loading"><i class="ti ti-loader-2 spin"></i></span>
-              <span v-else>{{ isRegister ? "Registrieren" : "Anmelden" }}</span>
+              <span v-else>{{ isRegister ? tr("Registrieren") : tr("Anmelden") }}</span>
             </button>
           </template>
 
@@ -122,14 +122,14 @@
         </div>
 
         <div v-if="!needsConfirm" class="auth-switch">
-          {{ isRegister ? "Bereits ein Konto?" : "Noch kein Konto?" }}
+          {{ isRegister ? tr("Bereits ein Konto?") : tr("Noch kein Konto?") }}
           <span
             @click="
               isRegister = !isRegister;
               error = '';
             "
           >
-            {{ isRegister ? "Anmelden" : "Kostenlos registrieren" }}
+            {{ isRegister ? tr("Anmelden") : tr("Kostenlos registrieren") }}
           </span>
         </div>
 

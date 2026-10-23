@@ -7,17 +7,17 @@
         <div class="ck-left">
           <div class="ck-icon">🍪</div>
           <div>
-            <div class="ck-title">Cookies & Datenschutz</div>
+            <div class="ck-title">{{ tr('Cookies & Datenschutz') }}</div>
             <div class="ck-text">
-              Wir nutzen Cookies, um dir das beste Erlebnis zu bieten.
-              <a href="/datenschutz" class="ck-link">Datenschutzerklärung</a>
+              {{ tr('Wir nutzen Cookies, um dir das beste Erlebnis zu bieten.') }}
+              <a href="/datenschutz" class="ck-link">{{ tr('Datenschutzerklärung') }}</a>
             </div>
           </div>
         </div>
 
         <div class="ck-actions">
-          <button class="ck-btn-essential" @click="accept('essential')">Nur notwendige</button>
-          <button class="ck-btn-all" @click="accept('all')">Alle akzeptieren 🎉</button>
+          <button class="ck-btn-essential" @click="accept('essential')">{{ tr('Nur notwendige') }}</button>
+          <button class="ck-btn-all" @click="accept('all')">{{ tr('Alle akzeptieren 🎉') }}</button>
         </div>
       </div>
     </div>
@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+useLang()   // lädt die gemerkte Sprache (auch auf der vorab erzeugten Startseite)
 const visible  = ref(false)
 const flipping = ref(false)
 
