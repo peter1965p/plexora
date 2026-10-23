@@ -233,7 +233,8 @@ describe('Öffentlicher Kalender-Link', () => {
     await book(u.unitId, { guestName: 'Anna Geheim', guestEmail: 'anna@geheim.de', notes: 'Vertraulich', priceOverride: 777 })
     const r = await get(refOf(u))
     expect(r.code).toBe(200); expect(r.res).toContain('SUMMARY:Belegt')
-    for (const s of ['Anna', 'geheim', 'Vertraulich', '777', 'chef@firma.de']) expect(r.res).not.toContain(s)
+    const text = String(r.res).replace(/^UID:.*$/gm, '')   // UIDs sind zufällige IDs und können zufällig "777" enthalten
+    for (const s of ['Anna', 'geheim', 'Vertraulich', '777', 'chef@firma.de']) expect(text).not.toContain(s)
   })
   it('falsches Geheimnis, falsche Form, fremde ID: einheitlich 404', async () => {
     const u = await mkUnit()
