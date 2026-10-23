@@ -4,11 +4,11 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Einzelhandel <span style="color:var(--accent)">Manager</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Kassensystem, Lagerverwaltung & Tagesabschluss</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Einzelhandel') }} <span style="color:var(--accent)">{{ tr('Manager') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Kassensystem, Lagerverwaltung & Tagesabschluss') }}</p>
       </div>
       <button v-if="activeTab==='lager'" class="accent-btn" @click="openNewProduct">
-        <i class="ti ti-plus"></i> Produkt anlegen
+        <i class="ti ti-plus"></i> {{ tr('Produkt anlegen') }}
       </button>
     </div>
 
@@ -28,18 +28,18 @@
           style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .15s"
           :style="p.stock<=0 ? 'opacity:0.4;pointer-events:none' : ''">
           <div style="font-size:13px;font-weight:700;margin-bottom:4px">{{ p.name }}</div>
-          <div style="font-size:12px;color:var(--text-muted)">{{ p.stock }} {{ p.unit }} auf Lager</div>
+          <div style="font-size:12px;color:var(--text-muted)">{{ p.stock }} {{ p.unit }} {{ tr('auf Lager') }}</div>
           <div style="font-size:15px;font-weight:800;color:var(--accent);margin-top:6px">€ {{ p.price.toFixed(2) }}</div>
         </div>
         <div v-if="!activeProducts.length" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
-          Keine aktiven Produkte. Lege welche im Tab "Lager" an.
+          {{ tr('Keine aktiven Produkte. Lege welche im Tab "Lager" an.') }}
         </div>
       </div>
 
       <!-- Warenkorb -->
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:18px;position:sticky;top:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-weight:700;font-size:14px"><i class="ti ti-shopping-cart" style="color:var(--accent)"></i> Warenkorb</div>
+          <div style="font-weight:700;font-size:14px"><i class="ti ti-shopping-cart" style="color:var(--accent)"></i> {{ tr('Warenkorb') }}</div>
           <button class="icon-btn" style="width:28px;height:28px" :title="showDisplay ? 'Anzeige ausblenden' : 'Anzeige einblenden'" @click="toggleDisplay">
             <i class="ti" :class="showDisplay ? 'ti-eye' : 'ti-eye-off'"></i>
           </button>
@@ -48,7 +48,7 @@
         <!-- Digitalanzeige + Ziffernblock -->
         <div v-if="showDisplay" style="margin-bottom:14px">
           <div style="background:#0a1a0f;border:1px solid #1a3324;border-radius:10px;padding:10px 14px;margin-bottom:8px;overflow:hidden">
-            <div style="font-family:'VT323',monospace;font-size:12px;letter-spacing:.1em;color:#4ade80;opacity:.75;text-align:right">MENGE</div>
+            <div style="font-family:'VT323',monospace;font-size:12px;letter-spacing:.1em;color:#4ade80;opacity:.75;text-align:right">{{ tr('MENGE') }}</div>
             <div style="font-family:'VT323',monospace;font-size:34px;line-height:1;letter-spacing:.05em;color:#4ade80;text-shadow:0 0 8px rgba(74,222,128,.65);text-align:right">
               {{ numpadBuffer || pendingQty }}<span style="opacity:.35">×</span>
             </div>
@@ -62,7 +62,7 @@
           </div>
         </div>
 
-        <div v-if="!cart.length" style="text-align:center;padding:24px 0;color:var(--text-muted);font-size:13px">Leer</div>
+        <div v-if="!cart.length" style="text-align:center;padding:24px 0;color:var(--text-muted);font-size:13px">{{ tr('Leer') }}</div>
         <div v-for="c in cart" :key="c.productId" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <div style="flex:1;font-size:13px">{{ c.name }}</div>
           <button class="icon-btn" style="width:24px;height:24px" @click="changeQty(c, -1)">−</button>
@@ -72,17 +72,17 @@
         </div>
         <div v-if="cart.length" style="border-top:0.5px solid var(--border);margin-top:12px;padding-top:12px">
           <div v-if="showDisplay" style="background:#0a1a0f;border:1px solid #1a3324;border-radius:10px;padding:10px 14px;margin-bottom:12px;overflow:hidden">
-            <div style="font-family:'VT323',monospace;font-size:12px;letter-spacing:.1em;color:#4ade80;opacity:.75;text-align:right">SUMME EUR</div>
+            <div style="font-family:'VT323',monospace;font-size:12px;letter-spacing:.1em;color:#4ade80;opacity:.75;text-align:right">{{ tr('SUMME EUR') }}</div>
             <div style="font-family:'VT323',monospace;font-size:40px;line-height:1;letter-spacing:.03em;color:#4ade80;text-shadow:0 0 10px rgba(74,222,128,.7);text-align:right">
               {{ cartTotal.toFixed(2) }}
             </div>
           </div>
           <div v-else style="display:flex;justify-content:space-between;font-weight:800;font-size:16px;margin-bottom:12px">
-            <span>Summe</span><span style="color:var(--accent)">€ {{ cartTotal.toFixed(2) }}</span>
+            <span>{{ tr('Summe') }}</span><span style="color:var(--accent)">€ {{ cartTotal.toFixed(2) }}</span>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:12px">
-            <button class="form-select" style="flex:1" :style="paymentMethod==='bar' ? 'border-color:var(--accent);color:var(--accent)' : ''" @click="paymentMethod='bar'">Bar</button>
-            <button class="form-select" style="flex:1" :style="paymentMethod==='karte' ? 'border-color:var(--accent);color:var(--accent)' : ''" @click="paymentMethod='karte'">Karte</button>
+            <button class="form-select" style="flex:1" :style="paymentMethod==='bar' ? 'border-color:var(--accent);color:var(--accent)' : ''" @click="paymentMethod='bar'">{{ tr('Bar') }}</button>
+            <button class="form-select" style="flex:1" :style="paymentMethod==='karte' ? 'border-color:var(--accent);color:var(--accent)' : ''" @click="paymentMethod='karte'">{{ tr('Karte') }}</button>
           </div>
           <button class="auth-btn" :disabled="checkingOut" @click="checkout">
             <i class="ti ti-check" style="margin-right:6px"></i>{{ checkingOut ? 'Speichere…' : 'Verkauf abschließen' }}
@@ -96,8 +96,8 @@
       <table style="width:100%;border-collapse:collapse">
         <thead>
           <tr style="text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase">
-            <th style="padding:8px">Name</th><th style="padding:8px">SKU</th><th style="padding:8px">Kategorie</th>
-            <th style="padding:8px">Preis</th><th style="padding:8px">Bestand</th><th style="padding:8px"></th>
+            <th style="padding:8px">{{ tr('Name') }}</th><th style="padding:8px">{{ tr('SKU') }}</th><th style="padding:8px">{{ tr('Kategorie') }}</th>
+            <th style="padding:8px">{{ tr('Preis') }}</th><th style="padding:8px">{{ tr('Bestand') }}</th><th style="padding:8px"></th>
           </tr>
         </thead>
         <tbody>
@@ -114,25 +114,25 @@
           </tr>
         </tbody>
       </table>
-      <div v-if="!products.length" style="text-align:center;padding:40px;color:var(--text-muted)">Noch keine Produkte angelegt.</div>
+      <div v-if="!products.length" style="text-align:center;padding:40px;color:var(--text-muted)">{{ tr('Noch keine Produkte angelegt.') }}</div>
     </div>
 
     <!-- TAGESABSCHLUSS -->
     <div v-if="activeTab==='abschluss'">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;max-width:420px">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Heute ({{ todayKey }})</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">{{ tr('Heute (') }}{{ todayKey }})</div>
         <div style="font-size:28px;font-weight:900;color:var(--accent);margin-bottom:12px">€ {{ todayTotal.toFixed(2) }}</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">{{ todaySales.length }} Verkäufe</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">{{ todaySales.length }} {{ tr('Verkäufe') }}</div>
         <button class="accent-btn" :disabled="closingDay" @click="closeDay">
           <i class="ti ti-lock" style="margin-right:6px"></i>{{ closingDay ? 'Speichere…' : 'Tag abschließen' }}
         </button>
       </div>
 
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Historie</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">{{ tr('Historie') }}</div>
       <table style="width:100%;border-collapse:collapse">
         <thead>
           <tr style="text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase">
-            <th style="padding:8px">Datum</th><th style="padding:8px">Verkäufe</th><th style="padding:8px">Bar</th><th style="padding:8px">Karte</th><th style="padding:8px">Summe</th>
+            <th style="padding:8px">{{ tr('Datum') }}</th><th style="padding:8px">{{ tr('Verkäufe') }}</th><th style="padding:8px">{{ tr('Bar') }}</th><th style="padding:8px">{{ tr('Karte') }}</th><th style="padding:8px">{{ tr('Summe') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -145,7 +145,7 @@
           </tr>
         </tbody>
       </table>
-      <div v-if="!closings.length" style="text-align:center;padding:24px;color:var(--text-muted)">Noch kein Tag abgeschlossen.</div>
+      <div v-if="!closings.length" style="text-align:center;padding:24px;color:var(--text-muted)">{{ tr('Noch kein Tag abgeschlossen.') }}</div>
     </div>
 
     <!-- VERKÄUFE -->
@@ -153,7 +153,7 @@
       <table style="width:100%;border-collapse:collapse">
         <thead>
           <tr style="text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase">
-            <th style="padding:8px">Datum</th><th style="padding:8px">Produkt</th><th style="padding:8px">Menge</th><th style="padding:8px">Summe</th><th style="padding:8px">Zahlart</th><th style="padding:8px"></th>
+            <th style="padding:8px">{{ tr('Datum') }}</th><th style="padding:8px">{{ tr('Produkt') }}</th><th style="padding:8px">{{ tr('Menge') }}</th><th style="padding:8px">{{ tr('Summe') }}</th><th style="padding:8px">{{ tr('Zahlart') }}</th><th style="padding:8px"></th>
           </tr>
         </thead>
         <tbody>
@@ -167,26 +167,26 @@
               <td style="padding:8px" v-if="i===0">{{ s.paymentMethod }}</td>
               <td style="padding:8px" v-else></td>
               <td style="padding:8px;text-align:right">
-                <button class="icon-btn" style="width:28px;height:28px" title="Retoure" @click="openReturnModal(s, line)"><i class="ti ti-rotate-2"></i></button>
+                <button class="icon-btn" style="width:28px;height:28px" :title="tr('Retoure')" @click="openReturnModal(s, line)"><i class="ti ti-rotate-2"></i></button>
               </td>
             </tr>
           </template>
         </tbody>
       </table>
-      <div v-if="!sales.length" style="text-align:center;padding:40px;color:var(--text-muted)">Noch keine Verkäufe.</div>
+      <div v-if="!sales.length" style="text-align:center;padding:40px;color:var(--text-muted)">{{ tr('Noch keine Verkäufe.') }}</div>
     </div>
 
     <!-- RETOURE MODAL -->
     <div v-if="showReturnModal" class="modal-overlay" @click.self="showReturnModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:400px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">Retoure erfassen</div>
+          <div style="font-size:16px;font-weight:700">{{ tr('Retoure erfassen') }}</div>
           <button class="icon-btn" @click="showReturnModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div style="font-size:13px;font-weight:600;margin-bottom:12px">{{ returnForm.productName }}</div>
-        <div class="auth-field" style="margin-bottom:12px"><label>Menge</label><input v-model="returnForm.qty" type="number" min="1" :max="returnForm.maxQty" /></div>
-        <div class="auth-field" style="margin-bottom:20px"><label>Grund (optional)</label><input v-model="returnForm.reason" /></div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px"><i class="ti ti-info-circle"></i> POS-Verkäufe haben keine Stripe-Zahlung — nur Bestand wird zurückgebucht, keine automatische Erstattung.</div>
+        <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Menge') }}</label><input v-model="returnForm.qty" type="number" min="1" :max="returnForm.maxQty" /></div>
+        <div class="auth-field" style="margin-bottom:20px"><label>{{ tr('Grund (optional)') }}</label><input v-model="returnForm.reason" /></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px"><i class="ti ti-info-circle"></i> {{ tr('POS-Verkäufe haben keine Stripe-Zahlung — nur Bestand wird zurückgebucht, keine automatische Erstattung.') }}</div>
         <button class="auth-btn" :disabled="returnSaving || !returnForm.qty" @click="submitReturn">
           <i class="ti ti-rotate-2" style="margin-right:6px"></i>{{ returnSaving ? 'Speichere…' : 'Retoure abschließen' }}
         </button>
@@ -200,15 +200,15 @@
           <div style="font-size:16px;font-weight:700">{{ editingProductId ? 'Produkt bearbeiten' : 'Produkt anlegen' }}</div>
           <button class="icon-btn" @click="showProductModal=false"><i class="ti ti-x"></i></button>
         </div>
-        <div class="auth-field" style="margin-bottom:12px"><label>Name</label><input v-model="pForm.name" placeholder="Produktname" /></div>
+        <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Name') }}</label><input v-model="pForm.name" :placeholder="tr('Produktname')" /></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-          <div class="auth-field"><label>SKU</label><input v-model="pForm.sku" placeholder="ABC-123" /></div>
-          <div class="auth-field"><label>Kategorie</label><input v-model="pForm.category" placeholder="Kategorie" /></div>
+          <div class="auth-field"><label>{{ tr('SKU') }}</label><input v-model="pForm.sku" :placeholder="tr('ABC-123')" /></div>
+          <div class="auth-field"><label>{{ tr('Kategorie') }}</label><input v-model="pForm.category" :placeholder="tr('Kategorie')" /></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
-          <div class="auth-field"><label>Preis (€)</label><input v-model="pForm.price" type="number" step="0.01" placeholder="9.99" /></div>
-          <div class="auth-field"><label>Bestand</label><input v-model="pForm.stock" type="number" placeholder="10" /></div>
-          <div class="auth-field"><label>Einheit</label><input v-model="pForm.unit" placeholder="Stk" /></div>
+          <div class="auth-field"><label>{{ tr('Preis (€)') }}</label><input v-model="pForm.price" type="number" step="0.01" placeholder="9.99" /></div>
+          <div class="auth-field"><label>{{ tr('Bestand') }}</label><input v-model="pForm.stock" type="number" placeholder="10" /></div>
+          <div class="auth-field"><label>{{ tr('Einheit') }}</label><input v-model="pForm.unit" :placeholder="tr('Stk')" /></div>
         </div>
         <button class="auth-btn" :disabled="savingProduct || !pForm.name" @click="saveProduct">
           <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingProductId ? 'Speichern' : 'Anlegen' }}

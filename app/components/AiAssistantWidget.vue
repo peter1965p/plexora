@@ -1,18 +1,18 @@
 <template>
   <div>
-    <button class="ai-fab" :class="{ open }" @click="open = !open" title="Plexi">
+    <button class="ai-fab" :class="{ open }" @click="open = !open" :title="tr('Plexi')">
       <i class="ti" :class="open ? 'ti-x' : 'ti-sparkles'"></i>
     </button>
 
     <div v-if="open" class="ai-panel">
       <div class="ai-panel-header">
         <i class="ti ti-sparkles" style="color:var(--accent)"></i>
-        <span>Plexi</span>
+        <span>{{ tr('Plexi') }}</span>
       </div>
 
       <div class="ai-panel-body" ref="scrollEl">
         <div v-if="!messages.length" class="ai-empty">
-          Frag mich z.B. "Wie viele offene Rechnungen habe ich?" oder "Leg einen Kontakt für Max Mustermann an"
+          {{ tr('Frag mich z.B. "Wie viele offene Rechnungen habe ich?" oder "Leg einen Kontakt für Max Mustermann an"') }}
         </div>
         <div v-for="(m, i) in messages" :key="i" class="ai-msg" :class="m.role">
           <div>
@@ -24,12 +24,12 @@
               </div>
               <div v-if="m.actionStatus === 'pending'" class="ai-action-buttons">
                 <button class="ai-action-confirm" :disabled="actionBusy" @click="confirmAction(m)">
-                  <i class="ti" :class="actionBusy ? 'ti-loader-2 spin' : 'ti-check'"></i> Bestätigen
+                  <i class="ti" :class="actionBusy ? 'ti-loader-2 spin' : 'ti-check'"></i> {{ tr('Bestätigen') }}
                 </button>
-                <button class="ai-action-cancel" :disabled="actionBusy" @click="cancelAction(m)">Abbrechen</button>
+                <button class="ai-action-cancel" :disabled="actionBusy" @click="cancelAction(m)">{{ tr('Abbrechen') }}</button>
               </div>
-              <div v-else-if="m.actionStatus === 'confirmed'" class="ai-action-status ok"><i class="ti ti-circle-check"></i> Ausgeführt</div>
-              <div v-else-if="m.actionStatus === 'cancelled'" class="ai-action-status"><i class="ti ti-circle-x"></i> Abgebrochen</div>
+              <div v-else-if="m.actionStatus === 'confirmed'" class="ai-action-status ok"><i class="ti ti-circle-check"></i> {{ tr('Ausgeführt') }}</div>
+              <div v-else-if="m.actionStatus === 'cancelled'" class="ai-action-status"><i class="ti ti-circle-x"></i> {{ tr('Abgebrochen') }}</div>
               <div v-else-if="m.actionStatus === 'failed'" class="ai-action-status err"><i class="ti ti-alert-triangle"></i> {{ m.actionError }}</div>
             </div>
           </div>
@@ -39,12 +39,12 @@
         </div>
         <div v-if="errorMsg" class="ai-error">
           <i class="ti ti-alert-triangle"></i> {{ errorMsg }}
-          <NuxtLink to="/settings" @click="open = false" style="color:var(--accent);margin-left:4px">Zu Plexora AI →</NuxtLink>
+          <NuxtLink to="/settings" @click="open = false" style="color:var(--accent);margin-left:4px">{{ tr('Zu Plexora AI →') }}</NuxtLink>
         </div>
       </div>
 
       <div class="ai-panel-input">
-        <input v-model="input" placeholder="Frage stellen..." @keydown.enter="send" :disabled="sending" />
+        <input v-model="input" :placeholder="tr('Frage stellen...')" @keydown.enter="send" :disabled="sending" />
         <button @click="send" :disabled="sending || !input.trim()"><i class="ti ti-send"></i></button>
       </div>
     </div>

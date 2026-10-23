@@ -2,14 +2,14 @@
   <div class="page">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0"><i class="ti ti-shield-lock" style="color:var(--accent);margin-right:8px"></i>PSC <span style="color:var(--accent)">Manager</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Plexora Sicherheits-Center: Zustand der Plattform, Schutz, Sicherung und Notfall-Vorsorge</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0"><i class="ti ti-shield-lock" style="color:var(--accent);margin-right:8px"></i>{{ tr('PSC') }} <span style="color:var(--accent)">{{ tr('Manager') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Plexora Sicherheits-Center: Zustand der Plattform, Schutz, Sicherung und Notfall-Vorsorge') }}</p>
       </div>
-      <button v-if="admin && tab === 'overview'" class="accent-btn" :disabled="loading" @click="load(true)"><i class="ti" :class="loading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> Aktualisieren</button>
+      <button v-if="admin && tab === 'overview'" class="accent-btn" :disabled="loading" @click="load(true)"><i class="ti" :class="loading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> {{ tr('Aktualisieren') }}</button>
     </div>
 
     <div v-if="!ready" style="padding:40px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
-    <div v-else-if="!admin" class="card" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px"><i class="ti ti-lock" style="font-size:22px;display:block;margin-bottom:8px"></i>Das PSC Manager zeigt die echte Infrastruktur und ist nur für den Plattform-Betreiber sichtbar.</div>
+    <div v-else-if="!admin" class="card" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px"><i class="ti ti-lock" style="font-size:22px;display:block;margin-bottom:8px"></i>{{ tr('Das PSC Manager zeigt die echte Infrastruktur und ist nur für den Plattform-Betreiber sichtbar.') }}</div>
 
     <template v-else>
       <div class="psc-tabs">
@@ -21,51 +21,51 @@
         <div v-if="error" class="err" style="margin-bottom:12px">{{ error }}</div>
 
         <div class="psc-card" :style="{ borderTopColor: LEVEL_COLOR[monitorLevel] }">
-          <div class="psc-head"><span class="psc-title">Plattform-Monitor</span><span class="psc-meta" v-if="rt">{{ rt.region }} · Node {{ rt.node }} · Version {{ rt.functionVersion || '—' }}</span></div>
+          <div class="psc-head"><span class="psc-title">{{ tr('Plattform-Monitor') }}</span><span class="psc-meta" v-if="rt">{{ rt.region }} {{ tr('· Node') }} {{ rt.node }} {{ tr('· Version') }} {{ rt.functionVersion || '—' }}</span></div>
           <div class="psc-cols">
             <div class="psc-col">
-              <div class="psc-label">Gleichzeitige Ausführungen</div>
+              <div class="psc-label">{{ tr('Gleichzeitige Ausführungen') }}</div>
               <template v-if="lam">
                 <div class="psc-bar"><i :style="barStyle(concLevel, concPct)"></i></div>
-                <div class="psc-big">{{ lam.concurrentNow }} <small>jetzt gleichzeitig</small></div>
-                <div class="psc-sub">von {{ cap }} {{ lam.reserved ? 'reserviert' : 'erlaubt' }} · Konto-Limit {{ lam.accountLimit }}</div>
+                <div class="psc-big">{{ lam.concurrentNow }} <small>{{ tr('jetzt gleichzeitig') }}</small></div>
+                <div class="psc-sub">{{ tr('von') }} {{ cap }} {{ lam.reserved ? 'reserviert' : 'erlaubt' }} {{ tr('· Konto-Limit') }} {{ lam.accountLimit }}</div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.lambda) }}</div>
             </div>
             <div class="psc-col">
-              <div class="psc-label">Anfragen (24 Std.)</div>
+              <div class="psc-label">{{ tr('Anfragen (24 Std.)') }}</div>
               <template v-if="lam">
                 <div class="psc-bar"><i :style="barStyle(errLevel, errPct)"></i></div>
                 <div class="psc-big" style="margin-bottom:2px">{{ nf(lam.invocations24h) }}</div>
-                <div class="psc-sub">Anfragen · {{ lam.throttles24h }} gedrosselt · {{ lam.errors24h }} Fehler · Ø {{ lam.avgMs }} ms</div>
-                <svg v-if="chart" class="psc-spark" :viewBox="`0 0 ${chart.w} ${chart.h}`" preserveAspectRatio="none" role="img" aria-label="Anfragen je Stunde der letzten 24 Stunden">
+                <div class="psc-sub">{{ tr('Anfragen ·') }} {{ lam.throttles24h }} {{ tr('gedrosselt ·') }} {{ lam.errors24h }} {{ tr('Fehler · Ø') }} {{ lam.avgMs }} {{ tr('ms') }}</div>
+                <svg v-if="chart" class="psc-spark" :viewBox="`0 0 ${chart.w} ${chart.h}`" preserveAspectRatio="none" role="img" :aria-label="tr('Anfragen je Stunde der letzten 24 Stunden')">
                   <g v-for="b in chart.bars" :key="b.i">
-                    <title>{{ b.label }}: {{ nf(b.inv) }} Anfragen{{ b.thr ? `, ${b.thr} gedrosselt` : '' }}</title>
+                    <title>{{ b.label }}: {{ nf(b.inv) }} {{ tr('Anfragen') }}{{ b.thr ? `, ${b.thr} gedrosselt` : '' }}</title>
                     <rect :x="b.x" :y="b.y" :width="chart.bw" :height="b.h" rx="1.5" :fill="LEVEL_COLOR.ok" opacity=".55" />
                     <rect v-if="b.thr" :x="b.x" :y="b.ty" :width="chart.bw" :height="b.th" rx="1.5" :fill="LEVEL_COLOR.bad" />
                   </g>
                 </svg>
-                <div v-if="chart" class="psc-axis"><span>vor 24 Std.</span><span>jetzt</span></div>
+                <div v-if="chart" class="psc-axis"><span>{{ tr('vor 24 Std.') }}</span><span>{{ tr('jetzt') }}</span></div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.lambda) }}</div>
             </div>
             <div class="psc-col">
-              <div class="psc-label">Datenbank · Wiederherstellung</div>
+              <div class="psc-label">{{ tr('Datenbank · Wiederherstellung') }}</div>
               <template v-if="db">
                 <div class="psc-bar"><i :style="barStyle(recLevel, recPct)"></i></div>
-                <div class="psc-big">{{ db.tables }} <small>Tabellen</small></div>
-                <div class="psc-sub">{{ nf(db.items) }} Datensätze · {{ mbText(db.bytes) }}</div>
-                <div class="psc-sub" :style="{ color: LEVEL_COLOR[recLevel] }">{{ db.pitrEnabled }} von {{ db.tables }} wiederherstellbar</div>
+                <div class="psc-big">{{ db.tables }} <small>{{ tr('Tabellen') }}</small></div>
+                <div class="psc-sub">{{ nf(db.items) }} {{ tr('Datensätze ·') }} {{ mbText(db.bytes) }}</div>
+                <div class="psc-sub" :style="{ color: LEVEL_COLOR[recLevel] }">{{ db.pitrEnabled }} {{ tr('von') }} {{ db.tables }} {{ tr('wiederherstellbar') }}</div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.db) }}</div>
             </div>
             <div class="psc-col">
-              <div class="psc-label">Funktion plexora-api</div>
+              <div class="psc-label">{{ tr('Funktion plexora-api') }}</div>
               <template v-if="lam">
                 <div class="psc-bar"><i :style="barStyle(memLevel, memPct)"></i></div>
-                <div class="psc-big" style="color:var(--accent)">{{ lam.memoryMb }} <small>MB</small></div>
-                <div class="psc-sub">{{ lam.runtime }} · Zeitlimit {{ lam.timeoutS }} s</div>
-                <div class="psc-sub" v-if="rt">belegt {{ rt.rssMb }} MB · läuft seit {{ Math.round(rt.uptimeS / 60) }} Min.</div>
+                <div class="psc-big" style="color:var(--accent)">{{ lam.memoryMb }} <small>{{ tr('MB') }}</small></div>
+                <div class="psc-sub">{{ lam.runtime }} {{ tr('· Zeitlimit') }} {{ lam.timeoutS }} s</div>
+                <div class="psc-sub" v-if="rt">{{ tr('belegt') }} {{ rt.rssMb }} {{ tr('MB · läuft seit') }} {{ Math.round(rt.uptimeS / 60) }} {{ tr('Min.') }}</div>
               </template>
               <div v-else class="psc-na">{{ na(ov?.lambda) }}</div>
             </div>
@@ -74,7 +74,7 @@
 
         <div class="psc-tiles">
           <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[protLevel] }">
-            <div class="psc-label">Schutz</div>
+            <div class="psc-label">{{ tr('Schutz') }}</div>
             <template v-if="pr">
               <div class="psc-big" :style="{ color: pr.roles && pr.plan ? LEVEL_COLOR.ok : LEVEL_COLOR.warn }">{{ pr.roles && pr.plan ? 'Scharf' : 'Beobachtung' }}</div>
               <div class="psc-dots"><span v-for="d in dots" :key="d.k"><i :style="{ background: d.on ? LEVEL_COLOR.ok : LEVEL_COLOR.warn }"></i>{{ d.k }}</span></div>
@@ -82,31 +82,31 @@
             <div v-else class="psc-na">{{ na(ov?.protection) }}</div>
           </div>
           <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[demoLevel] }">
-            <div class="psc-label">Demo-Pool</div>
+            <div class="psc-label">{{ tr('Demo-Pool') }}</div>
             <template v-if="demo">
-              <div class="psc-big">{{ demo.leased }} <small>/ {{ demo.poolSize }} belegt</small></div>
-              <div class="psc-sub">{{ demo.dirty }} Konto(en) verändert · zuletzt zurückgesetzt {{ age(demo.lastReset) }}</div>
+              <div class="psc-big">{{ demo.leased }} <small>/ {{ demo.poolSize }} {{ tr('belegt') }}</small></div>
+              <div class="psc-sub">{{ demo.dirty }} {{ tr('Konto(en) verändert · zuletzt zurückgesetzt') }} {{ age(demo.lastReset) }}</div>
             </template>
             <div v-else class="psc-na">{{ na(ov?.demo) }}</div>
           </div>
           <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[bkLevel] }">
-            <div class="psc-label">Gesamtsicherung</div>
+            <div class="psc-label">{{ tr('Gesamtsicherung') }}</div>
             <template v-if="bk">
               <div class="psc-big" :style="{ color: LEVEL_COLOR[bkLevel] }">{{ bk.last ? age(bk.last.at) : 'keine' }}</div>
-              <div class="psc-sub">außerhalb von AWS: <strong :style="{ color: bk.external ? LEVEL_COLOR.ok : LEVEL_COLOR.bad }">{{ bk.external ? 'ja' : 'nein' }}</strong></div>
+              <div class="psc-sub">{{ tr('außerhalb von AWS:') }} <strong :style="{ color: bk.external ? LEVEL_COLOR.ok : LEVEL_COLOR.bad }">{{ bk.external ? 'ja' : 'nein' }}</strong></div>
             </template>
             <div v-else class="psc-na">{{ na(ov?.backups) }}</div>
           </div>
           <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR.warn }">
-            <div class="psc-label">Notfall-Bereitschaft</div>
-            <div class="psc-big" style="color:var(--text-muted)">In Aufbau</div>
-            <div class="psc-sub">PostgreSQL / MySQL als Ausweichsystem, siehe Reiter „Sicherung &amp; Notfall“</div>
+            <div class="psc-label">{{ tr('Notfall-Bereitschaft') }}</div>
+            <div class="psc-big" style="color:var(--text-muted)">{{ tr('In Aufbau') }}</div>
+            <div class="psc-sub">{{ tr('PostgreSQL / MySQL als Ausweichsystem, siehe Reiter „Sicherung & Notfall“') }}</div>
           </div>
         </div>
 
         <div class="psc-card" style="margin-top:12px">
-          <div class="psc-head"><span class="psc-title">Hinweise</span><span class="psc-meta" v-if="ov">Stand {{ age(ov.generatedAt) }}</span></div>
-          <div v-if="!advice.length" class="psc-ok"><i class="ti ti-circle-check"></i> Keine offenen Hinweise.</div>
+          <div class="psc-head"><span class="psc-title">{{ tr('Hinweise') }}</span><span class="psc-meta" v-if="ov">{{ tr('Stand') }} {{ age(ov.generatedAt) }}</span></div>
+          <div v-if="!advice.length" class="psc-ok"><i class="ti ti-circle-check"></i> {{ tr('Keine offenen Hinweise.') }}</div>
           <ul v-else class="psc-advice">
             <li v-for="(a, i) in advice" :key="i" :class="{ go: a.to }" :tabindex="a.to ? 0 : -1" :role="a.to ? 'link' : undefined" @click="go(a.to)" @keydown.enter="go(a.to)">
               <i class="ti" :class="a.level === 'bad' ? 'ti-alert-octagon' : 'ti-alert-triangle'" :style="{ color: LEVEL_COLOR[a.level] }"></i><span>{{ a.text }}</span>
@@ -122,13 +122,13 @@
 
       <!-- ═══ SICHERUNG & NOTFALL ═══ -->
       <div v-else-if="tab === 'notfall'" class="psc-card" :style="{ borderTopColor: LEVEL_COLOR[doneSteps === STEPS.length ? 'ok' : 'warn'] }">
-        <div class="psc-head"><span class="psc-title">Sicherung &amp; Notfall</span><span class="psc-meta">{{ doneSteps }} von {{ STEPS.length }} Schritten fertig</span></div>
+        <div class="psc-head"><span class="psc-title">{{ tr('Sicherung & Notfall') }}</span><span class="psc-meta">{{ doneSteps }} {{ tr('von') }} {{ STEPS.length }} {{ tr('Schritten fertig') }}</span></div>
         <div class="psc-bar" style="margin-bottom:16px"><i :style="barStyle(doneSteps === STEPS.length ? 'ok' : 'warn', pct(doneSteps, STEPS.length))"></i></div>
-        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 14px;line-height:1.6">Ziel: Plexora läuft auch dann weiter, wenn AWS nicht mehr zur Verfügung steht. Dazu braucht es eine vollständige Sicherung außerhalb von AWS und ein Ausweichsystem auf PostgreSQL oder MySQL.</p>
+        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 14px;line-height:1.6">{{ tr('Ziel: Plexora läuft auch dann weiter, wenn AWS nicht mehr zur Verfügung steht. Dazu braucht es eine vollständige Sicherung außerhalb von AWS und ein Ausweichsystem auf PostgreSQL oder MySQL.') }}</p>
         <ol class="psc-steps">
           <li v-for="s in STEPS" :key="s.t"><i class="ti" :class="s.done ? 'ti-circle-check' : 'ti-circle-dashed'" :style="{ color: s.done ? LEVEL_COLOR.ok : 'var(--text-muted)' }"></i><div><strong>{{ s.t }}</strong><div>{{ s.d }}</div></div></li>
         </ol>
-        <NuxtLink to="/settings?tab=backup" class="accent-btn" style="display:inline-flex;text-decoration:none;margin-top:6px"><i class="ti ti-database-export"></i> Zu den vorhandenen Sicherungen (Einstellungen)</NuxtLink>
+        <NuxtLink to="/settings?tab=backup" class="accent-btn" style="display:inline-flex;text-decoration:none;margin-top:6px"><i class="ti ti-database-export"></i> {{ tr('Zu den vorhandenen Sicherungen (Einstellungen)') }}</NuxtLink>
       </div>
     </template>
   </div>
@@ -186,12 +186,12 @@ const mbText = (b: number) => (b >= 1048576 ? `${mb(b).toLocaleString('de-DE')} 
 const age = (iso?: string) => ageText(iso)
 const na = (s: any) => (s && s.ok === false ? `nicht verfügbar (${s.error})` : '—')
 const STEPS = [
-  { t: '1. Gesamtsicherung herunterladen', d: 'Alle Tabellen und Dateien als verschlüsseltes Archiv in einem neutralen Format.', done: false },
-  { t: '2. Sicherung außerhalb von AWS', d: 'Regelmäßig automatisch zu einem anderen Anbieter hochladen.', done: false },
-  { t: '3. Umstrukturierung auf PostgreSQL', d: 'Sicherung in eine PostgreSQL-Datenbank einlesen; eine Kompatibilitätsschicht lässt Plexora unverändert darauf laufen.', done: false },
-  { t: '4. Notfall-Server', d: 'Plexora als eigenständiger Server (Docker) mit eigener Anmeldung, Dateispeicher und Zeitplänen, samt Anleitung.', done: false },
-  { t: '5. MySQL', d: 'Dieselbe Schicht auch für MySQL.', done: false },
-  { t: '6. Notfall-Übung', d: 'Einmal komplett durchspielen: Läuft Plexora aus der Sicherung auf einem leeren Server?', done: false },
+  { t: '1. Gesamtsicherung herunterladen', d: tr('Alle Tabellen und Dateien als verschlüsseltes Archiv in einem neutralen Format.'), done: false },
+  { t: '2. Sicherung außerhalb von AWS', d: tr('Regelmäßig automatisch zu einem anderen Anbieter hochladen.'), done: false },
+  { t: '3. Umstrukturierung auf PostgreSQL', d: tr('Sicherung in eine PostgreSQL-Datenbank einlesen; eine Kompatibilitätsschicht lässt Plexora unverändert darauf laufen.'), done: false },
+  { t: '4. Notfall-Server', d: tr('Plexora als eigenständiger Server (Docker) mit eigener Anmeldung, Dateispeicher und Zeitplänen, samt Anleitung.'), done: false },
+  { t: '5. MySQL', d: tr('Dieselbe Schicht auch für MySQL.'), done: false },
+  { t: '6. Notfall-Übung', d: tr('Einmal komplett durchspielen: Läuft Plexora aus der Sicherung auf einem leeren Server?'), done: false },
 ]
 
 async function load(refresh = false) {
@@ -199,7 +199,7 @@ async function load(refresh = false) {
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     ov.value = await $fetch(useApiUrl('/api/admin/psc/overview' + (refresh ? '?refresh=1' : '')), { headers: await useAuthHeader() })
-  } catch (e: any) { error.value = e?.data?.message || 'Die Übersicht konnte nicht geladen werden.' } finally { loading.value = false }
+  } catch (e: any) { error.value = e?.data?.message || tr('Die Übersicht konnte nicht geladen werden.') } finally { loading.value = false }
 }
 onMounted(async () => {
   try { const { useAuthUser } = await import('~/composables/useAuth'); const u = await useAuthUser(); admin.value = u.role === 'admins' } catch { /* gesperrt */ }

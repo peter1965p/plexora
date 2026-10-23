@@ -35,9 +35,9 @@
         <div class="card-header">
           <span class="card-title">{{ t.crm.contacts }}</span>
           <div style="display:flex;gap:8px">
-            <button class="icon-btn" title="CSV" @click="exportContactsCsv"><i class="ti ti-file-type-csv"></i></button>
-            <button class="icon-btn" title="Excel" @click="exportContactsXlsx"><i class="ti ti-file-spreadsheet"></i></button>
-            <button class="icon-btn" title="Import" @click="showImportModal = true"><i class="ti ti-file-import"></i></button>
+            <button class="icon-btn" :title="tr('CSV')" @click="exportContactsCsv"><i class="ti ti-file-type-csv"></i></button>
+            <button class="icon-btn" :title="tr('Excel')" @click="exportContactsXlsx"><i class="ti ti-file-spreadsheet"></i></button>
+            <button class="icon-btn" :title="tr('Import')" @click="showImportModal = true"><i class="ti ti-file-import"></i></button>
             <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddContact">
               <i class="ti ti-plus"></i> {{ t.common.new }}
             </button>
@@ -46,7 +46,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>{{ t.common.name }}</th><th>{{ t.common.company }}</th><th>E-Mail</th><th>{{ t.common.status }}</th><th>Lead</th><th style="width:100px"></th>
+              <th>{{ t.common.name }}</th><th>{{ t.common.company }}</th><th>{{ tr('E-Mail') }}</th><th>{{ t.common.status }}</th><th>{{ tr('Lead') }}</th><th style="width:100px"></th>
             </tr>
           </thead>
           <tbody>
@@ -65,8 +65,8 @@
               <td>
                 <div style="display:flex;gap:4px">
                   <button v-if="c.status === 'lead'" class="icon-btn" :title="t.crm.makeCustomer" @click="convertContact(c)"><i class="ti ti-user-check"></i></button>
-                  <button class="icon-btn" title="Rechnung erstellen" @click="createInvoiceFor(companyName(c), c.email)"><i class="ti ti-file-invoice"></i></button>
-                  <button class="icon-btn" title="Angebot erstellen" @click="quoteForContact(c)"><i class="ti ti-file-text"></i></button>
+                  <button class="icon-btn" :title="tr('Rechnung erstellen')" @click="createInvoiceFor(companyName(c), c.email)"><i class="ti ti-file-invoice"></i></button>
+                  <button class="icon-btn" :title="tr('Angebot erstellen')" @click="quoteForContact(c)"><i class="ti ti-file-text"></i></button>
                   <button class="icon-btn" @click="openEditContact(c)"><i class="ti ti-pencil"></i></button>
                   <button class="icon-btn" style="color:var(--danger)" @click="deleteContact(c)"><i class="ti ti-trash"></i></button>
                 </div>
@@ -101,7 +101,7 @@
               <td><span class="badge" :class="'badge-'+d.status">{{ t.dealStage[d.status] || stageLabel[d.status] }}</span></td>
               <td>
                 <div style="display:flex;gap:4px">
-                  <button class="icon-btn" title="Angebot erstellen" @click="quoteForDeal(d)"><i class="ti ti-file-text"></i></button>
+                  <button class="icon-btn" :title="tr('Angebot erstellen')" @click="quoteForDeal(d)"><i class="ti ti-file-text"></i></button>
                   <button class="icon-btn" @click="openEditDeal(d)"><i class="ti ti-pencil"></i></button>
                   <button class="icon-btn" style="color:var(--danger)" @click="deleteDeal(d)"><i class="ti ti-trash"></i></button>
                 </div>
@@ -117,8 +117,8 @@
       <div class="card-header">
         <span class="card-title">{{ t.crm.companies }}</span>
         <div style="display:flex;gap:8px">
-          <button class="icon-btn" title="CSV" @click="exportCompaniesCsv"><i class="ti ti-file-type-csv"></i></button>
-          <button class="icon-btn" title="Excel" @click="exportCompaniesXlsx"><i class="ti ti-file-spreadsheet"></i></button>
+          <button class="icon-btn" :title="tr('CSV')" @click="exportCompaniesCsv"><i class="ti ti-file-type-csv"></i></button>
+          <button class="icon-btn" :title="tr('Excel')" @click="exportCompaniesXlsx"><i class="ti ti-file-spreadsheet"></i></button>
           <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddCompany">
             <i class="ti ti-plus"></i> {{ t.common.new }}
           </button>
@@ -126,7 +126,7 @@
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>{{ t.common.name }}</th><th>{{ t.common.industry }}</th><th>{{ t.common.city }}</th><th>Website</th><th style="width:64px"></th></tr>
+          <tr><th>{{ t.common.name }}</th><th>{{ t.common.industry }}</th><th>{{ t.common.city }}</th><th>{{ tr('Website') }}</th><th style="width:64px"></th></tr>
         </thead>
         <tbody>
           <tr v-if="!companies.length">
@@ -142,7 +142,7 @@
             </td>
             <td>
               <div style="display:flex;gap:4px">
-                <button class="icon-btn" title="Rechnung erstellen" @click="createInvoiceFor(co.name, co.email)"><i class="ti ti-file-invoice"></i></button>
+                <button class="icon-btn" :title="tr('Rechnung erstellen')" @click="createInvoiceFor(co.name, co.email)"><i class="ti ti-file-invoice"></i></button>
                 <button class="icon-btn" @click="openEditCompany(co)"><i class="ti ti-pencil"></i></button>
                 <button class="icon-btn" style="color:var(--danger)" @click="deleteCompany(co)"><i class="ti ti-trash"></i></button>
               </div>
@@ -161,10 +161,10 @@
         </div>
         <div class="modal-body">
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.crm.firstName }}</label><input v-model="contactForm.firstName" placeholder="Max" /></div>
-            <div class="auth-field"><label>{{ t.crm.lastName }}</label><input v-model="contactForm.lastName" placeholder="Mustermann" /></div>
+            <div class="auth-field"><label>{{ t.crm.firstName }}</label><input v-model="contactForm.firstName" :placeholder="tr('Max')" /></div>
+            <div class="auth-field"><label>{{ t.crm.lastName }}</label><input v-model="contactForm.lastName" :placeholder="tr('Mustermann')" /></div>
           </div>
-          <div class="auth-field"><label>E-Mail</label><input v-model="contactForm.email" placeholder="max@firma.de" /></div>
+          <div class="auth-field"><label>{{ tr('E-Mail') }}</label><input v-model="contactForm.email" :placeholder="tr('max@firma.de')" /></div>
 
           <div class="auth-field">
             <label>{{ t.crm.companyDb }}</label>
@@ -173,7 +173,7 @@
               <option v-for="co in companies" :key="co.companyId" :value="co.companyId">{{ co.name }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>{{ t.crm.companyFreetext }}</label><input v-model="contactForm.company" placeholder="Firma GmbH" /></div>
+          <div class="auth-field"><label>{{ t.crm.companyFreetext }}</label><input v-model="contactForm.company" :placeholder="tr('Firma GmbH')" /></div>
 
           <div class="auth-field"><label>{{ t.common.phone }}</label><input v-model="contactForm.phone" placeholder="+49 89 123456" /></div>
 
@@ -224,9 +224,9 @@
           <button class="icon-btn" @click="showDealModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.common.company }}</label><input v-model="dealForm.name" placeholder="Firma GmbH" /></div>
+          <div class="auth-field"><label>{{ t.common.company }}</label><input v-model="dealForm.name" :placeholder="tr('Firma GmbH')" /></div>
           <div class="auth-field"><label>{{ t.common.value }}</label><input v-model="dealForm.value" placeholder="€ 10.000" /></div>
-          <div class="auth-field"><label>{{ t.common.stage }}</label><input v-model="dealForm.stage" placeholder="Discovery" /></div>
+          <div class="auth-field"><label>{{ t.common.stage }}</label><input v-model="dealForm.stage" :placeholder="tr('Discovery')" /></div>
           <div class="auth-field">
             <label>{{ t.crm.dealProb }}</label>
             <input v-model.number="dealForm.prob" type="number" min="0" max="100" placeholder="50" />
@@ -256,21 +256,21 @@
           <button class="icon-btn" @click="showCompanyModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.common.name }}</label><input v-model="companyForm.name" placeholder="Firma GmbH" /></div>
+          <div class="auth-field"><label>{{ t.common.name }}</label><input v-model="companyForm.name" :placeholder="tr('Firma GmbH')" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.common.industry }}</label><input v-model="companyForm.branche" placeholder="IT" /></div>
-            <div class="auth-field"><label>Website</label><input v-model="companyForm.website" placeholder="https://firma.de" /></div>
+            <div class="auth-field"><label>{{ t.common.industry }}</label><input v-model="companyForm.branche" :placeholder="tr('IT')" /></div>
+            <div class="auth-field"><label>{{ tr('Website') }}</label><input v-model="companyForm.website" :placeholder="tr('https://firma.de')" /></div>
           </div>
           <div class="auth-row">
-            <div class="auth-field"><label>E-Mail</label><input v-model="companyForm.email" placeholder="info@firma.de" /></div>
+            <div class="auth-field"><label>{{ tr('E-Mail') }}</label><input v-model="companyForm.email" :placeholder="tr('info@firma.de')" /></div>
             <div class="auth-field"><label>{{ t.common.phone }}</label><input v-model="companyForm.phone" placeholder="+49 123456" /></div>
           </div>
-          <div class="auth-field"><label>{{ t.common.street }}</label><input v-model="companyForm.street" placeholder="Musterstraße 1" /></div>
+          <div class="auth-field"><label>{{ t.common.street }}</label><input v-model="companyForm.street" :placeholder="tr('Musterstraße 1')" /></div>
           <div class="auth-row">
             <div class="auth-field"><label>{{ t.common.zip }}</label><input v-model="companyForm.zip" placeholder="12345" /></div>
-            <div class="auth-field"><label>{{ t.common.city }}</label><input v-model="companyForm.city" placeholder="Köln" /></div>
+            <div class="auth-field"><label>{{ t.common.city }}</label><input v-model="companyForm.city" :placeholder="tr('Köln')" /></div>
           </div>
-          <div class="auth-field"><label>{{ t.common.country }}</label><input v-model="companyForm.country" placeholder="Deutschland" /></div>
+          <div class="auth-field"><label>{{ t.common.country }}</label><input v-model="companyForm.country" :placeholder="tr('Deutschland')" /></div>
           <div class="auth-field"><label>{{ t.common.notes }}</label><textarea v-model="companyForm.notes" rows="2" :placeholder="t.crm.internalNotes"></textarea></div>
           <button class="auth-btn" :disabled="saving" @click="saveCompany">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
@@ -467,7 +467,7 @@ async function saveContact() {
 const { openConfirm } = useConfirm()
 
 async function deleteContact(c: Contact) {
-  if (!await openConfirm({ title: 'Kontakt löschen?', name: `${c.firstName} ${c.lastName}` })) return
+  if (!await openConfirm({ title: tr('Kontakt löschen?'), name: `${c.firstName} ${c.lastName}` })) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}`), {
     method: 'DELETE',
     headers: authHeaders,
@@ -477,7 +477,7 @@ async function deleteContact(c: Contact) {
 }
 
 async function convertContact(c: Contact) {
-  if (!await openConfirm({ title: 'Zu Kunde konvertieren?', name: `${c.firstName} ${c.lastName}`, sub: 'Der Kontakt-Status wird auf "Kunde" gesetzt.', icon: 'ti-user-check' })) return
+  if (!await openConfirm({ title: tr('Zu Kunde konvertieren?'), name: `${c.firstName} ${c.lastName}`, sub: tr('Der Kontakt-Status wird auf "Kunde" gesetzt.'), icon: 'ti-user-check' })) return
   await $fetch(useApiUrl(`/api/contacts/${c.contactId}/convert`), { method: 'POST', headers: authHeaders })
   await refreshContacts()
 }
@@ -523,7 +523,7 @@ async function saveDeal() {
 }
 
 async function deleteDeal(d: Deal) {
-  if (!await openConfirm({ title: 'Deal löschen?', name: d.name })) return
+  if (!await openConfirm({ title: tr('Deal löschen?'), name: d.name })) return
   await $fetch(useApiUrl(`/api/deals/${d.dealId}`), {
     method: 'DELETE',
     headers: authHeaders,
@@ -583,7 +583,7 @@ async function saveCompany() {
 }
 
 async function deleteCompany(co: Company) {
-  if (!await openConfirm({ title: 'Unternehmen löschen?', name: co.name })) return
+  if (!await openConfirm({ title: tr('Unternehmen löschen?'), name: co.name })) return
   await $fetch(useApiUrl(`/api/companies/${co.companyId}`), { method: 'DELETE', headers: authHeaders })
   await refreshCompanies()
 }

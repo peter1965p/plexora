@@ -4,14 +4,14 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Immobilien <span style="color:var(--accent)">Manager</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Objekte, Besichtigungen, Mieter & Nebenkosten</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Immobilien') }} <span style="color:var(--accent)">{{ tr('Manager') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Objekte, Besichtigungen, Mieter & Nebenkosten') }}</p>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="icon-btn" title="Webseiten-Einstellungen" @click="openSettings"><i class="ti ti-settings"></i></button>
-        <button v-if="activeTab === 'objekte'" class="accent-btn" @click="openNewProperty"><i class="ti ti-plus"></i> Objekt anlegen</button>
-        <button v-else-if="activeTab === 'besichtigungen'" class="accent-btn" @click="openNewViewing"><i class="ti ti-plus"></i> Besichtigung planen</button>
-        <button v-else-if="activeTab === 'mieter'" class="accent-btn" @click="openNewRenter"><i class="ti ti-plus"></i> Mieter anlegen</button>
+        <button class="icon-btn" :title="tr('Webseiten-Einstellungen')" @click="openSettings"><i class="ti ti-settings"></i></button>
+        <button v-if="activeTab === 'objekte'" class="accent-btn" @click="openNewProperty"><i class="ti ti-plus"></i> {{ tr('Objekt anlegen') }}</button>
+        <button v-else-if="activeTab === 'besichtigungen'" class="accent-btn" @click="openNewViewing"><i class="ti ti-plus"></i> {{ tr('Besichtigung planen') }}</button>
+        <button v-else-if="activeTab === 'mieter'" class="accent-btn" @click="openNewRenter"><i class="ti ti-plus"></i> {{ tr('Mieter anlegen') }}</button>
       </div>
     </div>
 
@@ -19,15 +19,15 @@
     <div v-if="showSettingsModal" class="modal-overlay" @click.self="showSettingsModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:16px;font-weight:700">Webseiten-Einstellungen</div>
+          <div style="font-size:16px;font-weight:700">{{ tr('Webseiten-Einstellungen') }}</div>
           <button class="icon-btn" @click="showSettingsModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
-          Zeigt deine freien Objekte öffentlich auf deiner Nexora-Webseite an.
+          {{ tr('Zeigt deine freien Objekte öffentlich auf deiner Nexora-Webseite an.') }}
         </div>
         <div style="border-top:0.5px solid var(--border);margin:0 0 20px;padding-top:20px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>Objekt-Seite</div>
+            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Objekt-Seite') }}</div>
             <button @click="settingsForm.propertiesEnabled = !settingsForm.propertiesEnabled"
               style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
               :style="settingsForm.propertiesEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -36,18 +36,18 @@
             </button>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-            Objekte mit Status "frei" erscheinen automatisch mit Kaltmiete, Nebenkosten und Warmmiete getrennt ausgewiesen — praktisch für Anfragen vom Amt.
+            {{ tr('Objekte mit Status "frei" erscheinen automatisch mit Kaltmiete, Nebenkosten und Warmmiete getrennt ausgewiesen — praktisch für Anfragen vom Amt.') }}
           </div>
           <div class="auth-field" v-if="settingsForm.propertiesEnabled">
-            <label>Seitentitel (Navigation & Überschrift)</label>
-            <input v-model="settingsForm.propertiesTitle" placeholder="Immobilien" />
+            <label>{{ tr('Seitentitel (Navigation & Überschrift)') }}</label>
+            <input v-model="settingsForm.propertiesTitle" :placeholder="tr('Immobilien')" />
           </div>
         </div>
         <div style="display:flex;gap:16px;justify-content:flex-end">
-          <button class="icon-btn" style="padding:0 16px;font-size:12px" @click="showSettingsModal=false">Abbrechen</button>
+          <button class="icon-btn" style="padding:0 16px;font-size:12px" @click="showSettingsModal=false">{{ tr('Abbrechen') }}</button>
           <button class="accent-btn" :disabled="savingSettings" @click="saveSettings">
             <i v-if="savingSettings" class="ti ti-loader-2 spin"></i>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>Speichern</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>{{ tr('Speichern') }}</span>
           </button>
         </div>
       </div>
@@ -62,7 +62,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ properties.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Objekte gesamt</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Objekte gesamt') }}</div>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ properties.filter(p => p.status === 'frei').length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Frei</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Frei') }}</div>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ viewings.filter(v => v.status === 'geplant').length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Besichtigungen geplant</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Besichtigungen geplant') }}</div>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ renters.filter(r => r.utilityStatus !== 'abgerechnet').length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Nebenkosten offen</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Nebenkosten offen') }}</div>
           </div>
         </div>
       </div>
@@ -115,8 +115,8 @@
       </div>
       <div v-else-if="!properties.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-building-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Objekte angelegt.</p>
-        <button class="accent-btn" @click="openNewProperty"><i class="ti ti-plus" style="margin-right:6px"></i>Erstes Objekt anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Objekte angelegt.') }}</p>
+        <button class="accent-btn" @click="openNewProperty"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Erstes Objekt anlegen') }}</button>
       </div>
       <div v-else style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
         <div v-for="p in properties" :key="p.propertyId"
@@ -135,19 +135,19 @@
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">{{ p.size ? p.size + ' m²' : '—' }} · {{ p.rooms ? p.rooms + ' Zimmer' : '—' }}</div>
 
             <div v-if="p.priceType === 'miete'" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:auto;display:flex;flex-direction:column;gap:3px">
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)"><span>Kaltmiete</span><span>{{ formatEuro(p.kaltmiete) }}</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)"><span>Nebenkosten</span><span>{{ formatEuro(p.nebenkosten) }}</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--accent);border-top:0.5px solid var(--border);margin-top:3px;padding-top:5px"><span>Warmmiete</span><span>{{ formatEuro(warmmiete(p)) }}</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)"><span>{{ tr('Kaltmiete') }}</span><span>{{ formatEuro(p.kaltmiete) }}</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)"><span>{{ tr('Nebenkosten') }}</span><span>{{ formatEuro(p.nebenkosten) }}</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--accent);border-top:0.5px solid var(--border);margin-top:3px;padding-top:5px"><span>{{ tr('Warmmiete') }}</span><span>{{ formatEuro(warmmiete(p)) }}</span></div>
             </div>
             <div v-else style="margin-top:auto;padding-top:12px;border-top:0.5px solid var(--border)">
               <span style="font-weight:800;font-size:17px;color:var(--accent)">{{ formatEuro(p.kaufpreis) }}</span>
-              <span style="font-size:11px;color:var(--text-muted)"> Kaufpreis</span>
+              <span style="font-size:11px;color:var(--text-muted)"> {{ tr('Kaufpreis') }}</span>
             </div>
 
             <div style="display:flex;gap:4px;justify-content:flex-end;margin-top:10px">
-              <button @click="openEditProperty(p)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit"></i></button>
+              <button @click="openEditProperty(p)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
               <button @click="deleteProperty(p)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s"
-                onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'" title="Löschen"><i class="ti ti-trash"></i></button>
+                onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'" :title="tr('Löschen')"><i class="ti ti-trash"></i></button>
             </div>
           </div>
         </div>
@@ -158,16 +158,16 @@
     <div v-else-if="activeTab === 'besichtigungen'">
       <div v-if="!viewings.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-calendar-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p>Noch keine Besichtigungen eingetragen.</p>
+        <p>{{ tr('Noch keine Besichtigungen eingetragen.') }}</p>
       </div>
       <div v-else class="data-table">
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="border-bottom:1px solid var(--border)">
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Objekt</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Interessent</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Termin</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Status</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Objekt') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Interessent') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Termin') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Status') }}</th>
               <th style="padding:10px 12px"></th>
             </tr>
           </thead>
@@ -182,7 +182,7 @@
                   :style="v.status === 'abgeschlossen' ? 'background:#22c55e22;color:#22c55e' : v.status === 'geplant' ? 'background:var(--accent)22;color:var(--accent)' : 'background:var(--border);color:var(--text-muted)'">{{ v.status }}</span>
               </td>
               <td style="padding:12px;text-align:right;display:flex;gap:4px;justify-content:flex-end">
-                <button @click="openEditViewing(v)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit"></i></button>
+                <button @click="openEditViewing(v)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
                 <button @click="deleteViewing(v)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px"
                   onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i></button>
               </td>
@@ -196,18 +196,18 @@
     <div v-else-if="activeTab === 'mieter'">
       <div v-if="!renters.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-users" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p>Noch keine Mieter angelegt.</p>
+        <p>{{ tr('Noch keine Mieter angelegt.') }}</p>
       </div>
       <div v-else class="data-table">
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="border-bottom:1px solid var(--border)">
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Mieter</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Objekt</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Kaltmiete</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Nebenkosten</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Warmmiete</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">NK-Status</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Mieter') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Objekt') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Kaltmiete') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Nebenkosten') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Warmmiete') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('NK-Status') }}</th>
               <th style="padding:10px 12px"></th>
             </tr>
           </thead>
@@ -224,7 +224,7 @@
                   :style="r.utilityStatus === 'abgerechnet' ? 'background:#22c55e22;color:#22c55e' : 'background:#f59e0b22;color:#f59e0b'">{{ r.utilityStatus === 'abgerechnet' ? 'Abgerechnet' : 'Offen' }}</span>
               </td>
               <td style="padding:12px;text-align:right;display:flex;gap:4px;justify-content:flex-end">
-                <button @click="openEditRenter(r)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit"></i></button>
+                <button @click="openEditRenter(r)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
                 <button @click="deleteRenter(r)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px"
                   onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i></button>
               </td>
@@ -238,8 +238,8 @@
     <div v-else-if="activeTab === 'nebenkosten'">
       <div v-if="!renters.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-file-invoice" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Nebenkosten-Daten — lege zuerst einen Mieter mit Nebenkosten-Vorauszahlung an.</p>
-        <button class="accent-btn" @click="openNewRenter"><i class="ti ti-plus" style="margin-right:6px"></i>Mieter anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Nebenkosten-Daten — lege zuerst einen Mieter mit Nebenkosten-Vorauszahlung an.') }}</p>
+        <button class="accent-btn" @click="openNewRenter"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Mieter anlegen') }}</button>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:8px">
         <div v-for="r in rentersSortedByUtility" :key="r.renterId"
@@ -254,8 +254,8 @@
             <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ r.propertyName || 'Kein Objekt zugeordnet' }}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-size:13px;font-weight:700">{{ formatEuro(r.nebenkosten) }} / Monat</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Vorauszahlung</div>
+            <div style="font-size:13px;font-weight:700">{{ formatEuro(r.nebenkosten) }} {{ tr('/ Monat') }}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">{{ tr('Vorauszahlung') }}</div>
           </div>
           <button @click="toggleUtilityStatus(r)" class="icon-btn" style="flex-shrink:0" :title="r.utilityStatus === 'abgerechnet' ? 'Als offen markieren' : 'Als abgerechnet markieren'">
             <i class="ti" :class="r.utilityStatus === 'abgerechnet' ? 'ti-rotate' : 'ti-check'"></i>
@@ -273,37 +273,37 @@
         </div>
         <div class="modal-body">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field" style="grid-column:span 2"><label>Straße & Hausnummer *</label><input v-model="pForm.street" placeholder="Musterstraße 12" /></div>
-            <div class="auth-field"><label>PLZ & Ort *</label><input v-model="pForm.zipCity" placeholder="54534 Musterdorf" /></div>
-            <div class="auth-field"><label>Typ</label>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ tr('Straße & Hausnummer *') }}</label><input v-model="pForm.street" :placeholder="tr('Musterstraße 12')" /></div>
+            <div class="auth-field"><label>{{ tr('PLZ & Ort *') }}</label><input v-model="pForm.zipCity" :placeholder="tr('54534 Musterdorf')" /></div>
+            <div class="auth-field"><label>{{ tr('Typ') }}</label>
               <select v-model="pForm.type" class="form-select">
-                <option>Wohnung</option><option>Haus</option><option>Gewerbe</option><option>Grundstück</option>
+                <option>{{ tr('Wohnung') }}</option><option>{{ tr('Haus') }}</option><option>{{ tr('Gewerbe') }}</option><option>{{ tr('Grundstück') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Größe (m²)</label><input v-model="pForm.size" type="number" placeholder="75" /></div>
-            <div class="auth-field"><label>Zimmer</label><input v-model="pForm.rooms" type="number" placeholder="3" /></div>
-            <div class="auth-field"><label>Status</label>
+            <div class="auth-field"><label>{{ tr('Größe (m²)') }}</label><input v-model="pForm.size" type="number" placeholder="75" /></div>
+            <div class="auth-field"><label>{{ tr('Zimmer') }}</label><input v-model="pForm.rooms" type="number" placeholder="3" /></div>
+            <div class="auth-field"><label>{{ tr('Status') }}</label>
               <select v-model="pForm.status" class="form-select">
-                <option>frei</option><option>vermietet</option><option>verkauft</option><option>reserviert</option>
+                <option>{{ tr('frei') }}</option><option>{{ tr('vermietet') }}</option><option>{{ tr('verkauft') }}</option><option>{{ tr('reserviert') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Angebotsart</label>
+            <div class="auth-field"><label>{{ tr('Angebotsart') }}</label>
               <select v-model="pForm.priceType" class="form-select">
-                <option value="miete">Miete</option><option value="kauf">Kauf</option>
+                <option value="miete">{{ tr('Miete') }}</option><option value="kauf">{{ tr('Kauf') }}</option>
               </select>
             </div>
             <template v-if="pForm.priceType === 'miete'">
-              <div class="auth-field"><label>Kaltmiete (€) *</label><input v-model="pForm.kaltmiete" type="number" step="0.01" placeholder="650" /></div>
-              <div class="auth-field"><label>Nebenkosten (€)</label><input v-model="pForm.nebenkosten" type="number" step="0.01" placeholder="180" /></div>
+              <div class="auth-field"><label>{{ tr('Kaltmiete (€) *') }}</label><input v-model="pForm.kaltmiete" type="number" step="0.01" placeholder="650" /></div>
+              <div class="auth-field"><label>{{ tr('Nebenkosten (€)') }}</label><input v-model="pForm.nebenkosten" type="number" step="0.01" placeholder="180" /></div>
               <div class="auth-field" style="grid-column:span 2">
-                <label>Warmmiete (automatisch berechnet)</label>
+                <label>{{ tr('Warmmiete (automatisch berechnet)') }}</label>
                 <input :value="formatEuro((Number(pForm.kaltmiete)||0) + (Number(pForm.nebenkosten)||0))" disabled style="opacity:.7" />
               </div>
             </template>
-            <div class="auth-field" v-else style="grid-column:span 2"><label>Kaufpreis (€) *</label><input v-model="pForm.kaufpreis" type="number" step="0.01" placeholder="285000" /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Bild-URL</label><input v-model="pForm.imageUrl" placeholder="https://..." /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Beschreibung</label>
-              <textarea v-model="pForm.description" style="height:80px;resize:none;width:100%" class="form-select" placeholder="Balkon, EBK, Stellplatz..."></textarea>
+            <div class="auth-field" v-else style="grid-column:span 2"><label>{{ tr('Kaufpreis (€) *') }}</label><input v-model="pForm.kaufpreis" type="number" step="0.01" placeholder="285000" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ tr('Bild-URL') }}</label><input v-model="pForm.imageUrl" :placeholder="tr('https://...')" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ tr('Beschreibung') }}</label>
+              <textarea v-model="pForm.description" style="height:80px;resize:none;width:100%" class="form-select" :placeholder="tr('Balkon, EBK, Stellplatz...')"></textarea>
             </div>
           </div>
         </div>
@@ -320,28 +320,28 @@
     <div v-if="showViewingModal" class="modal-overlay" @click.self="showViewingModal=false">
       <div class="modal-card" style="max-width:500px">
         <div class="modal-header">
-          <span class="card-title">Besichtigung planen</span>
+          <span class="card-title">{{ tr('Besichtigung planen') }}</span>
           <button class="icon-btn" @click="showViewingModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Objekt *</label>
+          <div class="auth-field"><label>{{ tr('Objekt *') }}</label>
             <select v-model="vForm.propertyName" class="form-select">
-              <option value="">— Objekt wählen —</option>
+              <option value="">{{ tr('— Objekt wählen —') }}</option>
               <option v-for="p in properties" :key="p.propertyId" :value="`${p.street}, ${p.zipCity}`">{{ p.street }}, {{ p.zipCity }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Interessent *</label><input v-model="vForm.customerName" placeholder="Max Mustermann" /></div>
-          <div class="auth-field"><label>Telefon</label><input v-model="vForm.phone" placeholder="+49 123 456789" /></div>
-          <div class="auth-field"><label>Termin *</label><input v-model="vForm.date" type="datetime-local" /></div>
-          <div class="auth-field"><label>Status</label>
+          <div class="auth-field"><label>{{ tr('Interessent *') }}</label><input v-model="vForm.customerName" :placeholder="tr('Max Mustermann')" /></div>
+          <div class="auth-field"><label>{{ tr('Telefon') }}</label><input v-model="vForm.phone" placeholder="+49 123 456789" /></div>
+          <div class="auth-field"><label>{{ tr('Termin *') }}</label><input v-model="vForm.date" type="datetime-local" /></div>
+          <div class="auth-field"><label>{{ tr('Status') }}</label>
             <select v-model="vForm.status" class="form-select">
-              <option>geplant</option><option>abgeschlossen</option><option>storniert</option>
+              <option>{{ tr('geplant') }}</option><option>{{ tr('abgeschlossen') }}</option><option>{{ tr('storniert') }}</option>
             </select>
           </div>
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveViewing" :disabled="!vForm.propertyName || !vForm.customerName || !vForm.date">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>Besichtigung speichern
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ tr('Besichtigung speichern') }}
           </button>
         </div>
       </div>
@@ -355,25 +355,25 @@
           <button class="icon-btn" @click="showRenterModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Name *</label><input v-model="rForm.name" placeholder="Max Mustermann" /></div>
-          <div class="auth-field"><label>Objekt</label>
+          <div class="auth-field"><label>{{ tr('Name *') }}</label><input v-model="rForm.name" :placeholder="tr('Max Mustermann')" /></div>
+          <div class="auth-field"><label>{{ tr('Objekt') }}</label>
             <select v-model="rForm.propertyName" class="form-select">
-              <option value="">— Objekt wählen —</option>
+              <option value="">{{ tr('— Objekt wählen —') }}</option>
               <option v-for="p in properties" :key="p.propertyId" :value="`${p.street}, ${p.zipCity}`">{{ p.street }}, {{ p.zipCity }}</option>
             </select>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field"><label>Telefon</label><input v-model="rForm.phone" placeholder="+49 123 456789" /></div>
-            <div class="auth-field"><label>E-Mail</label><input v-model="rForm.email" placeholder="max@mail.de" /></div>
-            <div class="auth-field"><label>Kaltmiete (€)</label><input v-model="rForm.kaltmiete" type="number" step="0.01" placeholder="650" /></div>
-            <div class="auth-field"><label>Nebenkosten (€)</label><input v-model="rForm.nebenkosten" type="number" step="0.01" placeholder="180" /></div>
-            <div class="auth-field"><label>Mietbeginn</label><input v-model="rForm.contractStart" type="date" /></div>
-            <div class="auth-field"><label>Mietende</label><input v-model="rForm.contractEnd" type="date" /></div>
+            <div class="auth-field"><label>{{ tr('Telefon') }}</label><input v-model="rForm.phone" placeholder="+49 123 456789" /></div>
+            <div class="auth-field"><label>{{ tr('E-Mail') }}</label><input v-model="rForm.email" :placeholder="tr('max@mail.de')" /></div>
+            <div class="auth-field"><label>{{ tr('Kaltmiete (€)') }}</label><input v-model="rForm.kaltmiete" type="number" step="0.01" placeholder="650" /></div>
+            <div class="auth-field"><label>{{ tr('Nebenkosten (€)') }}</label><input v-model="rForm.nebenkosten" type="number" step="0.01" placeholder="180" /></div>
+            <div class="auth-field"><label>{{ tr('Mietbeginn') }}</label><input v-model="rForm.contractStart" type="date" /></div>
+            <div class="auth-field"><label>{{ tr('Mietende') }}</label><input v-model="rForm.contractEnd" type="date" /></div>
           </div>
           <div class="auth-field">
-            <label>Nebenkosten-Status</label>
+            <label>{{ tr('Nebenkosten-Status') }}</label>
             <select v-model="rForm.utilityStatus" class="form-select">
-              <option value="offen">Offen</option><option value="abgerechnet">Abgerechnet</option>
+              <option value="offen">{{ tr('Offen') }}</option><option value="abgerechnet">{{ tr('Abgerechnet') }}</option>
             </select>
           </div>
         </div>
@@ -460,7 +460,7 @@ async function saveSettings() {
   try {
     await $fetch(useApiUrl('/api/properties/settings'), { method: 'PUT', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` }, body: { ...settingsForm } })
     showSettingsModal.value = false
-  } catch { alert('Fehler beim Speichern.') } finally { savingSettings.value = false }
+  } catch { alert(tr('Fehler beim Speichern.')) } finally { savingSettings.value = false }
 }
 
 // ── Objekte ───────────────────────────────────────────
@@ -546,7 +546,7 @@ async function saveViewing() {
 }
 
 async function deleteViewing(v: Viewing) {
-  if (!confirm('Besichtigung wirklich löschen?')) return
+  if (!confirm(tr('Besichtigung wirklich löschen?'))) return
   await $fetch(useApiUrl(`/api/viewings/${v.viewingId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadViewings()
 }

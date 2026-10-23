@@ -38,7 +38,7 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">{{ t.dash.financeOverview }}</span>
-          <span class="card-action">Export ↗</span>
+          <span class="card-action">{{ tr('Export ↗') }}</span>
         </div>
         <div class="card-body">
           <div class="chart-wrap">
@@ -183,7 +183,7 @@
   <!-- KI-Insights -->
   <div class="card" style="margin-top:20px">
     <div class="card-header">
-      <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>KI-Insights</span>
+      <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>{{ tr('KI-Insights') }}</span>
       <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="insightsLoading" @click="loadInsights">
         <i class="ti" :class="insightsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
         {{ insightsLoading ? 'Analysiere...' : (insightsText ? 'Neu generieren' : 'Analyse generieren') }}
@@ -191,11 +191,11 @@
     </div>
     <div class="card-body">
       <div v-if="insightsError" style="font-size:12px;color:#e05c5c">
-        {{ insightsError }} — <NuxtLink to="/settings" style="color:var(--accent)">Zu Plexora AI →</NuxtLink>
+        {{ insightsError }} — <NuxtLink to="/settings" style="color:var(--accent)">{{ tr('Zu Plexora AI →') }}</NuxtLink>
       </div>
       <div v-else-if="insightsText" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap">{{ insightsText }}</div>
       <div v-else style="font-size:12px;color:var(--text-muted)">
-        Lass dir Pipeline, offene Rechnungen und Support-Lage automatisch analysieren.
+        {{ tr('Lass dir Pipeline, offene Rechnungen und Support-Lage automatisch analysieren.') }}
       </div>
     </div>
   </div>
@@ -249,12 +249,12 @@ async function loadInsights() {
 }
 
 async function cancelSubscription() {
-  if (!await openConfirm({ title: 'Abonnement kündigen?', sub: 'Es läuft bis Ende des Abrechnungszeitraums weiter.', icon: 'ti-brand-stripe' })) return
+  if (!await openConfirm({ title: tr('Abonnement kündigen?'), sub: tr('Es läuft bis Ende des Abrechnungszeitraums weiter.'), icon: 'ti-brand-stripe' })) return
   try {
     const res = await $fetch(useApiUrl('/api/licenses/portal'), { method: 'POST', headers: await useAuthHeader(), body: { email } }) as any
     if (res.url) window.location.href = res.url
   } catch {
-    alert(lang.value === 'en' ? 'No active subscription found.' : 'Kein aktives Abonnement gefunden.')
+    alert(lang.value === 'en' ? 'No active subscription found.' : tr('Kein aktives Abonnement gefunden.'))
   }
 }
 

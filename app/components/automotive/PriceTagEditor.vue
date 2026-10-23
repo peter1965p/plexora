@@ -1,19 +1,19 @@
 <template>
   <div class="pte-wrap">
     <div class="pte-toolbar">
-      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('bold') }" title="Fett" @click="editor?.chain().focus().toggleBold().run()"><i class="ti ti-bold"></i></button>
-      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('italic') }" title="Kursiv" @click="editor?.chain().focus().toggleItalic().run()"><i class="ti ti-italic"></i></button>
+      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('bold') }" :title="tr('Fett')" @click="editor?.chain().focus().toggleBold().run()"><i class="ti ti-bold"></i></button>
+      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('italic') }" :title="tr('Kursiv')" @click="editor?.chain().focus().toggleItalic().run()"><i class="ti ti-italic"></i></button>
       <span class="pte-sep"></span>
-      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('heading', { level: 2 }) }" title="Überschrift" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()">H2</button>
-      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('bulletList') }" title="Aufzählung" @click="editor?.chain().focus().toggleBulletList().run()"><i class="ti ti-list"></i></button>
+      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('heading', { level: 2 }) }" :title="tr('Überschrift')" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()">H2</button>
+      <button type="button" class="pte-btn" :class="{ active: editor?.isActive('bulletList') }" :title="tr('Aufzählung')" @click="editor?.chain().focus().toggleBulletList().run()"><i class="ti ti-list"></i></button>
       <span class="pte-sep"></span>
-      <button type="button" class="pte-btn" title="Rückgängig" @click="editor?.chain().focus().undo().run()"><i class="ti ti-arrow-back-up"></i></button>
-      <button type="button" class="pte-btn" title="Wiederholen" @click="editor?.chain().focus().redo().run()"><i class="ti ti-arrow-forward-up"></i></button>
+      <button type="button" class="pte-btn" :title="tr('Rückgängig')" @click="editor?.chain().focus().undo().run()"><i class="ti ti-arrow-back-up"></i></button>
+      <button type="button" class="pte-btn" :title="tr('Wiederholen')" @click="editor?.chain().focus().redo().run()"><i class="ti ti-arrow-forward-up"></i></button>
     </div>
 
     <div v-if="selectedField" class="pte-context-toolbar">
-      <span class="pte-context-label"><i class="ti ti-variable"></i> Feld ausgewählt</span>
-      <button type="button" class="pte-btn danger" title="Feld entfernen" @click="editor?.chain().focus().deleteSelection().run()"><i class="ti ti-trash"></i></button>
+      <span class="pte-context-label"><i class="ti ti-variable"></i> {{ tr('Feld ausgewählt') }}</span>
+      <button type="button" class="pte-btn danger" :title="tr('Feld entfernen')" @click="editor?.chain().focus().deleteSelection().run()"><i class="ti ti-trash"></i></button>
     </div>
 
     <div class="pte-catalog">

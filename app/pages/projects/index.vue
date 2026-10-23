@@ -107,7 +107,7 @@
         <span class="card-title"><i class="ti ti-chart-gantt" style="margin-right:8px;color:var(--accent)"></i>{{ t.projects.ganttTitle }}</span>
         <select v-if="projects.length" v-model="planProjectId" class="form-select" style="height:30px;max-width:320px"><option v-for="p in projects" :key="p.projectId" :value="p.projectId">{{ p.name }}</option></select>
       </div>
-      <div v-if="!projects.length" style="text-align:center;color:var(--text-muted);padding:40px">Lege zuerst ein Projekt an (Liste → „Neues Projekt“), dann planst du es hier als Gantt.</div>
+      <div v-if="!projects.length" style="text-align:center;color:var(--text-muted);padding:40px">{{ tr('Lege zuerst ein Projekt an (Liste → „Neues Projekt“), dann planst du es hier als Gantt.') }}</div>
       <div v-else style="padding:0 16px 16px">
         <div v-if="planMsg" class="plan-msg" :class="{ err: planMsgErr }">{{ planMsg }}</div>
         <GanttChart :tasks="planTasks" @change="onPlanChange" @create="openPlanCreate" @edit="openPlanEdit" @error="m => say(m, true)" />
@@ -120,20 +120,20 @@
         <div class="modal-header"><span class="card-title">{{ planModal.mode === 'edit' ? (pf.milestone ? 'Meilenstein bearbeiten' : 'Vorgang bearbeiten') : (pf.milestone ? 'Neuer Meilenstein' : 'Neuer Vorgang') }}</span><button class="icon-btn" @click="planModal = null"><i class="ti ti-x"></i></button></div>
         <div class="modal-body">
           <div v-if="planErr" class="plan-msg err">{{ planErr }}</div>
-          <div class="auth-field"><label>Bezeichnung *</label><input v-model="pf.title" maxlength="120" /></div>
-          <div class="auth-field"><label>Zuständig</label><input v-model="pf.assignee" list="plan-people" maxlength="80" placeholder="Name oder E-Mail" /><datalist id="plan-people"><option v-for="n in planPeople" :key="n" :value="n" /></datalist></div>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" v-model="pf.milestone" :disabled="planModal.mode === 'edit' && false" /> Meilenstein (ein Termin ohne Dauer)</label>
-          <div class="auth-row"><div class="auth-field"><label>{{ pf.milestone ? 'Datum' : 'Beginn' }}</label><input v-model="pf.startDate" type="date" /></div><div v-if="!pf.milestone" class="auth-field"><label>Ende</label><input v-model="pf.endDate" type="date" :min="pf.startDate" /></div></div>
+          <div class="auth-field"><label>{{ tr('Bezeichnung *') }}</label><input v-model="pf.title" maxlength="120" /></div>
+          <div class="auth-field"><label>{{ tr('Zuständig') }}</label><input v-model="pf.assignee" list="plan-people" maxlength="80" :placeholder="tr('Name oder E-Mail')" /><datalist id="plan-people"><option v-for="n in planPeople" :key="n" :value="n" /></datalist></div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" v-model="pf.milestone" :disabled="planModal.mode === 'edit' && false" /> {{ tr('Meilenstein (ein Termin ohne Dauer)') }}</label>
+          <div class="auth-row"><div class="auth-field"><label>{{ pf.milestone ? 'Datum' : 'Beginn' }}</label><input v-model="pf.startDate" type="date" /></div><div v-if="!pf.milestone" class="auth-field"><label>{{ tr('Ende') }}</label><input v-model="pf.endDate" type="date" :min="pf.startDate" /></div></div>
           <template v-if="planModal.mode === 'edit'">
-            <div class="auth-field"><label>Fortschritt: {{ pf.progress }} %</label><input type="range" min="0" max="100" step="5" v-model.number="pf.progress" /></div>
-            <div class="auth-field"><label>Vorgänger (muss fertig sein, bevor dieser Vorgang beginnt)</label>
+            <div class="auth-field"><label>{{ tr('Fortschritt:') }} {{ pf.progress }} %</label><input type="range" min="0" max="100" step="5" v-model.number="pf.progress" /></div>
+            <div class="auth-field"><label>{{ tr('Vorgänger (muss fertig sein, bevor dieser Vorgang beginnt)') }}</label>
               <div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow:auto;border:0.5px solid var(--border);border-radius:8px;padding:8px">
                 <label v-for="o in planOthers" :key="o.taskId" style="display:flex;gap:8px;font-size:13px;align-items:center"><input type="checkbox" :value="o.taskId" v-model="pf.predecessors" /> {{ o.title }}</label>
-                <span v-if="!planOthers.length" style="font-size:12px;color:var(--text-muted)">Es gibt noch keine anderen Vorgänge.</span>
+                <span v-if="!planOthers.length" style="font-size:12px;color:var(--text-muted)">{{ tr('Es gibt noch keine anderen Vorgänge.') }}</span>
               </div>
             </div>
           </template>
-          <div style="display:flex;gap:8px;margin-top:8px"><button class="auth-btn" :disabled="planSaving || !pf.title.trim()" style="flex:1" @click="savePlanModal"><i class="ti" :class="planSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button><button v-if="planModal.mode === 'edit'" class="auth-btn" style="flex:0 0 auto;background:#E05C5C" :disabled="planSaving" @click="deletePlanTask"><i class="ti ti-trash"></i></button></div>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="auth-btn" :disabled="planSaving || !pf.title.trim()" style="flex:1" @click="savePlanModal"><i class="ti" :class="planSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}</button><button v-if="planModal.mode === 'edit'" class="auth-btn" style="flex:0 0 auto;background:#E05C5C" :disabled="planSaving" @click="deletePlanTask"><i class="ti ti-trash"></i></button></div>
         </div>
       </div>
     </div>
@@ -146,8 +146,8 @@
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.projects.projectName }}</label><input v-model="form.name" placeholder="Projekt XY" /></div>
-          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="form.description" placeholder="Kurzbeschreibung..." /></div>
+          <div class="auth-field"><label>{{ t.projects.projectName }}</label><input v-model="form.name" :placeholder="tr('Projekt XY')" /></div>
+          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="form.description" :placeholder="tr('Kurzbeschreibung...')" /></div>
           <div class="auth-field">
             <label>{{ t.projects.client }}</label>
             <select v-model="form.companyId" class="form-select">
@@ -156,7 +156,7 @@
             </select>
           </div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.projects.team }}</label><input v-model="form.team" placeholder="Engineering" /></div>
+            <div class="auth-field"><label>{{ t.projects.team }}</label><input v-model="form.team" :placeholder="tr('Engineering')" /></div>
             <div class="auth-field"><label>{{ t.projects.deadline }}</label><input v-model="form.deadline" type="date" /></div>
           </div>
           <div class="auth-row">
@@ -193,9 +193,9 @@
           <button class="icon-btn" @click="showTaskModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.projects.taskTitle }}</label><input v-model="newTask.title" placeholder="Task beschreiben..." /></div>
+          <div class="auth-field"><label>{{ t.projects.taskTitle }}</label><input v-model="newTask.title" :placeholder="tr('Task beschreiben...')" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.projects.assignee }}</label><input v-model="newTask.assignee" placeholder="Name..." /></div>
+            <div class="auth-field"><label>{{ t.projects.assignee }}</label><input v-model="newTask.assignee" :placeholder="tr('Name...')" /></div>
             <div class="auth-field"><label>{{ t.projects.priority }}</label>
               <select v-model="newTask.priority" class="form-select">
                 <option value="low">{{ t.common.low }}</option><option value="medium">{{ t.common.medium }}</option>
@@ -227,7 +227,7 @@
         </div>
         <div class="modal-body">
           <div v-if="inlineModal.type==='subtask'" class="auth-field">
-            <label>{{ t.projects.subtask }}</label><input v-model="inlineText" placeholder="Was zu tun ist..." />
+            <label>{{ t.projects.subtask }}</label><input v-model="inlineText" :placeholder="tr('Was zu tun ist...')" />
           </div>
           <div v-if="inlineModal.type==='comment'" class="auth-field">
             <label>{{ t.projects.comment }}</label>
@@ -310,11 +310,11 @@ async function onPlanChange(changes: any[]) {
   try {
     const applied = applyScheduleChanges(planTasks.value.map(toPlan), changes)            // sofortige Vorschau mit denselben Regeln wie der Server
     planTasks.value = planTasks.value.map(t => { const n = applied.find(a => a.taskId === t.taskId)!; return { ...t, ...n, title: t.title } })
-  } catch (e: any) { say(e instanceof GanttError ? e.message : 'Das geht so nicht.', true); return }
+  } catch (e: any) { say(e instanceof GanttError ? e.message : tr('Das geht so nicht.'), true); return }
   try {
     const r: any = await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/schedule`), { method: 'PUT', headers: authHeaders, body: { changes, rev: planRev.value } })
     planTasks.value = r.tasks; planRev.value = r.rev
-  } catch (e: any) { planTasks.value = before; say(e?.data?.message || 'Speichern fehlgeschlagen.', true); if (e?.statusCode === 409) await refresh() }
+  } catch (e: any) { planTasks.value = before; say(e?.data?.message || tr('Speichern fehlgeschlagen.'), true); if (e?.statusCode === 409) await refresh() }
 }
 const toPlan = (t: any) => ({ taskId: t.taskId, title: t.title, startDate: isIsoDate(t.startDate) ? t.startDate : new Date().toISOString().slice(0, 10), endDate: isIsoDate(t.endDate) ? t.endDate : (isIsoDate(t.startDate) ? t.startDate : new Date().toISOString().slice(0, 10)), progress: t.progress ?? (t.status === 'done' ? 100 : 0), milestone: t.milestone === true, predecessors: t.predecessors || [], assignee: t.assignee || '', status: t.status })
 
@@ -344,13 +344,13 @@ async function savePlanModal() {
       await refresh()
     }
     planModal.value = null
-  } catch (e: any) { planErr.value = e?.data?.message || e?.message || 'Speichern fehlgeschlagen.' } finally { planSaving.value = false }
+  } catch (e: any) { planErr.value = e?.data?.message || e?.message || tr('Speichern fehlgeschlagen.') } finally { planSaving.value = false }
 }
 async function deletePlanTask() {
-  if (!planModal.value?.taskId || !window.confirm('Diesen Vorgang wirklich löschen?')) return
+  if (!planModal.value?.taskId || !window.confirm(tr('Diesen Vorgang wirklich löschen?'))) return
   planSaving.value = true
   try { await $fetch(useApiUrl(`/api/projects/${planProjectId.value}/tasks/${planModal.value.taskId}`), { method: 'DELETE', headers: authHeaders }); planModal.value = null; await refresh() }
-  catch (e: any) { planErr.value = e?.data?.message || 'Löschen fehlgeschlagen.' } finally { planSaving.value = false }
+  catch (e: any) { planErr.value = e?.data?.message || tr('Löschen fehlgeschlagen.') } finally { planSaving.value = false }
 }
 
 // ── PROJECT CRUD ──────────────────────────────────────
@@ -377,7 +377,7 @@ async function save() {
 const { openConfirm } = useConfirm()
 
 async function deleteProject(p: any) {
-  if (!await openConfirm({ title: 'Projekt löschen?', name: p.name })) return
+  if (!await openConfirm({ title: tr('Projekt löschen?'), name: p.name })) return
   await $fetch(useApiUrl(`/api/projects/${p.projectId}`), { method:'DELETE', headers:authHeaders })
   await refresh()
 }

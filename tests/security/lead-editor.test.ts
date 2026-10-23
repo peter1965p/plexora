@@ -37,14 +37,14 @@ describe('Vorschau', () => {
 
 describe('Kampagnenformular', () => {
   it('der Editor ist ein eigener Abschnitt (Muster Bot-Schutz) und die Vorschau nutzt die Komponente', () => {
-    expect(mk).toContain('Vertrauenspunkte, Datenschutzzeile &amp; Sticker'); expect(mk).toContain('<LeadDecorEditor'); expect(mk).toContain('<LeadPreview')
+    expect(mk).toContain('Vertrauenspunkte, Datenschutzzeile & Sticker'); expect(mk).toContain('<LeadDecorEditor'); expect(mk).toContain('<LeadPreview')
     expect(mk.indexOf('<LeadDecorEditor')).toBeGreaterThan(mk.indexOf('Bot-Schutz aktiv'))
   })
   it('der Editor steht in der rechten Spalte direkt unter der Live-Vorschau (Spalte scrollt für sich, damit nichts abgeschnitten wird)', () => {
     const side = mk.indexOf('class="camp-side"')
     expect(side).toBeGreaterThan(-1); expect(mk.slice(side, side + 200)).toMatch(/max-height:\d+vh;overflow-y:auto/)
     expect(mk.indexOf('<LeadDecorEditor')).toBeGreaterThan(mk.indexOf('<LeadPreview')); expect(mk.indexOf('<LeadDecorEditor')).toBeGreaterThan(side)
-    expect(mk.indexOf('Vertrauenspunkte, Datenschutzzeile &amp; Sticker')).toBeGreaterThan(mk.indexOf('<LeadPreview'))
+    expect(mk.indexOf('Vertrauenspunkte, Datenschutzzeile & Sticker')).toBeGreaterThan(mk.indexOf('<LeadPreview'))
   })
   it('gesendet wird nur, was der Nutzer geändert hat – sonst bleiben bestehende Kampagnen unverändert (Standardwerte)', () => {
     expect(mk).toMatch(/if \(decorTouched\.value\) Object\.assign\(payload, \{ trustItems: decor\.trustItems, privacyLine: decor\.privacyLine, overlays: decor\.overlays \}\)/)

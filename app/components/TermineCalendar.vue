@@ -2,13 +2,13 @@
   <div class="cal card">
     <div class="cal-head">
       <div class="cal-nav">
-        <button class="icon-btn" title="Zurück" @click="step(-1)"><i class="ti ti-chevron-left"></i></button>
-        <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="goToday">Heute</button>
-        <button class="icon-btn" title="Weiter" @click="step(1)"><i class="ti ti-chevron-right"></i></button>
+        <button class="icon-btn" :title="tr('Zurück')" @click="step(-1)"><i class="ti ti-chevron-left"></i></button>
+        <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="goToday">{{ tr('Heute') }}</button>
+        <button class="icon-btn" :title="tr('Weiter')" @click="step(1)"><i class="ti ti-chevron-right"></i></button>
         <strong class="cal-title">{{ title }}</strong>
       </div>
       <div class="cal-ctl">
-        <label class="cal-chk"><input type="checkbox" v-model="showCancelled" /> Stornierte zeigen</label>
+        <label class="cal-chk"><input type="checkbox" v-model="showCancelled" /> {{ tr('Stornierte zeigen') }}</label>
         <div class="seg"><button v-for="v in VIEWS" :key="v.key" :class="{ on: view === v.key }" @click="view = v.key as any">{{ v.label }}</button></div>
       </div>
     </div>
@@ -19,7 +19,7 @@
       <div v-for="c in monthCells" :key="c.iso" class="mcell" :class="{ out: !c.inMonth, today: c.iso === today }" @click="openDay(c.iso)">
         <div class="mnum">{{ c.n }}</div>
         <button v-for="b in c.items.slice(0, 3)" :key="b.bookingId" class="chip" :class="chipClass(b)" :title="tip(b)" @click.stop="$emit('open', b)">{{ b.startTime }} {{ b.customerName }}</button>
-        <div v-if="c.items.length > 3" class="more">+{{ c.items.length - 3 }} weitere</div>
+        <div v-if="c.items.length > 3" class="more">+{{ c.items.length - 3 }} {{ tr('weitere') }}</div>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
         </div>
       </div>
     </div>
-    <div class="legend"><span><i class="sw video"></i> Video</span><span><i class="sw phone"></i> Telefon</span><span v-if="showCancelled"><i class="sw cancelled"></i> Storniert</span><span style="margin-left:auto">Klick auf eine freie Stelle trägt einen Termin ein</span></div>
+    <div class="legend"><span><i class="sw video"></i> {{ tr('Video') }}</span><span><i class="sw phone"></i> {{ tr('Telefon') }}</span><span v-if="showCancelled"><i class="sw cancelled"></i> {{ tr('Storniert') }}</span><span style="margin-left:auto">{{ tr('Klick auf eine freie Stelle trägt einen Termin ein') }}</span></div>
   </div>
 </template>
 

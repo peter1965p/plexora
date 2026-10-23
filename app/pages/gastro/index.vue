@@ -4,19 +4,19 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Gastronomie <span style="color:var(--accent)">Manager</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Speisekarte, Tische & Online-Bestellungen</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Gastronomie') }} <span style="color:var(--accent)">{{ tr('Manager') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Speisekarte, Tische & Online-Bestellungen') }}</p>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="icon-btn" title="Webseiten-Einstellungen" @click="openSettings"><i class="ti ti-settings"></i></button>
+        <button class="icon-btn" :title="tr('Webseiten-Einstellungen')" @click="openSettings"><i class="ti ti-settings"></i></button>
         <button v-if="activeTab === 'speisekarte'" class="accent-btn" @click="openNewItem">
-          <i class="ti ti-plus"></i> Gericht anlegen
+          <i class="ti ti-plus"></i> {{ tr('Gericht anlegen') }}
         </button>
         <button v-else-if="activeTab === 'tische'" class="accent-btn" @click="openNewTable">
-          <i class="ti ti-plus"></i> Tisch anlegen
+          <i class="ti ti-plus"></i> {{ tr('Tisch anlegen') }}
         </button>
         <button v-else-if="activeTab === 'service'" class="accent-btn" @click="openNewTip()">
-          <i class="ti ti-plus"></i> Trinkgeld erfassen
+          <i class="ti ti-plus"></i> {{ tr('Trinkgeld erfassen') }}
         </button>
       </div>
     </div>
@@ -25,15 +25,15 @@
     <div v-if="showSettingsModal" class="modal-overlay" @click.self="showSettingsModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:16px;font-weight:700">Webseiten-Einstellungen</div>
+          <div style="font-size:16px;font-weight:700">{{ tr('Webseiten-Einstellungen') }}</div>
           <button class="icon-btn" @click="showSettingsModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
-          Zeigt deine Speisekarte öffentlich auf deiner Nexora-Webseite an — optional mit Online-Bestellung.
+          {{ tr('Zeigt deine Speisekarte öffentlich auf deiner Nexora-Webseite an — optional mit Online-Bestellung.') }}
         </div>
         <div style="border-top:0.5px solid var(--border);margin:0 0 20px;padding-top:20px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>Digitale Speisekarte</div>
+            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Digitale Speisekarte') }}</div>
             <button @click="settingsForm.menuEnabled = !settingsForm.menuEnabled"
               style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
               :style="settingsForm.menuEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -42,17 +42,17 @@
             </button>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-            Verfügbare Gerichte erscheinen automatisch mit aktuellem Preis auf deiner Webseite.
+            {{ tr('Verfügbare Gerichte erscheinen automatisch mit aktuellem Preis auf deiner Webseite.') }}
           </div>
           <div class="auth-field" v-if="settingsForm.menuEnabled">
-            <label>Seitentitel (Navigation & Überschrift)</label>
-            <input v-model="settingsForm.menuTitle" placeholder="Speisekarte" />
+            <label>{{ tr('Seitentitel (Navigation & Überschrift)') }}</label>
+            <input v-model="settingsForm.menuTitle" :placeholder="tr('Speisekarte')" />
           </div>
         </div>
 
         <div v-if="settingsForm.menuEnabled" style="border-top:0.5px solid var(--border);margin:0 0 20px;padding-top:20px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-shopping-cart" style="margin-right:6px;color:var(--accent)"></i>Online-Bestellung</div>
+            <div style="font-size:13px;font-weight:700"><i class="ti ti-shopping-cart" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Online-Bestellung') }}</div>
             <button @click="settingsForm.orderingEnabled = !settingsForm.orderingEnabled"
               style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
               :style="settingsForm.orderingEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -61,15 +61,15 @@
             </button>
           </div>
           <div style="font-size:12px;color:var(--text-muted)">
-            Gäste können direkt auf deiner Speisekarte bestellen (Warenkorb + Abholzeit). Bestellungen landen im Tab <strong>Bestellungen</strong>.
+            {{ tr('Gäste können direkt auf deiner Speisekarte bestellen (Warenkorb + Abholzeit). Bestellungen landen im Tab') }} <strong>{{ tr('Bestellungen') }}</strong>.
           </div>
         </div>
 
         <div style="display:flex;gap:16px;justify-content:flex-end">
-          <button class="icon-btn" style="padding:0 16px;font-size:12px" @click="showSettingsModal=false">Abbrechen</button>
+          <button class="icon-btn" style="padding:0 16px;font-size:12px" @click="showSettingsModal=false">{{ tr('Abbrechen') }}</button>
           <button class="accent-btn" :disabled="savingSettings" @click="saveSettings">
             <i v-if="savingSettings" class="ti ti-loader-2 spin"></i>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>Speichern</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>{{ tr('Speichern') }}</span>
           </button>
         </div>
       </div>
@@ -84,7 +84,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ menuItems.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Gerichte gesamt</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Gerichte gesamt') }}</div>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ menuItems.filter(i => i.available).length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Verfügbar</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Verfügbar') }}</div>
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ tables.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Tische gesamt</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Tische gesamt') }}</div>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ tables.filter(t => t.status === 'frei').length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Freie Tische</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Freie Tische') }}</div>
           </div>
         </div>
       </div>
@@ -138,8 +138,8 @@
       </div>
       <div v-else-if="!menuItems.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-tools-kitchen-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Gerichte angelegt.</p>
-        <button class="accent-btn" @click="openNewItem"><i class="ti ti-plus" style="margin-right:6px"></i>Erstes Gericht anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Gerichte angelegt.') }}</p>
+        <button class="accent-btn" @click="openNewItem"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Erstes Gericht anlegen') }}</button>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:24px">
         <div v-for="cat in menuByCategory" :key="cat.category">
@@ -152,7 +152,7 @@
               <div style="flex:1;min-width:0">
                 <div style="display:flex;align-items:center;gap:8px">
                   <span style="font-weight:700;font-size:14px">{{ item.name }}</span>
-                  <span v-if="!item.available" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--border);color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Ausverkauft</span>
+                  <span v-if="!item.available" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--border);color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ tr('Ausverkauft') }}</span>
                 </div>
                 <div v-if="item.description" style="font-size:12px;color:var(--text-muted);margin-top:3px">{{ item.description }}</div>
               </div>
@@ -161,9 +161,9 @@
                 <button @click="toggleAvailable(item)" class="icon-btn" :title="item.available ? 'Als ausverkauft markieren' : 'Wieder verfügbar'">
                   <i class="ti" :class="item.available ? 'ti-eye' : 'ti-eye-off'"></i>
                 </button>
-                <button @click="openEditItem(item)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit"></i></button>
+                <button @click="openEditItem(item)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
                 <button @click="deleteItem(item)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s"
-                  onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'" title="Löschen">
+                  onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'" :title="tr('Löschen')">
                   <i class="ti ti-trash"></i>
                 </button>
               </div>
@@ -180,8 +180,8 @@
       </div>
       <div v-else-if="!tables.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-armchair-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Tische angelegt.</p>
-        <button class="accent-btn" @click="openNewTable"><i class="ti ti-plus" style="margin-right:6px"></i>Ersten Tisch anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Tische angelegt.') }}</p>
+        <button class="accent-btn" @click="openNewTable"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Ersten Tisch anlegen') }}</button>
       </div>
       <div v-else style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
         <div v-for="t in tables" :key="t.tableId"
@@ -192,13 +192,13 @@
             <div style="font-weight:800;font-size:16px">{{ t.name }}</div>
             <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em" :style="tableBadgeStyle(t.status)">{{ t.status }}</span>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px"><i class="ti ti-users" style="margin-right:4px"></i>{{ t.seats || '—' }} Plätze</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px"><i class="ti ti-users" style="margin-right:4px"></i>{{ t.seats || '—' }} {{ tr('Plätze') }}</div>
           <div v-if="t.status === 'reserviert' && t.reservation" style="font-size:12px;color:var(--text);background:var(--bg-elevated);border-radius:8px;padding:8px 10px;margin-top:8px">
             <div style="font-weight:700">{{ t.reservation.customerName }}</div>
-            <div style="color:var(--text-muted);margin-top:2px">{{ formatDateTime(t.reservation.time) }} · {{ t.reservation.guests }} Pers.</div>
+            <div style="color:var(--text-muted);margin-top:2px">{{ formatDateTime(t.reservation.time) }} · {{ t.reservation.guests }} {{ tr('Pers.') }}</div>
           </div>
           <button @click.stop="deleteTable(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;padding:4px 0 0;opacity:.6;transition:opacity .15s"
-            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.6'"><i class="ti ti-trash" style="margin-right:4px"></i>Löschen</button>
+            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.6'"><i class="ti ti-trash" style="margin-right:4px"></i>{{ tr('Löschen') }}</button>
         </div>
       </div>
     </div>
@@ -210,8 +210,8 @@
       </div>
       <div v-else-if="!orders.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-shopping-cart-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px">Noch keine Bestellungen eingegangen.</p>
-        <p v-if="!settingsForm.orderingEnabled" style="font-size:12px;margin-top:8px">Aktiviere die Online-Bestellung in den <a href="#" @click.prevent="openSettings" style="color:var(--accent)">Webseiten-Einstellungen</a>.</p>
+        <p style="font-size:14px">{{ tr('Noch keine Bestellungen eingegangen.') }}</p>
+        <p v-if="!settingsForm.orderingEnabled" style="font-size:12px;margin-top:8px">{{ tr('Aktiviere die Online-Bestellung in den') }} <a href="#" @click.prevent="openSettings" style="color:var(--accent)">{{ tr('Webseiten-Einstellungen') }}</a>.</p>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:10px">
         <div v-for="o in orders" :key="o.orderId"
@@ -242,7 +242,7 @@
             <button v-if="nextOrderStatus(o.status)" class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="advanceOrder(o)">
               <i class="ti ti-arrow-right" style="margin-right:4px"></i>{{ ORDER_STATUS_LABEL[nextOrderStatus(o.status)!] }}
             </button>
-            <button class="icon-btn" style="height:28px;font-size:12px;padding:0 12px;color:#ef4444" @click="cancelOrder(o)">Stornieren</button>
+            <button class="icon-btn" style="height:28px;font-size:12px;padding:0 12px;color:#ef4444" @click="cancelOrder(o)">{{ tr('Stornieren') }}</button>
           </div>
         </div>
       </div>
@@ -252,22 +252,22 @@
     <div v-else-if="activeTab === 'service'">
       <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
         <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 18px">
-          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Trinkgeld heute</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ tr('Trinkgeld heute') }}</div>
           <div style="font-size:20px;font-weight:800;color:var(--accent)">{{ formatEuro(tipsToday) }}</div>
         </div>
         <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 18px">
-          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Trinkgeld diesen Monat</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">{{ tr('Trinkgeld diesen Monat') }}</div>
           <div style="font-size:20px;font-weight:800;color:var(--accent)">{{ formatEuro(tipsMonth) }}</div>
         </div>
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">Personal</div>
-        <button class="icon-btn" style="font-size:12px;padding:4px 10px" @click="openNewStaff"><i class="ti ti-plus" style="margin-right:4px"></i>Mitarbeiter anlegen</button>
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">{{ tr('Personal') }}</div>
+        <button class="icon-btn" style="font-size:12px;padding:4px 10px" @click="openNewStaff"><i class="ti ti-plus" style="margin-right:4px"></i>{{ tr('Mitarbeiter anlegen') }}</button>
       </div>
       <div v-if="loadingStaff" style="padding:20px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
       <div v-else-if="!staff.length" style="text-align:center;padding:40px;color:var(--text-muted)">
-        <p style="font-size:13px">Noch kein Personal angelegt.</p>
+        <p style="font-size:13px">{{ tr('Noch kein Personal angelegt.') }}</p>
       </div>
       <div v-else style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:28px">
         <div v-for="s in staff" :key="s.staffId"
@@ -276,23 +276,23 @@
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <div style="font-weight:700;font-size:14px">{{ s.name }}</div>
             <div style="display:flex;gap:2px">
-              <button @click="openEditStaff(s)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit" style="font-size:14px"></i></button>
-              <button @click="deleteStaff(s)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px" title="Löschen"><i class="ti ti-trash" style="font-size:14px"></i></button>
+              <button @click="openEditStaff(s)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit" style="font-size:14px"></i></button>
+              <button @click="deleteStaff(s)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px" :title="tr('Löschen')"><i class="ti ti-trash" style="font-size:14px"></i></button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">{{ s.role }}<span v-if="!s.active"> · inaktiv</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">{{ s.role }}<span v-if="!s.active"> {{ tr('· inaktiv') }}</span></div>
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:12px;color:var(--text-muted)">Monat: <strong style="color:var(--text)">{{ formatEuro(staffTipsTotal(s.staffId, 'month')) }}</strong></div>
-            <button class="accent-btn" style="height:26px;font-size:11px;padding:0 10px" @click="openNewTip(s.staffId)" title="Trinkgeld erfassen"><i class="ti ti-plus"></i></button>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Monat:') }} <strong style="color:var(--text)">{{ formatEuro(staffTipsTotal(s.staffId, 'month')) }}</strong></div>
+            <button class="accent-btn" style="height:26px;font-size:11px;padding:0 10px" @click="openNewTip(s.staffId)" :title="tr('Trinkgeld erfassen')"><i class="ti ti-plus"></i></button>
           </div>
         </div>
       </div>
 
-      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:10px">Trinkgeld-Verlauf</div>
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:10px">{{ tr('Trinkgeld-Verlauf') }}</div>
       <div v-if="loadingTips" style="padding:20px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
       <div v-else-if="!tips.length" style="text-align:center;padding:40px;color:var(--text-muted)">
         <i class="ti ti-coin" style="font-size:40px;display:block;margin-bottom:10px;opacity:.3"></i>
-        <p style="font-size:13px">Noch kein Trinkgeld erfasst.</p>
+        <p style="font-size:13px">{{ tr('Noch kein Trinkgeld erfasst.') }}</p>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:6px">
         <div v-for="t in tipsSorted" :key="t.tipId"
@@ -301,7 +301,7 @@
           <div style="flex:1;font-size:13px;font-weight:600">{{ t.staffName || '—' }}</div>
           <div v-if="t.note" style="font-size:12px;color:var(--text-muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.note }}</div>
           <div style="font-weight:800;font-size:14px;color:var(--accent);flex-shrink:0">{{ formatEuro(Number(t.amount)) }}</div>
-          <button @click="deleteTip(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px;flex-shrink:0" title="Löschen"><i class="ti ti-trash" style="font-size:13px"></i></button>
+          <button @click="deleteTip(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px;flex-shrink:0" :title="tr('Löschen')"><i class="ti ti-trash" style="font-size:13px"></i></button>
         </div>
       </div>
     </div>
@@ -314,20 +314,20 @@
           <button class="icon-btn" @click="showItemModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Kategorie *</label>
-            <input v-model="iForm.category" placeholder="Vorspeisen, Hauptgerichte, Getränke..." list="menu-categories" />
+          <div class="auth-field"><label>{{ tr('Kategorie *') }}</label>
+            <input v-model="iForm.category" :placeholder="tr('Vorspeisen, Hauptgerichte, Getränke...')" list="menu-categories" />
             <datalist id="menu-categories">
               <option v-for="c in existingCategories" :key="c" :value="c" />
             </datalist>
           </div>
-          <div class="auth-field"><label>Name *</label><input v-model="iForm.name" placeholder="Wiener Schnitzel" /></div>
-          <div class="auth-field"><label>Beschreibung</label>
-            <textarea v-model="iForm.description" style="height:60px;resize:none;width:100%" class="form-select" placeholder="mit Pommes und Salat..."></textarea>
+          <div class="auth-field"><label>{{ tr('Name *') }}</label><input v-model="iForm.name" :placeholder="tr('Wiener Schnitzel')" /></div>
+          <div class="auth-field"><label>{{ tr('Beschreibung') }}</label>
+            <textarea v-model="iForm.description" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('mit Pommes und Salat...')"></textarea>
           </div>
-          <div class="auth-field"><label>Preis (€) *</label><input v-model="iForm.price" type="number" step="0.01" placeholder="14.90" /></div>
+          <div class="auth-field"><label>{{ tr('Preis (€) *') }}</label><input v-model="iForm.price" type="number" step="0.01" placeholder="14.90" /></div>
           <div class="auth-field">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-              <input type="checkbox" v-model="iForm.available" style="width:auto" /> Verfügbar
+              <input type="checkbox" v-model="iForm.available" style="width:auto" /> {{ tr('Verfügbar') }}
             </label>
           </div>
         </div>
@@ -348,18 +348,18 @@
           <button class="icon-btn" @click="showTableModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Bezeichnung *</label><input v-model="tForm.name" placeholder="Tisch 1, Terrasse A..." /></div>
-          <div class="auth-field"><label>Sitzplätze</label><input v-model="tForm.seats" type="number" placeholder="4" /></div>
-          <div class="auth-field"><label>Status</label>
+          <div class="auth-field"><label>{{ tr('Bezeichnung *') }}</label><input v-model="tForm.name" :placeholder="tr('Tisch 1, Terrasse A...')" /></div>
+          <div class="auth-field"><label>{{ tr('Sitzplätze') }}</label><input v-model="tForm.seats" type="number" placeholder="4" /></div>
+          <div class="auth-field"><label>{{ tr('Status') }}</label>
             <select v-model="tForm.status" class="form-select">
-              <option>frei</option><option>belegt</option><option>reserviert</option>
+              <option>{{ tr('frei') }}</option><option>{{ tr('belegt') }}</option><option>{{ tr('reserviert') }}</option>
             </select>
           </div>
           <template v-if="tForm.status === 'reserviert'">
-            <div class="auth-field"><label>Kundenname</label><input v-model="tForm.reservation.customerName" placeholder="Max Mustermann" /></div>
-            <div class="auth-field"><label>Uhrzeit</label><input v-model="tForm.reservation.time" type="datetime-local" /></div>
-            <div class="auth-field"><label>Personenzahl</label><input v-model="tForm.reservation.guests" type="number" placeholder="4" /></div>
-            <div class="auth-field"><label>Telefon</label><input v-model="tForm.reservation.phone" placeholder="+49 123 456789" /></div>
+            <div class="auth-field"><label>{{ tr('Kundenname') }}</label><input v-model="tForm.reservation.customerName" :placeholder="tr('Max Mustermann')" /></div>
+            <div class="auth-field"><label>{{ tr('Uhrzeit') }}</label><input v-model="tForm.reservation.time" type="datetime-local" /></div>
+            <div class="auth-field"><label>{{ tr('Personenzahl') }}</label><input v-model="tForm.reservation.guests" type="number" placeholder="4" /></div>
+            <div class="auth-field"><label>{{ tr('Telefon') }}</label><input v-model="tForm.reservation.phone" placeholder="+49 123 456789" /></div>
           </template>
         </div>
         <div style="padding:0 24px 24px">
@@ -378,15 +378,15 @@
           <button class="icon-btn" @click="showStaffModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Name *</label><input v-model="sForm.name" placeholder="Julia Hoffmann" /></div>
-          <div class="auth-field"><label>Rolle</label>
+          <div class="auth-field"><label>{{ tr('Name *') }}</label><input v-model="sForm.name" :placeholder="tr('Julia Hoffmann')" /></div>
+          <div class="auth-field"><label>{{ tr('Rolle') }}</label>
             <select v-model="sForm.role" class="form-select">
-              <option>Kellner</option><option>Kellnerin</option><option>Koch</option><option>Küchenhilfe</option><option>Aushilfe</option>
+              <option>{{ tr('Kellner') }}</option><option>{{ tr('Kellnerin') }}</option><option>{{ tr('Koch') }}</option><option>{{ tr('Küchenhilfe') }}</option><option>{{ tr('Aushilfe') }}</option>
             </select>
           </div>
           <div class="auth-field">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-              <input type="checkbox" v-model="sForm.active" style="width:auto" /> Aktiv
+              <input type="checkbox" v-model="sForm.active" style="width:auto" /> {{ tr('Aktiv') }}
             </label>
           </div>
         </div>
@@ -402,23 +402,23 @@
     <div v-if="showTipModal" class="modal-overlay" @click.self="showTipModal=false">
       <div class="modal-card" style="max-width:420px">
         <div class="modal-header">
-          <span class="card-title">Trinkgeld erfassen</span>
+          <span class="card-title">{{ tr('Trinkgeld erfassen') }}</span>
           <button class="icon-btn" @click="showTipModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Mitarbeiter *</label>
+          <div class="auth-field"><label>{{ tr('Mitarbeiter *') }}</label>
             <select v-model="tipForm.staffId" class="form-select">
-              <option value="" disabled>Bitte wählen</option>
+              <option value="" disabled>{{ tr('Bitte wählen') }}</option>
               <option v-for="s in staff" :key="s.staffId" :value="s.staffId">{{ s.name }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Betrag (€) *</label><input v-model="tipForm.amount" type="number" step="0.01" placeholder="12.50" /></div>
-          <div class="auth-field"><label>Datum</label><input v-model="tipForm.date" type="date" /></div>
-          <div class="auth-field"><label>Notiz</label><input v-model="tipForm.note" placeholder="Tisch 4, Gruppe..." /></div>
+          <div class="auth-field"><label>{{ tr('Betrag (€) *') }}</label><input v-model="tipForm.amount" type="number" step="0.01" placeholder="12.50" /></div>
+          <div class="auth-field"><label>{{ tr('Datum') }}</label><input v-model="tipForm.date" type="date" /></div>
+          <div class="auth-field"><label>{{ tr('Notiz') }}</label><input v-model="tipForm.note" :placeholder="tr('Tisch 4, Gruppe...')" /></div>
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveTip" :disabled="!tipForm.staffId || !tipForm.amount">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>Speichern
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ tr('Speichern') }}
           </button>
         </div>
       </div>
@@ -512,7 +512,7 @@ async function saveSettings() {
     })
     showSettingsModal.value = false
   } catch {
-    alert('Fehler beim Speichern.')
+    alert(tr('Fehler beim Speichern.'))
   } finally {
     savingSettings.value = false
   }
@@ -788,7 +788,7 @@ async function saveTip() {
 }
 
 async function deleteTip(t: TipEntry) {
-  if (!confirm('Trinkgeld-Eintrag wirklich löschen?')) return
+  if (!confirm(tr('Trinkgeld-Eintrag wirklich löschen?'))) return
   await $fetch(useApiUrl(`/api/gastro-tips/${t.tipId}`), { method: 'DELETE', headers: { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadTips()
 }

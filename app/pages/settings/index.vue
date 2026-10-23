@@ -4,7 +4,7 @@
     <!-- DEMO BANNER -->
     <div v-if="isDemo" style="background:linear-gradient(135deg,#f59e0b22,#f59e0b11);border:1px solid #f59e0b55;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
       <i class="ti ti-lock" style="color:#f59e0b;font-size:18px"></i>
-      <span style="color:#f59e0b;font-weight:600;font-size:13px">Demo-Modus — Einstellungen können nicht gespeichert werden</span>
+      <span style="color:#f59e0b;font-weight:600;font-size:13px">{{ tr('Demo-Modus — Einstellungen können nicht gespeichert werden') }}</span>
     </div>
 
     <!-- TAB NAV -->
@@ -17,16 +17,16 @@
     <!-- BRANDING -->
     <div v-if="tab === 'branding'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>Branding</span>
+        <span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Branding') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || brandSaving" @click="saveBranding">
           <span v-if="brandSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
         <div style="display:flex;flex-direction:column;gap:16px">
           <div class="auth-field">
-            <label>Logo (Upload)</label>
+            <label>{{ tr('Logo (Upload)') }}</label>
             <div style="display:flex;gap:10px;align-items:center">
               <img v-if="brand.logoUrl" :src="brand.logoUrl" style="height:40px;max-width:120px;object-fit:contain;border-radius:6px;border:0.5px solid var(--border)" />
               <label style="cursor:pointer">
@@ -36,26 +36,26 @@
                   {{ logoUploading ? 'Lädt...' : brand.logoUrl ? 'Ändern' : 'Logo hochladen' }}
                 </span>
               </label>
-              <button v-if="brand.logoUrl" class="icon-btn" style="color:var(--danger)" @click="brand.logoUrl=''" title="Logo entfernen">
+              <button v-if="brand.logoUrl" class="icon-btn" style="color:var(--danger)" @click="brand.logoUrl=''" :title="tr('Logo entfernen')">
                 <i class="ti ti-trash"></i>
               </button>
             </div>
           </div>
           <div class="auth-field">
-            <label>Produktname</label>
-            <input v-model="brand.brandName" placeholder="Plexora" />
+            <label>{{ tr('Produktname') }}</label>
+            <input v-model="brand.brandName" :placeholder="tr('Plexora')" />
           </div>
           <div class="auth-field">
-            <label>Tagline (Landing Page)</label>
-            <input v-model="brand.brandTagline" placeholder="Business Platform" />
+            <label>{{ tr('Tagline (Landing Page)') }}</label>
+            <input v-model="brand.brandTagline" :placeholder="tr('Business Platform')" />
           </div>
           <div class="auth-field">
-            <label>Kundenportal Titel</label>
-            <input v-model="brand.portalTitle" placeholder="Kundenportal" />
+            <label>{{ tr('Kundenportal Titel') }}</label>
+            <input v-model="brand.portalTitle" :placeholder="tr('Kundenportal')" />
           </div>
         </div>
         <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">Vorschau</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">{{ tr('Vorschau') }}</div>
           <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em">
             {{ brandFirst }}<span style="color:var(--accent)">{{ brandLast }}</span>
           </div>
@@ -73,80 +73,80 @@
     <!-- UNTERNEHMEN -->
     <div v-if="tab === 'company'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-building-bank" style="margin-right:8px;color:var(--accent)"></i>Unternehmensdaten</span>
+        <span class="card-title"><i class="ti ti-building-bank" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Unternehmensdaten') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || companySaving" @click="saveCompany">
           <span v-if="companySaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
         <p style="font-size:12px;color:var(--text-muted);margin:0 0 8px">
-          Diese Angaben werden auf der öffentlichen Impressum-Seite (/impressum) angezeigt.
+          {{ tr('Diese Angaben werden auf der öffentlichen Impressum-Seite (/impressum) angezeigt.') }}
         </p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="auth-field">
-            <label>Firma / Inhaber</label>
-            <input v-model="company.legalName" placeholder="Päffgen IT" />
+            <label>{{ tr('Firma / Inhaber') }}</label>
+            <input v-model="company.legalName" :placeholder="tr('Päffgen IT')" />
           </div>
           <div class="auth-field">
-            <label>Vertreten durch</label>
-            <input v-model="company.representedBy" placeholder="Peter Päffgen" />
+            <label>{{ tr('Vertreten durch') }}</label>
+            <input v-model="company.representedBy" :placeholder="tr('Peter Päffgen')" />
           </div>
           <div class="auth-field">
-            <label>Straße & Hausnummer</label>
-            <input v-model="company.street" placeholder="Musterstraße 1" />
+            <label>{{ tr('Straße & Hausnummer') }}</label>
+            <input v-model="company.street" :placeholder="tr('Musterstraße 1')" />
           </div>
           <div class="auth-field">
-            <label>PLZ & Ort</label>
-            <input v-model="company.zipCity" placeholder="54531 Manderscheid" />
+            <label>{{ tr('PLZ & Ort') }}</label>
+            <input v-model="company.zipCity" :placeholder="tr('54531 Manderscheid')" />
           </div>
           <div class="auth-field">
-            <label>Land</label>
-            <input v-model="company.country" placeholder="Deutschland" />
+            <label>{{ tr('Land') }}</label>
+            <input v-model="company.country" :placeholder="tr('Deutschland')" />
           </div>
           <div class="auth-field">
-            <label>USt-IdNr.</label>
-            <input v-model="company.vatId" placeholder="DE123456789" />
+            <label>{{ tr('USt-IdNr.') }}</label>
+            <input v-model="company.vatId" :placeholder="tr('DE123456789')" />
           </div>
           <div class="auth-field">
-            <label>Steuernummer <span style="font-weight:400;color:var(--text-muted)">(wenn keine USt-IdNr.)</span></label>
+            <label>{{ tr('Steuernummer') }} <span style="font-weight:400;color:var(--text-muted)">{{ tr('(wenn keine USt-IdNr.)') }}</span></label>
             <input v-model="company.taxNumber" placeholder="12/345/67890" />
           </div>
           <div class="auth-field">
-            <label>Ansprechpartner/in <span style="font-weight:400;color:var(--text-muted)">(E-Rechnung)</span></label>
-            <input v-model="company.contactName" placeholder="Vor- und Nachname" />
+            <label>{{ tr('Ansprechpartner/in') }} <span style="font-weight:400;color:var(--text-muted)">{{ tr('(E-Rechnung)') }}</span></label>
+            <input v-model="company.contactName" :placeholder="tr('Vor- und Nachname')" />
           </div>
           <div class="auth-field">
-            <label>E-Mail</label>
-            <input v-model="company.email" placeholder="kontakt@paeffgen-it.de" />
+            <label>{{ tr('E-Mail') }}</label>
+            <input v-model="company.email" :placeholder="tr('kontakt@paeffgen-it.de')" />
           </div>
           <div class="auth-field">
-            <label>Telefon</label>
+            <label>{{ tr('Telefon') }}</label>
             <input v-model="company.phone" placeholder="+49 123 456789" />
           </div>
           <div class="auth-field">
-            <label>Handelsregister (optional)</label>
-            <input v-model="company.register" placeholder="HRB 12345" />
+            <label>{{ tr('Handelsregister (optional)') }}</label>
+            <input v-model="company.register" :placeholder="tr('HRB 12345')" />
           </div>
           <div class="auth-field">
-            <label>Registergericht (optional)</label>
-            <input v-model="company.registerCourt" placeholder="Amtsgericht Wittlich" />
+            <label>{{ tr('Registergericht (optional)') }}</label>
+            <input v-model="company.registerCourt" :placeholder="tr('Amtsgericht Wittlich')" />
           </div>
           <div class="auth-field">
-            <label>IBAN (für Rechnung)</label>
-            <input v-model="company.iban" placeholder="DE12 3456 7890 1234 5678 90" />
+            <label>{{ tr('IBAN (für Rechnung)') }}</label>
+            <input v-model="company.iban" :placeholder="tr('DE12 3456 7890 1234 5678 90')" />
           </div>
           <div class="auth-field">
-            <label>BIC</label>
-            <input v-model="company.bic" placeholder="DEUTDEDB" />
+            <label>{{ tr('BIC') }}</label>
+            <input v-model="company.bic" :placeholder="tr('DEUTDEDB')" />
           </div>
           <div class="auth-field">
-            <label>Bank</label>
-            <input v-model="company.bankName" placeholder="Deutsche Bank" />
+            <label>{{ tr('Bank') }}</label>
+            <input v-model="company.bankName" :placeholder="tr('Deutsche Bank')" />
           </div>
           <div class="auth-field">
-            <label>Zahlungshinweis (optional)</label>
-            <input v-model="company.paymentNote" placeholder="Bitte geben Sie die Rechnungsnummer als Verwendungszweck an." />
+            <label>{{ tr('Zahlungshinweis (optional)') }}</label>
+            <input v-model="company.paymentNote" :placeholder="tr('Bitte geben Sie die Rechnungsnummer als Verwendungszweck an.')" />
           </div>
         </div>
       </div>
@@ -155,15 +155,15 @@
     <!-- AGB -->
     <div v-if="tab === 'agb'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-file-text" style="margin-right:8px;color:var(--accent)"></i>Allgemeine Geschäftsbedingungen</span>
+        <span class="card-title"><i class="ti ti-file-text" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Allgemeine Geschäftsbedingungen') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || agbSaving" @click="saveAgb">
           <span v-if="agbSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">
-          Markdown-Editor — # für Überschriften, **fett** für Hervorhebungen. Der Inhalt wird auf der öffentlichen Seite /agb angezeigt.
+          {{ tr('Markdown-Editor — # für Überschriften, **fett** für Hervorhebungen. Der Inhalt wird auf der öffentlichen Seite /agb angezeigt.') }}
         </p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;height:600px">
           <textarea v-model="agb.content"
@@ -177,15 +177,15 @@
     <!-- DATENSCHUTZ -->
     <div v-if="tab === 'datenschutz'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-lock" style="margin-right:8px;color:var(--accent)"></i>Datenschutzerklärung</span>
+        <span class="card-title"><i class="ti ti-lock" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Datenschutzerklärung') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || datenschutzSaving" @click="saveDatenschutz">
           <span v-if="datenschutzSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">
-          Markdown-Editor — # für Überschriften, **fett** für Hervorhebungen. Der Inhalt wird auf der öffentlichen Seite /datenschutz angezeigt (Abschnitt "Verantwortlicher" bleibt automatisch aus den Unternehmensdaten befüllt).
+          {{ tr('Markdown-Editor — # für Überschriften, **fett** für Hervorhebungen. Der Inhalt wird auf der öffentlichen Seite /datenschutz angezeigt (Abschnitt "Verantwortlicher" bleibt automatisch aus den Unternehmensdaten befüllt).') }}
         </p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;height:600px">
           <textarea v-model="datenschutz.content"
@@ -199,15 +199,15 @@
     <!-- DARSTELLUNG -->
     <div v-if="tab === 'appearance'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Theme</span>
+        <span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Theme') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || appearanceSaving" @click="saveAppearance">
           <span v-if="appearanceSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:24px">
         <p style="font-size:12px;color:var(--text-muted);margin:0">
-          Gilt für Dashboard <strong style="color:var(--text-secondary)">und</strong> öffentliche Seiten — alles zieht am gleichen Strang.
+          {{ tr('Gilt für Dashboard') }} <strong style="color:var(--text-secondary)">{{ tr('und') }}</strong> {{ tr('öffentliche Seiten — alles zieht am gleichen Strang.') }}
         </p>
 
         <!-- Theme Grid -->
@@ -260,14 +260,14 @@
 
         <!-- Eigene Akzentfarbe -->
         <div style="padding-top:16px;border-top:0.5px solid var(--border)">
-          <div class="settings-label" style="margin-bottom:10px">Eigene Akzentfarbe (überschreibt Theme)</div>
+          <div class="settings-label" style="margin-bottom:10px">{{ tr('Eigene Akzentfarbe (überschreibt Theme)') }}</div>
           <div style="display:flex;align-items:center;gap:12px">
             <label style="cursor:pointer;position:relative">
               <div :style="`width:40px;height:40px;border-radius:10px;background:${store.accent};border:0.5px solid var(--border)`"></div>
               <input type="color" v-model="customAccent" @change="applyCustomAccent" style="position:absolute;inset:0;opacity:0;cursor:pointer" />
             </label>
             <code style="font-size:13px;color:var(--text-secondary);font-weight:600">{{ store.accent }}</code>
-            <span style="font-size:11px;color:var(--text-muted)">— klick auf den Farbkreis zum Ändern</span>
+            <span style="font-size:11px;color:var(--text-muted)">{{ tr('— klick auf den Farbkreis zum Ändern') }}</span>
           </div>
         </div>
       </div>
@@ -276,24 +276,24 @@
     <!-- SICHERHEIT -->
     <div v-if="tab === 'security'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-shield-lock" style="margin-right:8px;color:var(--accent)"></i>Sicherheit</span>
+        <span class="card-title"><i class="ti ti-shield-lock" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Sicherheit') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || securitySaving" @click="saveSecurity">
           <span v-if="securitySaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
         <div>
-          <div class="settings-label">Automatische Abmeldung nach Inaktivität</div>
+          <div class="settings-label">{{ tr('Automatische Abmeldung nach Inaktivität') }}</div>
           <p style="font-size:12px;color:var(--text-muted);margin:0 0 8px">
-            Gilt für Dashboard und Kundenportal. 60 Sekunden vor Ablauf erscheint eine Warnung mit der Möglichkeit, angemeldet zu bleiben.
+            {{ tr('Gilt für Dashboard und Kundenportal. 60 Sekunden vor Ablauf erscheint eine Warnung mit der Möglichkeit, angemeldet zu bleiben.') }}
           </p>
           <select v-model.number="security.timeoutMinutes" class="form-select" style="max-width:240px">
-            <option :value="5">5 Minuten</option>
-            <option :value="15">15 Minuten</option>
-            <option :value="30">30 Minuten</option>
-            <option :value="60">60 Minuten</option>
-            <option :value="0">Nie</option>
+            <option :value="5">{{ tr('5 Minuten') }}</option>
+            <option :value="15">{{ tr('15 Minuten') }}</option>
+            <option :value="30">{{ tr('30 Minuten') }}</option>
+            <option :value="60">{{ tr('60 Minuten') }}</option>
+            <option :value="0">{{ tr('Nie') }}</option>
           </select>
         </div>
       </div>
@@ -304,43 +304,43 @@
     <!-- RECHNUNGEN -->
     <div v-if="tab === 'invoices'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-receipt" style="margin-right:8px;color:var(--accent)"></i>Rechnungseinstellungen</span>
+        <span class="card-title"><i class="ti ti-receipt" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Rechnungseinstellungen') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || invoiceSaving" @click="saveInvoiceSettings">
           <span v-if="invoiceSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
           <div class="auth-field">
-            <label>Standard-Fälligkeit (Tage nach Rechnungsdatum)</label>
+            <label>{{ tr('Standard-Fälligkeit (Tage nach Rechnungsdatum)') }}</label>
             <input v-model.number="invoiceSettings.dueDays" type="number" min="1" max="90" placeholder="7" />
           </div>
           <div class="auth-field">
-            <label>Zahlungsziel-Text auf Rechnung</label>
-            <input v-model="invoiceSettings.dueText" placeholder="Zahlbar innerhalb von 7 Tagen netto" />
+            <label>{{ tr('Zahlungsziel-Text auf Rechnung') }}</label>
+            <input v-model="invoiceSettings.dueText" :placeholder="tr('Zahlbar innerhalb von 7 Tagen netto')" />
           </div>
         </div>
         <div style="border-top:0.5px solid var(--border);padding-top:20px">
-          <div class="settings-label" style="margin-bottom:14px">🧾 Steuer & Preisanzeige</div>
+          <div class="settings-label" style="margin-bottom:14px">{{ tr('🧾 Steuer & Preisanzeige') }}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
             <div class="auth-field">
-              <label>MwSt.-Satz (%)</label>
+              <label>{{ tr('MwSt.-Satz (%)') }}</label>
               <select v-model.number="invoiceSettings.vatRate" class="form-select">
-                <option :value="19">19% (Standard)</option>
-                <option :value="7">7% (ermäßigte)</option>
-                <option :value="0">0% (steuerfrei)</option>
+                <option :value="19">{{ tr('19% (Standard)') }}</option>
+                <option :value="7">{{ tr('7% (ermäßigte)') }}</option>
+                <option :value="0">{{ tr('0% (steuerfrei)') }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>Preisanzeige im Shop</label>
+              <label>{{ tr('Preisanzeige im Shop') }}</label>
               <select v-model="invoiceSettings.priceDisplay" class="form-select">
-                <option value="netto">Netto (zzgl. MwSt.)</option>
-                <option value="brutto">Brutto (inkl. MwSt.)</option>
+                <option value="netto">{{ tr('Netto (zzgl. MwSt.)') }}</option>
+                <option value="brutto">{{ tr('Brutto (inkl. MwSt.)') }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>Kleinunternehmer §19 UStG</label>
+              <label>{{ tr('Kleinunternehmer §19 UStG') }}</label>
               <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
                 <div class="pill-toggle" :class="{ on: invoiceSettings.smallBusiness }"
                   @click="invoiceSettings.smallBusiness = !invoiceSettings.smallBusiness"
@@ -352,24 +352,24 @@
             </div>
           </div>
           <div class="auth-field" style="margin-top:14px">
-            <label>E-Rechnung beim Versand per Mail <HelpTip k="erechnung" /></label>
+            <label>{{ tr('E-Rechnung beim Versand per Mail') }} <HelpTip k="erechnung" /></label>
             <select v-model="invoiceSettings.einvoiceFormat" class="form-select">
-              <option value="pdf">Normale PDF-Rechnung</option>
-              <option value="zugferd">ZUGFeRD (PDF mit eingebetteter E-Rechnung)</option>
-              <option value="xrechnung">XRechnung (XML) zusätzlich zur PDF</option>
+              <option value="pdf">{{ tr('Normale PDF-Rechnung') }}</option>
+              <option value="zugferd">{{ tr('ZUGFeRD (PDF mit eingebetteter E-Rechnung)') }}</option>
+              <option value="xrechnung">{{ tr('XRechnung (XML) zusätzlich zur PDF') }}</option>
             </select>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ab 2027 sollten Rechnungen an Unternehmen als E-Rechnung gehen. Fehlen Pflichtangaben (Anschrift, USt-IdNr., IBAN …), wird nicht gesendet und die fehlenden Angaben werden genannt.</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ tr('Ab 2027 sollten Rechnungen an Unternehmen als E-Rechnung gehen. Fehlen Pflichtangaben (Anschrift, USt-IdNr., IBAN …), wird nicht gesendet und die fehlenden Angaben werden genannt.') }}</div>
           </div>
           <div v-if="invoiceSettings.smallBusiness"
             style="margin-top:12px;padding:12px;background:rgba(var(--accent-rgb),0.08);border-radius:8px;font-size:12px;color:var(--text-muted)">
-            ℹ️ Gemäß §19 UStG wird keine Umsatzsteuer berechnet und ausgewiesen.
+            {{ tr('ℹ️ Gemäß §19 UStG wird keine Umsatzsteuer berechnet und ausgewiesen.') }}
           </div>
         </div>
         <div style="border-top:0.5px solid var(--border);padding-top:20px">
-          <div class="settings-label" style="margin-bottom:14px">💳 Zahlungswege auf Rechnungen</div>
+          <div class="settings-label" style="margin-bottom:14px">{{ tr('💳 Zahlungswege auf Rechnungen') }}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div class="auth-field">
-              <label>SEPA-Überweisung (Banking-App-QR)</label>
+              <label>{{ tr('SEPA-Überweisung (Banking-App-QR)') }}</label>
               <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
                 <div class="pill-toggle" :class="{ on: invoicePayment.sepaEnabled }"
                   @click="invoicePayment.sepaEnabled = !invoicePayment.sepaEnabled"
@@ -378,7 +378,7 @@
               </div>
             </div>
             <div class="auth-field">
-              <label>Online-Zahlung (Stripe/Karte)</label>
+              <label>{{ tr('Online-Zahlung (Stripe/Karte)') }}</label>
               <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
                 <div class="pill-toggle" :class="{ on: invoicePayment.stripeEnabled }"
                   @click="invoicePayment.stripeEnabled = !invoicePayment.stripeEnabled"
@@ -389,7 +389,7 @@
           </div>
           <div v-if="!invoicePayment.sepaEnabled && !invoicePayment.stripeEnabled"
             style="margin-top:12px;padding:12px;background:rgba(224,92,92,0.1);border-radius:8px;font-size:12px;color:#E05C5C">
-            Mindestens ein Zahlungsweg muss aktiv bleiben, sonst kann diese Rechnung nicht bezahlt werden.
+            {{ tr('Mindestens ein Zahlungsweg muss aktiv bleiben, sonst kann diese Rechnung nicht bezahlt werden.') }}
           </div>
         </div>
       </div>
@@ -399,10 +399,10 @@
     <div v-if="tab === 'dunning'">
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-alert-triangle" style="margin-right:8px;color:#E05C5C"></i>Mahnwesen</span>
+          <span class="card-title"><i class="ti ti-alert-triangle" style="margin-right:8px;color:#E05C5C"></i>{{ tr('Mahnwesen') }}</span>
           <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || dunningSaving" @click="saveDunningSettings">
             <span v-if="dunningSaving"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+            <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
           </button>
         </div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
@@ -410,19 +410,19 @@
           <!-- Stufe 1 -->
           <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:16px">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-              <span class="badge badge-info">Stufe 1</span>
-              <span style="font-size:13px;font-weight:600">Freundliche Erinnerung</span>
+              <span class="badge badge-info">{{ tr('Stufe 1') }}</span>
+              <span style="font-size:13px;font-weight:600">{{ tr('Freundliche Erinnerung') }}</span>
               <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-                <span style="font-size:12px;color:var(--text-muted)">Aktiv</span>
+                <span style="font-size:12px;color:var(--text-muted)">{{ tr('Aktiv') }}</span>
                 <div class="pill-toggle" :class="{ on: dunning.level1.active }" @click="dunning.level1.active=!dunning.level1.active" style="cursor:pointer"><div class="pill-thumb"></div></div>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-              <div class="auth-field"><label>Tage nach Fälligkeit</label><input v-model.number="dunning.level1.days" type="number" min="1" placeholder="5" /></div>
-              <div class="auth-field"><label>Mahngebühr (€)</label><input v-model.number="dunning.level1.fee" type="number" min="0" placeholder="0" /></div>
+              <div class="auth-field"><label>{{ tr('Tage nach Fälligkeit') }}</label><input v-model.number="dunning.level1.days" type="number" min="1" placeholder="5" /></div>
+              <div class="auth-field"><label>{{ tr('Mahngebühr (€)') }}</label><input v-model.number="dunning.level1.fee" type="number" min="0" placeholder="0" /></div>
             </div>
             <div class="auth-field">
-              <label>Mahntext</label>
+              <label>{{ tr('Mahntext') }}</label>
               <textarea v-model="dunning.level1.text" rows="3" style="background:var(--bg-base);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
             </div>
           </div>
@@ -430,19 +430,19 @@
           <!-- Stufe 2 -->
           <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:16px">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-              <span class="badge badge-warning">Stufe 2</span>
-              <span style="font-size:13px;font-weight:600">Zweite Mahnung</span>
+              <span class="badge badge-warning">{{ tr('Stufe 2') }}</span>
+              <span style="font-size:13px;font-weight:600">{{ tr('Zweite Mahnung') }}</span>
               <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-                <span style="font-size:12px;color:var(--text-muted)">Aktiv</span>
+                <span style="font-size:12px;color:var(--text-muted)">{{ tr('Aktiv') }}</span>
                 <div class="pill-toggle" :class="{ on: dunning.level2.active }" @click="dunning.level2.active=!dunning.level2.active" style="cursor:pointer"><div class="pill-thumb"></div></div>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-              <div class="auth-field"><label>Tage nach Fälligkeit</label><input v-model.number="dunning.level2.days" type="number" min="1" placeholder="14" /></div>
-              <div class="auth-field"><label>Mahngebühr (€)</label><input v-model.number="dunning.level2.fee" type="number" min="0" placeholder="15" /></div>
+              <div class="auth-field"><label>{{ tr('Tage nach Fälligkeit') }}</label><input v-model.number="dunning.level2.days" type="number" min="1" placeholder="14" /></div>
+              <div class="auth-field"><label>{{ tr('Mahngebühr (€)') }}</label><input v-model.number="dunning.level2.fee" type="number" min="0" placeholder="15" /></div>
             </div>
             <div class="auth-field">
-              <label>Mahntext</label>
+              <label>{{ tr('Mahntext') }}</label>
               <textarea v-model="dunning.level2.text" rows="3" style="background:var(--bg-base);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
             </div>
           </div>
@@ -450,18 +450,18 @@
           <!-- Stufe 3 -->
           <div style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:16px">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-              <span class="badge badge-danger">Stufe 3</span>
-              <span style="font-size:13px;font-weight:600">Letzte Mahnung</span>
+              <span class="badge badge-danger">{{ tr('Stufe 3') }}</span>
+              <span style="font-size:13px;font-weight:600">{{ tr('Letzte Mahnung') }}</span>
               <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-                <span style="font-size:12px;color:var(--text-muted)">Aktiv</span>
+                <span style="font-size:12px;color:var(--text-muted)">{{ tr('Aktiv') }}</span>
                 <div class="pill-toggle" :class="{ on: dunning.level3.active }" @click="dunning.level3.active=!dunning.level3.active" style="cursor:pointer"><div class="pill-thumb"></div></div>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-              <div class="auth-field"><label>Tage nach Fälligkeit</label><input v-model.number="dunning.level3.days" type="number" min="1" placeholder="30" /></div>
-              <div class="auth-field"><label>Mahngebühr (€)</label><input v-model.number="dunning.level3.fee" type="number" min="0" placeholder="40" /></div>
+              <div class="auth-field"><label>{{ tr('Tage nach Fälligkeit') }}</label><input v-model.number="dunning.level3.days" type="number" min="1" placeholder="30" /></div>
+              <div class="auth-field"><label>{{ tr('Mahngebühr (€)') }}</label><input v-model.number="dunning.level3.fee" type="number" min="0" placeholder="40" /></div>
               <div class="auth-field">
-                <label>Inkasso-Androhung</label>
+                <label>{{ tr('Inkasso-Androhung') }}</label>
                 <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
                   <div class="pill-toggle" :class="{ on: dunning.level3.inkasso }" @click="dunning.level3.inkasso=!dunning.level3.inkasso" style="cursor:pointer"><div class="pill-thumb"></div></div>
                   <span style="font-size:12px;color:var(--text-muted)">{{ dunning.level3.inkasso ? 'Aktiv' : 'Inaktiv' }}</span>
@@ -469,7 +469,7 @@
               </div>
             </div>
             <div class="auth-field">
-              <label>Mahntext</label>
+              <label>{{ tr('Mahntext') }}</label>
               <textarea v-model="dunning.level3.text" rows="3" style="background:var(--bg-base);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
             </div>
           </div>
@@ -481,18 +481,18 @@
     <div v-if="tab === 'modules'">
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>Lizenz-Center</span>
+          <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Lizenz-Center') }}</span>
           <div style="display:flex;gap:8px;align-items:center">
             <span v-if="store.license" class="badge" :class="store.license.tier==='enterprise' ? 'badge-warning' : store.license.tier==='pro' ? 'badge-info' : 'badge-success'">
               <i class="ti ti-key" style="margin-right:4px"></i>
               {{ store.license.tier === 'enterprise' ? 'Enterprise' : store.license.tier === 'pro' ? 'Pro' : 'Starter' }}
             </span>
-            <span v-else class="badge badge-danger"><i class="ti ti-key-off" style="margin-right:4px"></i>Keine Lizenz</span>
-            <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on && !m.locked).length }} / {{ store.modules.length }} aktiv</span>
+            <span v-else class="badge badge-danger"><i class="ti ti-key-off" style="margin-right:4px"></i>{{ tr('Keine Lizenz') }}</span>
+            <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on && !m.locked).length }} / {{ store.modules.length }} {{ tr('aktiv') }}</span>
             <button v-if="modulesDirty" class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;background:#00C853;border-color:#00C853"
               :disabled="isDemo || modulesSaving" @click="saveModules">
               <span v-if="modulesSaving"><i class="ti ti-loader-2 spin"></i></span>
-              <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+              <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
             </button>
           </div>
         </div>
@@ -504,7 +504,7 @@
 
               <!-- Lock-Overlay -->
               <div v-if="m.locked" style="position:absolute;inset:0;background:rgba(0,0,0,0.18);border-radius:12px;display:flex;align-items:center;justify-content:center;z-index:2;gap:6px;font-size:12px;font-weight:700;color:var(--text-muted)">
-                <i class="ti ti-lock" style="font-size:16px"></i> Nicht in deiner Lizenz
+                <i class="ti ti-lock" style="font-size:16px"></i> {{ tr('Nicht in deiner Lizenz') }}
               </div>
 
               <div style="display:flex;align-items:center;gap:10px">
@@ -536,7 +536,7 @@
     <div v-if="tab === 'categories'">
       <div class="card" style="max-width:640px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>Kategorien &amp; Einheiten</span>
+          <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Kategorien & Einheiten') }}</span>
         </div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
           <!-- Bereich wählen -->
@@ -553,14 +553,14 @@
               <input v-model="newCategoryInput[activeCategoryArea]" :placeholder="currentCategoryArea.placeholder || 'z.B. Ratgeber'" @keyup.enter="addCategory(activeCategoryArea)" />
             </div>
             <button class="accent-btn" :disabled="isDemo || !newCategoryInput[activeCategoryArea]?.trim() || categoriesSaving" @click="addCategory(activeCategoryArea)">
-              <i class="ti ti-plus"></i> Hinzufügen
+              <i class="ti ti-plus"></i> {{ tr('Hinzufügen') }}
             </button>
           </div>
 
           <!-- Übersicht: erst nach Klick eingeblendet -->
           <button class="icon-btn" style="align-self:flex-start;font-size:12px;padding:6px 12px;height:auto" @click="showCategoryOverview = !showCategoryOverview">
             <i class="ti" :class="showCategoryOverview ? 'ti-chevron-up' : 'ti-chevron-down'" style="margin-right:6px"></i>
-            Übersicht ({{ categories[activeCategoryArea]?.length || 0 }})
+            {{ tr('Übersicht (') }}{{ categories[activeCategoryArea]?.length || 0 }})
           </button>
 
           <div v-if="showCategoryOverview">
@@ -599,19 +599,19 @@
       <!-- Stats-Zeile -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
         <div class="stat-card" style="padding:16px">
-          <div class="stat-label">Gesamt</div>
+          <div class="stat-label">{{ tr('Gesamt') }}</div>
           <div class="stat-value">{{ licenses.length }}</div>
         </div>
         <div class="stat-card" style="padding:16px">
-          <div class="stat-label" style="color:#00C853">Aktiv</div>
+          <div class="stat-label" style="color:#00C853">{{ tr('Aktiv') }}</div>
           <div class="stat-value" style="color:#00C853">{{ licenses.filter(l=>l.status==='active').length }}</div>
         </div>
         <div class="stat-card" style="padding:16px">
-          <div class="stat-label">Pro</div>
+          <div class="stat-label">{{ tr('Pro') }}</div>
           <div class="stat-value">{{ licenses.filter(l=>l.tier==='pro').length }}</div>
         </div>
         <div class="stat-card" style="padding:16px">
-          <div class="stat-label">Enterprise</div>
+          <div class="stat-label">{{ tr('Enterprise') }}</div>
           <div class="stat-value">{{ licenses.filter(l=>l.tier==='enterprise').length }}</div>
         </div>
       </div>
@@ -619,13 +619,13 @@
       <!-- Lizenz-Tabelle -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-key" style="margin-right:8px;color:var(--accent)"></i>Ausgestellte Lizenzen</span>
+          <span class="card-title"><i class="ti ti-key" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Ausgestellte Lizenzen') }}</span>
           <div style="display:flex;gap:8px">
-            <button class="icon-btn" @click="loadLicenses" :disabled="licLoading" title="Aktualisieren">
+            <button class="icon-btn" @click="loadLicenses" :disabled="licLoading" :title="tr('Aktualisieren')">
               <i class="ti" :class="licLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
             </button>
             <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" @click="showCreateLic=true">
-              <i class="ti ti-plus"></i> Neue Lizenz
+              <i class="ti ti-plus"></i> {{ tr('Neue Lizenz') }}
             </button>
           </div>
         </div>
@@ -635,17 +635,17 @@
           </div>
           <div v-else-if="!licenses.length" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px">
             <i class="ti ti-key-off" style="font-size:32px;display:block;margin-bottom:8px"></i>
-            Noch keine Lizenzen ausgestellt
+            {{ tr('Noch keine Lizenzen ausgestellt') }}
           </div>
           <table v-else class="data-table">
             <thead>
               <tr>
-                <th>Lizenz-Key</th>
-                <th>E-Mail</th>
-                <th>Tier</th>
-                <th>Status</th>
-                <th>Gültig bis</th>
-                <th>Erstellt</th>
+                <th>{{ tr('Lizenz-Key') }}</th>
+                <th>{{ tr('E-Mail') }}</th>
+                <th>{{ tr('Tier') }}</th>
+                <th>{{ tr('Status') }}</th>
+                <th>{{ tr('Gültig bis') }}</th>
+                <th>{{ tr('Erstellt') }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -654,7 +654,7 @@
                 <td>
                   <div style="display:flex;align-items:center;gap:8px">
                     <code style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent)">{{ lic.licenseKey }}</code>
-                    <button @click="copyKey(lic.licenseKey)" class="icon-btn" style="width:20px;height:20px;font-size:11px" title="Kopieren">
+                    <button @click="copyKey(lic.licenseKey)" class="icon-btn" style="width:20px;height:20px;font-size:11px" :title="tr('Kopieren')">
                       <i class="ti ti-copy"></i>
                     </button>
                   </div>
@@ -678,7 +678,7 @@
                       :style="lic.status==='active' ? 'color:#E05C5C' : 'color:#00C853'">
                       <i class="ti" :class="lic.status==='active' ? 'ti-ban' : 'ti-check'"></i>
                     </button>
-                    <button @click="deleteLic(lic)" class="icon-btn" style="color:#E05C5C" title="Löschen">
+                    <button @click="deleteLic(lic)" class="icon-btn" style="color:#E05C5C" :title="tr('Löschen')">
                       <i class="ti ti-trash"></i>
                     </button>
                   </div>
@@ -693,43 +693,43 @@
       <div v-if="showCreateLic" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px">
         <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:480px;padding:28px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-            <h3 style="margin:0;font-size:16px"><i class="ti ti-key" style="color:var(--accent);margin-right:8px"></i>Neue Lizenz erstellen</h3>
+            <h3 style="margin:0;font-size:16px"><i class="ti ti-key" style="color:var(--accent);margin-right:8px"></i>{{ tr('Neue Lizenz erstellen') }}</h3>
             <button class="icon-btn" @click="showCreateLic=false"><i class="ti ti-x"></i></button>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div class="auth-field">
-              <label>Kunden-E-Mail *</label>
-              <input v-model="newLic.customerEmail" type="email" placeholder="kunde@firma.de" />
+              <label>{{ tr('Kunden-E-Mail *') }}</label>
+              <input v-model="newLic.customerEmail" type="email" :placeholder="tr('kunde@firma.de')" />
             </div>
             <div class="auth-field">
-              <label>Lizenz-Tier</label>
+              <label>{{ tr('Lizenz-Tier') }}</label>
               <select v-model="newLic.tier" class="form-select">
-                <option value="starter">Starter (CRM + Support)</option>
-                <option value="pro">Pro (alle Module)</option>
-                <option value="enterprise">Enterprise (inkl. Marketing)</option>
+                <option value="starter">{{ tr('Starter (CRM + Support)') }}</option>
+                <option value="pro">{{ tr('Pro (alle Module)') }}</option>
+                <option value="enterprise">{{ tr('Enterprise (inkl. Marketing)') }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>Gültig bis (leer = unbegrenzt)</label>
+              <label>{{ tr('Gültig bis (leer = unbegrenzt)') }}</label>
               <input v-model="newLic.validUntil" type="date" />
             </div>
             <div class="auth-field">
-              <label>Notiz (intern)</label>
-              <input v-model="newLic.note" placeholder="z.B. Testzugang, Partnerlizenz..." />
+              <label>{{ tr('Notiz (intern)') }}</label>
+              <input v-model="newLic.note" :placeholder="tr('z.B. Testzugang, Partnerlizenz...')" />
             </div>
           </div>
           <div style="display:flex;gap:10px;margin-top:20px">
             <button class="accent-btn" style="flex:1" :disabled="licCreating || !newLic.customerEmail" @click="createLicense">
-              <span v-if="licCreating"><i class="ti ti-loader-2 spin"></i> Erstelle...</span>
-              <span v-else><i class="ti ti-key"></i> Lizenz erstellen</span>
+              <span v-if="licCreating"><i class="ti ti-loader-2 spin"></i> {{ tr('Erstelle...') }}</span>
+              <span v-else><i class="ti ti-key"></i> {{ tr('Lizenz erstellen') }}</span>
             </button>
-            <button class="icon-btn" style="padding:0 16px" @click="showCreateLic=false">Abbrechen</button>
+            <button class="icon-btn" style="padding:0 16px" @click="showCreateLic=false">{{ tr('Abbrechen') }}</button>
           </div>
           <div v-if="createdKey" style="margin-top:16px;background:rgba(var(--accent-rgb),0.08);border:1px solid var(--accent);border-radius:10px;padding:16px;text-align:center">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Lizenz-Key erstellt:</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">{{ tr('Lizenz-Key erstellt:') }}</div>
             <code style="font-size:18px;font-weight:900;letter-spacing:3px;color:var(--accent)">{{ createdKey }}</code>
             <button @click="copyKey(createdKey)" class="icon-btn" style="margin-top:8px;display:block;width:100%;font-size:12px">
-              <i class="ti ti-copy"></i> Kopieren
+              <i class="ti ti-copy"></i> {{ tr('Kopieren') }}
             </button>
           </div>
         </div>
@@ -740,17 +740,17 @@
     <!-- PAYMENT -->
     <div v-if="tab === 'payment'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>Payment-Gateways</span>
+        <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Payment-Gateways') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || paymentSaving" @click="savePayment">
           <span v-if="paymentSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:24px">
 
         <!-- Gateway Auswahl -->
         <div>
-          <div class="settings-label" style="margin-bottom:12px">Aktiver Payment-Anbieter</div>
+          <div class="settings-label" style="margin-bottom:12px">{{ tr('Aktiver Payment-Anbieter') }}</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
             <div v-for="gw in gateways" :key="gw.key"
               @click="payment.activeGateway = gw.key"
@@ -767,20 +767,20 @@
           style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
             <i class="ti ti-brand-stripe" style="font-size:20px;color:#635BFF"></i>
-            <span style="font-weight:700">Stripe</span>
-            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+            <span style="font-weight:700">{{ tr('Stripe') }}</span>
+            <span class="badge badge-success" style="margin-left:4px">{{ tr('Aktiv') }}</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="auth-field">
-              <label>Secret Key <span v-if="payment.stripeSecretKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <label>{{ tr('Secret Key') }} <span v-if="payment.stripeSecretKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
               <input v-model="payment.stripeSecretKey" type="password" :placeholder="payment.stripeSecretKeyConfigured ? 'Unverändert lassen zum Beibehalten' : 'sk_live_...'" />
             </div>
             <div class="auth-field">
-              <label>Publishable Key</label>
-              <input v-model="payment.stripePublishableKey" placeholder="pk_live_..." />
+              <label>{{ tr('Publishable Key') }}</label>
+              <input v-model="payment.stripePublishableKey" :placeholder="tr('pk_live_...')" />
             </div>
             <div class="auth-field">
-              <label>Webhook Secret <span v-if="payment.stripeWebhookSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <label>{{ tr('Webhook Secret') }} <span v-if="payment.stripeWebhookSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
               <input v-model="payment.stripeWebhookSecret" type="password" :placeholder="payment.stripeWebhookSecretConfigured ? 'Unverändert lassen zum Beibehalten' : 'whsec_...'" />
             </div>
           </div>
@@ -791,26 +791,26 @@
           style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
             <i class="ti ti-brand-paypal" style="font-size:20px;color:#003087"></i>
-            <span style="font-weight:700">PayPal</span>
-            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+            <span style="font-weight:700">{{ tr('PayPal') }}</span>
+            <span class="badge badge-success" style="margin-left:4px">{{ tr('Aktiv') }}</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="auth-field">
-              <label>Client ID</label>
-              <input v-model="payment.paypalClientId" placeholder="AXxx..." />
+              <label>{{ tr('Client ID') }}</label>
+              <input v-model="payment.paypalClientId" :placeholder="tr('AXxx...')" />
             </div>
             <div class="auth-field">
-              <label>Secret <span v-if="payment.paypalSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <label>{{ tr('Secret') }} <span v-if="payment.paypalSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
               <input v-model="payment.paypalSecret" type="password" :placeholder="payment.paypalSecretConfigured ? 'Unverändert lassen zum Beibehalten' : 'EXxx...'" />
             </div>
             <div class="auth-field" style="grid-column:span 2">
-              <label>Modus</label>
+              <label>{{ tr('Modus') }}</label>
               <div style="display:flex;gap:10px;margin-top:6px">
                 <button class="theme-opt" :class="{ active: payment.paypalSandbox }" @click="payment.paypalSandbox=true">
-                  <i class="ti ti-test-pipe"></i> Sandbox
+                  <i class="ti ti-test-pipe"></i> {{ tr('Sandbox') }}
                 </button>
                 <button class="theme-opt" :class="{ active: !payment.paypalSandbox }" @click="payment.paypalSandbox=false">
-                  <i class="ti ti-world"></i> Live
+                  <i class="ti ti-world"></i> {{ tr('Live') }}
                 </button>
               </div>
             </div>
@@ -822,11 +822,11 @@
           style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
             <i class="ti ti-credit-card" style="font-size:20px;color:#FF6600"></i>
-            <span style="font-weight:700">Mollie</span>
-            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+            <span style="font-weight:700">{{ tr('Mollie') }}</span>
+            <span class="badge badge-success" style="margin-left:4px">{{ tr('Aktiv') }}</span>
           </div>
           <div class="auth-field" style="max-width:400px">
-            <label>API Key <span v-if="payment.mollieApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+            <label>{{ tr('API Key') }} <span v-if="payment.mollieApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
             <input v-model="payment.mollieApiKey" type="password" :placeholder="payment.mollieApiKeyConfigured ? 'Unverändert lassen zum Beibehalten' : 'live_xxx oder test_xxx'" />
           </div>
         </div>
@@ -836,20 +836,20 @@
           style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:20px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
             <i class="ti ti-plug" style="font-size:20px;color:var(--accent)"></i>
-            <span style="font-weight:700">Custom Gateway</span>
-            <span class="badge badge-success" style="margin-left:4px">Aktiv</span>
+            <span style="font-weight:700">{{ tr('Custom Gateway') }}</span>
+            <span class="badge badge-success" style="margin-left:4px">{{ tr('Aktiv') }}</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="auth-field">
-              <label>Anbieter-Name</label>
-              <input v-model="payment.customName" placeholder="z.B. Klarna, Adyen..." />
+              <label>{{ tr('Anbieter-Name') }}</label>
+              <input v-model="payment.customName" :placeholder="tr('z.B. Klarna, Adyen...')" />
             </div>
             <div class="auth-field">
-              <label>API URL</label>
-              <input v-model="payment.customApiUrl" placeholder="https://api.example.com/v1" />
+              <label>{{ tr('API URL') }}</label>
+              <input v-model="payment.customApiUrl" :placeholder="tr('https://api.example.com/v1')" />
             </div>
             <div class="auth-field">
-              <label>API Key <span v-if="payment.customApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+              <label>{{ tr('API Key') }} <span v-if="payment.customApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
               <input v-model="payment.customApiKey" type="password" :placeholder="payment.customApiKeyConfigured ? 'Unverändert lassen zum Beibehalten' : '...'" />
             </div>
           </div>
@@ -863,24 +863,24 @@
     <!-- KONTO -->
     <div v-if="tab === 'account'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-user-circle" style="margin-right:8px;color:var(--accent)"></i>Konto</span>
+        <span class="card-title"><i class="ti ti-user-circle" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Konto') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || accountSaving" @click="saveAccount">
           <span v-if="accountSaving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-width:480px">
         <div class="auth-field">
-          <label>Name</label>
-          <input v-model="accountForm.name" placeholder="Dein Name" :disabled="isDemo" />
+          <label>{{ tr('Name') }}</label>
+          <input v-model="accountForm.name" :placeholder="tr('Dein Name')" :disabled="isDemo" />
         </div>
         <div class="auth-field">
-          <label>E-Mail</label>
+          <label>{{ tr('E-Mail') }}</label>
           <input :value="userEmail" disabled style="opacity:.6;cursor:not-allowed" />
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">E-Mail kann nicht geändert werden</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ tr('E-Mail kann nicht geändert werden') }}</div>
         </div>
         <div class="auth-field">
-          <label>Rolle</label>
+          <label>{{ tr('Rolle') }}</label>
           <input value="Administrator" disabled style="opacity:.6;cursor:not-allowed" />
         </div>
       </div>
@@ -891,7 +891,7 @@
       <!-- Aktueller Plan -->
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-rosette" style="margin-right:8px;color:var(--accent)"></i>Aktueller Plan</span>
+          <span class="card-title"><i class="ti ti-rosette" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Aktueller Plan') }}</span>
         </div>
         <div class="card-body">
           <div v-if="store.license" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -900,48 +900,48 @@
               <div style="font-size:13px;color:var(--text-muted);margin-top:2px">{{ TIER_PRICES[store.license.tier] ? `€${TIER_PRICES[store.license.tier]}/Monat` : '' }}</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
-              <div style="font-size:12px;color:var(--text-muted)">Lizenz-Key</div>
+              <div style="font-size:12px;color:var(--text-muted)">{{ tr('Lizenz-Key') }}</div>
               <code style="font-size:13px;font-weight:700;color:var(--accent);letter-spacing:2px">{{ store.license.licenseKey }}</code>
             </div>
             <span style="padding:4px 14px;background:#22c55e18;border:1px solid #22c55e44;border-radius:20px;font-size:12px;font-weight:600;color:#22c55e">
-              <i class="ti ti-check"></i> Aktiv
+              <i class="ti ti-check"></i> {{ tr('Aktiv') }}
             </span>
           </div>
-          <div v-else style="color:var(--text-muted);font-size:13px">Keine aktive Lizenz gefunden.</div>
+          <div v-else style="color:var(--text-muted);font-size:13px">{{ tr('Keine aktive Lizenz gefunden.') }}</div>
         </div>
       </div>
 
       <!-- Stripe Portal Aktionen -->
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>Zahlung & Abonnement</span>
+          <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Zahlung & Abonnement') }}</span>
         </div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:10px;max-width:500px">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
             <div>
-              <div style="font-size:13px;font-weight:600">Zahlungsart ändern</div>
-              <div style="font-size:11px;color:var(--text-muted)">Kreditkarte, SEPA-Lastschrift usw.</div>
+              <div style="font-size:13px;font-weight:600">{{ tr('Zahlungsart ändern') }}</div>
+              <div style="font-size:11px;color:var(--text-muted)">{{ tr('Kreditkarte, SEPA-Lastschrift usw.') }}</div>
             </div>
             <button class="accent-btn" style="height:30px;font-size:12px;padding:0 14px" :disabled="isDemo || billingPortalLoading" @click="openBillingPortal('payment')">
-              <i class="ti ti-external-link" style="margin-right:4px"></i> Ändern
+              <i class="ti ti-external-link" style="margin-right:4px"></i> {{ tr('Ändern') }}
             </button>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
             <div>
-              <div style="font-size:13px;font-weight:600">Rechnungshistorie</div>
-              <div style="font-size:11px;color:var(--text-muted)">Alle Belege als PDF herunterladen</div>
+              <div style="font-size:13px;font-weight:600">{{ tr('Rechnungshistorie') }}</div>
+              <div style="font-size:11px;color:var(--text-muted)">{{ tr('Alle Belege als PDF herunterladen') }}</div>
             </div>
             <button class="accent-btn" style="height:30px;font-size:12px;padding:0 14px" :disabled="isDemo || billingPortalLoading" @click="openBillingPortal('invoices')">
-              <i class="ti ti-external-link" style="margin-right:4px"></i> Anzeigen
+              <i class="ti ti-external-link" style="margin-right:4px"></i> {{ tr('Anzeigen') }}
             </button>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
             <div>
-              <div style="font-size:13px;font-weight:600">Abo verwalten / kündigen</div>
-              <div style="font-size:11px;color:var(--text-muted)">Plan wechseln oder Abonnement beenden</div>
+              <div style="font-size:13px;font-weight:600">{{ tr('Abo verwalten / kündigen') }}</div>
+              <div style="font-size:11px;color:var(--text-muted)">{{ tr('Plan wechseln oder Abonnement beenden') }}</div>
             </div>
             <button class="btn-secondary" style="height:30px;font-size:12px;padding:0 14px" :disabled="isDemo || billingPortalLoading" @click="openBillingPortal('subscription')">
-              <i class="ti ti-settings" style="margin-right:4px"></i> Verwalten
+              <i class="ti ti-settings" style="margin-right:4px"></i> {{ tr('Verwalten') }}
             </button>
           </div>
           <div v-if="billingPortalError" style="font-size:12px;color:#E05C5C;padding:8px 12px;background:#E05C5C18;border-radius:8px">
@@ -955,9 +955,9 @@
       <!-- Module Übersicht -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>Freigeschaltete Module</span>
+          <span class="card-title"><i class="ti ti-puzzle" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Freigeschaltete Module') }}</span>
           <NuxtLink to="/store" style="font-size:12px;color:var(--accent);text-decoration:none">
-            <i class="ti ti-building-store" style="margin-right:4px"></i>Modul-Store
+            <i class="ti ti-building-store" style="margin-right:4px"></i>{{ tr('Modul-Store') }}
           </NuxtLink>
         </div>
         <div class="card-body">
@@ -966,7 +966,7 @@
               style="padding:4px 12px;background:var(--accent)18;border:1px solid var(--accent)44;border-radius:20px;font-size:12px;font-weight:500;color:var(--accent)">
               <i class="ti ti-check" style="margin-right:4px"></i>{{ mod }}
             </span>
-            <span v-if="!store.licenseModules?.length" style="font-size:13px;color:var(--text-muted)">Keine Module gefunden</span>
+            <span v-if="!store.licenseModules?.length" style="font-size:13px;color:var(--text-muted)">{{ tr('Keine Module gefunden') }}</span>
           </div>
         </div>
       </div>
@@ -975,12 +975,12 @@
     <!-- INFRASTRUKTUR -->
     <div v-if="tab === 'navbar'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-navigation" style="margin-right:8px;color:var(--accent)"></i>Navigation</span>
-        <span style="font-size:12px;color:var(--text-muted)">Reihenfolge per Drag & Drop ändern</span>
+        <span class="card-title"><i class="ti ti-navigation" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Navigation') }}</span>
+        <span style="font-size:12px;color:var(--text-muted)">{{ tr('Reihenfolge per Drag & Drop ändern') }}</span>
       </div>
       <div class="card-body">
         <div v-if="!navPages.length" style="color:var(--text-muted);font-size:13px;padding:20px 0">
-          Noch keine Seiten in der Navigation.
+          {{ tr('Noch keine Seiten in der Navigation.') }}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <div v-for="(p, idx) in navPages" :key="p.pageId"
@@ -1018,10 +1018,10 @@
   <div v-if="tab === 'video'" style="display:flex;flex-direction:column;gap:16px;max-width:860px">
     <div class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-video" style="margin-right:8px;color:var(--accent)"></i>Video-Termine</span>
+        <span class="card-title"><i class="ti ti-video" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Video-Termine') }}</span>
       </div>
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">
-        Lege fest, wie deine Video-Termine stattfinden. Jede Videobuchung bekommt automatisch einen Meeting-Link.
+        {{ tr('Lege fest, wie deine Video-Termine stattfinden. Jede Videobuchung bekommt automatisch einen Meeting-Link.') }}
       </div>
     </div>
 
@@ -1030,11 +1030,11 @@
         <div style="display:flex;align-items:center;gap:12px">
           <div class="vid-icon" style="background:#2d8cff1a;color:#2d8cff"><i class="ti ti-video"></i></div>
           <div>
-            <div style="font-weight:700;font-size:14px">Zoom</div>
-            <div style="font-size:12px;color:var(--text-muted)">Meetings direkt über dein Zoom-Konto</div>
+            <div style="font-weight:700;font-size:14px">{{ tr('Zoom') }}</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Meetings direkt über dein Zoom-Konto') }}</div>
           </div>
         </div>
-        <span class="badge">Bald verfügbar</span>
+        <span class="badge">{{ tr('Bald verfügbar') }}</span>
       </div>
     </div>
 
@@ -1043,11 +1043,11 @@
         <div style="display:flex;align-items:center;gap:12px">
           <div class="vid-icon" style="background:#5b5fc71a;color:#5b5fc7"><i class="ti ti-brand-teams"></i></div>
           <div>
-            <div style="font-weight:700;font-size:14px">Microsoft Teams</div>
-            <div style="font-size:12px;color:var(--text-muted)">Meetings über Microsoft 365</div>
+            <div style="font-weight:700;font-size:14px">{{ tr('Microsoft Teams') }}</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Meetings über Microsoft 365') }}</div>
           </div>
         </div>
-        <span class="badge">Bald verfügbar</span>
+        <span class="badge">{{ tr('Bald verfügbar') }}</span>
       </div>
     </div>
 
@@ -1056,32 +1056,32 @@
         <div style="display:flex;align-items:center;gap:12px">
           <div class="vid-icon" style="background:#1d76ba1a;color:#1d76ba"><i class="ti ti-video"></i></div>
           <div>
-            <div style="font-weight:700;font-size:14px">Jitsi Meet</div>
-            <div style="font-size:12px;color:var(--text-muted)">Automatischer Video-Link je Termin, kostenlos, ohne Konto</div>
+            <div style="font-weight:700;font-size:14px">{{ tr('Jitsi Meet') }}</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Automatischer Video-Link je Termin, kostenlos, ohne Konto') }}</div>
           </div>
         </div>
-        <span v-if="video.autoJitsi" class="badge badge-success">Aktiv</span>
-        <span v-else class="badge">Aus</span>
+        <span v-if="video.autoJitsi" class="badge badge-success">{{ tr('Aktiv') }}</span>
+        <span v-else class="badge">{{ tr('Aus') }}</span>
       </div>
       <div style="font-size:12px;color:var(--text-muted)">
-        Plexora bildet für jede Videobuchung einen eigenen Raum-Link (z. B. meet.jit.si/Plexora-…). Der Kunde klickt ihn in der Bestätigungsmail und ist im Browser dabei. Es läuft nichts auf deinem Server: das Video selbst betreibt Jitsi. Der Link steht auch in der Erinnerung und im Terminplan.
+        {{ tr('Plexora bildet für jede Videobuchung einen eigenen Raum-Link (z. B. meet.jit.si/Plexora-…). Der Kunde klickt ihn in der Bestätigungsmail und ist im Browser dabei. Es läuft nichts auf deinem Server: das Video selbst betreibt Jitsi. Der Link steht auch in der Erinnerung und im Terminplan.') }}
       </div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="video.autoJitsi" /> Für Video-Termine automatisch einen Jitsi-Raum anlegen</label>
-      <div class="auth-field" style="margin:0"><label>Eigener Jitsi-Server (optional)</label><input v-model="video.jitsiHost" placeholder="meet.jit.si (Standard)" style="max-width:360px" /></div>
-      <div style="font-size:11px;color:var(--text-muted)">Nur wenn du Jitsi selbst auf einem eigenen Server betreibst: den Servernamen eintragen, z. B. meet.paeffgen-it.de (ohne https://). Leer = meet.jit.si.</div>
-      <div style="display:flex;align-items:center;gap:10px"><button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink('jitsi')"><i class="ti" :class="video.saving && video.msgFor === 'jitsi' ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="video.autoJitsi" /> {{ tr('Für Video-Termine automatisch einen Jitsi-Raum anlegen') }}</label>
+      <div class="auth-field" style="margin:0"><label>{{ tr('Eigener Jitsi-Server (optional)') }}</label><input v-model="video.jitsiHost" :placeholder="tr('meet.jit.si (Standard)')" style="max-width:360px" /></div>
+      <div style="font-size:11px;color:var(--text-muted)">{{ tr('Nur wenn du Jitsi selbst auf einem eigenen Server betreibst: den Servernamen eintragen, z. B. meet.paeffgen-it.de (ohne https://). Leer = meet.jit.si.') }}</div>
+      <div style="display:flex;align-items:center;gap:10px"><button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink('jitsi')"><i class="ti" :class="video.saving && video.msgFor === 'jitsi' ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}</button>
         <span v-if="video.msgFor === 'jitsi' && video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</span></div>
     </div>
 
     <div class="card" style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-weight:700;font-size:14px">Standard-Videolink</div>
+      <div style="font-weight:700;font-size:14px">{{ tr('Standard-Videolink') }}</div>
       <div style="font-size:12px;color:var(--text-muted)">
-        Dein fester Raum, z.B. ein Zoom-Persönlicher-Link oder Jitsi-Raum. Wird in Bestätigungsmails verwendet, wenn kein eigener Jitsi-Raum angelegt wird.
+        {{ tr('Dein fester Raum, z.B. ein Zoom-Persönlicher-Link oder Jitsi-Raum. Wird in Bestätigungsmails verwendet, wenn kein eigener Jitsi-Raum angelegt wird.') }}
       </div>
       <div style="display:flex;gap:8px">
-        <input v-model="video.fallbackLink" placeholder="https://..." style="flex:1" />
+        <input v-model="video.fallbackLink" :placeholder="tr('https://...')" style="flex:1" />
         <button class="accent-btn" style="height:36px;font-size:12px" :disabled="video.saving" @click="saveFallbackLink('link')">
-          <i class="ti" :class="video.saving && video.msgFor === 'link' ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+          <i class="ti" :class="video.saving && video.msgFor === 'link' ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}
         </button>
       </div>
       <div v-if="video.msgFor === 'link' && video.msg" style="font-size:12px;color:var(--text-muted)">{{ video.msg }}</div>
@@ -1091,17 +1091,17 @@
   <!-- TEAM -->
     <div v-if="tab === 'team'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-users" style="margin-right:8px;color:var(--accent)"></i>Team</span>
+        <span class="card-title"><i class="ti ti-users" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Team') }}</span>
       </div>
       <div class="card-body">
-        <div style="margin-bottom:16px;padding:10px 14px;border-radius:10px;background:var(--bg-elevated);font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span><i class="ti ti-layout-dashboard" style="color:var(--accent)"></i> Komfortabler: die <strong>Teamübersicht</strong> mit Rollen-Tabelle gibt es jetzt auch im Menü.</span><NuxtLink to="/team" class="accent-btn" style="text-decoration:none;height:30px;font-size:12px;display:inline-flex;align-items:center;padding:0 12px">Zur Teamübersicht</NuxtLink></div>
+        <div style="margin-bottom:16px;padding:10px 14px;border-radius:10px;background:var(--bg-elevated);font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span><i class="ti ti-layout-dashboard" style="color:var(--accent)"></i> {{ tr('Komfortabler: die') }} <strong>{{ tr('Teamübersicht') }}</strong> {{ tr('mit Rollen-Tabelle gibt es jetzt auch im Menü.') }}</span><NuxtLink to="/team" class="accent-btn" style="text-decoration:none;height:30px;font-size:12px;display:inline-flex;align-items:center;padding:0 12px">{{ tr('Zur Teamübersicht') }}</NuxtLink></div>
 
         <!-- Invite Form -->
         <div style="display:flex;gap:10px;margin-bottom:24px" v-if="!isDemo">
-          <input v-model="teamInviteEmail" placeholder="E-Mail des neuen Mitglieds" style="flex:1" @keydown.enter="inviteTeamMember" />
+          <input v-model="teamInviteEmail" :placeholder="tr('E-Mail des neuen Mitglieds')" style="flex:1" @keydown.enter="inviteTeamMember" />
           <select v-model="teamInviteRole" style="width:120px;padding:0 10px;height:36px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-primary)">
-            <option value="member">Mitglied</option>
-            <option value="admin">Admin</option>
+            <option value="member">{{ tr('Mitglied') }}</option>
+            <option value="admin">{{ tr('Admin') }}</option>
           </select>
           <button class="accent-btn" :disabled="teamInviting || !teamInviteEmail" @click="inviteTeamMember">
             <i class="ti" :class="teamInviting ? 'ti-loader-2 spin' : 'ti-send'"></i>
@@ -1110,12 +1110,12 @@
         </div>
 
         <div v-if="!isDemo" style="font-size:12px;color:var(--text-muted);margin:-12px 0 20px;line-height:1.5">
-          <strong>Mitglied:</strong> CRM, Support, Projekte, Termine, Marketing und Formulare. <strong>Admin:</strong> alles außer Team, Sicherung, Abrechnung und Zahlungs-/KI-Schlüssel.
+          <strong>{{ tr('Mitglied:') }}</strong> {{ tr('CRM, Support, Projekte, Termine, Marketing und Formulare.') }} <strong>{{ tr('Admin:') }}</strong> {{ tr('alles außer Team, Sicherung, Abrechnung und Zahlungs-/KI-Schlüssel.') }}
         </div>
 
         <!-- Member List -->
-        <div v-if="teamLoading" style="color:var(--text-muted);font-size:13px">Lädt...</div>
-        <div v-else-if="teamMembers.length === 0" style="color:var(--text-muted);font-size:13px">Noch keine Teammitglieder.</div>
+        <div v-if="teamLoading" style="color:var(--text-muted);font-size:13px">{{ tr('Lädt...') }}</div>
+        <div v-else-if="teamMembers.length === 0" style="color:var(--text-muted);font-size:13px">{{ tr('Noch keine Teammitglieder.') }}</div>
         <div v-else style="display:flex;flex-direction:column;gap:8px">
           <div v-for="m in teamMembers" :key="m.memberEmail"
             style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
@@ -1132,10 +1132,10 @@
               <span :style="m.status === 'active' ? 'font-size:11px;padding:3px 8px;border-radius:5px;background:#00C85322;color:#00C853' : 'font-size:11px;padding:3px 8px;border-radius:5px;background:#F0B42822;color:#F0B428'">
                 {{ m.status === 'active' ? 'Aktiv' : (m.inviteExpired ? 'Abgelaufen' : 'Eingeladen') }}
               </span>
-              <select v-if="m.memberEmail !== userEmail && m.status === 'active' && !isDemo" :value="m.role === 'admin' ? 'admin' : 'member'" title="Rolle ändern"
+              <select v-if="m.memberEmail !== userEmail && m.status === 'active' && !isDemo" :value="m.role === 'admin' ? 'admin' : 'member'" :title="tr('Rolle ändern')"
                 style="height:28px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:12px" @change="changeMemberRole(m.memberEmail, ($event.target as HTMLSelectElement).value)">
-                <option value="member">Mitglied</option>
-                <option value="admin">Admin</option>
+                <option value="member">{{ tr('Mitglied') }}</option>
+                <option value="admin">{{ tr('Admin') }}</option>
               </select>
               <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" :title="m.status === 'invited' ? 'Einladung zurückziehen' : 'Entfernen'">
                 <i class="ti ti-trash"></i>
@@ -1150,23 +1150,22 @@
     <!-- ── TESTIMONIALS (Plexora-Landingpage, global) ── -->
     <div v-if="tab === 'testimonials'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-quote" style="margin-right:8px;color:var(--accent)"></i>Testimonials (Landingpage)</span>
+        <span class="card-title"><i class="ti ti-quote" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Testimonials (Landingpage)') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddTestimonial">
-          <i class="ti ti-plus"></i> Neues Testimonial
+          <i class="ti ti-plus"></i> {{ tr('Neues Testimonial') }}
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:12px;max-width:760px">
         <div style="font-size:12px;color:var(--text-muted)">
-          Erscheinen im Testimonial-Slider auf der öffentlichen Plexora-Startseite. Leer lassen,
-          bis echte Kundenstimmen vorliegen — die Sektion wird dann automatisch ausgeblendet.
+          {{ tr('Erscheinen im Testimonial-Slider auf der öffentlichen Plexora-Startseite. Leer lassen, bis echte Kundenstimmen vorliegen — die Sektion wird dann automatisch ausgeblendet.') }}
         </div>
         <div v-if="!testimonials.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
-          Noch keine Testimonials hinterlegt.
+          {{ tr('Noch keine Testimonials hinterlegt.') }}
         </div>
         <div v-for="(item, i) in testimonials" :key="i" style="padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px"
           :style="item.enabled === false ? 'opacity:.55' : ''">
           <div style="display:flex;gap:8px;align-items:center">
-            <input v-model="item.name" class="field-input" placeholder="Name (z.B. Markus T.)" style="flex:1" />
+            <input v-model="item.name" class="field-input" :placeholder="tr('Name (z.B. Markus T.)')" style="flex:1" />
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" :title="item.enabled === false ? 'Deaktiviert' : 'Aktiv'">
               <button type="button" @click="item.enabled = item.enabled === false"
                 style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
@@ -1177,138 +1176,138 @@
             </label>
             <button class="icon-btn" style="color:var(--danger)" @click="removeTestimonial(i)"><i class="ti ti-trash"></i></button>
           </div>
-          <input v-model="item.role" class="field-input" placeholder="Rolle · Firma (z.B. CTO · SaaS-Startup, München)" />
-          <textarea v-model="item.quote" class="field-input" rows="2" placeholder="Zitat (Deutsch)"></textarea>
+          <input v-model="item.role" class="field-input" :placeholder="tr('Rolle · Firma (z.B. CTO · SaaS-Startup, München)')" />
+          <textarea v-model="item.quote" class="field-input" rows="2" :placeholder="tr('Zitat (Deutsch)')"></textarea>
           <details style="font-size:12px">
-            <summary style="cursor:pointer;color:var(--text-muted)">Englische Übersetzung (optional)</summary>
+            <summary style="cursor:pointer;color:var(--text-muted)">{{ tr('Englische Übersetzung (optional)') }}</summary>
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-              <input v-model="item.roleEn" class="field-input" placeholder="Role · Company (English)" />
-              <textarea v-model="item.quoteEn" class="field-input" rows="2" placeholder="Quote (English)"></textarea>
+              <input v-model="item.roleEn" class="field-input" :placeholder="tr('Role · Company (English)')" />
+              <textarea v-model="item.quoteEn" class="field-input" rows="2" :placeholder="tr('Quote (English)')"></textarea>
             </div>
           </details>
         </div>
         <button class="accent-btn" style="align-self:flex-start" :disabled="savingTestimonials || isDemo" @click="saveTestimonials">
-          <i class="ti" :class="savingTestimonials ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>Speichern
+          <i class="ti" :class="savingTestimonials ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>{{ tr('Speichern') }}
         </button>
       </div>
     </div>
 
   <!-- ── STARTSEITE (Design der öffentlichen Plexora-Seite, global) ── -->
   <div v-if="tab === 'landing'" class="card">
-    <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Startseite (Design)</span></div>
+    <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Startseite (Design)') }}</span></div>
     <div class="card-body" style="display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:24px;align-items:start">
       <div style="display:flex;flex-direction:column;gap:14px">
-        <div style="font-size:12px;color:var(--text-muted)">Farben der öffentlichen Plexora-Startseite (www.plexora.eu). Gilt sofort für alle Besucher, sobald du speicherst.</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('Farben der öffentlichen Plexora-Startseite (www.plexora.eu). Gilt sofort für alle Besucher, sobald du speicherst.') }}</div>
         <div>
-          <div class="lt-label">Design</div>
+          <div class="lt-label">{{ tr('Design') }}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button v-for="m in LT_MODES" :key="m.key" class="lt-mode" :class="{ on: lt.mode === m.key }" @click="lt.mode = m.key as any"><i class="ti" :class="m.icon"></i> {{ m.label }}</button>
           </div>
-          <div v-if="lt.mode !== 'custom'" style="font-size:11px;color:var(--text-muted);margin-top:6px">Besucher dürfen zwischen Hell und Dunkel umschalten. Eigene Farben sind fest.</div>
+          <div v-if="lt.mode !== 'custom'" style="font-size:11px;color:var(--text-muted);margin-top:6px">{{ tr('Besucher dürfen zwischen Hell und Dunkel umschalten. Eigene Farben sind fest.') }}</div>
         </div>
         <template v-if="lt.mode === 'custom'">
           <div>
-            <div class="lt-label">Vorlagen</div>
+            <div class="lt-label">{{ tr('Vorlagen') }}</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="pr in LANDING_PRESETS.filter(x => x.theme.mode === 'custom')" :key="pr.key" class="lt-chip" @click="applyLandingPreset(pr.theme)">{{ pr.label }}</button></div>
           </div>
           <div>
-            <div class="lt-label">Hintergrund (Display)</div>
-            <div style="display:flex;gap:8px;align-items:center"><input type="color" v-model="lt.bg" class="lt-color" /><input v-model="lt.bg" maxlength="7" style="width:96px;font-family:monospace" /><span style="font-size:12px;color:var(--text-muted)">ergibt {{ ltResult?.info.bg }}</span></div>
-            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Deckkraft</span><input type="range" min="0" max="100" v-model.number="lt.bgOpacity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.bgOpacity }} %</strong></div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Die Seite liegt auf Weiß: 75 % Schwarz ergibt ein dunkles Grau, 100 % echtes Schwarz.</div>
+            <div class="lt-label">{{ tr('Hintergrund (Display)') }}</div>
+            <div style="display:flex;gap:8px;align-items:center"><input type="color" v-model="lt.bg" class="lt-color" /><input v-model="lt.bg" maxlength="7" style="width:96px;font-family:monospace" /><span style="font-size:12px;color:var(--text-muted)">{{ tr('ergibt') }} {{ ltResult?.info.bg }}</span></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">{{ tr('Deckkraft') }}</span><input type="range" min="0" max="100" v-model.number="lt.bgOpacity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.bgOpacity }} %</strong></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ tr('Die Seite liegt auf Weiß: 75 % Schwarz ergibt ein dunkles Grau, 100 % echtes Schwarz.') }}</div>
           </div>
           <div>
-            <div class="lt-label">Vordergrund / Akzent</div>
-            <div style="display:flex;gap:8px;align-items:center"><input type="color" v-model="lt.accent" class="lt-color" /><input v-model="lt.accent" maxlength="7" style="width:96px;font-family:monospace" /><span style="font-size:12px;color:var(--text-muted)">Schaltflächen, Zahlen, Hervorhebungen</span></div>
+            <div class="lt-label">{{ tr('Vordergrund / Akzent') }}</div>
+            <div style="display:flex;gap:8px;align-items:center"><input type="color" v-model="lt.accent" class="lt-color" /><input v-model="lt.accent" maxlength="7" style="width:96px;font-family:monospace" /><span style="font-size:12px;color:var(--text-muted)">{{ tr('Schaltflächen, Zahlen, Hervorhebungen') }}</span></div>
           </div>
           <div>
-            <div class="lt-label">Textfarbe</div>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" :checked="!lt.text" @change="lt.text = ($event.target as HTMLInputElement).checked ? '' : (ltResult?.info.text || '#ffffff')" /> automatisch passend zum Hintergrund</label>
+            <div class="lt-label">{{ tr('Textfarbe') }}</div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" :checked="!lt.text" @change="lt.text = ($event.target as HTMLInputElement).checked ? '' : (ltResult?.info.text || '#ffffff')" /> {{ tr('automatisch passend zum Hintergrund') }}</label>
             <div v-if="lt.text" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="color" v-model="lt.text" class="lt-color" /><input v-model="lt.text" maxlength="7" style="width:96px;font-family:monospace" /></div>
           </div>
           <div v-if="ltWarnings.length" style="padding:10px 12px;border-radius:8px;background:#F0B42822;color:#8a5d00;font-size:12px;display:flex;flex-direction:column;gap:6px"><div v-for="w in ltWarnings" :key="w"><i class="ti ti-alert-triangle"></i> {{ w }}</div></div>
-          <div v-else style="font-size:12px;color:#00A844"><i class="ti ti-circle-check"></i> Lesbarkeit in Ordnung (Text {{ ltResult?.info.textContrast }}:1, Schaltflächen {{ ltResult?.info.buttonContrast }}:1)</div>
+          <div v-else style="font-size:12px;color:#00A844"><i class="ti ti-circle-check"></i> {{ tr('Lesbarkeit in Ordnung (Text') }} {{ ltResult?.info.textContrast }}{{ tr(':1, Schaltflächen') }} {{ ltResult?.info.buttonContrast }}:1)</div>
         </template>
         <div>
-          <div class="lt-label">Kennzahlen-Display (die Leiste „22 Module · 1 Login · Frankfurt · ab 49 €“)</div>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.display.on" /> als Display darstellen</label>
+          <div class="lt-label">{{ tr('Kennzahlen-Display (die Leiste „22 Module · 1 Login · Frankfurt · ab 49 €“)') }}</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.display.on" /> {{ tr('als Display darstellen') }}</label>
           <template v-if="lt.display.on">
-            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Hintergrund</span><input type="color" v-model="lt.display.bg" class="lt-color" /><input v-model="lt.display.bg" maxlength="7" style="width:96px;font-family:monospace" /></div>
-            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Deckkraft</span><input type="range" min="0" max="100" v-model.number="lt.display.bgOpacity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.display.bgOpacity }} %</strong></div>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Zahlenfarbe</span><input type="color" v-model="lt.display.fg" class="lt-color" /><input v-model="lt.display.fg" maxlength="7" style="width:96px;font-family:monospace" /></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">{{ tr('Hintergrund') }}</span><input type="color" v-model="lt.display.bg" class="lt-color" /><input v-model="lt.display.bg" maxlength="7" style="width:96px;font-family:monospace" /></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">{{ tr('Deckkraft') }}</span><input type="range" min="0" max="100" v-model.number="lt.display.bgOpacity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.display.bgOpacity }} %</strong></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">{{ tr('Zahlenfarbe') }}</span><input type="color" v-model="lt.display.fg" class="lt-color" /><input v-model="lt.display.fg" maxlength="7" style="width:96px;font-family:monospace" /></div>
             <div class="lt-disp" :style="ltDisp.vars"><div v-for="c in [['22','Module'],['1','Login'],['Frankfurt','Hosting'],['ab 49 €','Preis']]" :key="c[0]" style="text-align:center"><div class="lt-disp-n">{{ c[0] }}</div><div class="lt-disp-l">{{ c[1] }}</div></div></div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ist die Zahlenfarbe auf dem Hintergrund zu dunkel, wird sie automatisch aufgehellt (zurzeit {{ ltDisp.fg }}, Kontrast {{ ltDisp.contrast }}:1).</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ tr('Ist die Zahlenfarbe auf dem Hintergrund zu dunkel, wird sie automatisch aufgehellt (zurzeit') }} {{ ltDisp.fg }}{{ tr(', Kontrast') }} {{ ltDisp.contrast }}:1).</div>
           </template>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
-          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display }, wall: { ...lt.wall, images: [...lt.wall.images] } })"><i class="ti ti-restore"></i> Standard (freundlich hell)</button>
-          <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Startseite öffnen</a>
+          <button class="accent-btn" :disabled="ltSaving || isDemo" @click="saveLanding"><i class="ti" :class="ltSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}</button>
+          <button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="Object.assign(lt, { ...DEFAULT_LANDING_THEME, mode: 'light', display: { ...lt.display }, wall: { ...lt.wall, images: [...lt.wall.images] } })"><i class="ti ti-restore"></i> {{ tr('Standard (freundlich hell)') }}</button>
+          <a class="icon-btn" style="width:auto;padding:0 12px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> {{ tr('Startseite öffnen') }}</a>
         </div>
       </div>
 
       <!-- Live-Vorschau: dieselbe Farbrechnung wie auf der Startseite -->
       <div>
-        <div class="lt-label">Vorschau</div>
+        <div class="lt-label">{{ tr('Vorschau') }}</div>
         <div class="lt-prev" :style="ltPreviewVars">
-          <div class="lt-nav"><strong>Plexo<span style="color:var(--accent)">ra</span></strong><span style="flex:1"></span><span class="lt-pill">Anmelden</span><span class="lt-btn">Preise</span></div>
-          <div style="padding:22px 18px 8px"><div style="font-size:11px;letter-spacing:2px;color:var(--blue)">BUSINESS PLATFORM</div>
-            <div style="font-size:30px;font-weight:800;line-height:1.1;margin:8px 0 4px;color:var(--text-strong)">Eine Lizenz.<br /><span style="color:var(--accent2)">Alles drin.</span></div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:14px">Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt?</div>
-            <span class="lt-btn" style="padding:9px 20px">Demo ausprobieren ↗</span> <span class="lt-pill" style="margin-left:6px">Preise ansehen</span></div>
+          <div class="lt-nav"><strong>{{ tr('Plexo') }}<span style="color:var(--accent)">{{ tr('ra') }}</span></strong><span style="flex:1"></span><span class="lt-pill">{{ tr('Anmelden') }}</span><span class="lt-btn">{{ tr('Preise') }}</span></div>
+          <div style="padding:22px 18px 8px"><div style="font-size:11px;letter-spacing:2px;color:var(--blue)">{{ tr('BUSINESS PLATFORM') }}</div>
+            <div style="font-size:30px;font-weight:800;line-height:1.1;margin:8px 0 4px;color:var(--text-strong)">{{ tr('Eine Lizenz.') }}<br /><span style="color:var(--accent2)">{{ tr('Alles drin.') }}</span></div>
+            <div style="color:var(--muted);font-size:13px;margin-bottom:14px">{{ tr('Warum 100+ Lizenzen zahlen, wenn es die eine für alles gibt?') }}</div>
+            <span class="lt-btn" style="padding:9px 20px">{{ tr('Demo ausprobieren ↗') }}</span> <span class="lt-pill" style="margin-left:6px">{{ tr('Preise ansehen') }}</span></div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px 18px">
             <div v-for="c in [['6','Module'],['1','Login'],['49 €','ab']]" :key="c[0]" class="lt-card"><div style="font-size:20px;font-weight:800;color:var(--accent2)">{{ c[0] }}</div><div style="font-size:11px;color:var(--muted)">{{ c[1] }}</div></div>
           </div>
         </div>
         <div class="lt-wall-box">
-          <div class="lt-label">Hero-Bildwand &amp; fester Demo-Knopf</div>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.wall.on" /> Bildwand im Hero zeigen (geneigte Screenshots, richten sich beim Scrollen auf)</label>
+          <div class="lt-label">{{ tr('Hero-Bildwand & fester Demo-Knopf') }}</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="lt.wall.on" /> {{ tr('Bildwand im Hero zeigen (geneigte Screenshots, richten sich beim Scrollen auf)') }}</label>
           <template v-if="lt.wall.on">
-            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">Neigung</span><input type="range" min="0" max="100" v-model.number="lt.wall.intensity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.wall.intensity }} %</strong></div>
-            <div style="font-size:11px;color:var(--text-muted);margin:4px 0 8px">0 % = flach, 100 % = stark geneigt. Auf dem Handy und bei abgeschalteter Bewegung bleibt das normale Hero-Bild.</div>
-            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Gezeigt ({{ lt.wall.images.length }} von {{ WALL_MAX }}, mindestens 4; Reihenfolge: reihum auf 4 Spalten)</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span style="font-size:12px;min-width:74px">{{ tr('Neigung') }}</span><input type="range" min="0" max="100" v-model.number="lt.wall.intensity" style="flex:1" /><strong style="min-width:42px;text-align:right;font-size:13px">{{ lt.wall.intensity }} %</strong></div>
+            <div style="font-size:11px;color:var(--text-muted);margin:4px 0 8px">{{ tr('0 % = flach, 100 % = stark geneigt. Auf dem Handy und bei abgeschalteter Bewegung bleibt das normale Hero-Bild.') }}</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">{{ tr('Gezeigt (') }}{{ lt.wall.images.length }} {{ tr('von') }} {{ WALL_MAX }}{{ tr(', mindestens 4; Reihenfolge: reihum auf 4 Spalten)') }}</div>
             <div class="lt-wall-list">
               <div v-for="(k, i) in lt.wall.images" :key="k" class="lt-wall-item">
                 <img :src="`/wall/${k}-klein.webp`" alt="" /><span>{{ wallLabel(k) }}</span>
-                <button class="icon-btn" title="Nach vorn" :disabled="i === 0" @click="wallMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
-                <button class="icon-btn" title="Nach hinten" :disabled="i === lt.wall.images.length - 1" @click="wallMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
-                <button class="icon-btn" title="Entfernen" @click="lt.wall.images.splice(i, 1)"><i class="ti ti-x"></i></button>
+                <button class="icon-btn" :title="tr('Nach vorn')" :disabled="i === 0" @click="wallMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
+                <button class="icon-btn" :title="tr('Nach hinten')" :disabled="i === lt.wall.images.length - 1" @click="wallMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
+                <button class="icon-btn" :title="tr('Entfernen')" @click="lt.wall.images.splice(i, 1)"><i class="ti ti-x"></i></button>
               </div>
             </div>
-            <div v-if="wallFree.length" style="margin-top:8px"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Weitere Bilder</div>
+            <div v-if="wallFree.length" style="margin-top:8px"><div style="font-size:12px;font-weight:600;margin-bottom:6px">{{ tr('Weitere Bilder') }}</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="im in wallFree" :key="im.key" class="lt-chip" :disabled="lt.wall.images.length >= WALL_MAX" @click="lt.wall.images.push(im.key)">+ {{ im.label }}</button></div></div>
-            <div v-if="lt.wall.images.length < 4" style="font-size:12px;color:#8a5d00;margin-top:6px"><i class="ti ti-alert-triangle"></i> Mit weniger als 4 Bildern zeigt die Startseite die Bildwand nicht.</div>
+            <div v-if="lt.wall.images.length < 4" style="font-size:12px;color:#8a5d00;margin-top:6px"><i class="ti ti-alert-triangle"></i> {{ tr('Mit weniger als 4 Bildern zeigt die Startseite die Bildwand nicht.') }}</div>
           </template>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" v-model="lt.wall.stickyCta" /> Fester „Demo starten“-Knopf (erscheint nach dem Hero am Rand)</label>
-          <input v-if="lt.wall.stickyCta" v-model="lt.wall.ctaLabel" maxlength="40" placeholder="Text des Knopfes (leer = „Demo ausprobieren“)" style="margin-top:6px;width:100%" />
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" v-model="lt.wall.stickyCta" /> {{ tr('Fester „Demo starten“-Knopf (erscheint nach dem Hero am Rand)') }}</label>
+          <input v-if="lt.wall.stickyCta" v-model="lt.wall.ctaLabel" maxlength="40" :placeholder="tr('Text des Knopfes (leer = „Demo ausprobieren“)')" style="margin-top:6px;width:100%" />
         </div>
       </div>
     </div>
   </div>
 
     <div v-if="tab === 'landing'" class="card" style="margin-top:16px">
-      <div class="card-header"><span class="card-title"><i class="ti ti-layout-grid" style="margin-right:8px;color:var(--accent)"></i>Branchen-Pakete auf der Startseite</span></div>
+      <div class="card-header"><span class="card-title"><i class="ti ti-layout-grid" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Branchen-Pakete auf der Startseite') }}</span></div>
       <div class="card-body" style="max-width:640px;display:flex;flex-direction:column;gap:12px">
-        <div style="font-size:12px;color:var(--text-muted)">Die Pakete kommen aus dem Modul-Store (Name, Preis und Text pflegst du dort). Hier wählst du, welche auf www.plexora.eu erscheinen und in welcher Reihenfolge.</div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" :checked="lp.auto" @change="setLpAuto(($event.target as HTMLInputElement).checked)" /> Alle Pakete automatisch anzeigen (neue erscheinen von selbst)</label>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('Die Pakete kommen aus dem Modul-Store (Name, Preis und Text pflegst du dort). Hier wählst du, welche auf www.plexora.eu erscheinen und in welcher Reihenfolge.') }}</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" :checked="lp.auto" @change="setLpAuto(($event.target as HTMLInputElement).checked)" /> {{ tr('Alle Pakete automatisch anzeigen (neue erscheinen von selbst)') }}</label>
         <div v-if="!lp.auto" style="display:flex;flex-direction:column;gap:6px">
           <div v-for="(k, i) in lp.shown" :key="k" class="lp-row"><i class="ti ti-grip-vertical" style="color:var(--text-muted)"></i><strong style="flex:1">{{ lpName(k) }}</strong><span style="color:var(--text-muted);font-size:12px">{{ lpPrice(k) }}</span>
-            <button class="icon-btn" :disabled="i === 0" title="nach oben" @click="lpMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
-            <button class="icon-btn" :disabled="i === lp.shown.length - 1" title="nach unten" @click="lpMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
-            <button class="icon-btn" style="color:var(--danger)" title="ausblenden" @click="lp.shown.splice(i, 1)"><i class="ti ti-eye-off"></i></button></div>
-          <div v-if="lpHidden.length" style="font-size:12px;color:var(--text-muted);margin-top:6px">Ausgeblendet (zum Anzeigen anklicken):</div>
+            <button class="icon-btn" :disabled="i === 0" :title="tr('nach oben')" @click="lpMove(i, -1)"><i class="ti ti-arrow-up"></i></button>
+            <button class="icon-btn" :disabled="i === lp.shown.length - 1" :title="tr('nach unten')" @click="lpMove(i, 1)"><i class="ti ti-arrow-down"></i></button>
+            <button class="icon-btn" style="color:var(--danger)" :title="tr('ausblenden')" @click="lp.shown.splice(i, 1)"><i class="ti ti-eye-off"></i></button></div>
+          <div v-if="lpHidden.length" style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ tr('Ausgeblendet (zum Anzeigen anklicken):') }}</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="p in lpHidden" :key="p.key" class="lt-chip" @click="lp.shown.push(p.key)"><i class="ti ti-plus"></i> {{ p.name }} · {{ eur0(p.price) }}</button></div>
-          <div v-if="!lp.shown.length" style="font-size:12px;color:#8a5d00"><i class="ti ti-alert-triangle"></i> Keine Auswahl: die Startseite zeigt dann keinen Abschnitt „Branchen-Pakete“ (ihre festen Platzhalter erscheinen nur, wenn der Abruf scheitert).</div>
+          <div v-if="!lp.shown.length" style="font-size:12px;color:#8a5d00"><i class="ti ti-alert-triangle"></i> {{ tr('Keine Auswahl: die Startseite zeigt dann keinen Abschnitt „Branchen-Pakete“ (ihre festen Platzhalter erscheinen nur, wenn der Abruf scheitert).') }}</div>
         </div>
-        <div v-else style="font-size:12px;color:var(--text-muted)">Aktuell im Store: {{ lp.available.map((p: any) => p.name).join(', ') || 'keine Pakete' }}.</div>
-        <div><button class="accent-btn" :disabled="lpSaving || isDemo" @click="saveLp"><i class="ti" :class="lpSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button></div>
+        <div v-else style="font-size:12px;color:var(--text-muted)">{{ tr('Aktuell im Store:') }} {{ lp.available.map((p: any) => p.name).join(', ') || 'keine Pakete' }}.</div>
+        <div><button class="accent-btn" :disabled="lpSaving || isDemo" @click="saveLp"><i class="ti" :class="lpSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}</button></div>
       </div>
     </div>
 
   <!-- ── WEBSITE / NEXORA ── -->
     <div v-if="tab === 'nexora'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>Website Domain</span>
+        <span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Website Domain') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px" :disabled="nexoraSaving" @click="saveNexora(userEmail)">
           <i class="ti" :class="nexoraSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
           {{ nexoraSaving ? 'Speichern...' : 'Speichern' }}
@@ -1318,35 +1317,35 @@
 
         <div v-if="!nexora" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">
           <i class="ti ti-loader-2 spin" style="font-size:20px;margin-bottom:8px;display:block"></i>
-          Lade Nexora-Konfiguration...
+          {{ tr('Lade Nexora-Konfiguration...') }}
         </div>
 
         <template v-else>
 
           <!-- Custom Domain -->
           <div>
-            <div class="settings-label">Domain deiner Webseite</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Deine Webseite läuft auf deiner eigenen Domain — keine Registrierung nötig, nur ein DNS-Eintrag.</div>
-            <input v-model="nexoraForm.customDomain" class="auth-input" placeholder="meine-firma.de" />
+            <div class="settings-label">{{ tr('Domain deiner Webseite') }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">{{ tr('Deine Webseite läuft auf deiner eigenen Domain — keine Registrierung nötig, nur ein DNS-Eintrag.') }}</div>
+            <input v-model="nexoraForm.customDomain" class="auth-input" :placeholder="tr('meine-firma.de')" />
 
             <!-- DNS Anleitung -->
             <div v-if="nexoraForm.customDomain" style="margin-top:12px;padding:14px 16px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
-              <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">DNS-Einrichtung bei deinem Domain-Anbieter</div>
+              <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">{{ tr('DNS-Einrichtung bei deinem Domain-Anbieter') }}</div>
               <div style="display:flex;gap:10px;align-items:center;padding:8px 10px;background:var(--bg);border-radius:6px;font-size:12px">
-                <span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;flex-shrink:0">CNAME</span>
+                <span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;flex-shrink:0">{{ tr('CNAME') }}</span>
                 <code style="color:var(--text);flex:1">{{ nexoraForm.customDomain }}</code>
                 <span style="color:var(--text-muted)">→</span>
                 <code style="color:var(--accent)">nexora-nuxt.pages.dev</code>
               </div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:8px">
-                <i class="ti ti-clock" style="margin-right:4px"></i>DNS-Propagation kann bis zu 24h dauern. Danach ist deine Domain aktiv.
+                <i class="ti ti-clock" style="margin-right:4px"></i>{{ tr('DNS-Propagation kann bis zu 24h dauern. Danach ist deine Domain aktiv.') }}
               </div>
             </div>
           </div>
 
           <!-- API Key (read-only info) -->
           <div style="padding-top:16px;border-top:1px solid var(--border)">
-            <div class="settings-label">API-Key</div>
+            <div class="settings-label">{{ tr('API-Key') }}</div>
             <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px">
               <code style="font-size:12px;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ nexora.apiKey }}</code>
               <button class="icon-btn" @click="copyNexoraKey" :title="nexoraCopied ? 'Kopiert!' : 'Kopieren'">
@@ -1354,8 +1353,8 @@
               </button>
             </div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
-              Für vollständige Website-Einstellungen →
-              <NuxtLink to="/website" style="color:var(--accent);text-decoration:none">Website verwalten</NuxtLink>
+              {{ tr('Für vollständige Website-Einstellungen →') }}
+              <NuxtLink to="/website" style="color:var(--accent);text-decoration:none">{{ tr('Website verwalten') }}</NuxtLink>
             </div>
           </div>
 
@@ -1366,31 +1365,29 @@
     <!-- ── SICHERUNG ── -->
     <div v-if="tab === 'backup'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-database-export" style="margin-right:8px;color:var(--accent)"></i>Sicherung</span>
+        <span class="card-title"><i class="ti ti-database-export" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Sicherung') }}</span>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:18px;max-width:760px">
         <div style="background:#f59e0b14;border:1px solid #f59e0b55;border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6">
-          <strong><i class="ti ti-alert-triangle"></i> Sicherungen enthalten Kundendaten.</strong>
-          Bewahre die Datei sicher auf: nicht in ein Git-Repository legen und nicht unverschlüsselt weitergeben.
-          Sie ist mit deiner Passphrase verschlüsselt (AES-256-GCM). Die Passphrase wird nie gespeichert – ohne sie ist die Datei nicht lesbar.
+          <strong><i class="ti ti-alert-triangle"></i> {{ tr('Sicherungen enthalten Kundendaten.') }}</strong>
+          {{ tr('Bewahre die Datei sicher auf: nicht in ein Git-Repository legen und nicht unverschlüsselt weitergeben. Sie ist mit deiner Passphrase verschlüsselt (AES-256-GCM). Die Passphrase wird nie gespeichert – ohne sie ist die Datei nicht lesbar.') }}
         </div>
 
-        <div v-if="isDemo" style="font-size:13px;color:var(--text-muted)"><i class="ti ti-lock"></i> Im Demo-Zugang sind Sicherungen deaktiviert.</div>
+        <div v-if="isDemo" style="font-size:13px;color:var(--text-muted)"><i class="ti ti-lock"></i> {{ tr('Im Demo-Zugang sind Sicherungen deaktiviert.') }}</div>
 
         <template v-else>
           <div v-if="isAdmin" style="border:1px solid var(--border);border-radius:10px;padding:14px">
-            <strong style="font-size:13px"><i class="ti ti-server-2" style="color:var(--accent)"></i> Gesamtsicherung</strong>
-            <div style="font-size:12px;color:var(--text-muted);margin:6px 0 10px">Alle Plattform-Tabellen (ohne flüchtige Zähler und Entwürfe) und alle Bilder und Dateien aus dem Datei-Speicher. Nur für Plattform-Administratoren. Zahlungsschlüssel im Klartext sind nicht enthalten.</div>
-            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="backupBusy" @click="openBackupDialog('full')"><i class="ti ti-player-play"></i> Sicherung starten</button>
+            <strong style="font-size:13px"><i class="ti ti-server-2" style="color:var(--accent)"></i> {{ tr('Gesamtsicherung') }}</strong>
+            <div style="font-size:12px;color:var(--text-muted);margin:6px 0 10px">{{ tr('Alle Plattform-Tabellen (ohne flüchtige Zähler und Entwürfe) und alle Bilder und Dateien aus dem Datei-Speicher. Nur für Plattform-Administratoren. Zahlungsschlüssel im Klartext sind nicht enthalten.') }}</div>
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="backupBusy" @click="openBackupDialog('full')"><i class="ti ti-player-play"></i> {{ tr('Sicherung starten') }}</button>
           </div>
 
           <div style="border:1px solid var(--border);border-radius:10px;padding:14px">
-            <strong style="font-size:13px"><i class="ti ti-user-down" style="color:var(--accent)"></i> Meine Daten exportieren</strong>
+            <strong style="font-size:13px"><i class="ti ti-user-down" style="color:var(--accent)"></i> {{ tr('Meine Daten exportieren') }}</strong>
             <div style="font-size:12px;color:var(--text-muted);margin:6px 0 10px">
-              Kontakte, Firmen, Deals, Verträge, Projekte, Support, Finanzen, HR, Kampagnen, Termine und Einstellungen <em>ohne</em> Schlüssel und Tokens – nur Daten deines eigenen Kontos. Nur der Inhaber des Kontos kann den Export starten.
-              Dateien (Bilder) sind nur enthalten, wenn deine Daten darauf verweisen (z. B. Kampagnenbilder, Produktfotos).
+              {{ tr('Kontakte, Firmen, Deals, Verträge, Projekte, Support, Finanzen, HR, Kampagnen, Termine und Einstellungen') }} <em>{{ tr('ohne') }}</em> {{ tr('Schlüssel und Tokens – nur Daten deines eigenen Kontos. Nur der Inhaber des Kontos kann den Export starten. Dateien (Bilder) sind nur enthalten, wenn deine Daten darauf verweisen (z. B. Kampagnenbilder, Produktfotos).') }}
             </div>
-            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="backupBusy" @click="openBackupDialog('tenant')"><i class="ti ti-player-play"></i> Export starten</button>
+            <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="backupBusy" @click="openBackupDialog('tenant')"><i class="ti ti-player-play"></i> {{ tr('Export starten') }}</button>
           </div>
 
           <div v-if="backupCurrent" style="border:1px solid var(--border);border-radius:10px;padding:14px">
@@ -1400,11 +1397,11 @@
             </div>
             <div v-if="backupCurrent.status === 'queued' || backupCurrent.status === 'running'" style="margin-top:10px">
               <div style="height:8px;border-radius:6px;background:var(--border);overflow:hidden"><div :style="`height:100%;width:${backupPercent(backupCurrent)}%;background:var(--accent);transition:width .4s`"></div></div>
-              <div style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ backupCurrent.step || 'wartet auf den Start' }} · {{ backupCurrent.progress?.done || 0 }} / {{ backupCurrent.progress?.total || '…' }} Tabellen</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ backupCurrent.step || 'wartet auf den Start' }} · {{ backupCurrent.progress?.done || 0 }} / {{ backupCurrent.progress?.total || '…' }} {{ tr('Tabellen') }}</div>
             </div>
             <div v-if="backupCurrent.error" style="font-size:12px;color:#ef4444;margin-top:8px">{{ backupCurrent.error }}</div>
             <table v-if="backupCurrent.tables && Object.keys(backupCurrent.tables).length" style="width:100%;font-size:12px;margin-top:10px;border-collapse:collapse">
-              <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px 0">Tabelle</th><th>Einträge</th><th>Größe</th><th>Zählvergleich</th></tr></thead>
+              <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px 0">{{ tr('Tabelle') }}</th><th>{{ tr('Einträge') }}</th><th>{{ tr('Größe') }}</th><th>{{ tr('Zählvergleich') }}</th></tr></thead>
               <tbody>
                 <tr v-for="(t, name) in backupCurrent.tables" :key="name" v-show="t.rows > 0 || backupCurrent.status === 'done'">
                   <td style="padding:3px 0">{{ String(name).replace('plexora-', '') }}</td><td>{{ t.rows }}</td><td>{{ backupBytes(t.bytes) }}</td>
@@ -1412,23 +1409,23 @@
                 </tr>
               </tbody>
             </table>
-            <div v-if="backupCurrent.files" style="font-size:12px;color:var(--text-muted);margin-top:6px">Dateien: {{ backupCurrent.files.count }} ({{ backupBytes(backupCurrent.files.bytes) }})</div>
-            <div v-if="backupCurrent.warnings?.length" style="font-size:12px;color:#f59e0b;margin-top:6px">Hinweise: {{ backupCurrent.warnings.join(' · ') }}</div>
+            <div v-if="backupCurrent.files" style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ tr('Dateien:') }} {{ backupCurrent.files.count }} ({{ backupBytes(backupCurrent.files.bytes) }})</div>
+            <div v-if="backupCurrent.warnings?.length" style="font-size:12px;color:#f59e0b;margin-top:6px">{{ tr('Hinweise:') }} {{ backupCurrent.warnings.join(' · ') }}</div>
           </div>
 
           <div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:8px">Letzte Sicherungen <span style="font-weight:400;color:var(--text-muted);font-size:12px">– die Dateien laufen nach 7 Tagen automatisch ab</span></div>
-            <div v-if="!backupJobs.length" style="font-size:12px;color:var(--text-muted)">Noch keine Sicherung.</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px">{{ tr('Letzte Sicherungen') }} <span style="font-weight:400;color:var(--text-muted);font-size:12px">{{ tr('– die Dateien laufen nach 7 Tagen automatisch ab') }}</span></div>
+            <div v-if="!backupJobs.length" style="font-size:12px;color:var(--text-muted)">{{ tr('Noch keine Sicherung.') }}</div>
             <table v-else style="width:100%;font-size:12px;border-collapse:collapse">
-              <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px 0">Zeit</th><th>Art</th><th>Größe</th><th>Von</th><th>Status</th><th></th></tr></thead>
+              <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px 0">{{ tr('Zeit') }}</th><th>{{ tr('Art') }}</th><th>{{ tr('Größe') }}</th><th>{{ tr('Von') }}</th><th>{{ tr('Status') }}</th><th></th></tr></thead>
               <tbody>
                 <tr v-for="j in backupJobs" :key="j.jobId" style="border-top:0.5px solid var(--border)">
                   <td style="padding:6px 0">{{ new Date(j.createdAt).toLocaleString('de-DE') }}</td>
                   <td>{{ backupKindLabel(j.kind) }}</td><td>{{ j.sizeBytes ? backupBytes(j.sizeBytes) : '–' }}</td><td>{{ j.by }}</td>
                   <td>{{ backupStatusLabel(j.status) }}</td>
                   <td style="text-align:right;white-space:nowrap">
-                    <button v-if="j.downloadable" class="theme-opt" title="Herunterladen (Link 10 Minuten gültig)" @click="downloadBackup(j)"><i class="ti ti-download"></i></button>
-                    <button v-if="j.status === 'done' || j.status === 'failed'" class="theme-opt" title="Löschen" @click="deleteBackup(j)"><i class="ti ti-trash"></i></button>
+                    <button v-if="j.downloadable" class="theme-opt" :title="tr('Herunterladen (Link 10 Minuten gültig)')" @click="downloadBackup(j)"><i class="ti ti-download"></i></button>
+                    <button v-if="j.status === 'done' || j.status === 'failed'" class="theme-opt" :title="tr('Löschen')" @click="deleteBackup(j)"><i class="ti ti-trash"></i></button>
                   </td>
                 </tr>
               </tbody>
@@ -1437,27 +1434,27 @@
         </template>
 
         <div style="border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;line-height:1.7">
-          <strong style="font-size:13px"><i class="ti ti-key"></i> So öffnest du die Datei</strong>
+          <strong style="font-size:13px"><i class="ti ti-key"></i> {{ tr('So öffnest du die Datei') }}</strong>
           <ol style="margin:8px 0 0 18px;padding:0">
-            <li>Datei herunterladen (der Link ist 10 Minuten gültig, die Datei endet auf <code>.plxbak</code>).</li>
-            <li>Entschlüsseln (fragt die Passphrase verdeckt ab): <code>node scripts/aws/decrypt-backup.mjs plexora-sicherung-….plxbak</code> – das Skript liegt im Plexora-Repository und braucht nur Node.</li>
-            <li>Die entstandene ZIP-Datei entpacken: <code>unzip plexora-sicherung-….zip</code>. Darin liegen je Tabelle eine JSON-Datei plus Tabellendefinition, die Dateien unter <code>files/</code> und <code>MANIFEST.txt</code> mit Anzahl, Größe und SHA-256.</li>
+            <li>{{ tr('Datei herunterladen (der Link ist 10 Minuten gültig, die Datei endet auf') }} <code>.plxbak</code>).</li>
+            <li>{{ tr('Entschlüsseln (fragt die Passphrase verdeckt ab):') }} <code>node scripts/aws/decrypt-backup.mjs plexora-sicherung-….plxbak</code> {{ tr('– das Skript liegt im Plexora-Repository und braucht nur Node.') }}</li>
+            <li>{{ tr('Die entstandene ZIP-Datei entpacken:') }} <code>unzip plexora-sicherung-….zip</code>{{ tr('. Darin liegen je Tabelle eine JSON-Datei plus Tabellendefinition, die Dateien unter') }} <code>files/</code> {{ tr('und') }} <code>MANIFEST.txt</code> {{ tr('mit Anzahl, Größe und SHA-256.') }}</li>
           </ol>
-          <div style="margin-top:10px"><strong>Wiederherstellen</strong> geht bewusst nicht per Klick: Auf der Kommandozeile zeigt <code>python3 scripts/aws/restore-table.py &lt;Ordner&gt; &lt;Tabelle&gt; --dry-run</code> zuerst, was passieren würde.</div>
-          <div style="margin-top:8px;color:var(--text-muted)">Verschlüsselte Felder (z. B. gespeicherte Anbieter-Schlüssel) bleiben ohne den <code>NUXT_ENCRYPTION_KEY</code> unlesbar. Bewahre diesen Schlüssel getrennt von den Sicherungen auf.</div>
+          <div style="margin-top:10px"><strong>{{ tr('Wiederherstellen') }}</strong> {{ tr('geht bewusst nicht per Klick: Auf der Kommandozeile zeigt') }} <code>python3 scripts/aws/restore-table.py &lt;Ordner&gt; &lt;Tabelle&gt; --dry-run</code> {{ tr('zuerst, was passieren würde.') }}</div>
+          <div style="margin-top:8px;color:var(--text-muted)">{{ tr('Verschlüsselte Felder (z. B. gespeicherte Anbieter-Schlüssel) bleiben ohne den') }} <code>NUXT_ENCRYPTION_KEY</code> {{ tr('unlesbar. Bewahre diesen Schlüssel getrennt von den Sicherungen auf.') }}</div>
         </div>
       </div>
 
       <!-- Passphrase-Dialog -->
       <div v-if="backupDialog" class="modal-overlay" @click.self="closeBackupDialog">
         <div class="modal" style="max-width:480px">
-          <div class="modal-header"><span class="modal-title">{{ backupKindLabel(backupDialog.kind) }} starten</span><button class="icon-btn" @click="closeBackupDialog"><i class="ti ti-x"></i></button></div>
+          <div class="modal-header"><span class="modal-title">{{ backupKindLabel(backupDialog.kind) }} {{ tr('starten') }}</span><button class="icon-btn" @click="closeBackupDialog"><i class="ti ti-x"></i></button></div>
           <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
-            <div style="font-size:12px;color:var(--text-muted);line-height:1.6">Wähle eine Passphrase (mindestens 12 Zeichen). Sie verschlüsselt die Datei und wird <strong>nicht gespeichert</strong> – notiere sie dir an einem sicheren Ort.</div>
-            <div class="auth-field"><label>Passphrase</label><input v-model="backupPass" type="password" autocomplete="new-password" placeholder="mindestens 12 Zeichen" /></div>
-            <div class="auth-field"><label>Passphrase wiederholen</label><input v-model="backupPass2" type="password" autocomplete="new-password" @keydown.enter="startBackup" /></div>
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.6">{{ tr('Wähle eine Passphrase (mindestens 12 Zeichen). Sie verschlüsselt die Datei und wird') }} <strong>{{ tr('nicht gespeichert') }}</strong> {{ tr('– notiere sie dir an einem sicheren Ort.') }}</div>
+            <div class="auth-field"><label>{{ tr('Passphrase') }}</label><input v-model="backupPass" type="password" autocomplete="new-password" :placeholder="tr('mindestens 12 Zeichen')" /></div>
+            <div class="auth-field"><label>{{ tr('Passphrase wiederholen') }}</label><input v-model="backupPass2" type="password" autocomplete="new-password" @keydown.enter="startBackup" /></div>
             <div v-if="backupPassError" style="font-size:12px;color:#ef4444">{{ backupPassError }}</div>
-            <button class="accent-btn" style="height:36px" :disabled="!!backupPassError || backupBusy || !backupPass" @click="startBackup"><i class="ti" :class="backupBusy ? 'ti-loader-2 spin' : 'ti-player-play'"></i> Sicherung starten</button>
+            <button class="accent-btn" style="height:36px" :disabled="!!backupPassError || backupBusy || !backupPass" @click="startBackup"><i class="ti" :class="backupBusy ? 'ti-loader-2 spin' : 'ti-player-play'"></i> {{ tr('Sicherung starten') }}</button>
           </div>
         </div>
       </div>
@@ -1469,39 +1466,38 @@
 
     <div v-if="tab === 'botprotection'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>Bot-Schutz (Turnstile)<HelpTip k="botschutz" /></span>
+        <span class="card-title"><i class="ti ti-shield-check" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Bot-Schutz (Turnstile)') }}<HelpTip k="botschutz" /></span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="isDemo || botSaving" @click="saveBotProtection">
-          <i class="ti" :class="botSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+          <i class="ti" :class="botSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:18px;max-width:680px">
         <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
-          Schützt Formulare vor Spam-Einträgen mit <strong>Cloudflare Turnstile</strong>. Das Widget erscheint nur dort, wo der Schutz eingeschaltet ist:
-          bei Marketing-Kampagnen (Schalter im Kampagnen-Formular) und auf dem Kontaktformular Ihrer Website.
+          {{ tr('Schützt Formulare vor Spam-Einträgen mit') }} <strong>{{ tr('Cloudflare Turnstile') }}</strong>{{ tr('. Das Widget erscheint nur dort, wo der Schutz eingeschaltet ist: bei Marketing-Kampagnen (Schalter im Kampagnen-Formular) und auf dem Kontaktformular Ihrer Website.') }}
         </div>
 
         <div style="border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;line-height:1.7">
-          <strong style="font-size:13px">So erzeugen Sie die Schlüssel</strong>
+          <strong style="font-size:13px">{{ tr('So erzeugen Sie die Schlüssel') }}</strong>
           <ol style="margin:8px 0 0 18px;padding:0">
-            <li>Bei <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener" style="color:var(--accent)">dash.cloudflare.com</a> anmelden → <em>Turnstile</em> → <em>Widget hinzufügen</em>.</li>
-            <li>Unter <em>Hostnamen</em> die Seiten eintragen, auf denen die Formulare stehen: <code>app.plexora.eu</code>, <code>www.plexora.eu</code> und die Domain Ihrer Website (z. B. <code>www.paeffgen-it.de</code>).</li>
-            <li>Widget-Modus wählen (<em>Managed</em> oder <em>Invisible</em>) und das Widget erstellen.</li>
-            <li><strong>Sitekey</strong> (öffentlich) und <strong>Secret</strong> (geheim) hier eintragen. Das Secret wird verschlüsselt gespeichert und nie wieder angezeigt.</li>
+            <li>{{ tr('Bei') }} <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener" style="color:var(--accent)">{{ tr('dash.cloudflare.com') }}</a> {{ tr('anmelden →') }} <em>{{ tr('Turnstile') }}</em> → <em>{{ tr('Widget hinzufügen') }}</em>.</li>
+            <li>{{ tr('Unter') }} <em>{{ tr('Hostnamen') }}</em> {{ tr('die Seiten eintragen, auf denen die Formulare stehen:') }} <code>app.plexora.eu</code>, <code>www.plexora.eu</code> {{ tr('und die Domain Ihrer Website (z. B.') }} <code>www.paeffgen-it.de</code>).</li>
+            <li>{{ tr('Widget-Modus wählen (') }}<em>{{ tr('Managed') }}</em> {{ tr('oder') }} <em>{{ tr('Invisible') }}</em>{{ tr(') und das Widget erstellen.') }}</li>
+            <li><strong>{{ tr('Sitekey') }}</strong> {{ tr('(öffentlich) und') }} <strong>{{ tr('Secret') }}</strong> {{ tr('(geheim) hier eintragen. Das Secret wird verschlüsselt gespeichert und nie wieder angezeigt.') }}</li>
           </ol>
         </div>
 
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
           <input type="checkbox" v-model="bot.enabled" :disabled="isDemo" />
-          <span><strong>Bot-Schutz aktiv</strong> <span style="color:var(--text-muted);font-weight:400">(Hauptschalter – aus: alle Formulare ohne Prüfung)</span></span>
+          <span><strong>{{ tr('Bot-Schutz aktiv') }}</strong> <span style="color:var(--text-muted);font-weight:400">{{ tr('(Hauptschalter – aus: alle Formulare ohne Prüfung)') }}</span></span>
         </label>
 
         <div class="auth-field">
-          <label>Sitekey</label>
-          <input v-model="bot.siteKey" class="field-input" style="font-family:monospace;font-size:12px" placeholder="0x4AAAAAAA…" :disabled="isDemo" autocomplete="off" />
+          <label>{{ tr('Sitekey') }}</label>
+          <input v-model="bot.siteKey" class="field-input" style="font-family:monospace;font-size:12px" :placeholder="tr('0x4AAAAAAA…')" :disabled="isDemo" autocomplete="off" />
         </div>
 
         <div class="auth-field">
-          <label>Secret <span v-if="botInfo.secretConfigured" class="badge badge-success" style="font-size:10px;margin-left:6px">Hinterlegt</span></label>
+          <label>{{ tr('Secret') }} <span v-if="botInfo.secretConfigured" class="badge badge-success" style="font-size:10px;margin-left:6px">{{ tr('Hinterlegt') }}</span></label>
           <div style="position:relative">
             <input v-model="bot.secret" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
               :type="bot.secretVisible ? 'text' : 'password'" :placeholder="botInfo.secretMasked || 'Secret aus dem Cloudflare-Widget'" :disabled="isDemo" autocomplete="new-password" />
@@ -1510,43 +1506,42 @@
               <i class="ti" :class="bot.secretVisible ? 'ti-eye-off' : 'ti-eye'"></i>
             </button>
           </div>
-          <div v-if="botInfo.secretConfigured" style="font-size:11px;color:var(--text-muted);margin-top:4px">Leer lassen, um das gespeicherte Secret zu behalten.</div>
+          <div v-if="botInfo.secretConfigured" style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ tr('Leer lassen, um das gespeicherte Secret zu behalten.') }}</div>
         </div>
 
         <div class="auth-field">
-          <label>Widget-Modus</label>
+          <label>{{ tr('Widget-Modus') }}</label>
           <select v-model="bot.mode" class="field-input" :disabled="isDemo">
-            <option value="managed">Managed (Cloudflare entscheidet, ob ein Klick nötig ist)</option>
-            <option value="invisible">Invisible (läuft unsichtbar im Hintergrund)</option>
+            <option value="managed">{{ tr('Managed (Cloudflare entscheidet, ob ein Klick nötig ist)') }}</option>
+            <option value="invisible">{{ tr('Invisible (läuft unsichtbar im Hintergrund)') }}</option>
           </select>
         </div>
 
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
           <input type="checkbox" v-model="bot.contactProtection" :disabled="isDemo" />
-          <span><strong>Kontaktformular der Website schützen</strong> <span style="color:var(--text-muted);font-weight:400">(z. B. paeffgen-it.de/kontakt)</span></span>
+          <span><strong>{{ tr('Kontaktformular der Website schützen') }}</strong> <span style="color:var(--text-muted);font-weight:400">{{ tr('(z. B. paeffgen-it.de/kontakt)') }}</span></span>
         </label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
           <input type="checkbox" v-model="bot.visitorProtection" :disabled="isDemo" />
-          <span><strong>Konto anlegen und Passwort-Mail bei Blog-Kommentaren schützen</strong> <span style="color:var(--text-muted);font-weight:400">(verhindert, dass Programme Mails auslösen)</span></span>
+          <span><strong>{{ tr('Konto anlegen und Passwort-Mail bei Blog-Kommentaren schützen') }}</strong> <span style="color:var(--text-muted);font-weight:400">{{ tr('(verhindert, dass Programme Mails auslösen)') }}</span></span>
         </label>
 
         <div class="auth-field">
-          <label>Weitere erlaubte Domains <span style="font-weight:400;color:var(--text-muted)">(optional, kommagetrennt)</span></label>
-          <input v-model="bot.hostnamesText" class="field-input" placeholder="www.meine-domain.de, shop.meine-domain.de" :disabled="isDemo" />
+          <label>{{ tr('Weitere erlaubte Domains') }} <span style="font-weight:400;color:var(--text-muted)">{{ tr('(optional, kommagetrennt)') }}</span></label>
+          <input v-model="bot.hostnamesText" class="field-input" :placeholder="tr('www.meine-domain.de, shop.meine-domain.de')" :disabled="isDemo" />
           <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
-            Immer erlaubt: {{ botInfo.defaultHostnames.join(', ') }} und die Domain Ihrer Plexora-Website.
+            {{ tr('Immer erlaubt:') }} {{ botInfo.defaultHostnames.join(', ') }} {{ tr('und die Domain Ihrer Plexora-Website.') }}
           </div>
         </div>
 
         <div style="font-size:12px;color:var(--text-muted)">
           <i class="ti ti-speakerphone"></i>
-          <span v-if="botInfo.protectedCampaigns > 0"> {{ botInfo.protectedCampaigns }} Kampagne(n) nutzen den Bot-Schutz.</span>
-          <span v-else> Den Schutz für eine Kampagne schalten Sie im Kampagnen-Formular unter <em>Marketing</em> ein.</span>
+          <span v-if="botInfo.protectedCampaigns > 0"> {{ botInfo.protectedCampaigns }} {{ tr('Kampagne(n) nutzen den Bot-Schutz.') }}</span>
+          <span v-else> {{ tr('Den Schutz für eine Kampagne schalten Sie im Kampagnen-Formular unter') }} <em>{{ tr('Marketing') }}</em> {{ tr('ein.') }}</span>
         </div>
 
         <div style="background:#f59e0b14;border:1px solid #f59e0b55;border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6">
-          <strong><i class="ti ti-alert-triangle"></i> Datenschutz:</strong> Turnstile lädt ein Skript von Cloudflare und überträgt dabei technische Daten (u. a. IP-Adresse).
-          Ergänzen Sie Ihre Datenschutzerklärung um einen Absatz dazu.
+          <strong><i class="ti ti-alert-triangle"></i> {{ tr('Datenschutz:') }}</strong> {{ tr('Turnstile lädt ein Skript von Cloudflare und überträgt dabei technische Daten (u. a. IP-Adresse). Ergänzen Sie Ihre Datenschutzerklärung um einen Absatz dazu.') }}
           <div style="margin-top:8px">
             <button class="theme-opt" :disabled="isDemo" @click="insertTurnstilePrivacy">
               <i class="ti ti-file-text"></i>
@@ -1556,7 +1551,7 @@
         </div>
 
         <div v-if="botInfo.secretConfigured">
-          <button class="theme-opt" :disabled="isDemo" @click="removeBotProtection"><i class="ti ti-trash"></i> Schlüssel entfernen</button>
+          <button class="theme-opt" :disabled="isDemo" @click="removeBotProtection"><i class="ti ti-trash"></i> {{ tr('Schlüssel entfernen') }}</button>
         </div>
       </div>
     </div>
@@ -1564,13 +1559,12 @@
     <!-- ── PLEXORA AI ── -->
     <div v-if="tab === 'ai'" class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Plexora AI</span>
+        <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Plexora AI') }}</span>
       </div>
       <div class="card-body" style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
         <div style="flex:1;min-width:340px;max-width:640px;display:flex;flex-direction:column;gap:20px">
           <div style="font-size:12px;color:var(--text-muted)">
-            Hinterlege eigene API-Keys für KI-Anbieter (Bring Your Own Key). Sie werden verschlüsselt gespeichert
-            und für alle Plexora-AI-Features genutzt — Marketing-E-Mails, künftig auch Assistent & Auswertungen.
+            {{ tr('Hinterlege eigene API-Keys für KI-Anbieter (Bring Your Own Key). Sie werden verschlüsselt gespeichert und für alle Plexora-AI-Features genutzt — Marketing-E-Mails, künftig auch Assistent & Auswertungen.') }}
           </div>
 
           <div v-for="p in aiProviderList" :key="p.key"
@@ -1579,14 +1573,14 @@
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <div style="display:flex;align-items:center;gap:8px">
                 <strong style="font-size:13px">{{ p.label }}</strong>
-                <span v-if="aiProviders[p.key]?.configured" class="badge badge-success" style="font-size:10px">Hinterlegt</span>
+                <span v-if="aiProviders[p.key]?.configured" class="badge badge-success" style="font-size:10px">{{ tr('Hinterlegt') }}</span>
                 <span v-if="aiProviders[p.key]?.configured && !aiProviders[p.key].enabled"
-                  style="font-size:10px;padding:2px 6px;border-radius:6px;background:var(--text-muted);color:#fff">Deaktiviert</span>
+                  style="font-size:10px;padding:2px 6px;border-radius:6px;background:var(--text-muted);color:#fff">{{ tr('Deaktiviert') }}</span>
               </div>
               <label v-if="aiProviders[p.key]?.configured" style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);cursor:pointer">
                 <input type="checkbox" :checked="aiProviders[p.key].enabled"
                   @change="toggleAiProvider(p.key, ($event.target as HTMLInputElement).checked)" />
-                Aktiv
+                {{ tr('Aktiv') }}
               </label>
             </div>
 
@@ -1600,13 +1594,13 @@
                   <i class="ti" :class="aiForms[p.key].visible ? 'ti-eye-off' : 'ti-eye'"></i>
                 </button>
               </div>
-              <button class="theme-opt" title="Verbindung testen" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].testing" @click="testAiKey(p.key)">
+              <button class="theme-opt" :title="tr('Verbindung testen')" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].testing" @click="testAiKey(p.key)">
                 <i class="ti" :class="aiForms[p.key].testing ? 'ti-loader-2 spin' : 'ti-plug'"></i>
               </button>
               <button class="accent-btn" style="height:36px;padding:0 14px;font-size:12px" :disabled="!aiForms[p.key].apiKey.trim() || aiForms[p.key].saving" @click="saveAiKey(p.key)">
                 <i class="ti" :class="aiForms[p.key].saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i>
               </button>
-              <button v-if="aiProviders[p.key]?.configured" class="theme-opt" title="Key entfernen" @click="removeAiKey(p.key)">
+              <button v-if="aiProviders[p.key]?.configured" class="theme-opt" :title="tr('Key entfernen')" @click="removeAiKey(p.key)">
                 <i class="ti ti-trash"></i>
               </button>
             </div>
@@ -1618,13 +1612,13 @@
 
             <button style="margin-top:8px;background:none;border:none;padding:0;color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px"
               :disabled="!aiForms[p.key].apiKey.trim() && !aiProviders[p.key]?.configured" @click="loadModels(p.key)">
-              <i class="ti ti-list-details"></i> Modelle anzeigen
-              <span v-if="aiProviders[p.key]?.model" style="font-weight:400">— aktuell: {{ aiProviders[p.key].model }}</span>
+              <i class="ti ti-list-details"></i> {{ tr('Modelle anzeigen') }}
+              <span v-if="aiProviders[p.key]?.model" style="font-weight:400">{{ tr('— aktuell:') }} {{ aiProviders[p.key].model }}</span>
             </button>
           </div>
 
           <div v-if="configuredAiProviders.length > 1" class="auth-field">
-            <label>Standard-Anbieter</label>
+            <label>{{ tr('Standard-Anbieter') }}</label>
             <select v-model="aiDefaultProvider" class="field-input" @change="saveAiDefaultProvider">
               <option v-for="pk in configuredAiProviders" :key="pk" :value="pk">{{ aiLabel(pk) }}</option>
             </select>
@@ -1633,15 +1627,15 @@
 
         <div v-if="modelsPanelProvider" style="flex:1;min-width:300px;max-width:420px;border:1px solid var(--border);border-radius:10px;padding:14px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <strong style="font-size:13px">Modelle — {{ aiLabel(modelsPanelProvider) }}</strong>
+            <strong style="font-size:13px">{{ tr('Modelle —') }} {{ aiLabel(modelsPanelProvider) }}</strong>
             <button class="icon-btn" @click="modelsPanelProvider = ''"><i class="ti ti-x"></i></button>
           </div>
           <div v-if="modelsLoading" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">
-            <i class="ti ti-loader-2 spin"></i> Lade Modelle...
+            <i class="ti ti-loader-2 spin"></i> {{ tr('Lade Modelle...') }}
           </div>
           <div v-else-if="modelsError" style="font-size:12px;color:#e05c5c">{{ modelsError }}</div>
           <div v-else-if="!modelsList.length" style="font-size:12px;color:var(--text-muted);text-align:center;padding:24px">
-            Keine Modelle gefunden — Key gültig?
+            {{ tr('Keine Modelle gefunden — Key gültig?') }}
           </div>
           <div v-else style="max-height:280px;overflow-y:auto;margin-bottom:14px">
             <div v-for="m in modelsList" :key="m"
@@ -1660,10 +1654,10 @@
           <!-- ── PROBECHAT ── -->
           <div style="border-top:0.5px solid var(--border);padding-top:12px">
             <strong style="font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:8px">
-              <i class="ti ti-message-2" style="color:var(--accent)"></i> Probechat
+              <i class="ti ti-message-2" style="color:var(--accent)"></i> {{ tr('Probechat') }}
             </strong>
             <div v-if="!aiProviders[modelsPanelProvider]?.configured" style="font-size:11px;color:var(--text-muted)">
-              Erst Key speichern, dann live testen.
+              {{ tr('Erst Key speichern, dann live testen.') }}
             </div>
             <template v-else>
               <div ref="testChatScrollEl" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
@@ -1675,7 +1669,7 @@
                 <div v-if="testChatError" style="font-size:11px;color:#e05c5c">{{ testChatError }}</div>
               </div>
               <div style="display:flex;gap:8px">
-                <input v-model="testChatInput" class="field-input" style="flex:1;font-size:12px" placeholder="Testnachricht..."
+                <input v-model="testChatInput" class="field-input" style="flex:1;font-size:12px" :placeholder="tr('Testnachricht...')"
                   @keyup.enter="sendTestChat" :disabled="testChatSending" />
                 <button class="accent-btn" style="height:32px;padding:0 12px" :disabled="testChatSending || !testChatInput.trim()" @click="sendTestChat">
                   <i class="ti ti-send" style="font-size:14px"></i>
@@ -1749,7 +1743,7 @@ async function createLicense() {
     await loadLicenses()
     Object.assign(newLic, { customerEmail: '', tier: 'pro', validUntil: '', note: '' })
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + e.message, true)
+    showSettingsToast(tr('Fehler: ') + e.message, true)
   } finally { licCreating.value = false }
 }
 
@@ -1760,18 +1754,18 @@ async function toggleLicStatus(lic: any) {
       method: 'PATCH', body: { status: newStatus }
     })
     lic.status = newStatus
-  } catch { showSettingsToast('Fehler beim Aktualisieren!', true) }
+  } catch { showSettingsToast(tr('Fehler beim Aktualisieren!'), true) }
 }
 
 const { openConfirm } = useConfirm()
 
 async function deleteLic(lic: any) {
-  if (!await openConfirm({ title: 'Lizenz löschen?', name: `${lic.licenseKey} · ${lic.customerEmail}` })) return
+  if (!await openConfirm({ title: tr('Lizenz löschen?'), name: `${lic.licenseKey} · ${lic.customerEmail}` })) return
   try {
     await $fetch(useApiUrl(`/api/licenses/${lic.licenseKey}`), { method: 'DELETE' })
     licenses.value = licenses.value.filter(l => l.licenseKey !== lic.licenseKey)
     showSettingsToast('Lizenz gelöscht')
-  } catch { showSettingsToast('Fehler beim Löschen!', true) }
+  } catch { showSettingsToast(tr('Fehler beim Löschen!'), true) }
 }
 
 function copyKey(key: string) {
@@ -1907,7 +1901,7 @@ async function saveNexora(email: string) {
       nexora.value.customDomain = nexoraForm.customDomain
     }
   } catch (e: any) {
-    alert('Fehler: ' + (e?.message || ''))
+    alert(tr('Fehler: ') + (e?.message || ''))
   }
   nexoraSaving.value = false
 }
@@ -1935,7 +1929,7 @@ const backupCurrent = computed(() => backupJobs.value.find(j => j.status === 'qu
 const backupPassError = computed(() => {
   if (!backupPass.value && !backupPass2.value) return ''
   if (backupPass.value.length < 12) return 'Mindestens 12 Zeichen.'
-  if (backupPass.value !== backupPass2.value) return 'Die beiden Eingaben stimmen nicht überein.'
+  if (backupPass.value !== backupPass2.value) return tr('Die beiden Eingaben stimmen nicht überein.')
   return ''
 })
 
@@ -1962,7 +1956,7 @@ async function startBackup() {
     showSettingsToast('Sicherung gestartet.')
     await loadBackups()
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Start fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Start fehlgeschlagen'), true)
   } finally { backupBusy.value = false }     // Die Passphrase wird in keinem Fall aufbewahrt
 }
 async function downloadBackup(j: BackupJobView) {
@@ -1970,15 +1964,15 @@ async function downloadBackup(j: BackupJobView) {
     const { useAuthHeader } = await import('~/composables/useAuth')
     const res: any = await $fetch(useApiUrl(`/api/backup/jobs/${j.jobId}/download`), { method: 'POST', headers: await useAuthHeader() })
     window.location.href = res.url
-  } catch (e: any) { showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Download fehlgeschlagen'), true) }
+  } catch (e: any) { showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Download fehlgeschlagen'), true) }
 }
 async function deleteBackup(j: BackupJobView) {
-  if (!confirm('Diese Sicherung wirklich löschen?')) return
+  if (!confirm(tr('Diese Sicherung wirklich löschen?'))) return
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl(`/api/backup/jobs/${j.jobId}`), { method: 'DELETE', headers: await useAuthHeader() })
     await loadBackups()
-  } catch (e: any) { showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'), true) }
+  } catch (e: any) { showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'), true) }
 }
 watch(tab, v => { if (v === 'backup') loadBackups() })
 onBeforeUnmount(() => { if (backupTimer) clearInterval(backupTimer) })
@@ -2003,10 +1997,10 @@ function applyBotInfo(res: any) {
 }
 
 function insertTurnstilePrivacy() {
-  if (!datenschutz.content) { showSettingsToast('Die Datenschutzerklärung ist noch nicht geladen.', true); return }
+  if (!datenschutz.content) { showSettingsToast(tr('Die Datenschutzerklärung ist noch nicht geladen.'), true); return }
   datenschutz.content = withTurnstilePrivacy(datenschutz.content)
   tab.value = 'datenschutz'
-  showSettingsToast('Absatz eingefügt – bitte Datenschutzerklärung speichern.')
+  showSettingsToast(tr('Absatz eingefügt – bitte Datenschutzerklärung speichern.'))
 }
 
 async function loadBotProtection() {
@@ -2037,20 +2031,20 @@ async function saveBotProtection() {
     applyBotInfo(res)
     showSettingsToast('Bot-Schutz gespeichert!')
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   } finally {
     botSaving.value = false
   }
 }
 
 async function removeBotProtection() {
-  if (!confirm('Sitekey und Secret wirklich entfernen?')) return
+  if (!confirm(tr('Sitekey und Secret wirklich entfernen?'))) return
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     applyBotInfo(await $fetch(useApiUrl('/api/settings/bot-protection'), { method: 'POST', headers: await useAuthHeader(), body: { remove: true } }))
-    showSettingsToast('Schlüssel entfernt.')
+    showSettingsToast(tr('Schlüssel entfernt.'))
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Entfernen fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Entfernen fehlgeschlagen'), true)
   }
 }
 
@@ -2118,7 +2112,7 @@ async function saveAiKey(key: AiProviderKey) {
     await loadAiProviders()
     showSettingsToast(`${aiLabel(key)}-Key gespeichert!`)
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   } finally {
     form.saving = false
   }
@@ -2136,7 +2130,7 @@ async function removeAiKey(key: AiProviderKey) {
     await loadAiProviders()
     showSettingsToast(`${aiLabel(key)}-Key entfernt`)
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Entfernen fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Entfernen fehlgeschlagen'), true)
   }
 }
 
@@ -2150,7 +2144,7 @@ async function toggleAiProvider(key: AiProviderKey, enabled: boolean) {
     })
     aiProviders[key].enabled = enabled
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   }
 }
 
@@ -2164,7 +2158,7 @@ async function saveAiDefaultProvider() {
     })
     showSettingsToast('Standard-Anbieter gespeichert!')
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   }
 }
 
@@ -2254,7 +2248,7 @@ async function selectModel(key: AiProviderKey, model: string) {
     showSettingsToast('Modell gespeichert!')
   } catch (e: any) {
     aiProviders[key].model = previous
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   }
 }
 
@@ -2279,7 +2273,7 @@ async function saveAccount() {
     userName.value = accountForm.name
     showSettingsToast('Konto gespeichert')
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + e.message, true)
+    showSettingsToast(tr('Fehler: ') + e.message, true)
   } finally { accountSaving.value = false }
 }
 
@@ -2378,7 +2372,7 @@ async function addCategory(area: string) {
   categories[area] = [...(categories[area] || []), v]
   newCategoryInput[area] = ''
   await saveCategories(area)
-  showSettingsToast('Kategorie hinzugefügt!')
+  showSettingsToast(tr('Kategorie hinzugefügt!'))
 }
 
 async function removeCategory(area: string, cat: string) {
@@ -2502,7 +2496,7 @@ async function saveCompany() {
     await $fetch(useApiUrl('/api/settings/company'), { method: 'POST', headers: await useAuthHeader(), body: { ...company, userId: userId.value } })
     showSettingsToast('Unternehmensdaten gespeichert!')
   } catch {
-    showSettingsToast('Fehler beim Speichern!', true)
+    showSettingsToast(tr('Fehler beim Speichern!'), true)
   } finally {
     companySaving.value = false
   }
@@ -2564,7 +2558,7 @@ async function saveModules() {
     showSettingsToast('Einstellungen gespeichert!')
   } catch (err) {
     console.error('Module speichern fehlgeschlagen:', err)
-    showSettingsToast('Fehler beim Speichern!', true)
+    showSettingsToast(tr('Fehler beim Speichern!'), true)
   } finally {
     modulesSaving.value = false
   }
@@ -2614,7 +2608,7 @@ async function savePayment() {
     await $fetch(useApiUrl('/api/settings/payment'), { method: 'POST', headers: await useAuthHeader(), body: { ...payment, userId: userId.value } })
     showSettingsToast('Payment-Einstellungen gespeichert!')
   } catch {
-    showSettingsToast('Fehler beim Speichern!', true)
+    showSettingsToast(tr('Fehler beim Speichern!'), true)
   } finally {
     paymentSaving.value = false
   }
@@ -2701,7 +2695,7 @@ async function saveTestimonials() {
     })
     showSettingsToast('Testimonials gespeichert!')
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   } finally {
     savingTestimonials.value = false
   }
@@ -2745,7 +2739,7 @@ async function saveLanding() {
     Object.assign(lt, parseLandingTheme(res.theme))
     showSettingsToast('Startseiten-Design gespeichert!')
   } catch (e: any) {
-    showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   } finally { ltSaving.value = false }
 }
 
@@ -2772,7 +2766,7 @@ async function saveLp() {
     const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl('/api/settings/landing-packages'), { method: 'POST', headers: await useAuthHeader(), body: { shown: lp.auto ? null : lp.shown } })
     showSettingsToast('Auswahl gespeichert!')
-  } catch (e: any) { showSettingsToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true) }
+  } catch (e: any) { showSettingsToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true) }
   finally { lpSaving.value = false }
 }
 
@@ -2840,12 +2834,12 @@ async function changeMemberRole(email: string, role: string) {
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}`), { method: 'PATCH', headers: await useAuthHeader(), body: { role } })
-  } catch (e: any) { alert(e?.data?.message || 'Die Rolle konnte nicht geändert werden.') }
+  } catch (e: any) { alert(e?.data?.message || tr('Die Rolle konnte nicht geändert werden.')) }
   await loadTeamMembers()
 }
 
 async function removeTeamMember(email: string) {
-  if (!await openConfirm({ title: 'Mitglied entfernen bzw. Einladung zurückziehen?', name: email, icon: 'ti-user-off' })) return
+  if (!await openConfirm({ title: tr('Mitglied entfernen bzw. Einladung zurückziehen?'), name: email, icon: 'ti-user-off' })) return
   try {
     const { useAuthHeader } = await import('~/composables/useAuth')
     await $fetch(useApiUrl(`/api/team/${encodeURIComponent(email)}?userId=${encodeURIComponent(userEmail.value)}`), { method: 'DELETE', headers: await useAuthHeader() })
@@ -2877,7 +2871,7 @@ async function saveFallbackLink(which: 'jitsi' | 'link' = 'link') {
     await $fetch(useApiUrl('/api/video/settings'), { method: 'POST', headers: await useAuthHeader(), body: { videoFallbackLink: video.fallbackLink, videoAutoJitsi: video.autoJitsi, jitsiHost: video.jitsiHost } })
     video.msg = 'Gespeichert.'
   } catch (e: any) {
-    video.msg = e?.data?.message || 'Speichern fehlgeschlagen.'
+    video.msg = e?.data?.message || tr('Speichern fehlgeschlagen.')
   } finally {
     video.saving = false
   }

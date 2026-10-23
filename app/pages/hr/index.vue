@@ -75,7 +75,7 @@
         </div>
         <table class="data-table">
           <thead>
-            <tr><th>{{ t.hr.position }}</th><th>{{ t.hr.department }}</th><th>{{ t.hr.location }}</th><th>{{ t.hr.employmentType }}</th><th>{{ t.hr.link }}</th><th style="width:40px">Design</th><th style="width:60px">{{ t.hr.applicants }}</th></tr>
+            <tr><th>{{ t.hr.position }}</th><th>{{ t.hr.department }}</th><th>{{ t.hr.location }}</th><th>{{ t.hr.employmentType }}</th><th>{{ t.hr.link }}</th><th style="width:40px">{{ tr('Design') }}</th><th style="width:60px">{{ t.hr.applicants }}</th></tr>
           </thead>
           <tbody>
             <tr v-if="!campaigns.length">
@@ -92,7 +92,7 @@
                 </button>
               </td>
               <td>
-                <NuxtLink class="icon-btn" title="Design bearbeiten" :to="`/hr/campaigns/design/${c.campaignId}`">
+                <NuxtLink class="icon-btn" :title="tr('Design bearbeiten')" :to="`/hr/campaigns/design/${c.campaignId}`">
                   <i class="ti ti-palette"></i>
                 </NuxtLink>
               </td>
@@ -141,12 +141,12 @@
         </div>
         <div class="modal-body">
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.crm.firstName }}</label><input v-model="newEmp.firstName" placeholder="Max" /></div>
-            <div class="auth-field"><label>{{ t.crm.lastName }}</label><input v-model="newEmp.lastName" placeholder="Mustermann" /></div>
+            <div class="auth-field"><label>{{ t.crm.firstName }}</label><input v-model="newEmp.firstName" :placeholder="tr('Max')" /></div>
+            <div class="auth-field"><label>{{ t.crm.lastName }}</label><input v-model="newEmp.lastName" :placeholder="tr('Mustermann')" /></div>
           </div>
-          <div class="auth-field"><label>{{ t.common.email }}</label><input v-model="newEmp.email" placeholder="max@firma.de" /></div>
-          <div class="auth-field"><label>{{ t.hr.department }}</label><input v-model="newEmp.department" placeholder="Engineering" /></div>
-          <div class="auth-field"><label>{{ t.hr.role }}</label><input v-model="newEmp.role" placeholder="Developer" /></div>
+          <div class="auth-field"><label>{{ t.common.email }}</label><input v-model="newEmp.email" :placeholder="tr('max@firma.de')" /></div>
+          <div class="auth-field"><label>{{ t.hr.department }}</label><input v-model="newEmp.department" :placeholder="tr('Engineering')" /></div>
+          <div class="auth-field"><label>{{ t.hr.role }}</label><input v-model="newEmp.role" :placeholder="tr('Developer')" /></div>
           <div class="auth-field"><label>{{ t.hr.startDate }}</label><input v-model="newEmp.startDate" type="date" /></div>
           <button class="auth-btn" :disabled="saving" @click="addEmployee">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
@@ -168,10 +168,10 @@
           <button class="icon-btn" @click="showCampaign=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.hr.jobTitle }}</label><input v-model="newCamp.title" placeholder="Senior Developer" /></div>
+          <div class="auth-field"><label>{{ t.hr.jobTitle }}</label><input v-model="newCamp.title" :placeholder="tr('Senior Developer')" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.hr.department }}</label><input v-model="newCamp.department" placeholder="Engineering" /></div>
-            <div class="auth-field"><label>{{ t.hr.location }}</label><input v-model="newCamp.location" placeholder="Remote / Berlin" /></div>
+            <div class="auth-field"><label>{{ t.hr.department }}</label><input v-model="newCamp.department" :placeholder="tr('Engineering')" /></div>
+            <div class="auth-field"><label>{{ t.hr.location }}</label><input v-model="newCamp.location" :placeholder="tr('Remote / Berlin')" /></div>
           </div>
           <div class="auth-field">
             <label>{{ t.hr.employmentType }}</label>
@@ -184,28 +184,28 @@
           </div>
           <div class="auth-field">
             <label>{{ t.hr.jobDescription }}</label>
-            <textarea v-model="newCamp.description" placeholder="Beschreibung der Stelle..." rows="4"
+            <textarea v-model="newCamp.description" :placeholder="tr('Beschreibung der Stelle...')" rows="4"
               style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
           </div>
           <div class="auth-field">
             <label>{{ t.hr.requirements }}</label>
-            <textarea v-model="newCamp.requirements" placeholder="Was erwarten wir?" rows="3"
+            <textarea v-model="newCamp.requirements" :placeholder="tr('Was erwarten wir?')" rows="3"
               style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:vertical;font-family:inherit"></textarea>
           </div>
           <div style="border-top:0.5px solid var(--border);margin:16px 0;padding-top:16px">
-            <div class="settings-label" style="margin-bottom:12px">🎨 Kampagnen-Design</div>
-            <div class="auth-field"><label>Firmenname (auf Bewerbungsseite)</label><input v-model="newCamp.companyName" placeholder="Päffgen IT GmbH" /></div>
+            <div class="settings-label" style="margin-bottom:12px">{{ tr('🎨 Kampagnen-Design') }}</div>
+            <div class="auth-field"><label>{{ tr('Firmenname (auf Bewerbungsseite)') }}</label><input v-model="newCamp.companyName" :placeholder="tr('Päffgen IT GmbH')" /></div>
             <div class="auth-row">
               <div class="auth-field">
-                <label>Akzentfarbe</label>
+                <label>{{ tr('Akzentfarbe') }}</label>
                 <div style="display:flex;gap:8px;align-items:center">
                   <input type="color" v-model="newCamp.accentColor" style="width:48px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer;padding:2px" />
                   <span style="font-size:12px;color:var(--text-muted)">{{ newCamp.accentColor }}</span>
                 </div>
               </div>
-              <div class="auth-field"><label>Logo-URL</label><input v-model="newCamp.logoUrl" placeholder="https://..." /></div>
+              <div class="auth-field"><label>{{ tr('Logo-URL') }}</label><input v-model="newCamp.logoUrl" :placeholder="tr('https://...')" /></div>
             </div>
-            <div class="auth-field"><label>Header-Bild URL (optional)</label><input v-model="newCamp.headerImageUrl" placeholder="https://..." /></div>
+            <div class="auth-field"><label>{{ tr('Header-Bild URL (optional)') }}</label><input v-model="newCamp.headerImageUrl" :placeholder="tr('https://...')" /></div>
           </div>
           <button class="auth-btn" :disabled="saving" @click="addCampaign">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
@@ -257,7 +257,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px">
           <div>
             <div style="font-weight:700;font-size:15px;margin-bottom:4px">{{ t.hr.timeclock }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Kiosk-Modus für Mitarbeiter — auf großem Display oder Tablet öffnen</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Kiosk-Modus für Mitarbeiter — auf großem Display oder Tablet öffnen') }}</div>
           </div>
           <NuxtLink to="/stempel" target="_blank" class="accent-btn" style="display:flex;align-items:center;gap:8px;text-decoration:none">
             <i class="ti ti-clock-play"></i> {{ t.hr.openTimeclock }}
@@ -272,7 +272,7 @@
           </button>
         </div>
         <table class="data-table">
-          <thead><tr><th>{{ t.hr.employee }}</th><th>{{ t.common.date }}</th><th>{{ t.common.from }}</th><th>{{ t.common.to }}</th><th>Stunden</th><th>{{ t.hr.note }}</th></tr></thead>
+          <thead><tr><th>{{ t.hr.employee }}</th><th>{{ t.common.date }}</th><th>{{ t.common.from }}</th><th>{{ t.common.to }}</th><th>{{ tr('Stunden') }}</th><th>{{ t.hr.note }}</th></tr></thead>
           <tbody>
             <tr v-if="!timelogEntries.length"><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">{{ t.hr.noEntries }}</td></tr>
             <tr v-for="e in timelogEntries" :key="e.logId">
@@ -345,7 +345,7 @@
             <div class="auth-field"><label>{{ t.common.from }}</label><input v-model="newLeave.startDate" type="date" /></div>
             <div class="auth-field"><label>{{ t.common.to }}</label><input v-model="newLeave.endDate" type="date" /></div>
           </div>
-          <div class="auth-field"><label>{{ t.hr.reason }} (optional)</label><input v-model="newLeave.reason" placeholder="..." /></div>
+          <div class="auth-field"><label>{{ t.hr.reason }} {{ tr('(optional)') }}</label><input v-model="newLeave.reason" placeholder="..." /></div>
           <button class="auth-btn" :disabled="saving||!newLeave.employeeId" @click="submitLeave">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else>{{ t.hr.submitRequest }}</span>
@@ -371,7 +371,7 @@
             <div class="auth-field"><label>{{ t.hr.fromTime }}</label><input v-model="newTimelog.clockIn" type="time" /></div>
             <div class="auth-field"><label>{{ t.hr.toTime }}</label><input v-model="newTimelog.clockOut" type="time" /></div>
           </div>
-          <div class="auth-field"><label>{{ t.hr.note }}</label><input v-model="newTimelog.note" placeholder="z.B. Kundenprojekt" /></div>
+          <div class="auth-field"><label>{{ t.hr.note }}</label><input v-model="newTimelog.note" :placeholder="tr('z.B. Kundenprojekt')" /></div>
           <button class="auth-btn" :disabled="saving||!newTimelog.employeeId" @click="submitTimelog">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else>{{ t.common.save }}</span>

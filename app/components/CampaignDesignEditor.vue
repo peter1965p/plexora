@@ -2,14 +2,14 @@
   <div class="page">
     <div class="header-row">
       <div>
-        <h1 class="title">{{ type === 'job' ? 'Stellenanzeige-' : 'Kampagnen-' }}<span style="color:var(--accent)">Design</span></h1>
-        <p class="subtitle">{{ campaignLabel }} — Vorlage wählen, anpassen, live prüfen.</p>
+        <h1 class="title">{{ type === 'job' ? 'Stellenanzeige-' : 'Kampagnen-' }}<span style="color:var(--accent)">{{ tr('Design') }}</span></h1>
+        <p class="subtitle">{{ campaignLabel }} {{ tr('— Vorlage wählen, anpassen, live prüfen.') }}</p>
       </div>
       <div class="header-actions">
-        <span v-if="savedAt" class="saved-hint"><i class="ti ti-check"></i> Gespeichert {{ savedAt }}</span>
-        <NuxtLink :to="backLink" class="ghost-btn"><i class="ti ti-arrow-left"></i> Zurück</NuxtLink>
+        <span v-if="savedAt" class="saved-hint"><i class="ti ti-check"></i> {{ tr('Gespeichert') }} {{ savedAt }}</span>
+        <NuxtLink :to="backLink" class="ghost-btn"><i class="ti ti-arrow-left"></i> {{ tr('Zurück') }}</NuxtLink>
         <button class="accent-btn" :disabled="saving || loading" @click="saveTemplate">
-          <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+          <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}
         </button>
       </div>
     </div>
@@ -31,38 +31,38 @@
 
       <!-- Modus-Umschalter -->
       <div class="mode-switch">
-        <button class="mode-btn" :class="{ active: mode === 'code' }" @click="mode = 'code'"><i class="ti ti-code"></i> Code</button>
-        <button class="mode-btn" :class="{ active: mode === 'visual' }" @click="mode = 'visual'"><i class="ti ti-hand-click"></i> Visuell</button>
+        <button class="mode-btn" :class="{ active: mode === 'code' }" @click="mode = 'code'"><i class="ti ti-code"></i> {{ tr('Code') }}</button>
+        <button class="mode-btn" :class="{ active: mode === 'visual' }" @click="mode = 'visual'"><i class="ti ti-hand-click"></i> {{ tr('Visuell') }}</button>
       </div>
 
       <!-- Visuell-Toolbar: Farben + Typ (nicht per Klick in der Vorschau editierbar) -->
       <div v-if="mode === 'visual'" class="visual-toolbar">
         <div class="visual-toolbar-item">
-          <label>Akzentfarbe</label>
+          <label>{{ tr('Akzentfarbe') }}</label>
           <input type="color" v-model="campaign.accentColor" @change="preserveScrollThenRerender" />
         </div>
         <div class="visual-toolbar-item">
-          <label>Hintergrundfarbe</label>
+          <label>{{ tr('Hintergrundfarbe') }}</label>
           <input type="color" v-model="campaign.bgColor" @change="preserveScrollThenRerender" />
         </div>
         <div v-if="type === 'job'" class="visual-toolbar-item">
-          <label>Anstellungsart</label>
+          <label>{{ tr('Anstellungsart') }}</label>
           <select v-model="campaign.type" class="theme-select" @change="preserveScrollThenRerender">
             <option v-for="(label, key) in JOB_TYPE_LABELS" :key="key" :value="key">{{ label }}</option>
           </select>
         </div>
         <div class="visual-toolbar-divider"></div>
-        <button class="toolbar-image-btn" @click="openImageModal('campaign.logoUrl')"><i class="ti ti-photo"></i> Logo</button>
-        <button class="toolbar-image-btn" @click="openImageModal('campaign.headerImageUrl')"><i class="ti ti-photo"></i> Header-Bild</button>
-        <button v-if="type === 'lead'" class="toolbar-image-btn" @click="openImageModal('campaign.bgImageUrl')"><i class="ti ti-photo"></i> Hintergrundbild</button>
-        <div class="visual-toolbar-hint"><i class="ti ti-info-circle"></i> Text in der Vorschau anklicken zum Bearbeiten</div>
+        <button class="toolbar-image-btn" @click="openImageModal('campaign.logoUrl')"><i class="ti ti-photo"></i> {{ tr('Logo') }}</button>
+        <button class="toolbar-image-btn" @click="openImageModal('campaign.headerImageUrl')"><i class="ti ti-photo"></i> {{ tr('Header-Bild') }}</button>
+        <button v-if="type === 'lead'" class="toolbar-image-btn" @click="openImageModal('campaign.bgImageUrl')"><i class="ti ti-photo"></i> {{ tr('Hintergrundbild') }}</button>
+        <div class="visual-toolbar-hint"><i class="ti ti-info-circle"></i> {{ tr('Text in der Vorschau anklicken zum Bearbeiten') }}</div>
       </div>
 
       <div class="editor-grid" :class="{ 'visual-mode': mode === 'visual' }">
         <!-- Linke Spalte: Monaco + Platzhalter-Referenz (nur im Code-Modus) -->
         <div v-if="mode === 'code'" class="editor-col">
           <div class="editor-toolbar">
-            <span class="editor-toolbar-label"><i class="ti ti-code"></i> HTML / CSS Template</span>
+            <span class="editor-toolbar-label"><i class="ti ti-code"></i> {{ tr('HTML / CSS Template') }}</span>
             <select v-model="monacoTheme" class="theme-select" @change="setMonacoTheme(monacoTheme)">
               <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
             </select>
@@ -91,7 +91,7 @@
           </ClientOnly>
 
           <div class="placeholder-panel">
-            <div class="placeholder-heading"><i class="ti ti-variable"></i> Platzhalter (Klick fügt an der Cursor-Position ein)</div>
+            <div class="placeholder-heading"><i class="ti ti-variable"></i> {{ tr('Platzhalter (Klick fügt an der Cursor-Position ein)') }}</div>
             <div class="placeholder-groups">
               <div v-for="group in placeholderGroups" :key="group.label" class="placeholder-group">
                 <div class="placeholder-group-label">{{ group.label }}</div>
@@ -107,11 +107,11 @@
         <div class="preview-col">
           <div class="preview-toolbar">
             <div class="preview-tabs">
-              <span class="preview-tab active"><i class="ti ti-bolt"></i> Live-Vorschau</span>
+              <span class="preview-tab active"><i class="ti ti-bolt"></i> {{ tr('Live-Vorschau') }}</span>
             </div>
           </div>
           <div class="preview-frame-wrap">
-            <iframe ref="previewIframeRef" :srcdoc="iframeSrcdoc" class="preview-frame" title="Live-Vorschau" @load="onIframeLoad"></iframe>
+            <iframe ref="previewIframeRef" :srcdoc="iframeSrcdoc" class="preview-frame" :title="tr('Live-Vorschau')" @load="onIframeLoad"></iframe>
           </div>
         </div>
       </div>
@@ -127,8 +127,8 @@
         <div class="modal-body">
           <textarea v-model="multilineModal.value" rows="8" class="visual-textarea"></textarea>
           <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
-            <button class="icon-btn" @click="multilineModal.open = false">Abbrechen</button>
-            <button class="accent-btn" @click="saveMultilineModal">Übernehmen</button>
+            <button class="icon-btn" @click="multilineModal.open = false">{{ tr('Abbrechen') }}</button>
+            <button class="accent-btn" @click="saveMultilineModal">{{ tr('Übernehmen') }}</button>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@
         <div class="modal-body">
           <ImageUploadCrop :model-value="campaign[imageModal.field] || ''" s3-prefix="campaigns/" @update:model-value="onImageModalUpdate" />
           <div v-if="campaign[imageModal.field] && imageModalFieldType === 'image'" class="image-size-row">
-            <div class="image-size-label">Bildgröße</div>
+            <div class="image-size-label">{{ tr('Bildgröße') }}</div>
             <div class="image-size-buttons">
               <button v-for="pct in [25, 50, 75, 100]" :key="pct" class="image-size-btn"
                 :class="{ active: currentImageWidthPct === pct }" @click="setImageWidthPct(pct)">
@@ -153,7 +153,7 @@
             </div>
           </div>
           <div v-else-if="campaign[imageModal.field] && imageModalFieldType === 'image-bg'" class="image-size-row">
-            <div class="image-size-hint"><i class="ti ti-info-circle"></i> Füllt in diesem Layout automatisch die volle Breite seines Bereichs — keine Größenwahl nötig.</div>
+            <div class="image-size-hint"><i class="ti ti-info-circle"></i> {{ tr('Füllt in diesem Layout automatisch die volle Breite seines Bereichs — keine Größenwahl nötig.') }}</div>
           </div>
         </div>
       </div>

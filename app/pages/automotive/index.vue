@@ -4,17 +4,17 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Automotive <span style="color:var(--accent)">Manager</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Fahrzeuge, Probefahrten, Werkstatt & TÜV-Tracking</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Automotive') }} <span style="color:var(--accent)">{{ tr('Manager') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Fahrzeuge, Probefahrten, Werkstatt & TÜV-Tracking') }}</p>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="icon-btn" title="Preisschild-Vorlagen" @click="navigateTo('/automotive/pricetag-design')"><i class="ti ti-id-badge-2"></i></button>
-        <button class="icon-btn" title="Marktplatz-Einstellungen" @click="openSettings"><i class="ti ti-settings"></i></button>
+        <button class="icon-btn" :title="tr('Preisschild-Vorlagen')" @click="navigateTo('/automotive/pricetag-design')"><i class="ti ti-id-badge-2"></i></button>
+        <button class="icon-btn" :title="tr('Marktplatz-Einstellungen')" @click="openSettings"><i class="ti ti-settings"></i></button>
         <a href="https://www.mobile.de" target="_blank" style="text-decoration:none">
-          <button class="icon-btn" title="mobile.de öffnen"><i class="ti ti-external-link"></i></button>
+          <button class="icon-btn" :title="tr('mobile.de öffnen')"><i class="ti ti-external-link"></i></button>
         </a>
         <button class="accent-btn" @click="openNewVehicle">
-          <i class="ti ti-plus"></i> Fahrzeug anlegen
+          <i class="ti ti-plus"></i> {{ tr('Fahrzeug anlegen') }}
         </button>
       </div>
     </div>
@@ -23,24 +23,24 @@
     <div v-if="showSettingsModal" class="modal-overlay" @click.self="showSettingsModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:16px;font-weight:700">Marktplatz-Einstellungen</div>
+          <div style="font-size:16px;font-weight:700">{{ tr('Marktplatz-Einstellungen') }}</div>
           <button class="icon-btn" @click="showSettingsModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">
-          API-Keys für den automatischen Abgleich deiner Fahrzeuge mit Online-Börsen.
+          {{ tr('API-Keys für den automatischen Abgleich deiner Fahrzeuge mit Online-Börsen.') }}
         </div>
         <div class="auth-field" style="margin-bottom:14px">
-          <label>mobile.de API-Key</label>
-          <input v-model="settingsForm.mobileDeApiKey" type="password" placeholder="API-Key einfügen..." />
+          <label>{{ tr('mobile.de API-Key') }}</label>
+          <input v-model="settingsForm.mobileDeApiKey" type="password" :placeholder="tr('API-Key einfügen...')" />
         </div>
         <div class="auth-field" style="margin-bottom:20px">
-          <label>AutoScout24 API-Key</label>
-          <input v-model="settingsForm.autoscout24ApiKey" type="password" placeholder="API-Key einfügen..." />
+          <label>{{ tr('AutoScout24 API-Key') }}</label>
+          <input v-model="settingsForm.autoscout24ApiKey" type="password" :placeholder="tr('API-Key einfügen...')" />
         </div>
 
         <div style="border-top:0.5px solid var(--border);margin:0 0 20px;padding-top:20px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>Fahrzeug-Seite auf der Webseite</div>
+            <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Fahrzeug-Seite auf der Webseite') }}</div>
             <button @click="settingsForm.vehiclesEnabled = !settingsForm.vehiclesEnabled"
               style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
               :style="settingsForm.vehiclesEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -49,19 +49,19 @@
             </button>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-            Zeigt deine verfügbaren Fahrzeuge öffentlich auf deiner Nexora-Webseite. Fahrzeuge mit Status "verfügbar" erscheinen automatisch dort.
+            {{ tr('Zeigt deine verfügbaren Fahrzeuge öffentlich auf deiner Nexora-Webseite. Fahrzeuge mit Status "verfügbar" erscheinen automatisch dort.') }}
           </div>
           <div class="auth-field" v-if="settingsForm.vehiclesEnabled">
-            <label>Seitentitel (Navigation & Überschrift)</label>
-            <input v-model="settingsForm.vehiclesTitle" placeholder="Fahrzeuge" />
+            <label>{{ tr('Seitentitel (Navigation & Überschrift)') }}</label>
+            <input v-model="settingsForm.vehiclesTitle" :placeholder="tr('Fahrzeuge')" />
           </div>
         </div>
 
         <div style="display:flex;gap:16px;justify-content:flex-end">
-          <button class="icon-btn" style="padding:0 16px;font-size:12px" @click="showSettingsModal=false">Abbrechen</button>
+          <button class="icon-btn" style="padding:0 16px;font-size:12px" @click="showSettingsModal=false">{{ tr('Abbrechen') }}</button>
           <button class="accent-btn" :disabled="savingSettings" @click="saveSettings">
             <i v-if="savingSettings" class="ti ti-loader-2 spin"></i>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>Speichern</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>{{ tr('Speichern') }}</span>
           </button>
         </div>
       </div>
@@ -71,7 +71,7 @@
     <div v-if="showPriceTagPicker" class="modal-overlay" @click.self="showPriceTagPicker=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:380px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div style="font-size:15px;font-weight:700">Vorlage wählen</div>
+          <div style="font-size:15px;font-weight:700">{{ tr('Vorlage wählen') }}</div>
           <button class="icon-btn" @click="showPriceTagPicker=false"><i class="ti ti-x"></i></button>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -92,7 +92,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ vehicles.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Fahrzeuge gesamt</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Fahrzeuge gesamt') }}</div>
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ vehicles.filter(v => v.status === 'verfügbar').length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Verfügbar</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Verfügbar') }}</div>
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ workshopOrders.filter(o => o.status === 'offen' || o.status === 'in Arbeit').length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Offene Aufträge</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Offene Aufträge') }}</div>
           </div>
         </div>
       </div>
@@ -125,7 +125,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ tuevAlerts.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">TÜV fällig (60 Tage)</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('TÜV fällig (60 Tage)') }}</div>
           </div>
         </div>
       </div>
@@ -146,8 +146,8 @@
       </div>
       <div v-else-if="!vehicles.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-car-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Fahrzeuge angelegt.</p>
-        <button class="accent-btn" @click="openNewVehicle"><i class="ti ti-plus" style="margin-right:6px"></i>Erstes Fahrzeug anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Fahrzeuge angelegt.') }}</p>
+        <button class="accent-btn" @click="openNewVehicle"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Erstes Fahrzeug anlegen') }}</button>
       </div>
       <div v-else style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
         <div v-for="v in vehicles" :key="v.vehicleId"
@@ -160,7 +160,7 @@
             <span style="position:absolute;top:8px;left:8px;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.05em;text-transform:uppercase"
               :style="statusStyle(v.status)">{{ v.status || 'unbekannt' }}</span>
             <span v-if="isTuevDue(v)" style="position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700">
-              ⚠ TÜV
+              {{ tr('⚠ TÜV') }}
             </span>
           </div>
           <div v-if="vehicleImages(v).length > 1" style="display:flex;gap:3px;padding:6px 8px;background:var(--bg-elevated);border-top:0.5px solid var(--border)">
@@ -179,15 +179,15 @@
               <span style="font-weight:800;font-size:17px;color:var(--accent)">{{ formatPrice(v.price) }}</span>
               <div style="display:flex;gap:4px">
                 <button @click="printPriceTag(v)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s,color .15s"
-                  onmouseover="this.style.background='var(--bg-elevated)';this.style.color='var(--accent)'" onmouseout="this.style.background='none';this.style.color='var(--text-muted)'" title="Preisschild drucken">
+                  onmouseover="this.style.background='var(--bg-elevated)';this.style.color='var(--accent)'" onmouseout="this.style.background='none';this.style.color='var(--text-muted)'" :title="tr('Preisschild drucken')">
                   <i class="ti ti-printer"></i>
                 </button>
                 <button @click="openEditVehicle(v)" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s"
-                  onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='none'" title="Bearbeiten">
+                  onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='none'" :title="tr('Bearbeiten')">
                   <i class="ti ti-edit"></i>
                 </button>
                 <button @click="deleteVehicle(v)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px;transition:background .15s"
-                  onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'" title="Löschen">
+                  onmouseover="this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.background='none'" :title="tr('Löschen')">
                   <i class="ti ti-trash"></i>
                 </button>
               </div>
@@ -200,20 +200,20 @@
     <!-- ── TAB: PROBEFAHRTEN ── -->
     <div v-else-if="activeTab === 'probefahrten'">
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="accent-btn" @click="openNewTestDrive"><i class="ti ti-plus"></i> Probefahrt buchen</button>
+        <button class="accent-btn" @click="openNewTestDrive"><i class="ti ti-plus"></i> {{ tr('Probefahrt buchen') }}</button>
       </div>
       <div v-if="!testDrives.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-steering-wheel" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p>Noch keine Probefahrten eingetragen.</p>
+        <p>{{ tr('Noch keine Probefahrten eingetragen.') }}</p>
       </div>
       <div v-else class="data-table">
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="border-bottom:1px solid var(--border)">
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Fahrzeug</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Kunde</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Datum</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Status</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Fahrzeug') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Kunde') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Datum') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Status') }}</th>
               <th style="padding:10px 12px"></th>
             </tr>
           </thead>
@@ -243,21 +243,21 @@
     <!-- ── TAB: WERKSTATT ── -->
     <div v-else-if="activeTab === 'werkstatt'">
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="accent-btn" @click="openNewOrder"><i class="ti ti-plus"></i> Auftrag anlegen</button>
+        <button class="accent-btn" @click="openNewOrder"><i class="ti ti-plus"></i> {{ tr('Auftrag anlegen') }}</button>
       </div>
       <div v-if="!workshopOrders.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-tool" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p>Noch keine Werkstatt-Aufträge.</p>
+        <p>{{ tr('Noch keine Werkstatt-Aufträge.') }}</p>
       </div>
       <div v-else class="data-table">
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="border-bottom:1px solid var(--border)">
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Auftrag</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Fahrzeug</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Kunde</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Status</th>
-              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Kosten</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Auftrag') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Fahrzeug') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Kunde') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Status') }}</th>
+              <th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ tr('Kosten') }}</th>
               <th style="padding:10px 12px"></th>
             </tr>
           </thead>
@@ -288,7 +288,7 @@
     <div v-else-if="activeTab === 'tuev'">
       <div v-if="!vehicles.length" style="text-align:center;padding:60px;color:var(--text-muted)">
         <i class="ti ti-certificate" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p>Keine Fahrzeuge vorhanden.</p>
+        <p>{{ tr('Keine Fahrzeuge vorhanden.') }}</p>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:8px">
         <div v-for="v in vehiclesSortedByTuev" :key="v.vehicleId"
@@ -327,86 +327,86 @@
         </div>
         <div class="modal-body">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field"><label>Marke *</label><input v-model="vForm.make" placeholder="VW, BMW, Mercedes..." /></div>
-            <div class="auth-field"><label>Modell *</label><input v-model="vForm.model" placeholder="Golf, 3er, C-Klasse..." /></div>
-            <div class="auth-field"><label>Variante</label><input v-model="vForm.variant" placeholder="GTI, xDrive, AMG..." /></div>
-            <div class="auth-field"><label>Baujahr *</label><input :value="vForm.year" type="text" inputmode="numeric" placeholder="2022" @input="onYearInput" @paste.prevent="onYearPaste" /></div>
-            <div class="auth-field"><label>Kilometerstand</label><input :value="vForm.mileage" type="text" inputmode="numeric" placeholder="45000" @input="onMileageInput" @paste.prevent="onMileagePaste" /></div>
-            <div class="auth-field"><label>Kraftstoff</label>
+            <div class="auth-field"><label>{{ tr('Marke *') }}</label><input v-model="vForm.make" :placeholder="tr('VW, BMW, Mercedes...')" /></div>
+            <div class="auth-field"><label>{{ tr('Modell *') }}</label><input v-model="vForm.model" :placeholder="tr('Golf, 3er, C-Klasse...')" /></div>
+            <div class="auth-field"><label>{{ tr('Variante') }}</label><input v-model="vForm.variant" :placeholder="tr('GTI, xDrive, AMG...')" /></div>
+            <div class="auth-field"><label>{{ tr('Baujahr *') }}</label><input :value="vForm.year" type="text" inputmode="numeric" placeholder="2022" @input="onYearInput" @paste.prevent="onYearPaste" /></div>
+            <div class="auth-field"><label>{{ tr('Kilometerstand') }}</label><input :value="vForm.mileage" type="text" inputmode="numeric" placeholder="45000" @input="onMileageInput" @paste.prevent="onMileagePaste" /></div>
+            <div class="auth-field"><label>{{ tr('Kraftstoff') }}</label>
               <select v-model="vForm.fuel" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Benzin</option><option>Diesel</option><option>Elektro</option>
-                <option>Hybrid</option><option>Plug-in Hybrid</option><option>LPG</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Benzin') }}</option><option>{{ tr('Diesel') }}</option><option>{{ tr('Elektro') }}</option>
+                <option>{{ tr('Hybrid') }}</option><option>{{ tr('Plug-in Hybrid') }}</option><option>{{ tr('LPG') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Getriebe</label>
+            <div class="auth-field"><label>{{ tr('Getriebe') }}</label>
               <select v-model="vForm.transmission" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Manuell</option><option>Automatik</option><option>DSG</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Manuell') }}</option><option>{{ tr('Automatik') }}</option><option>{{ tr('DSG') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Leistung (PS)</label><input v-model="vForm.power" type="number" placeholder="150" /></div>
-            <div class="auth-field"><label>Preis (€) *</label><input v-model="vForm.price" type="number" placeholder="24900" /></div>
-            <div class="auth-field"><label>Status</label>
+            <div class="auth-field"><label>{{ tr('Leistung (PS)') }}</label><input v-model="vForm.power" type="number" placeholder="150" /></div>
+            <div class="auth-field"><label>{{ tr('Preis (€) *') }}</label><input v-model="vForm.price" type="number" placeholder="24900" /></div>
+            <div class="auth-field"><label>{{ tr('Status') }}</label>
               <select v-model="vForm.status" class="form-select">
-                <option>verfügbar</option><option>reserviert</option><option>verkauft</option>
-                <option>in Werkstatt</option><option>Probefahrt</option>
+                <option>{{ tr('verfügbar') }}</option><option>{{ tr('reserviert') }}</option><option>{{ tr('verkauft') }}</option>
+                <option>{{ tr('in Werkstatt') }}</option><option>{{ tr('Probefahrt') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Fahrzeugzustand</label>
+            <div class="auth-field"><label>{{ tr('Fahrzeugzustand') }}</label>
               <select v-model="vForm.condition" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Neu</option><option>Gebraucht, unfallfrei</option>
-                <option>Gebraucht, Unfallschaden repariert</option><option>Beschädigt/Unfallwagen</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Neu') }}</option><option>{{ tr('Gebraucht, unfallfrei') }}</option>
+                <option>{{ tr('Gebraucht, Unfallschaden repariert') }}</option><option>{{ tr('Beschädigt/Unfallwagen') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Fahrzeugtyp</label>
+            <div class="auth-field"><label>{{ tr('Fahrzeugtyp') }}</label>
               <select v-model="vForm.vehicleType" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Kleinwagen</option><option>Limousine</option><option>Kombi</option>
-                <option>SUV/Geländewagen</option><option>Van/Minivan</option><option>Cabrio</option>
-                <option>Coupé</option><option>Pick-up</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Kleinwagen') }}</option><option>{{ tr('Limousine') }}</option><option>{{ tr('Kombi') }}</option>
+                <option>{{ tr('SUV/Geländewagen') }}</option><option>{{ tr('Van/Minivan') }}</option><option>{{ tr('Cabrio') }}</option>
+                <option>{{ tr('Coupé') }}</option><option>{{ tr('Pick-up') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Anzahl Türen</label>
+            <div class="auth-field"><label>{{ tr('Anzahl Türen') }}</label>
               <select v-model="vForm.doors" class="form-select">
-                <option value="">— wählen —</option>
+                <option value="">{{ tr('— wählen —') }}</option>
                 <option>2/3</option><option>4/5</option>
               </select>
             </div>
-            <div class="auth-field"><label>Umweltplakette</label>
+            <div class="auth-field"><label>{{ tr('Umweltplakette') }}</label>
               <select v-model="vForm.emissionSticker" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Grün</option><option>Gelb</option><option>Rot</option><option>Keine</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Grün') }}</option><option>{{ tr('Gelb') }}</option><option>{{ tr('Rot') }}</option><option>{{ tr('Keine') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Schadstoffklasse</label>
+            <div class="auth-field"><label>{{ tr('Schadstoffklasse') }}</label>
               <select v-model="vForm.emissionClass" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Euro 6</option><option>Euro 5</option><option>Euro 4</option>
-                <option>Euro 3</option><option>Euro 2</option><option>Euro 1</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Euro 6') }}</option><option>{{ tr('Euro 5') }}</option><option>{{ tr('Euro 4') }}</option>
+                <option>{{ tr('Euro 3') }}</option><option>{{ tr('Euro 2') }}</option><option>{{ tr('Euro 1') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Innenausstattung</label>
+            <div class="auth-field"><label>{{ tr('Innenausstattung') }}</label>
               <select v-model="vForm.interiorMaterial" class="form-select">
-                <option value="">— wählen —</option>
-                <option>Stoff</option><option>Teilleder</option><option>Leder</option><option>Alcantara</option>
+                <option value="">{{ tr('— wählen —') }}</option>
+                <option>{{ tr('Stoff') }}</option><option>{{ tr('Teilleder') }}</option><option>{{ tr('Leder') }}</option><option>{{ tr('Alcantara') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Kennzeichen</label><input v-model="vForm.licensePlate" placeholder="MYK-PP 42" /></div>
-            <div class="auth-field"><label>TÜV fällig</label><input v-model="vForm.tuevDate" type="date" /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Farbe</label><input v-model="vForm.color" placeholder="Graphitgrau Metallic" /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>Bilder</label><VehicleImageGallery v-model="vForm.images" /></div>
+            <div class="auth-field"><label>{{ tr('Kennzeichen') }}</label><input v-model="vForm.licensePlate" :placeholder="tr('MYK-PP 42')" /></div>
+            <div class="auth-field"><label>{{ tr('TÜV fällig') }}</label><input v-model="vForm.tuevDate" type="date" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ tr('Farbe') }}</label><input v-model="vForm.color" :placeholder="tr('Graphitgrau Metallic')" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ tr('Bilder') }}</label><VehicleImageGallery v-model="vForm.images" /></div>
             <div class="auth-field" style="grid-column:span 2">
-              <label>Ausstattung</label>
+              <label>{{ tr('Ausstattung') }}</label>
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px 12px;padding:10px 12px;background:var(--bg-elevated);border-radius:8px">
                 <label v-for="opt in EQUIPMENT_OPTIONS" :key="opt" style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;font-weight:400">
                   <input type="checkbox" :value="opt" v-model="vForm.equipment" style="width:auto" /> {{ opt }}
                 </label>
               </div>
             </div>
-            <div class="auth-field" style="grid-column:span 2"><label>Sonstige Beschreibung</label>
-              <textarea v-model="vForm.description" style="height:60px;resize:none;width:100%" class="form-select" placeholder="Weitere Details, Historie, Besonderheiten..."></textarea>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ tr('Sonstige Beschreibung') }}</label>
+              <textarea v-model="vForm.description" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('Weitere Details, Historie, Besonderheiten...')"></textarea>
             </div>
           </div>
         </div>
@@ -423,31 +423,31 @@
     <div v-if="showTestDriveModal" class="modal-overlay" @click.self="showTestDriveModal=false">
       <div class="modal-card" style="max-width:500px">
         <div class="modal-header">
-          <span class="card-title">Probefahrt buchen</span>
+          <span class="card-title">{{ tr('Probefahrt buchen') }}</span>
           <button class="icon-btn" @click="showTestDriveModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Fahrzeug *</label>
+          <div class="auth-field"><label>{{ tr('Fahrzeug *') }}</label>
             <select v-model="tdForm.vehicleName" class="form-select">
-              <option value="">— Fahrzeug wählen —</option>
+              <option value="">{{ tr('— Fahrzeug wählen —') }}</option>
               <option v-for="v in vehicles" :key="v.vehicleId" :value="`${v.make} ${v.model} ${v.year}`">{{ v.make }} {{ v.model }} {{ v.year }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Kundenname *</label><input v-model="tdForm.customerName" placeholder="Max Mustermann" /></div>
-          <div class="auth-field"><label>Telefon</label><input v-model="tdForm.phone" placeholder="+49 123 456789" /></div>
-          <div class="auth-field"><label>Datum *</label><input v-model="tdForm.date" type="datetime-local" /></div>
-          <div class="auth-field"><label>Status</label>
+          <div class="auth-field"><label>{{ tr('Kundenname *') }}</label><input v-model="tdForm.customerName" :placeholder="tr('Max Mustermann')" /></div>
+          <div class="auth-field"><label>{{ tr('Telefon') }}</label><input v-model="tdForm.phone" placeholder="+49 123 456789" /></div>
+          <div class="auth-field"><label>{{ tr('Datum *') }}</label><input v-model="tdForm.date" type="datetime-local" /></div>
+          <div class="auth-field"><label>{{ tr('Status') }}</label>
             <select v-model="tdForm.status" class="form-select">
-              <option>geplant</option><option>abgeschlossen</option><option>storniert</option>
+              <option>{{ tr('geplant') }}</option><option>{{ tr('abgeschlossen') }}</option><option>{{ tr('storniert') }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Notiz</label>
-            <textarea v-model="tdForm.notes" style="height:60px;resize:none;width:100%" class="form-select" placeholder="Besondere Wünsche..."></textarea>
+          <div class="auth-field"><label>{{ tr('Notiz') }}</label>
+            <textarea v-model="tdForm.notes" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('Besondere Wünsche...')"></textarea>
           </div>
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveTestDrive" :disabled="!tdForm.vehicleName || !tdForm.customerName || !tdForm.date">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>Probefahrt speichern
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ tr('Probefahrt speichern') }}
           </button>
         </div>
       </div>
@@ -461,24 +461,24 @@
           <button class="icon-btn" @click="showOrderModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Titel *</label><input v-model="oForm.title" placeholder="Inspektion, Ölwechsel, Reifenwechsel..." /></div>
-          <div class="auth-field"><label>Fahrzeug</label>
+          <div class="auth-field"><label>{{ tr('Titel *') }}</label><input v-model="oForm.title" :placeholder="tr('Inspektion, Ölwechsel, Reifenwechsel...')" /></div>
+          <div class="auth-field"><label>{{ tr('Fahrzeug') }}</label>
             <select v-model="oForm.vehicleName" class="form-select">
-              <option value="">— Fahrzeug wählen —</option>
+              <option value="">{{ tr('— Fahrzeug wählen —') }}</option>
               <option v-for="v in vehicles" :key="v.vehicleId" :value="`${v.make} ${v.model} ${v.year}`">{{ v.make }} {{ v.model }} {{ v.year }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Kunde</label><input v-model="oForm.customerName" placeholder="Max Mustermann" /></div>
+          <div class="auth-field"><label>{{ tr('Kunde') }}</label><input v-model="oForm.customerName" :placeholder="tr('Max Mustermann')" /></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field"><label>Status</label>
+            <div class="auth-field"><label>{{ tr('Status') }}</label>
               <select v-model="oForm.status" class="form-select">
-                <option>offen</option><option>in Arbeit</option><option>abgeschlossen</option><option>storniert</option>
+                <option>{{ tr('offen') }}</option><option>{{ tr('in Arbeit') }}</option><option>{{ tr('abgeschlossen') }}</option><option>{{ tr('storniert') }}</option>
               </select>
             </div>
-            <div class="auth-field"><label>Kosten (€)</label><input v-model="oForm.cost" type="number" placeholder="249" /></div>
+            <div class="auth-field"><label>{{ tr('Kosten (€)') }}</label><input v-model="oForm.cost" type="number" placeholder="249" /></div>
           </div>
-          <div class="auth-field"><label>Beschreibung</label>
-            <textarea v-model="oForm.description" style="height:80px;resize:none;width:100%" class="form-select" placeholder="Durchgeführte Arbeiten..."></textarea>
+          <div class="auth-field"><label>{{ tr('Beschreibung') }}</label>
+            <textarea v-model="oForm.description" style="height:80px;resize:none;width:100%" class="form-select" :placeholder="tr('Durchgeführte Arbeiten...')"></textarea>
           </div>
         </div>
         <div style="padding:0 24px 24px">
@@ -529,7 +529,7 @@ async function loadPricetagTemplates() {
 
 function printPriceTag(v: any) {
   if (!pricetagTemplates.value.length) {
-    if (confirm('Noch keine Preisschild-Vorlage angelegt. Jetzt eine erstellen?')) navigateTo('/automotive/pricetag-design')
+    if (confirm(tr('Noch keine Preisschild-Vorlage angelegt. Jetzt eine erstellen?'))) navigateTo('/automotive/pricetag-design')
     return
   }
   priceTagVehicleId.value = v.vehicleId
@@ -572,7 +572,7 @@ async function saveSettings() {
     })
     showSettingsModal.value = false
   } catch {
-    alert('Fehler beim Speichern der API-Keys.')
+    alert(tr('Fehler beim Speichern der API-Keys.'))
   } finally {
     savingSettings.value = false
   }
@@ -639,7 +639,7 @@ function issTuevSoon(v: any) {
 function tuevDaysLeft(date: string) {
   const diff = Math.ceil((new Date(date).getTime() - Date.now()) / 86400000)
   if (diff < 0) return `Überfällig seit ${Math.abs(diff)} Tagen`
-  if (diff === 0) return 'Heute fällig!'
+  if (diff === 0) return tr('Heute fällig!')
   return `Noch ${diff} Tage`
 }
 
@@ -726,7 +726,7 @@ async function saveOrder() {
   } catch {}
 }
 async function deleteOrder(o: any) {
-  if (!confirm('Auftrag löschen?')) return
+  if (!confirm(tr('Auftrag löschen?'))) return
   await $fetch(useApiUrl(`/api/workshop/${o.orderId}`), { method:'DELETE', headers:{ 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } })
   await loadWorkshop()
 }

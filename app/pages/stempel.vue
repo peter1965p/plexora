@@ -5,7 +5,7 @@
     <header class="stempel-header">
       <div class="stempel-logo">
         <span class="logo-mark">P</span>
-        <span class="logo-text">Plexora</span>
+        <span class="logo-text">{{ tr('Plexora') }}</span>
       </div>
       <div class="stempel-date">{{ currentDate }}</div>
       <div class="stempel-clock">{{ currentTime }}</div>
@@ -18,9 +18,9 @@
           <i :class="confirmation.action === 'in' ? 'ti ti-login' : 'ti ti-logout'"></i>
           <div class="confirm-name">{{ confirmation.name }}</div>
           <div class="confirm-action">{{ confirmation.action === 'in' ? 'Eingestempelt' : 'Ausgestempelt' }}</div>
-          <div class="confirm-time">{{ confirmation.time }} Uhr</div>
+          <div class="confirm-time">{{ confirmation.time }} {{ tr('Uhr') }}</div>
           <div v-if="confirmation.minutes" class="confirm-duration">
-            Arbeitszeit: {{ formatMinutes(confirmation.minutes) }}
+            {{ tr('Arbeitszeit:') }} {{ formatMinutes(confirmation.minutes) }}
           </div>
         </div>
       </div>
@@ -30,8 +30,8 @@
     <main v-if="!kioskReady" class="stempel-main" style="display:flex;align-items:center;justify-content:center;min-height:60vh">
       <div style="text-align:center;color:var(--text-muted,#888)">
         <i class="ti ti-lock" style="font-size:48px;display:block;margin-bottom:16px"></i>
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Dieses Gerät ist nicht angemeldet</div>
-        <div style="font-size:13px">Bitte auf diesem Kiosk-Gerät einmalig mit dem Firmen-Account einloggen.</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">{{ tr('Dieses Gerät ist nicht angemeldet') }}</div>
+        <div style="font-size:13px">{{ tr('Bitte auf diesem Kiosk-Gerät einmalig mit dem Firmen-Account einloggen.') }}</div>
       </div>
     </main>
 
@@ -40,7 +40,7 @@
 
       <!-- Employee Grid -->
       <section class="emp-section">
-        <h2 class="section-label">Mitarbeiter auswählen</h2>
+        <h2 class="section-label">{{ tr('Mitarbeiter auswählen') }}</h2>
         <div class="emp-grid">
           <button
             v-for="emp in employees" :key="emp.id"
@@ -63,7 +63,7 @@
       <section class="action-section">
         <div v-if="!selectedEmployee" class="action-placeholder">
           <i class="ti ti-hand-finger"></i>
-          <p>Mitarbeiter antippen</p>
+          <p>{{ tr('Mitarbeiter antippen') }}</p>
         </div>
 
         <div v-else class="action-panel">
@@ -71,9 +71,9 @@
             <div class="action-avatar">{{ initials(selectedEmployee.name) }}</div>
             <div class="action-emp-name">{{ selectedEmployee.name }}</div>
             <div class="action-emp-sub" v-if="isClockedIn(selectedEmployee.id)">
-              Eingestempelt seit {{ clockedInSince(selectedEmployee.id) }} Uhr
+              {{ tr('Eingestempelt seit') }} {{ clockedInSince(selectedEmployee.id) }} {{ tr('Uhr') }}
             </div>
-            <div class="action-emp-sub" v-else>Noch nicht eingestempelt heute</div>
+            <div class="action-emp-sub" v-else>{{ tr('Noch nicht eingestempelt heute') }}</div>
           </div>
 
           <button
@@ -83,7 +83,7 @@
             @click="stamp('in')"
           >
             <i class="ti ti-login"></i>
-            Einstempeln
+            {{ tr('Einstempeln') }}
           </button>
           <button
             v-else
@@ -92,11 +92,11 @@
             @click="stamp('out')"
           >
             <i class="ti ti-logout"></i>
-            Ausstempeln
+            {{ tr('Ausstempeln') }}
           </button>
 
           <button class="cancel-btn" @click="selectedEmployee = null; selectedId = null">
-            <i class="ti ti-x"></i> Abbrechen
+            <i class="ti ti-x"></i> {{ tr('Abbrechen') }}
           </button>
         </div>
       </section>
@@ -105,9 +105,9 @@
 
     <!-- Today's Log -->
     <footer class="stempel-log">
-      <div class="log-label">Heute</div>
+      <div class="log-label">{{ tr('Heute') }}</div>
       <div class="log-entries">
-        <div v-if="todayEntries.length === 0" class="log-empty">Noch keine Einträge</div>
+        <div v-if="todayEntries.length === 0" class="log-empty">{{ tr('Noch keine Einträge') }}</div>
         <div v-for="e in todayEntries" :key="e.logId" class="log-entry">
           <div class="log-emp">{{ e.employeeName }}</div>
           <div class="log-times">

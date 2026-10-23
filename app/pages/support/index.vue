@@ -33,7 +33,7 @@
       <!-- TICKET LIST -->
       <div class="card" style="flex:1;min-width:0">
         <div class="card-header">
-          <span class="card-title">Support Tickets</span>
+          <span class="card-title">{{ tr('Support Tickets') }}</span>
           <div style="display:flex;gap:6px">
             <select v-model="filterStatus" class="form-select" style="height:28px;font-size:11px;padding:0 8px">
               <option value="">{{ t.support.filterAll }}</option>
@@ -113,10 +113,10 @@
 
         <!-- SLA INFO -->
         <div style="padding:10px 16px;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--text-muted)">
-          <span>SLA: <strong :class="'sla-txt-'+slaClass(detail)">{{ slaTooltip(detail) }}</strong></span>
+          <span>{{ tr('SLA:') }} <strong :class="'sla-txt-'+slaClass(detail)">{{ slaTooltip(detail) }}</strong></span>
           <span v-if="detail.portalToken" style="float:right">
             <button class="icon-btn" style="font-size:11px;padding:0 8px;height:22px" @click="copyPortalLink(detail)" :title="t.support.copyPortalLink">
-              <i class="ti ti-link"></i> Portal-Link
+              <i class="ti ti-link"></i> {{ tr('Portal-Link') }}
             </button>
           </span>
         </div>
@@ -152,8 +152,8 @@
         <div class="modal-body">
           <div class="auth-field"><label>{{ t.support.colTitle }}</label><input v-model="newTicket.title" :placeholder="t.support.problemDesc" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.support.colClient }}</label><input v-model="newTicket.client" placeholder="Firma GmbH" /></div>
-            <div class="auth-field"><label>{{ t.support.clientEmail }}</label><input v-model="newTicket.clientEmail" placeholder="kunde@firma.de" /></div>
+            <div class="auth-field"><label>{{ t.support.colClient }}</label><input v-model="newTicket.client" :placeholder="tr('Firma GmbH')" /></div>
+            <div class="auth-field"><label>{{ t.support.clientEmail }}</label><input v-model="newTicket.clientEmail" :placeholder="tr('kunde@firma.de')" /></div>
           </div>
           <div class="auth-row">
             <div class="auth-field">

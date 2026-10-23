@@ -3,18 +3,18 @@
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Newsletter</h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Abonnenten, Anmeldung und Absender-Einstellungen</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Newsletter') }}</h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Abonnenten, Anmeldung und Absender-Einstellungen') }}</p>
       </div>
       <div style="display:flex;gap:10px">
         <button v-if="activeTab === 'campaigns'" class="accent-btn" @click="openNewCampaign">
-          <i class="ti ti-plus"></i> Neue Kampagne
+          <i class="ti ti-plus"></i> {{ tr('Neue Kampagne') }}
         </button>
         <button v-if="activeTab === 'subscribers'" class="accent-btn" @click="showImportModal = true">
-          <i class="ti ti-file-import"></i> CSV importieren
+          <i class="ti ti-file-import"></i> {{ tr('CSV importieren') }}
         </button>
         <button v-if="activeTab === 'automation'" class="accent-btn" @click="openNewRule">
-          <i class="ti ti-plus"></i> Neue Regel
+          <i class="ti ti-plus"></i> {{ tr('Neue Regel') }}
         </button>
       </div>
     </div>
@@ -32,15 +32,14 @@
       </div>
       <div v-else-if="!subscribers.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
         <i class="ti ti-mail-plus" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Abonnenten</p>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">{{ tr('Noch keine Abonnenten') }}</p>
         <p style="font-size:13px;max-width:360px;margin:0 auto;line-height:1.6">
-          Sobald jemand über das Anmeldeformular auf deiner Website abonniert, taucht er hier auf.
-          Du kannst auch direkt <a href="#" @click.prevent="showImportModal = true" style="color:var(--accent)">eine bestehende Liste per CSV importieren</a>.
+          {{ tr('Sobald jemand über das Anmeldeformular auf deiner Website abonniert, taucht er hier auf. Du kannst auch direkt') }} <a href="#" @click.prevent="showImportModal = true" style="color:var(--accent)">{{ tr('eine bestehende Liste per CSV importieren') }}</a>.
         </p>
       </div>
       <table v-else class="data-table">
         <thead>
-          <tr><th>E-Mail</th><th>Status</th><th>Tags</th><th>Angemeldet</th><th>Bestätigt</th></tr>
+          <tr><th>{{ tr('E-Mail') }}</th><th>{{ tr('Status') }}</th><th>{{ tr('Tags') }}</th><th>{{ tr('Angemeldet') }}</th><th>{{ tr('Bestätigt') }}</th></tr>
         </thead>
         <tbody>
           <tr v-for="s in subscribers" :key="s.subscriberId">
@@ -55,7 +54,7 @@
       <div v-if="nextCursor" style="padding:14px;text-align:center">
         <button class="icon-btn" :disabled="loadingMore" @click="loadSubscribers(true)">
           <i v-if="loadingMore" class="ti ti-loader-2 spin"></i>
-          <span v-else>Mehr laden</span>
+          <span v-else>{{ tr('Mehr laden') }}</span>
         </button>
       </div>
     </div>
@@ -67,13 +66,13 @@
       </div>
       <div v-else-if="!campaigns.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
         <i class="ti ti-send" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Kampagnen</p>
-        <p style="font-size:13px;margin:0 0 16px">Erstelle deinen ersten Newsletter-Versand.</p>
-        <button class="accent-btn" @click="openNewCampaign"><i class="ti ti-plus" style="margin-right:6px"></i>Neue Kampagne</button>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">{{ tr('Noch keine Kampagnen') }}</p>
+        <p style="font-size:13px;margin:0 0 16px">{{ tr('Erstelle deinen ersten Newsletter-Versand.') }}</p>
+        <button class="accent-btn" @click="openNewCampaign"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Neue Kampagne') }}</button>
       </div>
       <table v-else class="data-table">
         <thead>
-          <tr><th>Name</th><th>Betreff</th><th>Status</th><th>Empfänger</th><th>Öffnungen</th><th>Klicks</th><th></th></tr>
+          <tr><th>{{ tr('Name') }}</th><th>{{ tr('Betreff') }}</th><th>{{ tr('Status') }}</th><th>{{ tr('Empfänger') }}</th><th>{{ tr('Öffnungen') }}</th><th>{{ tr('Klicks') }}</th><th></th></tr>
         </thead>
         <tbody>
           <tr v-for="c in campaigns" :key="c.campaignId" style="cursor:pointer" @click="openEditCampaign(c)">
@@ -100,17 +99,17 @@
       </div>
       <div v-else-if="!templates.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
         <i class="ti ti-layout-grid" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Vorlagen</p>
-        <p style="font-size:13px;margin:0">Speichere eine Kampagne als Vorlage, um sie später wiederzuverwenden.</p>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">{{ tr('Noch keine Vorlagen') }}</p>
+        <p style="font-size:13px;margin:0">{{ tr('Speichere eine Kampagne als Vorlage, um sie später wiederzuverwenden.') }}</p>
       </div>
       <table v-else class="data-table">
-        <thead><tr><th>Name</th><th>Zuletzt bearbeitet</th><th></th></tr></thead>
+        <thead><tr><th>{{ tr('Name') }}</th><th>{{ tr('Zuletzt bearbeitet') }}</th><th></th></tr></thead>
         <tbody>
           <tr v-for="t in templates" :key="t.templateId">
             <td class="td-name">{{ t.name }}</td>
             <td style="font-size:12px;color:var(--text-muted)">{{ formatDate(t.updatedAt) }}</td>
             <td style="display:flex;gap:4px;justify-content:flex-end">
-              <button class="wide-btn" style="width:auto;padding:0 12px" @click="newCampaignFromTemplate(t)"><i class="ti ti-copy" style="margin-right:6px"></i>Als Kampagne verwenden</button>
+              <button class="wide-btn" style="width:auto;padding:0 12px" @click="newCampaignFromTemplate(t)"><i class="ti ti-copy" style="margin-right:6px"></i>{{ tr('Als Kampagne verwenden') }}</button>
               <button @click="deleteTemplate(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 10px"><i class="ti ti-trash"></i></button>
             </td>
           </tr>
@@ -125,12 +124,12 @@
       </div>
       <div v-else-if="!automationRules.length" style="text-align:center;padding:70px 20px;color:var(--text-muted)">
         <i class="ti ti-bolt" style="font-size:44px;display:block;margin-bottom:16px;opacity:.35;color:var(--accent)"></i>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">Noch keine Automatisierung</p>
-        <p style="font-size:13px;margin:0 0 16px">Willkommens-Mails, verzögerte Follow-ups oder Erinnerungen an Nicht-Öffner einrichten.</p>
-        <button class="accent-btn" @click="openNewRule"><i class="ti ti-plus" style="margin-right:6px"></i>Neue Regel</button>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 8px">{{ tr('Noch keine Automatisierung') }}</p>
+        <p style="font-size:13px;margin:0 0 16px">{{ tr('Willkommens-Mails, verzögerte Follow-ups oder Erinnerungen an Nicht-Öffner einrichten.') }}</p>
+        <button class="accent-btn" @click="openNewRule"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Neue Regel') }}</button>
       </div>
       <table v-else class="data-table">
-        <thead><tr><th>Name</th><th>Trigger</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>{{ tr('Name') }}</th><th>{{ tr('Trigger') }}</th><th>{{ tr('Status') }}</th><th></th></tr></thead>
         <tbody>
           <tr v-for="r in automationRules" :key="r.ruleId" style="cursor:pointer" @click="openEditRule(r)">
             <td class="td-name">{{ r.name }}</td>
@@ -149,26 +148,26 @@
     <!-- EINSTELLUNGEN -->
     <div v-if="activeTab === 'settings'" class="card" style="max-width:560px">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-settings" style="margin-right:8px;color:var(--accent)"></i>Absender-Einstellungen</span>
+        <span class="card-title"><i class="ti ti-settings" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Absender-Einstellungen') }}</span>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
         <div class="blog-field">
-          <label>Absendername</label>
-          <input v-model="settings.senderName" placeholder="z.B. Dein Firmenname" />
+          <label>{{ tr('Absendername') }}</label>
+          <input v-model="settings.senderName" :placeholder="tr('z.B. Dein Firmenname')" />
         </div>
         <div class="blog-field">
-          <label>Reply-To (Antworten landen hier)</label>
-          <input v-model="settings.replyTo" placeholder="kontakt@deine-firma.de" />
+          <label>{{ tr('Reply-To (Antworten landen hier)') }}</label>
+          <input v-model="settings.replyTo" :placeholder="tr('kontakt@deine-firma.de')" />
         </div>
         <div class="blog-field">
-          <label>Impressum (Pflichtangabe, erscheint im Footer jeder Mail)</label>
-          <textarea v-model="settings.impressum" rows="5" placeholder="Firma GmbH, Musterstraße 1, 12345 Musterstadt..."
+          <label>{{ tr('Impressum (Pflichtangabe, erscheint im Footer jeder Mail)') }}</label>
+          <textarea v-model="settings.impressum" rows="5" :placeholder="tr('Firma GmbH, Musterstraße 1, 12345 Musterstadt...')"
             style="width:100%;font-family:inherit;font-size:12px;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:10px;resize:vertical"></textarea>
         </div>
         <div>
           <button class="accent-btn" :disabled="savingSettings" @click="saveSettings">
             <i v-if="savingSettings" class="ti ti-loader-2 spin"></i>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>Speichern</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:4px"></i>{{ tr('Speichern') }}</span>
           </button>
         </div>
       </div>
@@ -178,22 +177,21 @@
     <div v-if="showImportModal" class="modal-overlay" @click.self="closeImportModal">
       <div class="modal-card" style="max-width:520px">
         <div class="modal-header">
-          <span style="font-weight:700">CSV-Import</span>
+          <span style="font-weight:700">{{ tr('CSV-Import') }}</span>
           <button @click="closeImportModal" class="icon-btn"><i class="ti ti-x"></i></button>
         </div>
         <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
           <p style="font-size:12px;color:var(--text-muted);margin:0">
-            CSV mit einer Spalte <code>email</code> (Pflicht) und optional <code>tags</code> (mit <code>;</code> getrennt).
-            Importierte Adressen erhalten eine Bestätigungs-Mail — kein Blind-Import ohne Einwilligung.
+            {{ tr('CSV mit einer Spalte') }} <code>email</code> {{ tr('(Pflicht) und optional') }} <code>tags</code> {{ tr('(mit') }} <code>;</code> {{ tr('getrennt). Importierte Adressen erhalten eine Bestätigungs-Mail — kein Blind-Import ohne Einwilligung.') }}
           </p>
           <input type="file" accept=".csv,text/csv" @change="onCsvSelected" />
-          <p v-if="csvRows.length" style="font-size:12px;color:var(--text)">{{ csvRows.length }} Adresse(n) erkannt.</p>
+          <p v-if="csvRows.length" style="font-size:12px;color:var(--text)">{{ csvRows.length }} {{ tr('Adresse(n) erkannt.') }}</p>
           <button class="accent-btn" :disabled="!csvRows.length || importing" @click="submitImport">
             <i v-if="importing" class="ti ti-loader-2 spin"></i>
-            <span v-else>{{ csvRows.length }} Adresse(n) importieren</span>
+            <span v-else>{{ csvRows.length }} {{ tr('Adresse(n) importieren') }}</span>
           </button>
           <p v-if="importResult" style="font-size:12px;color:var(--text)">
-            {{ importResult.imported }} importiert, {{ importResult.skipped }} übersprungen (ungültig/doppelt).
+            {{ importResult.imported }} {{ tr('importiert,') }} {{ importResult.skipped }} {{ tr('übersprungen (ungültig/doppelt).') }}
           </p>
         </div>
       </div>
@@ -203,43 +201,43 @@
     <div v-if="showCampaignModal" class="modal-overlay" @click.self="showCampaignModal = false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:1400px;height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
         <div class="modal-header">
-          <input v-model="campaignForm.name" style="background:transparent;border:none;outline:none;font-size:16px;font-weight:700;color:var(--text);font-family:inherit;flex:1;min-width:0" placeholder="Kampagnenname..." />
+          <input v-model="campaignForm.name" style="background:transparent;border:none;outline:none;font-size:16px;font-weight:700;color:var(--text);font-family:inherit;flex:1;min-width:0" :placeholder="tr('Kampagnenname...')" />
           <button @click="showCampaignModal = false" class="icon-btn"><i class="ti ti-x"></i></button>
         </div>
 
         <div class="campaign-editor-grid">
           <div class="campaign-meta-col">
             <div class="blog-field">
-              <label>Betreff</label>
-              <input v-model="campaignForm.subject" placeholder="Betreffzeile der E-Mail..." />
+              <label>{{ tr('Betreff') }}</label>
+              <input v-model="campaignForm.subject" :placeholder="tr('Betreffzeile der E-Mail...')" />
             </div>
             <div class="blog-field">
-              <label>Zielgruppe</label>
-              <input v-model="campaignForm.segmentTag" placeholder="Leer = alle bestätigten Abonnenten" />
+              <label>{{ tr('Zielgruppe') }}</label>
+              <input v-model="campaignForm.segmentTag" :placeholder="tr('Leer = alle bestätigten Abonnenten')" />
             </div>
             <div v-if="campaignStats" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;display:flex;flex-direction:column;gap:6px">
-              <div style="font-weight:700;color:var(--text)">Statistik</div>
-              <div>Empfänger: {{ campaignStats.recipientCount ?? campaignStats.sentCount ?? 0 }}</div>
-              <div>Versendet: {{ campaignStats.sentCount ?? 0 }}</div>
-              <div v-if="campaignStats.openCount !== undefined">Geöffnet: {{ campaignStats.openCount }}</div>
-              <div v-if="campaignStats.clickCount !== undefined">Geklickt: {{ campaignStats.clickCount }}</div>
+              <div style="font-weight:700;color:var(--text)">{{ tr('Statistik') }}</div>
+              <div>{{ tr('Empfänger:') }} {{ campaignStats.recipientCount ?? campaignStats.sentCount ?? 0 }}</div>
+              <div>{{ tr('Versendet:') }} {{ campaignStats.sentCount ?? 0 }}</div>
+              <div v-if="campaignStats.openCount !== undefined">{{ tr('Geöffnet:') }} {{ campaignStats.openCount }}</div>
+              <div v-if="campaignStats.clickCount !== undefined">{{ tr('Geklickt:') }} {{ campaignStats.clickCount }}</div>
             </div>
             <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
               <button class="wide-btn" :disabled="savingTemplate || !campaignForm.bodyHtml" @click="saveAsTemplate">
                 <i v-if="savingTemplate" class="ti ti-loader-2 spin"></i>
-                <span v-else><i class="ti ti-layout-grid" style="margin-right:6px"></i>Als Vorlage speichern</span>
+                <span v-else><i class="ti ti-layout-grid" style="margin-right:6px"></i>{{ tr('Als Vorlage speichern') }}</span>
               </button>
               <button class="wide-btn" :disabled="testSending || !campaignForm.name" @click="testSendCampaign">
                 <i v-if="testSending" class="ti ti-loader-2 spin"></i>
-                <span v-else><i class="ti ti-send" style="margin-right:6px"></i>Test-Versand an mich</span>
+                <span v-else><i class="ti ti-send" style="margin-right:6px"></i>{{ tr('Test-Versand an mich') }}</span>
               </button>
               <button class="accent-btn" :disabled="savingCampaign" @click="saveCampaign">
                 <i v-if="savingCampaign" class="ti ti-loader-2 spin"></i>
-                <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>Entwurf speichern</span>
+                <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ tr('Entwurf speichern') }}</span>
               </button>
               <button v-if="!campaignIsSent" class="accent-btn" style="background:#22c55e;border-color:#22c55e" :disabled="sendingCampaign || !campaignForm.name" @click="sendCampaign">
                 <i v-if="sendingCampaign" class="ti ti-loader-2 spin"></i>
-                <span v-else><i class="ti ti-send" style="margin-right:6px"></i>Jetzt an alle senden</span>
+                <span v-else><i class="ti ti-send" style="margin-right:6px"></i>{{ tr('Jetzt an alle senden') }}</span>
               </button>
             </div>
           </div>
@@ -259,48 +257,48 @@
         </div>
         <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
           <div class="blog-field">
-            <label>Name</label>
-            <input v-model="ruleForm.name" placeholder="z.B. Willkommens-Mail" />
+            <label>{{ tr('Name') }}</label>
+            <input v-model="ruleForm.name" :placeholder="tr('z.B. Willkommens-Mail')" />
           </div>
           <div class="blog-field">
-            <label>Trigger</label>
+            <label>{{ tr('Trigger') }}</label>
             <select v-model="ruleForm.trigger" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
-              <option value="on-signup">Sofort nach Bestätigung (Willkommens-Mail)</option>
-              <option value="days-after-signup">X Tage nach Bestätigung</option>
-              <option value="campaign-reminder">Erinnerung an Nicht-Öffner einer Kampagne</option>
+              <option value="on-signup">{{ tr('Sofort nach Bestätigung (Willkommens-Mail)') }}</option>
+              <option value="days-after-signup">{{ tr('X Tage nach Bestätigung') }}</option>
+              <option value="campaign-reminder">{{ tr('Erinnerung an Nicht-Öffner einer Kampagne') }}</option>
             </select>
           </div>
           <div v-if="ruleForm.trigger === 'days-after-signup'" class="blog-field">
-            <label>Tage nach Bestätigung</label>
+            <label>{{ tr('Tage nach Bestätigung') }}</label>
             <input v-model.number="ruleForm.delayDays" type="number" min="1" placeholder="z.B. 3" />
           </div>
           <template v-if="ruleForm.trigger === 'campaign-reminder'">
             <div class="blog-field">
-              <label>Kampagne</label>
+              <label>{{ tr('Kampagne') }}</label>
               <select v-model="ruleForm.campaignId" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
-                <option value="">Kampagne wählen...</option>
+                <option value="">{{ tr('Kampagne wählen...') }}</option>
                 <option v-for="c in campaigns.filter(c => c.status === 'sent')" :key="c.campaignId" :value="c.campaignId">{{ c.name }}</option>
               </select>
             </div>
             <div class="blog-field">
-              <label>Tage nach Versand warten</label>
+              <label>{{ tr('Tage nach Versand warten') }}</label>
               <input v-model.number="ruleForm.delayDays" type="number" min="1" placeholder="z.B. 3" />
             </div>
           </template>
           <div class="blog-field">
             <label>{{ ruleForm.trigger === 'campaign-reminder' ? 'Vorlage für die Erinnerung' : 'Vorlage' }}</label>
             <select v-model="ruleForm.templateId" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
-              <option value="">Vorlage wählen...</option>
+              <option value="">{{ tr('Vorlage wählen...') }}</option>
               <option v-for="t in templates" :key="t.templateId" :value="t.templateId">{{ t.name }}</option>
             </select>
           </div>
           <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text)">
             <input v-model="ruleForm.active" type="checkbox" style="width:auto" />
-            Regel aktiv
+            {{ tr('Regel aktiv') }}
           </label>
           <button class="accent-btn" :disabled="savingRule || !ruleForm.name || !ruleForm.templateId" @click="saveRule">
             <i v-if="savingRule" class="ti ti-loader-2 spin"></i>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>Speichern</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ tr('Speichern') }}</span>
           </button>
         </div>
       </div>
@@ -543,7 +541,7 @@ async function testSendCampaign() {
 }
 
 async function sendCampaign() {
-  if (!confirm('Kampagne jetzt an alle passenden Abonnenten senden? Das kann nicht rückgängig gemacht werden.')) return
+  if (!confirm(tr('Kampagne jetzt an alle passenden Abonnenten senden? Das kann nicht rückgängig gemacht werden.'))) return
   if (!editingCampaignId.value) await saveCampaign()
   if (!editingCampaignId.value) return
   sendingCampaign.value = true
@@ -589,7 +587,7 @@ async function loadTemplates() {
 }
 
 async function saveAsTemplate() {
-  const name = window.prompt('Name der Vorlage:', campaignForm.name || 'Neue Vorlage')
+  const name = window.prompt(tr('Name der Vorlage:'), campaignForm.name || 'Neue Vorlage')
   if (!name) return
   savingTemplate.value = true
   try {

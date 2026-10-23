@@ -4,7 +4,7 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">{{ t.shop.title }} <span style="color:var(--accent)">Admin</span></h1>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ t.shop.title }} <span style="color:var(--accent)">{{ tr('Admin') }}</span></h1>
         <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ t.shop.subtitle }}</p>
       </div>
       <div style="display:flex;gap:10px">
@@ -79,7 +79,7 @@
         </div>
         <div class="card-body">
           <div style="display:flex;gap:12px;align-items:flex-end">
-            <div class="auth-field" style="flex:1;margin:0"><label>{{ t.common.name }}</label><input v-model="newCat" placeholder="z.B. ADDON" /></div>
+            <div class="auth-field" style="flex:1;margin:0"><label>{{ t.common.name }}</label><input v-model="newCat" :placeholder="tr('z.B. ADDON')" /></div>
             <button class="accent-btn" @click="addCategory" :disabled="!newCat"><i class="ti ti-plus"></i> {{ t.shop.add }}</button>
           </div>
         </div>
@@ -96,7 +96,7 @@
             <span style="font-size:11px;color:var(--text-muted)">{{ products.filter(p => p.category === k).length }} {{ t.shop.tabProducts }}</span>
             <button v-if="!['SOFTWARE','SERVICE'].includes(k)" @click="removeCategory(k)"
               style="background:none;border:none;color:#E05C5C;cursor:pointer;font-size:16px"><i class="ti ti-trash"></i></button>
-            <span v-else style="font-size:11px;color:var(--text-muted);padding:2px 8px;border:0.5px solid var(--border);border-radius:4px">Standard</span>
+            <span v-else style="font-size:11px;color:var(--text-muted);padding:2px 8px;border:0.5px solid var(--border);border-radius:4px">{{ tr('Standard') }}</span>
           </div>
         </div>
       </div>
@@ -258,7 +258,7 @@
           <div class="auth-field"><label>{{ t.shop.returnQty }}</label><input v-model="returnForm.qty" type="number" min="1" :max="returnForm.maxQty" /></div>
           <div class="auth-field"><label>{{ t.shop.returnReason }}</label><input v-model="returnForm.reason" /></div>
           <div v-if="returnForm.source === 'webshop'" style="font-size:12px;color:var(--text-muted)">
-            <i class="ti ti-credit-card"></i> Löst eine echte Stripe-Rückerstattung aus.
+            <i class="ti ti-credit-card"></i> {{ tr('Löst eine echte Stripe-Rückerstattung aus.') }}
           </div>
         </div>
         <div style="padding:0 24px 24px">
@@ -288,7 +288,7 @@
             <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="uploadProductImage" />
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field"><label>{{ t.shop.productName }}</label><input v-model="form.name" placeholder="Plexora Starter" /></div>
+            <div class="auth-field"><label>{{ t.shop.productName }}</label><input v-model="form.name" :placeholder="tr('Plexora Starter')" /></div>
             <div class="auth-field"><label>{{ t.shop.price }}</label><input v-model="form.price" type="number" placeholder="29" /></div>
             <div class="auth-field">
               <label>{{ t.shop.category }}</label>
@@ -316,7 +316,7 @@
           </div>
           <div class="auth-field">
             <label>{{ t.shop.shortDesc }}</label>
-            <textarea v-model="form.description" placeholder="Ein Satz der das Produkt beschreibt..." style="height:60px;resize:none;width:100%" class="form-select"></textarea>
+            <textarea v-model="form.description" :placeholder="tr('Ein Satz der das Produkt beschreibt...')" style="height:60px;resize:none;width:100%" class="form-select"></textarea>
           </div>
           <div class="auth-field">
             <label>{{ t.shop.priceModel }}</label>
@@ -329,7 +329,7 @@
           </div>
           <div class="auth-field">
             <label>{{ t.shop.longDesc }}</label>
-            <textarea v-model="form.longDescription" placeholder="Ausführliche Beschreibung des Produkts..." style="height:80px;resize:none;width:100%" class="form-select"></textarea>
+            <textarea v-model="form.longDescription" :placeholder="tr('Ausführliche Beschreibung des Produkts...')" style="height:80px;resize:none;width:100%" class="form-select"></textarea>
           </div>
           <div class="auth-field">
             <label>{{ t.shop.features }}</label>
@@ -354,12 +354,12 @@
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field" style="grid-column:span 2"><label>{{ t.shop.companyName }}</label><input v-model="supplierForm.name" placeholder="Muster GmbH" /></div>
-            <div class="auth-field"><label>{{ t.shop.contactPersonLabel }}</label><input v-model="supplierForm.contact" placeholder="Max Mustermann" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ t.shop.companyName }}</label><input v-model="supplierForm.name" :placeholder="tr('Muster GmbH')" /></div>
+            <div class="auth-field"><label>{{ t.shop.contactPersonLabel }}</label><input v-model="supplierForm.contact" :placeholder="tr('Max Mustermann')" /></div>
             <div class="auth-field"><label>{{ t.common.phone }}</label><input v-model="supplierForm.phone" placeholder="+49 123 456789" /></div>
-            <div class="auth-field"><label>{{ t.common.email }}</label><input v-model="supplierForm.email" placeholder="info@lieferant.de" /></div>
-            <div class="auth-field"><label>{{ t.common.website }}</label><input v-model="supplierForm.website" placeholder="https://..." /></div>
-            <div class="auth-field" style="grid-column:span 2"><label>{{ t.shop.address }}</label><input v-model="supplierForm.address" placeholder="Musterstraße 1, 12345 Musterstadt" /></div>
+            <div class="auth-field"><label>{{ t.common.email }}</label><input v-model="supplierForm.email" :placeholder="tr('info@lieferant.de')" /></div>
+            <div class="auth-field"><label>{{ t.common.website }}</label><input v-model="supplierForm.website" :placeholder="tr('https://...')" /></div>
+            <div class="auth-field" style="grid-column:span 2"><label>{{ t.shop.address }}</label><input v-model="supplierForm.address" :placeholder="tr('Musterstraße 1, 12345 Musterstadt')" /></div>
           </div>
         </div>
         <div style="padding:0 24px 24px">
@@ -396,12 +396,12 @@
             <label>{{ t.shop.orderNotes }}</label>
             <textarea v-model="reorderForm.notes" rows="3"
               style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text-primary);width:100%;outline:none;resize:none;font-family:inherit"
-              placeholder="Lieferdatum, Besonderheiten..."></textarea>
+              :placeholder="tr('Lieferdatum, Besonderheiten...')"></textarea>
           </div>
           <div v-if="suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.email"
             style="font-size:12px;color:var(--text-muted);padding:10px;background:rgba(var(--accent-rgb),0.08);border-radius:8px">
             <i class="ti ti-mail" style="color:var(--accent)"></i>
-            Bestellmail wird automatisch an {{ suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.email }} gesendet
+            {{ tr('Bestellmail wird automatisch an') }} {{ suppliers.find(s => s.supplierId === reorderProduct?.supplierId)?.email }} {{ tr('gesendet') }}
           </div>
         </div>
         <div style="padding:0 24px 24px">
@@ -554,7 +554,7 @@ async function createProduct() {
 async function deleteProduct(id: string) {
   await $fetch(useApiUrl(`/api/shop/products/${id}`), { method: 'DELETE', headers: authHeaders })
   await refresh()
-  showToast('Produkt gelöscht!')
+  showToast(tr('Produkt gelöscht!'))
 }
 
 async function createSupplier() {
@@ -576,7 +576,7 @@ async function createSupplier() {
 async function deleteSupplier(id: string) {
   await $fetch(useApiUrl(`/api/shop/suppliers/${id}`), { method: 'DELETE', headers: authHeaders })
   await refreshSuppliers()
-  showToast('Lieferant gelöscht!')
+  showToast(tr('Lieferant gelöscht!'))
 }
 
 async function saveCategories() {
@@ -592,7 +592,7 @@ async function addCategory() {
   if (v && !categories.value.includes(v)) categories.value.push(v)
   newCat.value = ''
   await saveCategories()
-  showToast('Kategorie hinzugefügt!')
+  showToast(tr('Kategorie hinzugefügt!'))
 }
 
 async function removeCategory(k: string) {

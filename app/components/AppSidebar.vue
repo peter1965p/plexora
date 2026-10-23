@@ -2,7 +2,7 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <template v-if="branding.logoUrl">
-        <img :src="branding.logoUrl" style="height:32px;max-width:120px;object-fit:contain" alt="Logo" />
+        <img :src="branding.logoUrl" style="height:32px;max-width:120px;object-fit:contain" :alt="tr('Logo')" />
       </template>
       <template v-else>
         <div class="logo-icon"><i class="ti ti-bolt"></i></div>
@@ -108,12 +108,12 @@ const navSections = computed(() => [
         ? [{ to: '/blog', label: 'Blog', icon: 'ti-news', key: 'blog' }]
         : []),
       ...(store.modules.find(m => m.key === 'finance' && m.on && !m.locked)
-        ? [{ to: '/finance?tab=catalog', label: 'Leistungen', icon: 'ti-list-details', key: 'catalog' }]
+        ? [{ to: '/finance?tab=catalog', label: tr('Leistungen'), icon: 'ti-list-details', key: 'catalog' }]
         : []),
     ]
   },
   ...(activeBranchKeys.value.length ? [{
-    label: 'BRANCHE',
+    label: tr('BRANCHE'),
     items: activeBranchKeys.value
       .filter(key => branchRegistry.value[key] && branchRegistry.value[key].route)
       .map(key => {
@@ -124,13 +124,13 @@ const navSections = computed(() => [
   {
     label: t.value.navSystem,
     items: [
-      { to: '/help',     label: 'Hilfe',             icon: 'ti-help-circle',    key: 'help'     },
+      { to: '/help',     label: tr('Hilfe'),             icon: 'ti-help-circle',    key: 'help'     },
       ...(isPlatformAdmin.value ? [{ to: '/psc', label: 'PSC Manager', icon: 'ti-shield-lock', key: 'psc' }] : []),
       { to: '/team',     label: 'Team',              icon: 'ti-users',          key: 'team'     },
       { to: '/settings', label: t.value.settings,  icon: 'ti-settings',       key: 'settings' },
       { to: '/seo',      label: 'SEO / GEO',        icon: 'ti-chart-line',     key: 'seo'      },
-      { to: '/store',    label: 'Modul-Store',       icon: 'ti-building-store', key: 'store'    },
-      { to: '/rechnungs-design', label: 'Rechnungs-Design', icon: 'ti-file-invoice', key: 'invoiceDesign' },
+      { to: '/store',    label: tr('Modul-Store'),       icon: 'ti-building-store', key: 'store'    },
+      { to: '/rechnungs-design', label: tr('Rechnungs-Design'), icon: 'ti-file-invoice', key: 'invoiceDesign' },
       ...((store.licenseModules ? store.licenseModules.includes('nexora') : !!store.modules.find(m => m.key === 'nexora')?.on)
         ? [{ to: '/website', label: 'Website', icon: 'ti-world', key: 'nexora' }]
         : []),

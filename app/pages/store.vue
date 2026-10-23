@@ -7,8 +7,8 @@
         <i class="ti ti-building-store" style="font-size:18px;color:#fff"></i>
       </div>
       <div>
-        <div style="font-size:18px;font-weight:700">Modul-Store<HelpTip k="modulstore" /></div>
-        <div style="font-size:12px;color:var(--text-muted)">Erweitere Plexora mit Branchen-Modulen & Add-ons</div>
+        <div style="font-size:18px;font-weight:700">{{ tr('Modul-Store') }}<HelpTip k="modulstore" /></div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('Erweitere Plexora mit Branchen-Modulen & Add-ons') }}</div>
       </div>
     </div>
 
@@ -16,8 +16,8 @@
     <div v-if="successModule" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 18px;background:#22c55e18;border:1px solid #22c55e55;border-radius:10px">
       <i class="ti ti-circle-check" style="color:#22c55e;font-size:20px;flex-shrink:0"></i>
       <div>
-        <div style="font-weight:700;color:#22c55e">Modul erfolgreich gekauft!</div>
-        <div style="font-size:12px;color:var(--text-muted)">Deine Lizenz wird in Kürze aktualisiert. Bitte neu einloggen falls das Modul noch nicht erscheint.</div>
+        <div style="font-weight:700;color:#22c55e">{{ tr('Modul erfolgreich gekauft!') }}</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('Deine Lizenz wird in Kürze aktualisiert. Bitte neu einloggen falls das Modul noch nicht erscheint.') }}</div>
       </div>
     </div>
 
@@ -27,11 +27,11 @@
         <i class="ti ti-rosette" style="color:var(--accent);font-size:16px"></i>
       </div>
       <div>
-        <div style="font-size:12px;color:var(--text-muted)">Dein aktueller Plan</div>
-        <div style="font-size:14px;font-weight:700">{{ currentPlan.label }} <span style="font-size:12px;color:var(--text-muted);font-weight:400">· €{{ currentPlan.price }}/Monat</span></div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('Dein aktueller Plan') }}</div>
+        <div style="font-size:14px;font-weight:700">{{ currentPlan.label }} <span style="font-size:12px;color:var(--text-muted);font-weight:400">· €{{ currentPlan.price }}{{ tr('/Monat') }}</span></div>
       </div>
       <div style="margin-left:auto;font-size:11px;color:#22c55e;background:#22c55e18;border:1px solid #22c55e44;border-radius:20px;padding:3px 12px;font-weight:600">
-        <i class="ti ti-check"></i> Aktiv
+        <i class="ti ti-check"></i> {{ tr('Aktiv') }}
       </div>
     </div>
 
@@ -57,7 +57,7 @@
             <div class="store-icon" :style="mod.owned ? 'background:var(--success-bg)' : ''">
               <i class="ti" :class="mod.icon" :style="mod.owned ? 'color:#22c55e' : 'color:var(--accent)'"></i>
             </div>
-            <div v-if="mod.owned" class="badge-owned"><i class="ti ti-check"></i> Aktiv</div>
+            <div v-if="mod.owned" class="badge-owned"><i class="ti ti-check"></i> {{ tr('Aktiv') }}</div>
             <div v-else-if="mod.badge" class="badge-new">{{ mod.badge }}</div>
           </div>
           <div class="store-card-name">{{ mod.name }}</div>
@@ -67,15 +67,15 @@
           </div>
           <div class="store-card-footer">
             <div class="store-price">
-              <span v-if="mod.owned" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
+              <span v-if="mod.owned" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> {{ tr('Inklusive') }}</span>
               <template v-else>
                 <span style="font-size:18px;font-weight:700;color:var(--text-primary)">{{ mod.price }}</span>
-                <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
+                <span style="font-size:11px;color:var(--text-muted)">{{ tr('/Monat') }}</span>
               </template>
             </div>
-            <button v-if="!mod.owned" class="btn-buy" @click="openBuy(mod)">Hinzufügen</button>
-            <NuxtLink v-else-if="mod.key === 'nexora'" to="/website" class="btn-manage">Verwalten</NuxtLink>
-            <button v-else class="btn-manage" disabled>Verwalten</button>
+            <button v-if="!mod.owned" class="btn-buy" @click="openBuy(mod)">{{ tr('Hinzufügen') }}</button>
+            <NuxtLink v-else-if="mod.key === 'nexora'" to="/website" class="btn-manage">{{ tr('Verwalten') }}</NuxtLink>
+            <button v-else class="btn-manage" disabled>{{ tr('Verwalten') }}</button>
           </div>
         </div>
       </div>
@@ -85,13 +85,13 @@
     <template v-else-if="activeTab === 'branchen'">
       <div style="margin-bottom:20px;padding:14px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center">
         <i class="ti ti-info-circle" style="color:var(--accent);font-size:16px;flex-shrink:0"></i>
-        <span style="flex:1">Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.</span>
+        <span style="flex:1">{{ tr('Branchen-Pakete erweitern Plexora um spezifische Module und Vorlagen für deine Branche. Alle Basis-Module bleiben erhalten.') }}</span>
         <button v-if="isAdmin || isDemo" class="btn-buy" style="flex-shrink:0" @click="showNewModuleForm = true">
-          <i class="ti ti-plus" style="margin-right:4px"></i>Neues Modul registrieren
+          <i class="ti ti-plus" style="margin-right:4px"></i>{{ tr('Neues Modul registrieren') }}
         </button>
       </div>
       <div v-if="branchModulesLoading" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">
-        <i class="ti ti-loader-2 spin"></i> Lade Module …
+        <i class="ti ti-loader-2 spin"></i> {{ tr('Lade Module …') }}
       </div>
       <div v-else class="store-grid">
         <div v-for="pkg in branchModuleCatalog" :key="pkg.key" class="store-card" :class="{ owned: branchStatus(pkg.key) === 'active' }">
@@ -99,8 +99,8 @@
             <div class="store-icon" :style="branchStatus(pkg.key) === 'active' ? 'background:var(--success-bg)' : ''">
               <i class="ti" :class="lucideToTabler(pkg.icon)" :style="branchStatus(pkg.key) === 'active' ? 'color:#22c55e' : 'color:var(--accent)'"></i>
             </div>
-            <div v-if="branchStatus(pkg.key) === 'active'" class="badge-owned"><i class="ti ti-check"></i> Aktiv</div>
-            <div v-else-if="branchStatus(pkg.key) === 'disabled'" class="badge-soon"><i class="ti ti-player-pause"></i> Deaktiviert</div>
+            <div v-if="branchStatus(pkg.key) === 'active'" class="badge-owned"><i class="ti ti-check"></i> {{ tr('Aktiv') }}</div>
+            <div v-else-if="branchStatus(pkg.key) === 'disabled'" class="badge-soon"><i class="ti ti-player-pause"></i> {{ tr('Deaktiviert') }}</div>
             <div v-else class="badge-new">{{ pkg.builtin ? 'Branchen-Paket' : 'Plugin' }}</div>
           </div>
           <div class="store-card-name">{{ pkg.name }}</div>
@@ -110,20 +110,20 @@
           </div>
           <div class="store-card-footer">
             <div class="store-price">
-              <span v-if="branchStatus(pkg.key) !== 'not-installed'" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> Inklusive</span>
+              <span v-if="branchStatus(pkg.key) !== 'not-installed'" style="color:#22c55e;font-weight:600;font-size:13px"><i class="ti ti-check"></i> {{ tr('Inklusive') }}</span>
               <template v-else>
                 <span style="font-size:18px;font-weight:700;color:var(--text-primary)">€{{ pkg.price }}</span>
-                <span style="font-size:11px;color:var(--text-muted)">/Monat</span>
+                <span style="font-size:11px;color:var(--text-muted)">{{ tr('/Monat') }}</span>
               </template>
             </div>
-            <button v-if="branchStatus(pkg.key) === 'not-installed'" class="btn-buy" @click="openBuy(pkg)">Hinzufügen</button>
-            <NuxtLink v-else-if="branchStatus(pkg.key) === 'active' && pkg.route" :to="pkg.route" class="btn-manage" style="cursor:pointer">Verwalten</NuxtLink>
-            <NuxtLink v-else-if="branchStatus(pkg.key) === 'active' && !pkg.builtin" :to="`/plugins/${pkg.key}`" class="btn-manage" style="cursor:pointer">Öffnen</NuxtLink>
+            <button v-if="branchStatus(pkg.key) === 'not-installed'" class="btn-buy" @click="openBuy(pkg)">{{ tr('Hinzufügen') }}</button>
+            <NuxtLink v-else-if="branchStatus(pkg.key) === 'active' && pkg.route" :to="pkg.route" class="btn-manage" style="cursor:pointer">{{ tr('Verwalten') }}</NuxtLink>
+            <NuxtLink v-else-if="branchStatus(pkg.key) === 'active' && !pkg.builtin" :to="`/plugins/${pkg.key}`" class="btn-manage" style="cursor:pointer">{{ tr('Öffnen') }}</NuxtLink>
           </div>
           <div v-if="branchStatus(pkg.key) !== 'not-installed'" style="display:flex;gap:14px;font-size:11px;padding-top:2px">
-            <button v-if="branchStatus(pkg.key) === 'active'" class="btn-linklike" @click="disableBranchModule(pkg.key)">Deaktivieren</button>
-            <button v-else class="btn-linklike" @click="enableBranchModule(pkg.key)">Aktivieren</button>
-            <button class="btn-linklike danger" @click="uninstallBranchModule(pkg.key)">Deinstallieren</button>
+            <button v-if="branchStatus(pkg.key) === 'active'" class="btn-linklike" @click="disableBranchModule(pkg.key)">{{ tr('Deaktivieren') }}</button>
+            <button v-else class="btn-linklike" @click="enableBranchModule(pkg.key)">{{ tr('Aktivieren') }}</button>
+            <button class="btn-linklike danger" @click="uninstallBranchModule(pkg.key)">{{ tr('Deinstallieren') }}</button>
           </div>
         </div>
       </div>
@@ -134,25 +134,25 @@
     <div v-if="buyItem" class="modal-overlay" @click.self="buyItem = null">
       <div class="modal">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">{{ buyItem.name }} hinzufügen</div>
+          <div style="font-size:16px;font-weight:700">{{ buyItem.name }} {{ tr('hinzufügen') }}</div>
           <button class="icon-btn" @click="buyItem = null"><i class="ti ti-x"></i></button>
         </div>
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">{{ buyItem.desc }}</div>
         <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="font-size:13px">{{ buyItem.name }}</span>
-            <span style="font-weight:700">{{ buyItem.price }}/Monat</span>
+            <span style="font-weight:700">{{ buyItem.price }}{{ tr('/Monat') }}</span>
           </div>
         </div>
         <div style="display:flex;gap:10px">
-          <button class="btn-secondary" style="flex:1" @click="buyItem = null">Abbrechen</button>
+          <button class="btn-secondary" style="flex:1" @click="buyItem = null">{{ tr('Abbrechen') }}</button>
           <button class="btn-accent" style="flex:2" @click="checkout" :disabled="checkoutLoading">
             <i class="ti" :class="checkoutLoading ? 'ti-loader-2 spin' : 'ti-credit-card'" style="margin-right:6px"></i>
             {{ checkoutLoading ? 'Weiterleitung...' : 'Jetzt kaufen' }}
           </button>
         </div>
         <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-muted)">
-          <i class="ti ti-lock" style="margin-right:4px"></i>Sicher bezahlen via Stripe
+          <i class="ti ti-lock" style="margin-right:4px"></i>{{ tr('Sicher bezahlen via Stripe') }}
         </div>
       </div>
     </div>
@@ -165,9 +165,9 @@
             <i class="ti" :class="notifyItem.icon" style="font-size:24px;color:var(--accent)"></i>
           </div>
           <div style="font-size:16px;font-weight:700;margin-bottom:8px">{{ notifyItem.name }}</div>
-          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Wir benachrichtigen dich sobald dieses Modul verfügbar ist.</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">{{ tr('Wir benachrichtigen dich sobald dieses Modul verfügbar ist.') }}</div>
           <button class="btn-accent" style="width:100%" @click="notifyItem = null">
-            <i class="ti ti-bell" style="margin-right:6px"></i>Ja, benachrichtigen!
+            <i class="ti ti-bell" style="margin-right:6px"></i>{{ tr('Ja, benachrichtigen!') }}
           </button>
         </div>
       </div>
@@ -177,58 +177,58 @@
     <div v-if="showNewModuleForm" class="modal-overlay" @click.self="showNewModuleForm = false">
       <div class="modal" style="max-width:520px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-size:16px;font-weight:700">Neues Modul registrieren</div>
+          <div style="font-size:16px;font-weight:700">{{ tr('Neues Modul registrieren') }}</div>
           <button class="icon-btn" @click="showNewModuleForm = false"><i class="ti ti-x"></i></button>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px">
           <div>
-            <label class="field-label">Key (eindeutig, nur a-z/0-9/-)</label>
-            <input v-model="newModule.key" class="field-input" placeholder="z.b. friseur" />
+            <label class="field-label">{{ tr('Key (eindeutig, nur a-z/0-9/-)') }}</label>
+            <input v-model="newModule.key" class="field-input" :placeholder="tr('z.b. friseur')" />
           </div>
           <div>
-            <label class="field-label">Name</label>
-            <input v-model="newModule.name" class="field-input" placeholder="z.B. Friseur & Beauty" />
+            <label class="field-label">{{ tr('Name') }}</label>
+            <input v-model="newModule.name" class="field-input" :placeholder="tr('z.B. Friseur & Beauty')" />
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div>
-              <label class="field-label">Icon (Lucide-Name)</label>
-              <input v-model="newModule.icon" class="field-input" placeholder="z.B. Scissors" />
+              <label class="field-label">{{ tr('Icon (Lucide-Name)') }}</label>
+              <input v-model="newModule.icon" class="field-input" :placeholder="tr('z.B. Scissors')" />
             </div>
             <div>
-              <label class="field-label">Preis (€/Monat)</label>
+              <label class="field-label">{{ tr('Preis (€/Monat)') }}</label>
               <input v-model.number="newModule.price" type="number" class="field-input" placeholder="39" />
             </div>
           </div>
           <div>
-            <label class="field-label">Beschreibung</label>
+            <label class="field-label">{{ tr('Beschreibung') }}</label>
             <textarea v-model="newModule.desc" class="field-input" rows="2" style="resize:vertical"></textarea>
           </div>
           <div>
-            <label class="field-label">Features (kommagetrennt)</label>
-            <input v-model="newModule.featuresRaw" class="field-input" placeholder="Leistungen & Preise, Notizen" />
+            <label class="field-label">{{ tr('Features (kommagetrennt)') }}</label>
+            <input v-model="newModule.featuresRaw" class="field-input" :placeholder="tr('Leistungen & Preise, Notizen')" />
           </div>
           <div>
-            <label class="field-label">Modul-Typ</label>
+            <label class="field-label">{{ tr('Modul-Typ') }}</label>
             <div style="display:flex;gap:16px;font-size:13px;margin-top:4px">
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                <input type="radio" v-model="newModule.type" value="plugin" /> Zero-Deploy-Plugin (URL)
+                <input type="radio" v-model="newModule.type" value="plugin" /> {{ tr('Zero-Deploy-Plugin (URL)') }}
               </label>
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                <input type="radio" v-model="newModule.type" value="builtin" /> Eingebautes Modul (Route)
+                <input type="radio" v-model="newModule.type" value="builtin" /> {{ tr('Eingebautes Modul (Route)') }}
               </label>
             </div>
           </div>
           <div v-if="newModule.type === 'plugin'">
-            <label class="field-label">Remote-Bundle-URL</label>
-            <input v-model="newModule.remoteEntryUrl" class="field-input" placeholder="https://.../index.mjs" />
+            <label class="field-label">{{ tr('Remote-Bundle-URL') }}</label>
+            <input v-model="newModule.remoteEntryUrl" class="field-input" :placeholder="tr('https://.../index.mjs')" />
           </div>
           <div v-else>
-            <label class="field-label">Route</label>
-            <input v-model="newModule.route" class="field-input" placeholder="/mein-modul" />
+            <label class="field-label">{{ tr('Route') }}</label>
+            <input v-model="newModule.route" class="field-input" :placeholder="tr('/mein-modul')" />
           </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:20px">
-          <button class="btn-secondary" style="flex:1" @click="showNewModuleForm = false">Abbrechen</button>
+          <button class="btn-secondary" style="flex:1" @click="showNewModuleForm = false">{{ tr('Abbrechen') }}</button>
           <button class="btn-accent" style="flex:2" @click="registerNewModule" :disabled="registeringModule">
             <i class="ti" :class="registeringModule ? 'ti-loader-2 spin' : 'ti-plus'" style="margin-right:6px"></i>
             {{ registeringModule ? 'Wird angelegt...' : 'Modul registrieren' }}
@@ -271,43 +271,43 @@ const addons = computed(() => [
   {
     key: 'crm', name: 'CRM', icon: 'ti-users', price: '€9', badge: null,
     owned: owned('crm'),
-    desc: 'Kontakte, Deals & Lead-Tracking für dein Vertriebsteam.',
+    desc: tr('Kontakte, Deals & Lead-Tracking für dein Vertriebsteam.'),
     features: ['Kontakte & Deals', 'Pipeline-View', 'CSV Import/Export', 'Firmen-Verwaltung'],
   },
   {
     key: 'finance', name: 'Finanzen', icon: 'ti-receipt', price: '€12', badge: null,
     owned: owned('finance'),
-    desc: 'Rechnungen, Angebote, Mahnwesen und Cashflow-Übersicht.',
+    desc: tr('Rechnungen, Angebote, Mahnwesen und Cashflow-Übersicht.'),
     features: ['PDF-Rechnungen', 'Angebote', 'Mahnwesen', 'DATEV-Export'],
   },
   {
     key: 'projects', name: 'Projekte', icon: 'ti-layout-kanban', price: '€10', badge: null,
     owned: owned('projects'),
-    desc: 'Kanban-Board, Deadlines und Team-Zuordnung für Kundenprojekte.',
+    desc: tr('Kanban-Board, Deadlines und Team-Zuordnung für Kundenprojekte.'),
     features: ['Kanban-Board', 'Deadlines', 'Team-Zuordnung', 'Fortschritts-Tracking'],
   },
   {
     key: 'hr', name: 'HR', icon: 'ti-id-badge', price: '€10', badge: 'NEU',
     owned: owned('hr'),
-    desc: 'Mitarbeiterverwaltung, Urlaubsplanung und Onboarding.',
+    desc: tr('Mitarbeiterverwaltung, Urlaubsplanung und Onboarding.'),
     features: ['Mitarbeiter-Daten', 'Urlaub & Abwesenheit', 'Recruiting', 'Onboarding-Checklisten'],
   },
   {
     key: 'support', name: 'Support', icon: 'ti-headset', price: '€8', badge: null,
     owned: owned('support'),
-    desc: 'Ticket-System mit SLA-Tracking und Kunden-Portal.',
+    desc: tr('Ticket-System mit SLA-Tracking und Kunden-Portal.'),
     features: ['Ticket-System', 'SLA-Tracking', 'Kunden-Portal', 'Prioritäten'],
   },
   {
     key: 'marketing', name: 'Marketing', icon: 'ti-speakerphone', price: '€14', badge: 'PRO',
     owned: owned('marketing'),
-    desc: 'Lead-Kampagnen, UTM-Tracking, QR-Codes und Auswertungen.',
+    desc: tr('Lead-Kampagnen, UTM-Tracking, QR-Codes und Auswertungen.'),
     features: ['Kampagnen', 'UTM-Tracking', 'QR-Codes', 'Conversion-Stats'],
   },
   {
     key: 'shop', name: 'Shop', icon: 'ti-shopping-cart', price: '€15', badge: null,
     owned: owned('shop'),
-    desc: 'Produkt-Verwaltung mit Stripe-Checkout und Bestellverfolgung.',
+    desc: tr('Produkt-Verwaltung mit Stripe-Checkout und Bestellverfolgung.'),
     features: ['Produktkatalog', 'Stripe-Checkout', 'Bestellungen', 'Lieferanten'],
   },
   {
@@ -325,13 +325,13 @@ const addons = computed(() => [
   {
     key: 'termine', name: 'Termine', icon: 'ti-calendar-event', price: '€15', badge: 'NEU',
     owned: owned('termine'),
-    desc: 'Öffentliche Buchungsseite für Kunden, mit Google-Calendar- und Meet-Anbindung.',
+    desc: tr('Öffentliche Buchungsseite für Kunden, mit Google-Calendar- und Meet-Anbindung.'),
     features: ['Öffentliche Buchungsseite', 'Terminarten & Arbeitszeiten', 'Google-Calendar-Sync', 'Automatischer Meet-Link'],
   },
   {
     key: 'newsletter', name: 'Newsletter', icon: 'ti-mail', price: '€12', badge: 'NEU',
     owned: owned('newsletter'),
-    desc: 'Mandantenfähiger Newsletter mit Double-Opt-In-Anmeldung, Kampagnen-Versand und Tracking.',
+    desc: tr('Mandantenfähiger Newsletter mit Double-Opt-In-Anmeldung, Kampagnen-Versand und Tracking.'),
     features: ['Double-Opt-In', 'One-Click-Abmeldung', 'CSV-Import', 'Öffnungs- & Klick-Tracking'],
   },
 ])
@@ -372,7 +372,7 @@ async function branchAction(packageKey: string, action: 'install' | 'uninstall' 
 function disableBranchModule(key: string)  { branchAction(key, 'disable').catch(e => alert(e?.message || 'Fehler')) }
 function enableBranchModule(key: string)   { branchAction(key, 'enable').catch(e => alert(e?.message || 'Fehler')) }
 function uninstallBranchModule(key: string) {
-  if (!confirm('Modul wirklich deinstallieren? Eigene Daten bleiben erhalten, das Modul verschwindet aber aus deiner Navigation.')) return
+  if (!confirm(tr('Modul wirklich deinstallieren? Eigene Daten bleiben erhalten, das Modul verschwindet aber aus deiner Navigation.'))) return
   branchAction(key, 'uninstall').catch(e => alert(e?.message || 'Fehler'))
 }
 
@@ -385,8 +385,8 @@ const newModule = reactive({
 })
 
 async function registerNewModule() {
-  if (isDemo.value) { alert('Im Demo-Zugang nicht möglich: Hier kannst du alles ansehen, aber nichts ändern.'); return }
-  if (!newModule.key.trim() || !newModule.name.trim()) { alert('Key und Name sind Pflicht.'); return }
+  if (isDemo.value) { alert(tr('Im Demo-Zugang nicht möglich: Hier kannst du alles ansehen, aber nichts ändern.')); return }
+  if (!newModule.key.trim() || !newModule.name.trim()) { alert(tr('Key und Name sind Pflicht.')); return }
   registeringModule.value = true
   try {
     await $fetch(useApiUrl('/api/store/branch-modules'), {
@@ -407,7 +407,7 @@ async function registerNewModule() {
     showNewModuleForm.value = false
     Object.assign(newModule, { key: '', name: '', icon: '', price: 0, desc: '', featuresRaw: '', type: 'plugin', remoteEntryUrl: '', route: '' })
   } catch (e: any) {
-    alert('Fehler: ' + (e?.data?.message || e?.message || 'Unbekannter Fehler'))
+    alert(tr('Fehler: ') + (e?.data?.message || e?.message || 'Unbekannter Fehler'))
   } finally {
     registeringModule.value = false
   }

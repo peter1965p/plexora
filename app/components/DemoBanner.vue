@@ -1,8 +1,8 @@
 <template>
   <div v-if="show" class="demo-banner" role="status">
     <i class="ti ti-flask"></i>
-    <span><strong>Demo-Modus:</strong> Probiere alles aus. Beim Abmelden wird alles auf den Standard zurückgesetzt. Gesperrt sind E-Mail-Versand, Uploads, KI, Zahlungs- und Sicherheitseinstellungen sowie Blog, Lead-Seiten und Website.</span>
-    <button class="demo-banner-x" title="Ausblenden" aria-label="Ausblenden" @click="hide"><i class="ti ti-x"></i></button>
+    <span><strong>{{ tr('Demo-Modus:') }}</strong> {{ tr('Probiere alles aus. Beim Abmelden wird alles auf den Standard zurückgesetzt. Gesperrt sind E-Mail-Versand, Uploads, KI, Zahlungs- und Sicherheitseinstellungen sowie Blog, Lead-Seiten und Website.') }}</span>
+    <button class="demo-banner-x" :title="tr('Ausblenden')" :aria-label="tr('Ausblenden')" @click="hide"><i class="ti ti-x"></i></button>
   </div>
 </template>
 

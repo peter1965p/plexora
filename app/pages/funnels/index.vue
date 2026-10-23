@@ -2,18 +2,18 @@
   <div class="fn-page">
     <div class="fn-head">
       <div>
-        <div class="fn-title">Funnels & Sequenzen</div>
-        <div class="fn-sub">Mehrstufige Abläufe für Leads: E-Mails, Termin-Links, Warte-Schritte und Verzweigungen</div>
+        <div class="fn-title">{{ tr('Funnels & Sequenzen') }}</div>
+        <div class="fn-sub">{{ tr('Mehrstufige Abläufe für Leads: E-Mails, Termin-Links, Warte-Schritte und Verzweigungen') }}</div>
       </div>
       <div v-if="!editing" style="display:flex;gap:8px">
         <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" @click="openNew">
-          <i class="ti ti-plus"></i> Neue Sequenz
+          <i class="ti ti-plus"></i> {{ tr('Neue Sequenz') }}
         </button>
       </div>
       <div v-else style="display:flex;gap:8px">
-        <button class="btn-secondary" style="height:32px;font-size:12px" @click="closeEditor">Zurück</button>
+        <button class="btn-secondary" style="height:32px;font-size:12px" @click="closeEditor">{{ tr('Zurück') }}</button>
         <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" :disabled="saving" @click="saveSequence">
-          <i class="ti" :class="saving ? 'ti-loader-2' : 'ti-device-floppy'"></i> Speichern
+          <i class="ti" :class="saving ? 'ti-loader-2' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}
         </button>
       </div>
     </div>
@@ -22,31 +22,31 @@
     <div v-if="!editing" class="fn-list">
       <div v-if="!sequences.length" class="fn-empty">
         <i class="ti ti-route" style="font-size:28px;color:var(--accent)"></i>
-        <div>Noch keine Sequenz angelegt.</div>
-        <button class="accent-btn" style="height:32px;font-size:12px;margin-top:10px" @click="openNew">Erste Sequenz bauen</button>
+        <div>{{ tr('Noch keine Sequenz angelegt.') }}</div>
+        <button class="accent-btn" style="height:32px;font-size:12px;margin-top:10px" @click="openNew">{{ tr('Erste Sequenz bauen') }}</button>
       </div>
       <div v-for="s in sequences" :key="s.sequenceId" class="fn-card">
         <div style="flex:1;min-width:0;cursor:pointer" @click="openEdit(s)">
           <div class="fn-card-name">{{ s.name }}</div>
           <div class="fn-card-meta">
-            Auslöser: {{ triggerLabel(s.trigger) }} · {{ s.graph?.nodes?.length || 0 }} Schritte
-            <span v-if="runCounts[s.sequenceId]"> · {{ runCounts[s.sequenceId].waiting }} wartend, {{ runCounts[s.sequenceId].done }} fertig</span>
+            {{ tr('Auslöser:') }} {{ triggerLabel(s.trigger) }} · {{ s.graph?.nodes?.length || 0 }} {{ tr('Schritte') }}
+            <span v-if="runCounts[s.sequenceId]"> · {{ runCounts[s.sequenceId].waiting }} {{ tr('wartend,') }} {{ runCounts[s.sequenceId].done }} {{ tr('fertig') }}</span>
           </div>
         </div>
         <button class="fn-toggle" :class="{ on: s.enabled }" @click="toggleSequence(s)" :title="s.enabled ? 'Aktiv' : 'Pausiert'">
           <span></span>
         </button>
-        <button class="icon-btn" style="color:var(--accent)" title="Bearbeiten" @click="openEdit(s)"><i class="ti ti-edit"></i></button>
-        <button class="icon-btn" style="color:#ef4444" title="Löschen" @click="removeSequence(s)"><i class="ti ti-trash"></i></button>
+        <button class="icon-btn" style="color:var(--accent)" :title="tr('Bearbeiten')" @click="openEdit(s)"><i class="ti ti-edit"></i></button>
+        <button class="icon-btn" style="color:#ef4444" :title="tr('Löschen')" @click="removeSequence(s)"><i class="ti ti-trash"></i></button>
       </div>
     </div>
 
     <!-- EDITOR -->
     <div v-else class="fn-editor">
       <div class="fn-bar">
-        <input v-model="editName" class="field-input" placeholder="Name der Sequenz" style="flex:1;max-width:320px" />
+        <input v-model="editName" class="field-input" :placeholder="tr('Name der Sequenz')" style="flex:1;max-width:320px" />
         <div class="fn-palette">
-          <span class="fn-hint" style="align-self:center;margin:0 4px">Knoten wählen, dann Schritt einfügen:</span>
+          <span class="fn-hint" style="align-self:center;margin:0 4px">{{ tr('Knoten wählen, dann Schritt einfügen:') }}</span>
           <button v-for="p in palette" :key="p.kind" class="fn-pal-btn" :style="{ '--c': KINDS[p.kind].color }" @click="addNode(p.kind)">
             <i class="ti" :class="KINDS[p.kind].icon"></i> {{ p.label }}
           </button>
@@ -70,8 +70,8 @@
                   <template v-if="props.data.kind === 'condition'">
                     <Handle id="yes" type="source" :position="Position.Bottom" style="left:28%" />
                     <Handle id="no" type="source" :position="Position.Bottom" style="left:72%" />
-                    <span class="fn-lbl" style="left:20%">Ja</span>
-                    <span class="fn-lbl" style="left:64%">Nein</span>
+                    <span class="fn-lbl" style="left:20%">{{ tr('Ja') }}</span>
+                    <span class="fn-lbl" style="left:64%">{{ tr('Nein') }}</span>
                   </template>
                   <Handle v-else-if="props.data.kind !== 'end'" type="source" :position="Position.Bottom" />
                 </div>
@@ -87,63 +87,63 @@
           </div>
 
           <template v-if="selectedNode.data.kind === 'trigger'">
-            <label class="fn-lab">Auslöser</label>
+            <label class="fn-lab">{{ tr('Auslöser') }}</label>
             <select v-model="selectedNode.data.trigger" class="form-select">
-              <option value="new_lead">Neuer Lead (mit E-Mail)</option>
-              <option value="form_submitted">Formular abgeschickt</option>
+              <option value="new_lead">{{ tr('Neuer Lead (mit E-Mail)') }}</option>
+              <option value="form_submitted">{{ tr('Formular abgeschickt') }}</option>
             </select>
-            <label class="fn-lab">Formular</label>
+            <label class="fn-lab">{{ tr('Formular') }}</label>
             <select v-model="selectedNode.data.formId" class="form-select">
-              <option value="">Alle Formulare</option>
+              <option value="">{{ tr('Alle Formulare') }}</option>
               <option v-for="f in forms" :key="f.formId" :value="f.formId">{{ f.title }}</option>
             </select>
-            <div class="fn-hint">Nur Abgaben dieses Formulars starten die Sequenz.</div>
+            <div class="fn-hint">{{ tr('Nur Abgaben dieses Formulars starten die Sequenz.') }}</div>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'send_email_template'">
-            <label class="fn-lab">Vorlage</label>
+            <label class="fn-lab">{{ tr('Vorlage') }}</label>
             <select v-model="selectedNode.data.templateId" class="form-select">
-              <option value="" disabled>Vorlage wählen…</option>
+              <option value="" disabled>{{ tr('Vorlage wählen…') }}</option>
               <option v-for="tpl in emailTemplates" :key="tpl.templateId" :value="tpl.templateId">{{ tpl.name }}</option>
             </select>
-            <div v-if="!emailTemplates.length" class="fn-hint">Noch keine Vorlagen — unter Newsletter anlegen.</div>
+            <div v-if="!emailTemplates.length" class="fn-hint">{{ tr('Noch keine Vorlagen — unter Newsletter anlegen.') }}</div>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'send_booking_link'">
-            <label class="fn-lab">Terminart (optional)</label>
+            <label class="fn-lab">{{ tr('Terminart (optional)') }}</label>
             <select v-model="selectedNode.data.appointmentTypeId" class="form-select">
-              <option value="">Alle Terminarten</option>
+              <option value="">{{ tr('Alle Terminarten') }}</option>
               <option v-for="tp in appointmentTypes" :key="tp.typeId" :value="tp.typeId">{{ tp.name }}</option>
             </select>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'set_lead_status'">
-            <label class="fn-lab">Neuer Lead-Status</label>
+            <label class="fn-lab">{{ tr('Neuer Lead-Status') }}</label>
             <select v-model="selectedNode.data.leadStatus" class="form-select">
               <option v-for="(label, key) in LEAD_STATUSES" :key="key" :value="key">{{ label }}</option>
             </select>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'wait'">
-            <label class="fn-lab">Warten (Tage)</label>
+            <label class="fn-lab">{{ tr('Warten (Tage)') }}</label>
             <input v-model.number="selectedNode.data.days" type="number" min="0" class="field-input" />
-            <div class="fn-hint">Danach läuft der Lead ab dem nächsten Schritt weiter.</div>
+            <div class="fn-hint">{{ tr('Danach läuft der Lead ab dem nächsten Schritt weiter.') }}</div>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'condition'">
-            <label class="fn-lab">Wenn Lead-Status ist…</label>
+            <label class="fn-lab">{{ tr('Wenn Lead-Status ist…') }}</label>
             <select v-model="selectedNode.data.equals" class="form-select">
               <option v-for="(label, key) in LEAD_STATUSES" :key="key" :value="key">{{ label }}</option>
             </select>
-            <div class="fn-hint">Ja-Ausgang bei Treffer, Nein-Ausgang sonst. Beide Ausgänge mit Schritten verbinden.</div>
+            <div class="fn-hint">{{ tr('Ja-Ausgang bei Treffer, Nein-Ausgang sonst. Beide Ausgänge mit Schritten verbinden.') }}</div>
           </template>
 
           <template v-else-if="selectedNode.data.kind === 'end'">
-            <div class="fn-hint">Hier endet der Ablauf für den Lead.</div>
+            <div class="fn-hint">{{ tr('Hier endet der Ablauf für den Lead.') }}</div>
           </template>
 
           <button v-if="selectedNode.data.kind !== 'trigger'" class="btn-secondary" style="margin-top:14px;height:30px;font-size:12px;color:#ef4444" @click="removeSelected">
-            <i class="ti ti-trash"></i> Schritt entfernen
+            <i class="ti ti-trash"></i> {{ tr('Schritt entfernen') }}
           </button>
         </aside>
       </div>
@@ -386,7 +386,7 @@ async function saveSequence() {
     }
     message.value = 'Gespeichert.'
   } catch (e: any) {
-    message.value = e?.data?.message || 'Speichern fehlgeschlagen.'
+    message.value = e?.data?.message || tr('Speichern fehlgeschlagen.')
   } finally {
     saving.value = false
   }

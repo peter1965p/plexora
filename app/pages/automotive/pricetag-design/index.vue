@@ -2,19 +2,19 @@
   <div class="page">
     <div class="header-row">
       <div>
-        <h1 class="title">Preisschild-<span style="color:var(--accent)">Vorlagen</span></h1>
-        <p class="subtitle">Gestalte Vorlagen für Fahrzeug-Preisschilder — Layout wählen, mit Feldern befüllen, live prüfen.</p>
+        <h1 class="title">{{ tr('Preisschild-') }}<span style="color:var(--accent)">{{ tr('Vorlagen') }}</span></h1>
+        <p class="subtitle">{{ tr('Gestalte Vorlagen für Fahrzeug-Preisschilder — Layout wählen, mit Feldern befüllen, live prüfen.') }}</p>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" title="Zurück zu Fahrzeugen" @click="navigateTo('/automotive')"><i class="ti ti-arrow-left"></i></button>
+        <button class="icon-btn" :title="tr('Zurück zu Fahrzeugen')" @click="navigateTo('/automotive')"><i class="ti ti-arrow-left"></i></button>
         <button v-if="mode === 'list'" class="accent-btn" @click="mode = 'presets'">
-          <i class="ti ti-plus"></i> Neue Vorlage
+          <i class="ti ti-plus"></i> {{ tr('Neue Vorlage') }}
         </button>
         <template v-else-if="mode === 'editor'">
-          <span v-if="savedAt" class="saved-hint"><i class="ti ti-check"></i> Gespeichert {{ savedAt }}</span>
+          <span v-if="savedAt" class="saved-hint"><i class="ti ti-check"></i> {{ tr('Gespeichert') }} {{ savedAt }}</span>
           <button class="icon-btn" @click="mode = 'list'"><i class="ti ti-x"></i></button>
           <button class="accent-btn" :disabled="saving || !draft.name.trim()" @click="saveTemplate">
-            <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+            <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}
           </button>
         </template>
       </div>
@@ -26,16 +26,16 @@
     <template v-else-if="mode === 'list'">
       <div v-if="!templates.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-id-badge-2" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Preisschild-Vorlage angelegt.</p>
-        <button class="accent-btn" @click="mode = 'presets'"><i class="ti ti-plus" style="margin-right:6px"></i>Erste Vorlage anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Preisschild-Vorlage angelegt.') }}</p>
+        <button class="accent-btn" @click="mode = 'presets'"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Erste Vorlage anlegen') }}</button>
       </div>
       <div v-else class="template-grid">
         <div v-for="t in templates" :key="t.templateId" class="template-card" @click="openEditor(t)">
           <div class="template-name">{{ t.name }}</div>
           <div class="template-meta">{{ presetLabel(t.presetKey) }} · {{ t.pageFormat }} · {{ t.orientation === 'landscape' ? 'Quer' : 'Hoch' }}</div>
           <div class="template-actions">
-            <button class="icon-btn" title="Bearbeiten" @click.stop="openEditor(t)"><i class="ti ti-edit"></i></button>
-            <button class="icon-btn danger" title="Löschen" @click.stop="deleteTemplate(t)"><i class="ti ti-trash"></i></button>
+            <button class="icon-btn" :title="tr('Bearbeiten')" @click.stop="openEditor(t)"><i class="ti ti-edit"></i></button>
+            <button class="icon-btn danger" :title="tr('Löschen')" @click.stop="deleteTemplate(t)"><i class="ti ti-trash"></i></button>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@
 
     <!-- ── PRESET-GALERIE ── -->
     <template v-else-if="mode === 'presets'">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Layout wählen — der Rahmen (Seitenformat, Logo-/Preis-Zone) ist danach fest, der Inhaltsbereich bleibt frei editierbar.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">{{ tr('Layout wählen — der Rahmen (Seitenformat, Logo-/Preis-Zone) ist danach fest, der Inhaltsbereich bleibt frei editierbar.') }}</p>
       <div class="preset-gallery">
         <button v-for="p in presets" :key="p.key" class="preset-card" @click="startNewFromPreset(p)">
           <div class="preset-name">{{ p.label }}</div>
@@ -55,18 +55,18 @@
     <!-- ── EDITOR ── -->
     <template v-else-if="mode === 'editor'">
       <div class="draft-meta-row">
-        <input v-model="draft.name" class="draft-name-input" placeholder="Name der Vorlage, z.B. „Schaufenster groß“" />
+        <input v-model="draft.name" class="draft-name-input" :placeholder="tr('Name der Vorlage, z.B. „Schaufenster groß“')" />
         <select v-model="draft.pageFormat" class="draft-select">
           <option value="A4">A4</option>
           <option value="A5">A5</option>
           <option value="A6">A6</option>
         </select>
         <select v-model="draft.orientation" class="draft-select">
-          <option value="portrait">Hochformat</option>
-          <option value="landscape">Querformat</option>
+          <option value="portrait">{{ tr('Hochformat') }}</option>
+          <option value="landscape">{{ tr('Querformat') }}</option>
         </select>
         <select v-model="previewVehicleId" class="draft-select" @change="onPreviewVehicleChange">
-          <option value="">Beispiel-Fahrzeug (BMW 3er)</option>
+          <option value="">{{ tr('Beispiel-Fahrzeug (BMW 3er)') }}</option>
           <option v-for="v in vehicles" :key="v.vehicleId" :value="v.vehicleId">{{ v.make }} {{ v.model }} {{ v.variant || '' }}</option>
         </select>
       </div>
@@ -80,23 +80,23 @@
           <div class="preview-toolbar">
             <div class="preview-tabs">
               <button class="preview-tab" :class="{ active: previewMode === 'html' }" @click="previewMode = 'html'">
-                <i class="ti ti-bolt"></i> Live-Vorschau
+                <i class="ti ti-bolt"></i> {{ tr('Live-Vorschau') }}
               </button>
               <button class="preview-tab" :class="{ active: previewMode === 'pdf' }" @click="showPdfPreview">
-                <i class="ti ti-file-type-pdf"></i> PDF-Vorschau
+                <i class="ti ti-file-type-pdf"></i> {{ tr('PDF-Vorschau') }}
               </button>
             </div>
-            <button v-if="previewMode === 'pdf'" class="icon-btn" title="PDF neu rendern" :disabled="pdfLoading" @click="showPdfPreview">
+            <button v-if="previewMode === 'pdf'" class="icon-btn" :title="tr('PDF neu rendern')" :disabled="pdfLoading" @click="showPdfPreview">
               <i class="ti" :class="pdfLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
             </button>
           </div>
 
           <div class="preview-frame-wrap">
-            <iframe v-if="previewMode === 'html'" :srcdoc="htmlPreview" class="preview-frame" title="Live-Vorschau"></iframe>
+            <iframe v-if="previewMode === 'html'" :srcdoc="htmlPreview" class="preview-frame" :title="tr('Live-Vorschau')"></iframe>
             <div v-else class="pdf-preview-wrap">
               <div v-if="pdfLoading" class="loading-state"><i class="ti ti-loader-2 spin"></i></div>
               <div v-else-if="pdfError" class="pdf-error"><i class="ti ti-alert-triangle"></i> {{ pdfError }}</div>
-              <iframe v-else-if="pdfUrl" :src="pdfUrl" class="preview-frame" title="PDF-Vorschau"></iframe>
+              <iframe v-else-if="pdfUrl" :src="pdfUrl" class="preview-frame" :title="tr('PDF-Vorschau')"></iframe>
             </div>
           </div>
         </div>

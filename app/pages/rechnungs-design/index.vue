@@ -2,13 +2,13 @@
   <div class="page">
     <div class="header-row">
       <div>
-        <h1 class="title">Rechnungs-<span style="color:var(--accent)">Design</span></h1>
-        <p class="subtitle">Gestalte das Layout deiner Rechnungen — Vorlage wählen, anpassen, live prüfen.</p>
+        <h1 class="title">{{ tr('Rechnungs-') }}<span style="color:var(--accent)">{{ tr('Design') }}</span></h1>
+        <p class="subtitle">{{ tr('Gestalte das Layout deiner Rechnungen — Vorlage wählen, anpassen, live prüfen.') }}</p>
       </div>
       <div class="header-actions">
-        <span v-if="savedAt" class="saved-hint"><i class="ti ti-check"></i> Gespeichert {{ savedAt }}</span>
+        <span v-if="savedAt" class="saved-hint"><i class="ti ti-check"></i> {{ tr('Gespeichert') }} {{ savedAt }}</span>
         <button class="accent-btn" :disabled="saving || loading" @click="saveTemplate">
-          <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern
+          <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}
         </button>
       </div>
     </div>
@@ -31,7 +31,7 @@
         <!-- Linke Spalte: Monaco + Platzhalter-Referenz -->
         <div class="editor-col">
           <div class="editor-toolbar">
-            <span class="editor-toolbar-label"><i class="ti ti-code"></i> HTML / CSS Template</span>
+            <span class="editor-toolbar-label"><i class="ti ti-code"></i> {{ tr('HTML / CSS Template') }}</span>
             <select v-model="monacoTheme" class="theme-select" @change="setMonacoTheme(monacoTheme)">
               <option v-for="t in monacoThemes" :key="t.value" :value="t.value">{{ t.label }}</option>
             </select>
@@ -60,7 +60,7 @@
           </ClientOnly>
 
           <div class="placeholder-panel">
-            <div class="placeholder-heading"><i class="ti ti-variable"></i> Platzhalter (Klick fügt an der Cursor-Position ein)</div>
+            <div class="placeholder-heading"><i class="ti ti-variable"></i> {{ tr('Platzhalter (Klick fügt an der Cursor-Position ein)') }}</div>
             <div class="placeholder-groups">
               <div v-for="group in PLACEHOLDER_GROUPS" :key="group.label" class="placeholder-group">
                 <div class="placeholder-group-label">{{ group.label }}</div>
@@ -77,23 +77,23 @@
           <div class="preview-toolbar">
             <div class="preview-tabs">
               <button class="preview-tab" :class="{ active: previewMode === 'html' }" @click="previewMode = 'html'">
-                <i class="ti ti-bolt"></i> Live-Vorschau
+                <i class="ti ti-bolt"></i> {{ tr('Live-Vorschau') }}
               </button>
               <button class="preview-tab" :class="{ active: previewMode === 'pdf' }" @click="showPdfPreview">
-                <i class="ti ti-file-type-pdf"></i> PDF-Vorschau
+                <i class="ti ti-file-type-pdf"></i> {{ tr('PDF-Vorschau') }}
               </button>
             </div>
-            <button v-if="previewMode === 'pdf'" class="icon-btn" title="PDF neu rendern" :disabled="pdfLoading" @click="showPdfPreview">
+            <button v-if="previewMode === 'pdf'" class="icon-btn" :title="tr('PDF neu rendern')" :disabled="pdfLoading" @click="showPdfPreview">
               <i class="ti" :class="pdfLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
             </button>
           </div>
 
           <div class="preview-frame-wrap">
-            <iframe v-if="previewMode === 'html'" :srcdoc="htmlPreview" class="preview-frame" title="Live-Vorschau"></iframe>
+            <iframe v-if="previewMode === 'html'" :srcdoc="htmlPreview" class="preview-frame" :title="tr('Live-Vorschau')"></iframe>
             <div v-else class="pdf-preview-wrap">
               <div v-if="pdfLoading" class="loading-state"><i class="ti ti-loader-2 spin"></i></div>
               <div v-else-if="pdfError" class="pdf-error"><i class="ti ti-alert-triangle"></i> {{ pdfError }}</div>
-              <iframe v-else-if="pdfUrl" :src="pdfUrl" class="preview-frame" title="PDF-Vorschau"></iframe>
+              <iframe v-else-if="pdfUrl" :src="pdfUrl" class="preview-frame" :title="tr('PDF-Vorschau')"></iframe>
             </div>
           </div>
         </div>

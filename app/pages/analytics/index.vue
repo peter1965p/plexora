@@ -4,25 +4,25 @@
     <div class="stats-grid">
       <div class="stat-card">
         <i class="ti ti-receipt stat-icon"></i>
-        <div class="stat-label">Gesamtumsatz</div>
+        <div class="stat-label">{{ tr('Gesamtumsatz') }}</div>
         <div class="stat-value">{{ formatEur(totalRevenue) }}</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ paidCount }} bezahlt</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ paidCount }} {{ tr('bezahlt') }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-users stat-icon"></i>
-        <div class="stat-label">Lead → Kunde</div>
+        <div class="stat-label">{{ tr('Lead → Kunde') }}</div>
         <div class="stat-value">{{ conversionRate }}%</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ customerCount }} Kunden</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ customerCount }} {{ tr('Kunden') }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-target stat-icon"></i>
-        <div class="stat-label">Deal Win Rate</div>
+        <div class="stat-label">{{ tr('Deal Win Rate') }}</div>
         <div class="stat-value">{{ winRate }}%</div>
-        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} gewonnen</div>
+        <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ wonDeals }} {{ tr('gewonnen') }}</div>
       </div>
       <div class="stat-card">
         <i class="ti ti-headset stat-icon"></i>
-        <div class="stat-label">Offene Tickets</div>
+        <div class="stat-label">{{ tr('Offene Tickets') }}</div>
         <div class="stat-value">{{ openTickets }}</div>
         <div class="stat-delta" :class="openTickets > 5 ? 'down' : 'up'">
           <i class="ti" :class="openTickets > 5 ? 'ti-alert-triangle' : 'ti-check'"></i>
@@ -35,7 +35,7 @@
 
       <!-- UMSATZ NACH STATUS -->
       <div class="card">
-        <div class="card-header"><span class="card-title">Rechnungen nach Status</span></div>
+        <div class="card-header"><span class="card-title">{{ tr('Rechnungen nach Status') }}</span></div>
         <div class="card-body">
           <div class="chart-wrap"><canvas ref="invoiceChartRef"></canvas></div>
         </div>
@@ -43,7 +43,7 @@
 
       <!-- DEALS PIPELINE -->
       <div class="card">
-        <div class="card-header"><span class="card-title">Deal-Pipeline</span></div>
+        <div class="card-header"><span class="card-title">{{ tr('Deal-Pipeline') }}</span></div>
         <div class="card-body">
           <div class="chart-wrap"><canvas ref="dealChartRef"></canvas></div>
         </div>
@@ -55,7 +55,7 @@
 
       <!-- KONTAKTE NACH STATUS -->
       <div class="card">
-        <div class="card-header"><span class="card-title">Kontakte nach Status</span></div>
+        <div class="card-header"><span class="card-title">{{ tr('Kontakte nach Status') }}</span></div>
         <div class="card-body">
           <div class="chart-wrap"><canvas ref="contactChartRef"></canvas></div>
         </div>
@@ -63,7 +63,7 @@
 
       <!-- PROJEKTE NACH STATUS -->
       <div class="card">
-        <div class="card-header"><span class="card-title">Projekte nach Status</span></div>
+        <div class="card-header"><span class="card-title">{{ tr('Projekte nach Status') }}</span></div>
         <div class="card-body">
           <div class="chart-wrap"><canvas ref="projectChartRef"></canvas></div>
         </div>
@@ -73,45 +73,45 @@
 
     <!-- KPI-TABELLE -->
     <div class="card">
-      <div class="card-header"><span class="card-title">Modul-Übersicht</span></div>
+      <div class="card-header"><span class="card-title">{{ tr('Modul-Übersicht') }}</span></div>
       <table class="data-table">
         <thead>
-          <tr><th>Modul</th><th>Gesamt</th><th>Aktiv / Offen</th><th>Abgeschlossen</th><th>Trend</th></tr>
+          <tr><th>{{ tr('Modul') }}</th><th>{{ tr('Gesamt') }}</th><th>{{ tr('Aktiv / Offen') }}</th><th>{{ tr('Abgeschlossen') }}</th><th>{{ tr('Trend') }}</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td class="td-name"><i class="ti ti-users" style="color:var(--accent)"></i> Kontakte</td>
+            <td class="td-name"><i class="ti ti-users" style="color:var(--accent)"></i> {{ tr('Kontakte') }}</td>
             <td>{{ contacts.length }}</td>
-            <td>{{ contacts.filter((c:any) => c.status === 'lead').length }} Leads</td>
-            <td>{{ customerCount }} Kunden</td>
+            <td>{{ contacts.filter((c:any) => c.status === 'lead').length }} {{ tr('Leads') }}</td>
+            <td>{{ customerCount }} {{ tr('Kunden') }}</td>
             <td><div class="progress-bar"><div class="progress-fill" :style="{width:conversionRate+'%'}"></div></div></td>
           </tr>
           <tr>
-            <td class="td-name"><i class="ti ti-briefcase" style="color:var(--accent)"></i> Deals</td>
+            <td class="td-name"><i class="ti ti-briefcase" style="color:var(--accent)"></i> {{ tr('Deals') }}</td>
             <td>{{ deals.length }}</td>
-            <td>{{ deals.filter((d:any) => d.status === 'info').length }} aktiv</td>
-            <td>{{ wonDeals }} gewonnen</td>
+            <td>{{ deals.filter((d:any) => d.status === 'info').length }} {{ tr('aktiv') }}</td>
+            <td>{{ wonDeals }} {{ tr('gewonnen') }}</td>
             <td><div class="progress-bar"><div class="progress-fill cyan" :style="{width:winRate+'%'}"></div></div></td>
           </tr>
           <tr>
-            <td class="td-name"><i class="ti ti-receipt" style="color:var(--accent)"></i> Finanzen</td>
+            <td class="td-name"><i class="ti ti-receipt" style="color:var(--accent)"></i> {{ tr('Finanzen') }}</td>
             <td>{{ invoices.length }}</td>
-            <td>{{ invoices.filter((i:any) => i.status === 'pending').length }} ausstehend</td>
-            <td>{{ paidCount }} bezahlt</td>
+            <td>{{ invoices.filter((i:any) => i.status === 'pending').length }} {{ tr('ausstehend') }}</td>
+            <td>{{ paidCount }} {{ tr('bezahlt') }}</td>
             <td><div class="progress-bar"><div class="progress-fill cyan" :style="{width: invoices.length ? Math.round(paidCount/invoices.length*100)+'%' : '0%'}"></div></div></td>
           </tr>
           <tr>
-            <td class="td-name"><i class="ti ti-layout-kanban" style="color:var(--accent)"></i> Projekte</td>
+            <td class="td-name"><i class="ti ti-layout-kanban" style="color:var(--accent)"></i> {{ tr('Projekte') }}</td>
             <td>{{ projects.length }}</td>
-            <td>{{ projects.filter((p:any) => p.status === 'active').length }} aktiv</td>
-            <td>{{ projects.filter((p:any) => p.status === 'done').length }} fertig</td>
+            <td>{{ projects.filter((p:any) => p.status === 'active').length }} {{ tr('aktiv') }}</td>
+            <td>{{ projects.filter((p:any) => p.status === 'done').length }} {{ tr('fertig') }}</td>
             <td><div class="progress-bar"><div class="progress-fill" :class="projects.filter((p:any)=>p.status==='overdue').length > 0 ? '' : 'cyan'" :style="{width: projects.length ? Math.round(projects.filter((p:any)=>p.status==='done').length/projects.length*100)+'%' : '0%'}"></div></div></td>
           </tr>
           <tr>
-            <td class="td-name"><i class="ti ti-headset" style="color:var(--accent)"></i> Support</td>
+            <td class="td-name"><i class="ti ti-headset" style="color:var(--accent)"></i> {{ tr('Support') }}</td>
             <td>{{ tickets.length }}</td>
-            <td>{{ openTickets }} offen</td>
-            <td>{{ tickets.filter((t:any) => t.status === 'resolved' || t.status === 'closed').length }} gelöst</td>
+            <td>{{ openTickets }} {{ tr('offen') }}</td>
+            <td>{{ tickets.filter((t:any) => t.status === 'resolved' || t.status === 'closed').length }} {{ tr('gelöst') }}</td>
             <td><div class="progress-bar"><div class="progress-fill cyan" :style="{width: tickets.length ? Math.round(tickets.filter((t:any)=>t.status==='resolved'||t.status==='closed').length/tickets.length*100)+'%' : '0%'}"></div></div></td>
           </tr>
         </tbody>

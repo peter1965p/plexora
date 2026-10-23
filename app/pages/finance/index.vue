@@ -31,13 +31,13 @@
     <!-- TABS -->
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="theme-opt" :class="{ active: tab==='invoices' }"   @click="tab='invoices'">  <i class="ti ti-receipt"></i> {{ t.finance.invoices }}</button>
-      <button class="theme-opt" :class="{ active: tab==='incoming' }"   @click="tab='incoming'">  <i class="ti ti-inbox"></i> Eingangsrechnungen</button>
-      <button class="theme-opt" :class="{ active: tab==='quotes' }"     @click="tab='quotes'">    <i class="ti ti-file-text"></i> Angebote</button>
+      <button class="theme-opt" :class="{ active: tab==='incoming' }"   @click="tab='incoming'">  <i class="ti ti-inbox"></i> {{ tr('Eingangsrechnungen') }}</button>
+      <button class="theme-opt" :class="{ active: tab==='quotes' }"     @click="tab='quotes'">    <i class="ti ti-file-text"></i> {{ tr('Angebote') }}</button>
       <button class="theme-opt" :class="{ active: tab==='cashbook' }"   @click="tab='cashbook'">  <i class="ti ti-cash"></i> {{ t.finance.cashbook }}</button>
       <button class="theme-opt" :class="{ active: tab==='bank' }"       @click="tab='bank'">      <i class="ti ti-building-bank"></i> {{ t.finance.bankImport }}</button>
       <button class="theme-opt" :class="{ active: tab==='tax' }"        @click="tab='tax'">       <i class="ti ti-file-euro"></i> {{ t.finance.tax }}</button>
       <button class="theme-opt" :class="{ active: tab==='catalog' }"    @click="tab='catalog'">   <i class="ti ti-box"></i> {{ t.finance.catalog }}</button>
-      <button class="theme-opt" :class="{ active: tab==='articles' }"   @click="tab='articles'">  <i class="ti ti-package"></i> Artikel</button>
+      <button class="theme-opt" :class="{ active: tab==='articles' }"   @click="tab='articles'">  <i class="ti ti-package"></i> {{ tr('Artikel') }}</button>
     </div>
 
     <!-- ═══ TAB: EINGANGSRECHNUNGEN (E-Rechnung lesen) ═══ -->
@@ -48,8 +48,8 @@
       <div class="card-header">
         <span class="card-title">{{ t.finance.invoices }}</span>
         <div style="display:flex;gap:8px">
-          <button class="icon-btn" title="Als CSV exportieren" @click="doExportCsv"><i class="ti ti-file-type-csv"></i></button>
-          <button class="icon-btn" title="Als Excel exportieren" @click="doExportXlsx"><i class="ti ti-file-spreadsheet"></i></button>
+          <button class="icon-btn" :title="tr('Als CSV exportieren')" @click="doExportCsv"><i class="ti ti-file-type-csv"></i></button>
+          <button class="icon-btn" :title="tr('Als Excel exportieren')" @click="doExportXlsx"><i class="ti ti-file-spreadsheet"></i></button>
         </div>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="showAdd=true">
           <i class="ti ti-plus"></i> {{ t.finance.newInvoice }}
@@ -77,7 +77,7 @@
                 :value="i.status" autofocus @change="updateStatus(i, ($event.target as HTMLSelectElement).value)" @blur="editingStatusId=null">
                 <option v-for="opt in STATUS_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
               </select>
-              <span v-else class="badge" :class="statusBadge(i.status)" style="cursor:pointer" title="Status ändern" @click="editingStatusId = i.invoiceId">
+              <span v-else class="badge" :class="statusBadge(i.status)" style="cursor:pointer" :title="tr('Status ändern')" @click="editingStatusId = i.invoiceId">
                 <i v-if="statusSaving===i.invoiceId" class="ti ti-loader-2 spin"></i>
                 <template v-else>{{ statusLabel(i.status) }}</template>
               </span>
@@ -96,10 +96,10 @@
                 <button class="icon-btn" :title="t.finance.downloadXRechnung" @click="downloadXRechnung(i)">
                   <i class="ti ti-file-code"></i>
                 </button>
-                <button class="icon-btn" title="ZUGFeRD herunterladen (PDF mit E-Rechnung)" @click="downloadZugferd(i)">
+                <button class="icon-btn" :title="tr('ZUGFeRD herunterladen (PDF mit E-Rechnung)')" @click="downloadZugferd(i)">
                   <i class="ti ti-file-certificate"></i>
                 </button>
-                <button class="icon-btn" title="E-Rechnung prüfen: fehlen Pflichtangaben?" @click="checkEInvoice(i)">
+                <button class="icon-btn" :title="tr('E-Rechnung prüfen: fehlen Pflichtangaben?')" @click="checkEInvoice(i)">
                   <i v-if="checking===i.invoiceId" class="ti ti-loader-2 spin"></i>
                   <i v-else class="ti ti-checklist"></i>
                 </button>
@@ -160,11 +160,11 @@
         <div class="card-header"><span class="card-title">{{ t.finance.bankImportTitle }}</span></div>
         <div class="card-body" style="padding:16px 20px">
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
-            Export aus Online-Banking als CSV (Sparkasse, DKB, ING, Commerzbank). Spalten: <strong>Buchungstag, Verwendungszweck, Betrag</strong>.
+            {{ tr('Export aus Online-Banking als CSV (Sparkasse, DKB, ING, Commerzbank). Spalten:') }} <strong>{{ tr('Buchungstag, Verwendungszweck, Betrag') }}</strong>.
           </p>
           <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
             <div class="auth-field" style="flex:1;min-width:200px;margin:0">
-              <label>CSV-Datei auswählen</label>
+              <label>{{ tr('CSV-Datei auswählen') }}</label>
               <input type="file" accept=".csv,.txt" @change="onBankFile" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text-primary);width:100%" />
             </div>
             <button class="accent-btn" :disabled="!bankCsv || importing" style="height:36px;padding:0 20px" @click="doImport">
@@ -197,7 +197,7 @@
               <td>
                 <div v-if="!txn.matched" style="display:flex;gap:6px;align-items:center">
                   <select v-model="matchMap[txn.txnId]" class="form-select" style="height:26px;font-size:11px;padding:0 6px;flex:1">
-                    <option value="">– Rechnung –</option>
+                    <option value="">{{ tr('– Rechnung –') }}</option>
                     <option v-for="inv in unpaidInvoices" :key="inv.invoiceId" :value="inv.invoiceId">
                       {{ inv.number }} ({{ formatEur(inv.amount) }})
                     </option>
@@ -255,7 +255,7 @@
             </tbody>
           </table>
           <div v-if="ustva.periods.length" style="padding:12px 20px;background:rgba(108,63,232,0.06);border-top:0.5px solid var(--border);font-size:13px;color:var(--text-muted)">
-            <strong style="color:var(--text-primary)">ELSTER-Kennzahlen:</strong>
+            <strong style="color:var(--text-primary)">{{ tr('ELSTER-Kennzahlen:') }}</strong>
             &nbsp; Kz. 41 = <strong style="color:var(--text-primary)">{{ ustva.kennzahlen.kz41 }} €</strong>
             &nbsp;|&nbsp; Kz. 81 = <strong style="color:#a78bfa">{{ ustva.kennzahlen.kz81 }} €</strong>
             &nbsp;|&nbsp;
@@ -272,19 +272,19 @@
             <div style="background:rgba(0,212,180,0.08);border-radius:10px;padding:16px">
               <div style="font-size:11px;color:#8b8fa8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">{{ t.finance.businessRevenue }}</div>
               <div style="font-size:22px;font-weight:700;color:#00D4B4">{{ formatEur(ustva.totals.netto) }}</div>
-              <div style="font-size:11px;color:#8b8fa8;margin-top:4px">Netto aus bezahlten Rechnungen</div>
+              <div style="font-size:11px;color:#8b8fa8;margin-top:4px">{{ tr('Netto aus bezahlten Rechnungen') }}</div>
             </div>
             <div style="background:rgba(224,92,92,0.08);border-radius:10px;padding:16px">
               <div style="font-size:11px;color:#8b8fa8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">{{ t.finance.businessExpenses }}</div>
               <div style="font-size:22px;font-weight:700;color:#E05C5C">{{ formatEur(cashExpenses) }}</div>
-              <div style="font-size:11px;color:#8b8fa8;margin-top:4px">Ausgaben aus Kassenbuch</div>
+              <div style="font-size:11px;color:#8b8fa8;margin-top:4px">{{ tr('Ausgaben aus Kassenbuch') }}</div>
             </div>
             <div style="background:rgba(108,63,232,0.08);border-radius:10px;padding:16px">
               <div style="font-size:11px;color:#8b8fa8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">{{ t.finance.profitBeforeTax }}</div>
               <div style="font-size:22px;font-weight:700" :style="{ color: (ustva.totals.netto + cashExpenses) >= 0 ? '#a78bfa' : '#E05C5C' }">
                 {{ formatEur(ustva.totals.netto + cashExpenses) }}
               </div>
-              <div style="font-size:11px;color:#8b8fa8;margin-top:4px">Einnahmen − Ausgaben</div>
+              <div style="font-size:11px;color:#8b8fa8;margin-top:4px">{{ tr('Einnahmen − Ausgaben') }}</div>
             </div>
           </div>
         </div>
@@ -295,17 +295,17 @@
         <div class="card-header"><span class="card-title">{{ t.finance.exports }}</span></div>
         <div style="padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap">
           <button class="accent-btn" style="height:38px;padding:0 20px;font-size:13px;display:flex;align-items:center;gap:8px" @click="doDatevExport">
-            <i class="ti ti-file-spreadsheet"></i> DATEV Buchungsstapel {{ taxYear }}
+            <i class="ti ti-file-spreadsheet"></i> {{ tr('DATEV Buchungsstapel') }} {{ taxYear }}
           </button>
           <button class="accent-btn" style="height:38px;padding:0 18px;font-size:13px;background:transparent;border:0.5px solid var(--border);display:flex;align-items:center;gap:8px" @click="doExportCsv">
-            <i class="ti ti-file-type-csv"></i> {{ t.finance.invoices }} CSV
+            <i class="ti ti-file-type-csv"></i> {{ t.finance.invoices }} {{ tr('CSV') }}
           </button>
           <button class="accent-btn" style="height:38px;padding:0 18px;font-size:13px;background:transparent;border:0.5px solid var(--border);display:flex;align-items:center;gap:8px" @click="doExportXlsx">
-            <i class="ti ti-file-spreadsheet"></i> {{ t.finance.invoices }} Excel
+            <i class="ti ti-file-spreadsheet"></i> {{ t.finance.invoices }} {{ tr('Excel') }}
           </button>
         </div>
         <div style="padding:0 20px 16px;font-size:12px;color:var(--text-muted)">
-          DATEV-Export enthält alle Rechnungen des gewählten Jahres im Buchungsstapel-Format (kompatibel mit DATEV REWE und DATEV Unternehmen Online).
+          {{ tr('DATEV-Export enthält alle Rechnungen des gewählten Jahres im Buchungsstapel-Format (kompatibel mit DATEV REWE und DATEV Unternehmen Online).') }}
         </div>
       </div>
     </div>
@@ -320,7 +320,7 @@
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>{{ t.finance.serviceName }}</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>MwSt.</th><th style="width:80px"></th></tr>
+          <tr><th>{{ t.finance.serviceName }}</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>{{ tr('MwSt.') }}</th><th style="width:80px"></th></tr>
         </thead>
         <tbody>
           <tr v-if="!services.length">
@@ -346,18 +346,18 @@
     <!-- ═══ TAB: ARTIKEL (physische Ware, eigene DB getrennt von Leistungen & Shop) ═══ -->
     <div v-if="tab==='articles'" class="card">
       <div class="card-header">
-        <span class="card-title">Artikel</span>
+        <span class="card-title">{{ tr('Artikel') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="openAddArticle">
-          <i class="ti ti-plus"></i> Neuer Artikel
+          <i class="ti ti-plus"></i> {{ tr('Neuer Artikel') }}
         </button>
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>Bezeichnung</th><th>Artikelnr.</th><th>Kategorie</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>MwSt.</th><th style="width:80px"></th></tr>
+          <tr><th>{{ tr('Bezeichnung') }}</th><th>{{ tr('Artikelnr.') }}</th><th>{{ tr('Kategorie') }}</th><th>{{ t.finance.description }}</th><th>{{ t.finance.unitPrice }}</th><th>{{ t.finance.unit }}</th><th>{{ tr('MwSt.') }}</th><th style="width:80px"></th></tr>
         </thead>
         <tbody>
           <tr v-if="!articles.length">
-            <td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Artikel angelegt.</td>
+            <td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">{{ tr('Noch keine Artikel angelegt.') }}</td>
           </tr>
           <tr v-for="a in articles" :key="a.articleId">
             <td class="td-name">{{ a.name }}</td>
@@ -382,7 +382,7 @@
     <div v-if="checkInvoice" class="modal-overlay" @click.self="checkInvoice = null">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title"><i class="ti ti-checklist" style="margin-right:8px;color:var(--accent)"></i>E-Rechnung {{ checkInvoice.number }}</span>
+          <span class="card-title"><i class="ti ti-checklist" style="margin-right:8px;color:var(--accent)"></i>{{ tr('E-Rechnung') }} {{ checkInvoice.number }}</span>
           <button class="icon-btn" @click="checkInvoice = null"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -398,9 +398,9 @@
                 <li v-for="(p, i) in checkResult[k]" :key="i" :style="{ color: p.level === 'error' ? 'var(--text-primary)' : 'var(--text-muted)' }"><strong>{{ p.field }}:</strong> {{ p.message }}</li>
               </ul>
             </div>
-            <div style="font-size:12px;color:var(--text-muted)">Summe: {{ formatEur(checkResult.totals.net) }} netto, {{ formatEur(checkResult.totals.tax) }} Umsatzsteuer, {{ formatEur(checkResult.totals.gross) }} brutto.</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Summe:') }} {{ formatEur(checkResult.totals.net) }} {{ tr('netto,') }} {{ formatEur(checkResult.totals.tax) }} {{ tr('Umsatzsteuer,') }} {{ formatEur(checkResult.totals.gross) }} {{ tr('brutto.') }}</div>
           </template>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:10px">Firmendaten (Anschrift, USt-IdNr., IBAN, Ansprechpartner) pflegst du unter <NuxtLink to="/settings" style="color:var(--accent)">Einstellungen → Firma</NuxtLink>, die Kundenanschrift beim Anlegen der Rechnung.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:10px">{{ tr('Firmendaten (Anschrift, USt-IdNr., IBAN, Ansprechpartner) pflegst du unter') }} <NuxtLink to="/settings" style="color:var(--accent)">{{ tr('Einstellungen → Firma') }}</NuxtLink>{{ tr(', die Kundenanschrift beim Anlegen der Rechnung.') }}</div>
         </div>
       </div>
     </div>
@@ -414,21 +414,21 @@
         </div>
         <div class="modal-body">
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.finance.client }}</label><input v-model="newInv.client" placeholder="Firma GmbH" /></div>
-            <div class="auth-field"><label>{{ t.finance.clientEmail }}</label><input v-model="newInv.clientEmail" placeholder="kunde@firma.de" /></div>
+            <div class="auth-field"><label>{{ t.finance.client }}</label><input v-model="newInv.client" :placeholder="tr('Firma GmbH')" /></div>
+            <div class="auth-field"><label>{{ t.finance.clientEmail }}</label><input v-model="newInv.clientEmail" :placeholder="tr('kunde@firma.de')" /></div>
           </div>
 
           <details style="margin-top:8px">
-            <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted)">Anschrift &amp; E-Rechnung (für XRechnung und ZUGFeRD nötig) <HelpTip k="erechnung" /></summary>
+            <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted)">{{ tr('Anschrift & E-Rechnung (für XRechnung und ZUGFeRD nötig)') }} <HelpTip k="erechnung" /></summary>
             <div class="auth-row" style="margin-top:8px">
-              <div class="auth-field"><label>Straße und Nr.</label><input v-model="newInv.clientStreet" placeholder="Marktplatz 1" /></div>
-              <div class="auth-field"><label>PLZ</label><input v-model="newInv.clientZip" placeholder="80331" /></div>
-              <div class="auth-field"><label>Ort</label><input v-model="newInv.clientCity" placeholder="München" /></div>
+              <div class="auth-field"><label>{{ tr('Straße und Nr.') }}</label><input v-model="newInv.clientStreet" :placeholder="tr('Marktplatz 1')" /></div>
+              <div class="auth-field"><label>{{ tr('PLZ') }}</label><input v-model="newInv.clientZip" placeholder="80331" /></div>
+              <div class="auth-field"><label>{{ tr('Ort') }}</label><input v-model="newInv.clientCity" :placeholder="tr('München')" /></div>
             </div>
             <div class="auth-row">
-              <div class="auth-field"><label>USt-IdNr. des Kunden</label><input v-model="newInv.clientVatId" placeholder="DE123456789" /></div>
-              <div class="auth-field"><label>Leitweg-ID / Käuferreferenz</label><input v-model="newInv.buyerReference" placeholder="bei Behörden: Leitweg-ID" /></div>
-              <div class="auth-field"><label>Leistungsdatum</label><input v-model="newInv.serviceDate" type="date" /></div>
+              <div class="auth-field"><label>{{ tr('USt-IdNr. des Kunden') }}</label><input v-model="newInv.clientVatId" :placeholder="tr('DE123456789')" /></div>
+              <div class="auth-field"><label>{{ tr('Leitweg-ID / Käuferreferenz') }}</label><input v-model="newInv.buyerReference" :placeholder="tr('bei Behörden: Leitweg-ID')" /></div>
+              <div class="auth-field"><label>{{ tr('Leistungsdatum') }}</label><input v-model="newInv.serviceDate" type="date" /></div>
             </div>
           </details>
 
@@ -439,13 +439,13 @@
             </div>
             <select v-if="services.length || shopProducts.length || articles.length" class="form-select" style="height:36px;width:150px" @change="applyCatalogItem(item, ($event.target as HTMLSelectElement).value)">
               <option value="">{{ t.finance.fromCatalog }}</option>
-              <optgroup v-if="services.length" label="Leistungen">
+              <optgroup v-if="services.length" :label="tr('Leistungen')">
                 <option v-for="s in services" :key="s.serviceId" :value="'service:' + s.serviceId">{{ s.name }}</option>
               </optgroup>
-              <optgroup v-if="articles.length" label="Artikel">
+              <optgroup v-if="articles.length" :label="tr('Artikel')">
                 <option v-for="a in articles" :key="a.articleId" :value="'article:' + a.articleId">{{ a.name }}</option>
               </optgroup>
-              <optgroup v-if="shopProducts.length" label="Shop-Produkte">
+              <optgroup v-if="shopProducts.length" :label="tr('Shop-Produkte')">
                 <option v-for="p in shopProducts" :key="p.productId" :value="'product:' + p.productId">{{ p.name }}</option>
               </optgroup>
             </select>
@@ -489,19 +489,19 @@
           <button class="icon-btn" @click="showService=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.finance.serviceName }}</label><input v-model="newService.name" placeholder="Python-Entwicklung" /></div>
-          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newService.description" placeholder="Optionale Beschreibung..." /></div>
+          <div class="auth-field"><label>{{ t.finance.serviceName }}</label><input v-model="newService.name" :placeholder="tr('Python-Entwicklung')" /></div>
+          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newService.description" :placeholder="tr('Optionale Beschreibung...')" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newService.price" type="number" placeholder="95" /></div>
+            <div class="auth-field"><label>{{ t.finance.unitPrice }} {{ tr('(€ netto)') }}</label><input v-model.number="newService.price" type="number" placeholder="95" /></div>
             <div class="auth-field">
               <label>{{ t.finance.unit }}</label>
               <select :value="newService.unit" @change="onUnitSelect($event, newService)" class="form-select">
                 <option v-for="u in serviceUnits" :key="u" :value="u">{{ u }}</option>
-                <option value="__new__">+ Neue Einheit...</option>
+                <option value="__new__">{{ tr('+ Neue Einheit...') }}</option>
               </select>
             </div>
           </div>
-          <div class="auth-field"><label>MwSt.-Satz (%)</label><input v-model.number="newService.vatRate" type="number" placeholder="19" /></div>
+          <div class="auth-field"><label>{{ tr('MwSt.-Satz (%)') }}</label><input v-model.number="newService.vatRate" type="number" placeholder="19" /></div>
           <button class="auth-btn" :disabled="saving || !newService.name" @click="saveService">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else>{{ t.common.save }}</span>
@@ -518,29 +518,29 @@
           <button class="icon-btn" @click="showArticle=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Bezeichnung</label><input v-model="newArticle.name" placeholder="z.B. USB-Kabel 2m" /></div>
+          <div class="auth-field"><label>{{ tr('Bezeichnung') }}</label><input v-model="newArticle.name" :placeholder="tr('z.B. USB-Kabel 2m')" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>Artikelnummer (optional)</label><input v-model="newArticle.sku" placeholder="z.B. ART-1042" /></div>
+            <div class="auth-field"><label>{{ tr('Artikelnummer (optional)') }}</label><input v-model="newArticle.sku" :placeholder="tr('z.B. ART-1042')" /></div>
             <div class="auth-field">
-              <label>Kategorie (optional)</label>
+              <label>{{ tr('Kategorie (optional)') }}</label>
               <select v-model="newArticle.category" class="form-select">
-                <option value="">Keine</option>
+                <option value="">{{ tr('Keine') }}</option>
                 <option v-for="c in articleCategories" :key="c" :value="c">{{ c }}</option>
               </select>
             </div>
           </div>
-          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newArticle.description" placeholder="Optionale Beschreibung..." /></div>
+          <div class="auth-field"><label>{{ t.common.description }}</label><input v-model="newArticle.description" :placeholder="tr('Optionale Beschreibung...')" /></div>
           <div class="auth-row">
-            <div class="auth-field"><label>{{ t.finance.unitPrice }} (€ netto)</label><input v-model.number="newArticle.price" type="number" placeholder="9.90" /></div>
+            <div class="auth-field"><label>{{ t.finance.unitPrice }} {{ tr('(€ netto)') }}</label><input v-model.number="newArticle.price" type="number" placeholder="9.90" /></div>
             <div class="auth-field">
               <label>{{ t.finance.unit }}</label>
               <select :value="newArticle.unit" @change="onUnitSelect($event, newArticle)" class="form-select">
                 <option v-for="u in serviceUnits" :key="u" :value="u">{{ u }}</option>
-                <option value="__new__">+ Neue Einheit...</option>
+                <option value="__new__">{{ tr('+ Neue Einheit...') }}</option>
               </select>
             </div>
           </div>
-          <div class="auth-field"><label>MwSt.-Satz (%)</label><input v-model.number="newArticle.vatRate" type="number" placeholder="19" /></div>
+          <div class="auth-field"><label>{{ tr('MwSt.-Satz (%)') }}</label><input v-model.number="newArticle.vatRate" type="number" placeholder="19" /></div>
           <button class="auth-btn" :disabled="savingArticle || !newArticle.name" @click="saveArticle">
             <span v-if="savingArticle"><i class="ti ti-loader-2 spin"></i></span>
             <span v-else>{{ t.common.save }}</span>
@@ -567,7 +567,7 @@
               </select>
             </div>
           </div>
-          <div class="auth-field"><label>{{ t.finance.description }}</label><input v-model="newCash.description" placeholder="z.B. Büromaterial" /></div>
+          <div class="auth-field"><label>{{ t.finance.description }}</label><input v-model="newCash.description" :placeholder="tr('z.B. Büromaterial')" /></div>
           <div class="auth-field"><label>{{ t.common.amount }} (€)</label><input v-model.number="newCash.amount" type="number" placeholder="50.00" /></div>
           <button class="auth-btn" :disabled="saving" @click="addCash">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
@@ -636,7 +636,7 @@ async function doImport() {
     bankCsv.value = ''
     showToast(`${res.count} Buchungen importiert!`)
   } catch (e: any) {
-    showToast('Fehler: ' + (e.data?.message || e.message))
+    showToast(tr('Fehler: ') + (e.data?.message || e.message))
   } finally {
     importing.value = false
   }
@@ -650,7 +650,7 @@ async function doMatch(txn: any) {
   })
   await Promise.all([refreshBank(), refresh()])
   delete matchMap[txn.txnId]
-  showToast('Buchung zugeordnet & Rechnung als bezahlt markiert!')
+  showToast(tr('Buchung zugeordnet & Rechnung als bezahlt markiert!'))
 }
 
 // ── UStVA / EÜR ──────────────────────────────────────
@@ -684,7 +684,7 @@ watch(_categoriesRaw, (v) => {
 async function onUnitSelect(e: Event, target: { unit: string }) {
   const val = (e.target as HTMLSelectElement).value
   if (val !== '__new__') { target.unit = val; return }
-  const name = prompt('Neue Einheit (z.B. "Pauschal"):')?.trim()
+  const name = prompt(tr('Neue Einheit (z.B. "Pauschal"):'))?.trim()
   if (!name) { (e.target as HTMLSelectElement).value = target.unit; return }
   if (!serviceUnits.value.includes(name)) {
     serviceUnits.value = [...serviceUnits.value, name]
@@ -734,7 +734,7 @@ onMounted(() => {
 watch(() => route.query.tab, (v) => { if (v) tab.value = String(v) })
 
 function showToast(msg: string) { toast.value = msg; setTimeout(() => toast.value = '', 3500) }
-// Servermeldung (z. B. "Im Demo-Zugang ist der E-Mail-Versand deaktiviert.") statt rohem Netzwerkfehler anzeigen
+// Servermeldung (z. B. tr("Im Demo-Zugang ist der E-Mail-Versand deaktiviert.")) statt rohem Netzwerkfehler anzeigen
 function apiErrorMessage(e: any, fallback = 'Aktion fehlgeschlagen'): string {
   return e?.data?.message || e?.statusMessage || fallback
 }
@@ -769,7 +769,7 @@ async function addInvoice(sendMailFlag: boolean) {
       })
       showToast(`Rechnung gespeichert und an ${newInv.clientEmail} gesendet!`)
     } else {
-      showToast('Rechnung gespeichert!')
+      showToast(tr('Rechnung gespeichert!'))
     }
     showAdd.value = false
     Object.assign(newInv, { client: '', clientEmail: '', clientStreet: '', clientZip: '', clientCity: '', clientVatId: '', buyerReference: '', serviceDate: '', items: [emptyItem()], dueDate: '', status: 'pending' })
@@ -802,7 +802,7 @@ async function saveService() {
   } finally { saving.value = false }
 }
 async function deleteService(s: any) {
-  if (!await openConfirm({ title: 'Leistung löschen?', name: s.name })) return
+  if (!await openConfirm({ title: tr('Leistung löschen?'), name: s.name })) return
   await $fetch(useApiUrl(`/api/services/${s.serviceId}`), { method: 'DELETE', headers: authHeaders })
   await refreshServices()
 }
@@ -828,7 +828,7 @@ async function saveArticle() {
   } finally { savingArticle.value = false }
 }
 async function deleteArticle(a: any) {
-  if (!await openConfirm({ title: 'Artikel löschen?', name: a.name })) return
+  if (!await openConfirm({ title: tr('Artikel löschen?'), name: a.name })) return
   await $fetch(useApiUrl(`/api/articles/${a.articleId}`), { method: 'DELETE', headers: authHeaders })
   await refreshArticles()
 }
@@ -868,7 +868,7 @@ async function downloadEInvoice(invoice: any, kind: 'xrechnung' | 'zugferd') {
   catch (e: any) {
     let msg = e?.data?.message || ''
     if (!msg && e?.data instanceof Blob) { try { msg = JSON.parse(await e.data.text()).message || '' } catch { /* keine Meldung */ } }
-    checkInvoice.value = invoice; checkResult.value = null; checkError.value = msg || 'Die E-Rechnung konnte nicht erstellt werden.'
+    checkInvoice.value = invoice; checkResult.value = null; checkError.value = msg || tr('Die E-Rechnung konnte nicht erstellt werden.')
   }
 }
 const downloadXRechnung = (invoice: any) => downloadEInvoice(invoice, 'xrechnung')
@@ -886,7 +886,7 @@ async function checkEInvoice(invoice: any) {
 const { openConfirm } = useConfirm()
 
 async function finalizeInvoice(invoice: any) {
-  if (!await openConfirm({ title: 'GoBD-Archivierung?', name: `Rechnung ${invoice.number}`, sub: 'Nach der Archivierung kann die Rechnung nicht mehr gelöscht werden.', icon: 'ti-lock' })) return
+  if (!await openConfirm({ title: 'GoBD-Archivierung?', name: `Rechnung ${invoice.number}`, sub: tr('Nach der Archivierung kann die Rechnung nicht mehr gelöscht werden.'), icon: 'ti-lock' })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/finalize`), {
     method: 'POST', headers: authHeaders, body: { userId: invoice.userId || userId }
   })
@@ -923,7 +923,7 @@ function dunningLevel(invoice: any): number {
 }
 
 async function sendDunning(invoice: any) {
-  if (!await openConfirm({ title: dunningTitle(invoice), name: invoice.clientEmail, sub: 'Die Mahnung wird per E-Mail versendet.', icon: 'ti-mail' })) return
+  if (!await openConfirm({ title: dunningTitle(invoice), name: invoice.clientEmail, sub: tr('Die Mahnung wird per E-Mail versendet.'), icon: 'ti-mail' })) return
   dunning.value = invoice.invoiceId
   try {
     const res = await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/dunning`), {
@@ -936,7 +936,7 @@ async function sendDunning(invoice: any) {
 }
 
 async function deleteInvoice(invoice: any) {
-  if (!await openConfirm({ title: 'Rechnung löschen?', name: `Rechnung ${invoice.number}` })) return
+  if (!await openConfirm({ title: tr('Rechnung löschen?'), name: `Rechnung ${invoice.number}` })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}`), {
     method: 'DELETE', headers: authHeaders, body: { userId: invoice.userId || userId }
   })
@@ -956,7 +956,7 @@ async function addCash() {
 }
 
 async function deleteCash(entry: any) {
-  if (!await openConfirm({ title: 'Buchung löschen?', name: entry.description || 'Kassenbucheintrag' })) return
+  if (!await openConfirm({ title: tr('Buchung löschen?'), name: entry.description || 'Kassenbucheintrag' })) return
   await $fetch(useApiUrl('/api/finance/cashbook'), { method: 'DELETE', headers: authHeaders, body: { cashId: entry.cashId, userId } })
   await refreshCash()
 }

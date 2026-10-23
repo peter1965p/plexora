@@ -6,8 +6,8 @@
       @drop.prevent="onDrop" @click="fileInputRef?.click()">
       <i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-photo-plus'"></i>
       <div class="vig-dropzone-text">
-        <template v-if="uploading">{{ uploadDone }}/{{ uploadTotal }} hochgeladen...</template>
-        <template v-else>Bilder hierher ziehen oder klicken — auch als ZIP-Datei möglich</template>
+        <template v-if="uploading">{{ uploadDone }}/{{ uploadTotal }} {{ tr('hochgeladen...') }}</template>
+        <template v-else>{{ tr('Bilder hierher ziehen oder klicken — auch als ZIP-Datei möglich') }}</template>
       </div>
     </div>
     <input ref="fileInputRef" type="file" accept="image/*,.zip" multiple style="display:none" @change="onFileSelected" />
@@ -15,14 +15,14 @@
     <div v-if="model.length" class="vig-grid">
       <div v-for="(url, idx) in model" :key="url" class="vig-thumb" :class="{ cover: idx === 0 }">
         <img :src="url" loading="lazy" />
-        <span v-if="idx === 0" class="vig-cover-badge"><i class="ti ti-star-filled"></i> Titelbild</span>
+        <span v-if="idx === 0" class="vig-cover-badge"><i class="ti ti-star-filled"></i> {{ tr('Titelbild') }}</span>
         <div class="vig-thumb-actions">
-          <button v-if="idx !== 0" type="button" title="Als Titelbild setzen" @click="makeCover(idx)"><i class="ti ti-star"></i></button>
-          <button type="button" class="danger" title="Entfernen" @click="removeImage(idx)"><i class="ti ti-trash"></i></button>
+          <button v-if="idx !== 0" type="button" :title="tr('Als Titelbild setzen')" @click="makeCover(idx)"><i class="ti ti-star"></i></button>
+          <button type="button" class="danger" :title="tr('Entfernen')" @click="removeImage(idx)"><i class="ti ti-trash"></i></button>
         </div>
       </div>
     </div>
-    <div v-else class="vig-empty">Noch keine Bilder — erstes Bild wird automatisch Titelbild.</div>
+    <div v-else class="vig-empty">{{ tr('Noch keine Bilder — erstes Bild wird automatisch Titelbild.') }}</div>
   </div>
 </template>
 
@@ -113,7 +113,7 @@ async function processDropped(fileList: FileList | File[]) {
       try {
         imageFiles.push(...await extractZipImages(f))
       } catch (err) {
-        console.error('ZIP konnte nicht entpackt werden:', f.name, err)
+        console.error(tr('ZIP konnte nicht entpackt werden:'), f.name, err)
       }
     } else if (f.type.startsWith('image/')) {
       imageFiles.push(f)

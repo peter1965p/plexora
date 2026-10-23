@@ -1,14 +1,14 @@
 <template>
   <div>
     <div v-if="cropSrc" style="margin-bottom:10px">
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">{{ tr('Zuschneiden — dann "Übernehmen" klicken:') }}</div>
       <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
         <img ref="cropImgRef" :src="cropSrc" style="width:100%;max-height:220px;object-fit:contain;display:block" />
         <div v-if="cropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${cropRect.x}px;top:${cropRect.y}px;width:${cropRect.w}px;height:${cropRect.h}px`"></div>
       </div>
       <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
         <button v-for="r in ratios" :key="`${r[0]}:${r[1]}`" class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(r[0], r[1])">{{ r[0] }}:{{ r[1] }}</button>
-        <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">Original</button>
+        <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">{{ tr('Original') }}</button>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="uploading" @click="confirmCropAndUpload">
           <i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
           {{ uploading ? 'Lädt...' : 'Übernehmen' }}
@@ -30,7 +30,7 @@
 
     <label v-if="!modelValue && !cropSrc" style="cursor:pointer;display:block">
       <input type="file" accept="image/*" style="display:none" @change="selectFile" />
-      <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none"><i class="ti ti-photo-up"></i> Bild hochladen</span>
+      <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none"><i class="ti ti-photo-up"></i> {{ tr('Bild hochladen') }}</span>
     </label>
   </div>
 </template>

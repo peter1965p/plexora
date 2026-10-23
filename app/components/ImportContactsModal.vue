@@ -2,7 +2,7 @@
   <div v-if="show" class="modal-overlay" @click.self="close">
     <div class="modal-card" style="max-width:680px">
       <div class="modal-header">
-        <span class="card-title">Kontakte importieren (CSV/Excel)</span>
+        <span class="card-title">{{ tr('Kontakte importieren (CSV/Excel)') }}</span>
         <button class="icon-btn" @click="close"><i class="ti ti-x"></i></button>
       </div>
       <div class="modal-body">
@@ -10,37 +10,37 @@
         <!-- STEP 1: FILE SELECT -->
         <div v-if="step === 'select'">
           <div class="auth-field">
-            <label>Datei wählen (.csv, .xlsx, .xls)</label>
+            <label>{{ tr('Datei wählen (.csv, .xlsx, .xls)') }}</label>
             <input type="file" accept=".csv,.xlsx,.xls" @change="onFileChange" />
           </div>
           <p style="color:var(--text-muted);font-size:13px">
-            Die erste Zeile sollte Spaltenüberschriften enthalten (z.B. "Vorname", "E-Mail", "Firma").
+            {{ tr('Die erste Zeile sollte Spaltenüberschriften enthalten (z.B. "Vorname", "E-Mail", "Firma").') }}
           </p>
         </div>
 
         <!-- STEP 2: MAPPING -->
         <div v-if="step === 'mapping'">
-          <p style="margin-bottom:12px">{{ rows.length }} Zeilen gefunden. Spalten zuordnen:</p>
+          <p style="margin-bottom:12px">{{ rows.length }} {{ tr('Zeilen gefunden. Spalten zuordnen:') }}</p>
 
           <div v-for="field in targetFields" :key="field.key" class="auth-field">
             <label>{{ field.label }} <span v-if="field.required" style="color:var(--danger)">*</span></label>
             <select v-model="mapping[field.key]" class="form-select">
-              <option value="">— nicht zuordnen —</option>
+              <option value="">{{ tr('— nicht zuordnen —') }}</option>
               <option v-for="h in headers" :key="h" :value="h">{{ h }}</option>
             </select>
           </div>
 
           <div class="auth-field">
-            <label>Lead-Quelle für diesen Import</label>
+            <label>{{ tr('Lead-Quelle für diesen Import') }}</label>
             <select v-model="importLeadSource" class="form-select">
-              <option value="csv-import">CSV/Excel-Import</option>
-              <option value="referral">Empfehlung</option>
-              <option value="other">Sonstiges</option>
+              <option value="csv-import">{{ tr('CSV/Excel-Import') }}</option>
+              <option value="referral">{{ tr('Empfehlung') }}</option>
+              <option value="other">{{ tr('Sonstiges') }}</option>
             </select>
           </div>
 
           <p v-if="missingRequired.length" style="color:var(--danger);font-size:13px">
-            Bitte mindestens zuordnen: {{ missingRequired.join(', ') }}
+            {{ tr('Bitte mindestens zuordnen:') }} {{ missingRequired.join(', ') }}
           </p>
 
           <!-- PREVIEW -->
@@ -55,14 +55,14 @@
                 </tr>
               </tbody>
             </table>
-            <p style="color:var(--text-muted);font-size:12px;margin-top:4px">Vorschau (erste 5 von {{ rows.length }})</p>
+            <p style="color:var(--text-muted);font-size:12px;margin-top:4px">{{ tr('Vorschau (erste 5 von') }} {{ rows.length }})</p>
           </div>
 
           <div style="display:flex;gap:8px;margin-top:16px">
             <button class="icon-btn" @click="step='select'"><i class="ti ti-arrow-left"></i></button>
             <button class="auth-btn" :disabled="!!missingRequired.length || importing" @click="startImport">
-              <span v-if="importing"><i class="ti ti-loader-2 spin"></i> Importiere {{ progress }}/{{ rows.length }}...</span>
-              <span v-else>{{ rows.length }} Kontakte importieren</span>
+              <span v-if="importing"><i class="ti ti-loader-2 spin"></i> {{ tr('Importiere') }} {{ progress }}/{{ rows.length }}...</span>
+              <span v-else>{{ rows.length }} {{ tr('Kontakte importieren') }}</span>
             </button>
           </div>
         </div>
@@ -71,10 +71,10 @@
         <div v-if="step === 'done'">
           <p style="font-size:15px">
             <i class="ti ti-circle-check" style="color:var(--success)"></i>
-            {{ successCount }} Kontakte importiert.
-            <span v-if="errorCount"> {{ errorCount }} übersprungen (keine E-Mail).</span>
+            {{ successCount }} {{ tr('Kontakte importiert.') }}
+            <span v-if="errorCount"> {{ errorCount }} {{ tr('übersprungen (keine E-Mail).') }}</span>
           </p>
-          <button class="auth-btn" @click="close">Schließen</button>
+          <button class="auth-btn" @click="close">{{ tr('Schließen') }}</button>
         </div>
 
       </div>

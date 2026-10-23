@@ -4,14 +4,14 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Termine <span style="color:var(--accent)">Planer</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Terminarten, Buchungen &amp; öffentliche Buchungsseite</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Termine') }} <span style="color:var(--accent)">{{ tr('Planer') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Terminarten, Buchungen & öffentliche Buchungsseite') }}</p>
       </div>
       <button v-if="activeTab === 'terminarten'" class="accent-btn" @click="openNewType">
-        <i class="ti ti-plus"></i> Terminart anlegen
+        <i class="ti ti-plus"></i> {{ tr('Terminart anlegen') }}
       </button>
       <button v-if="activeTab === 'termine' || activeTab === 'kalender'" class="accent-btn" :disabled="!types.length" @click="openManualBooking()">
-        <i class="ti ti-plus"></i> Termin eintragen
+        <i class="ti ti-plus"></i> {{ tr('Termin eintragen') }}
       </button>
     </div>
 
@@ -24,7 +24,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ types.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Terminarten</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Terminarten') }}</div>
           </div>
         </div>
       </div>
@@ -35,7 +35,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ upcomingCount }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Anstehende Termine</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Anstehende Termine') }}</div>
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ bookings.length }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Buchungen gesamt</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Buchungen gesamt') }}</div>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@
           </div>
           <div>
             <div style="font-size:22px;font-weight:800">{{ settingsForm.termineEnabled ? 'An' : 'Aus' }}</div>
-            <div style="font-size:12px;color:var(--text-muted)">Öffentliche Seite</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ tr('Öffentliche Seite') }}</div>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
 
     <!-- ── TAB: TERMINARTEN ── -->
     <div v-if="activeTab === 'kalender'">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="openSubscribe"><i class="ti ti-calendar-share"></i> Kalender abonnieren</button></div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="openSubscribe"><i class="ti ti-calendar-share"></i> {{ tr('Kalender abonnieren') }}</button></div>
       <TermineCalendar :bookings="bookings" :can-create="types.some(t => t.active)" @new="(d, t) => openManualBooking(d, t)" @open="openDetail" />
     </div>
 
@@ -82,8 +82,8 @@
       </div>
       <div v-else-if="!types.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-calendar-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px;margin-bottom:16px">Noch keine Terminarten angelegt.</p>
-        <button class="accent-btn" @click="openNewType"><i class="ti ti-plus" style="margin-right:6px"></i>Erste Terminart anlegen</button>
+        <p style="font-size:14px;margin-bottom:16px">{{ tr('Noch keine Terminarten angelegt.') }}</p>
+        <button class="accent-btn" @click="openNewType"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Erste Terminart anlegen') }}</button>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:8px">
         <div v-for="t in types" :key="t.typeId"
@@ -91,15 +91,15 @@
           :style="!t.active ? 'opacity:.5' : ''">
           <div style="flex:1;min-width:0">
             <span style="font-weight:700;font-size:14px">{{ t.name }}</span>
-            <span v-if="!t.active" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--border);color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-left:8px">Inaktiv</span>
+            <span v-if="!t.active" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--border);color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-left:8px">{{ tr('Inaktiv') }}</span>
           </div>
-          <div style="font-size:13px;color:var(--text-muted);flex-shrink:0"><i class="ti ti-clock" style="margin-right:4px"></i>{{ t.durationMinutes }} Min.</div>
+          <div style="font-size:13px;color:var(--text-muted);flex-shrink:0"><i class="ti ti-clock" style="margin-right:4px"></i>{{ t.durationMinutes }} {{ tr('Min.') }}</div>
           <div style="display:flex;gap:4px;flex-shrink:0">
             <button @click="toggleTypeActive(t)" class="icon-btn" :title="t.active ? 'Deaktivieren' : 'Aktivieren'">
               <i class="ti" :class="t.active ? 'ti-eye' : 'ti-eye-off'"></i>
             </button>
-            <button @click="openEditType(t)" class="icon-btn" title="Bearbeiten"><i class="ti ti-edit"></i></button>
-            <button @click="deleteType(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" title="Löschen">
+            <button @click="openEditType(t)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
+            <button @click="deleteType(t)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:6px" :title="tr('Löschen')">
               <i class="ti ti-trash"></i>
             </button>
           </div>
@@ -119,7 +119,7 @@
       </div>
       <div v-else-if="!filteredBookings.length" style="text-align:center;padding:80px;color:var(--text-muted)">
         <i class="ti ti-calendar-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-        <p style="font-size:14px">Keine Termine in dieser Ansicht.</p>
+        <p style="font-size:14px">{{ tr('Keine Termine in dieser Ansicht.') }}</p>
       </div>
       <div v-else style="display:flex;flex-direction:column;gap:8px">
         <div v-for="b in filteredBookings" :key="b.bookingId"
@@ -140,10 +140,10 @@
             :style="b.status === 'cancelled' ? 'background:#ef444422;color:#ef4444' : 'background:#22c55e22;color:#22c55e'">
             {{ b.status === 'cancelled' ? 'Storniert' : 'Bestätigt' }}
           </span>
-          <a v-if="b.videoLink || b.googleMeetLink" :href="b.videoLink || b.googleMeetLink" target="_blank" rel="noopener" class="icon-btn" title="Video-Link öffnen" style="flex-shrink:0">
+          <a v-if="b.videoLink || b.googleMeetLink" :href="b.videoLink || b.googleMeetLink" target="_blank" rel="noopener" class="icon-btn" :title="tr('Video-Link öffnen')" style="flex-shrink:0">
             <i class="ti ti-video"></i>
           </a>
-          <button v-if="b.status !== 'cancelled'" @click="cancelBooking(b)" class="icon-btn" style="color:#ef4444;flex-shrink:0" title="Stornieren">
+          <button v-if="b.status !== 'cancelled'" @click="cancelBooking(b)" class="icon-btn" style="color:#ef4444;flex-shrink:0" :title="tr('Stornieren')">
             <i class="ti ti-x"></i>
           </button>
         </div>
@@ -162,7 +162,7 @@
 
             <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>Öffentliche Buchungsseite</div>
+                <div style="font-size:13px;font-weight:700"><i class="ti ti-world" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Öffentliche Buchungsseite') }}</div>
                 <button @click="settingsForm.termineEnabled = !settingsForm.termineEnabled"
                   style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                   :style="settingsForm.termineEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -171,11 +171,11 @@
                 </button>
               </div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-                Kunden können auf deiner Nexora-Webseite selbst einen freien Termin buchen.
+                {{ tr('Kunden können auf deiner Nexora-Webseite selbst einen freien Termin buchen.') }}
               </div>
               <div class="auth-field" v-if="settingsForm.termineEnabled">
-                <label>Seitentitel (Navigation &amp; Überschrift)</label>
-                <input v-model="settingsForm.termineTitle" placeholder="Termine" />
+                <label>{{ tr('Seitentitel (Navigation & Überschrift)') }}</label>
+                <input v-model="settingsForm.termineTitle" :placeholder="tr('Termine')" />
               </div>
             </div>
 
@@ -184,7 +184,7 @@
           <div style="display:flex;flex-direction:column;gap:16px">
 
             <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-              <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-clock-hour-4" style="margin-right:6px;color:var(--accent)"></i>Arbeitszeiten</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-clock-hour-4" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Arbeitszeiten') }}</div>
               <div style="display:flex;flex-direction:column;gap:8px">
                 <div v-for="d in weekdays" :key="d.key" style="display:flex;align-items:center;gap:10px">
                   <label style="display:flex;align-items:center;gap:8px;width:110px;flex-shrink:0;cursor:pointer;font-size:13px">
@@ -193,32 +193,32 @@
                   </label>
                   <template v-if="settingsForm.termineWorkingHours[d.key].enabled">
                     <input type="time" v-model="settingsForm.termineWorkingHours[d.key].start" class="form-select" style="width:110px" />
-                    <span style="color:var(--text-muted);font-size:12px">bis</span>
+                    <span style="color:var(--text-muted);font-size:12px">{{ tr('bis') }}</span>
                     <input type="time" v-model="settingsForm.termineWorkingHours[d.key].end" class="form-select" style="width:110px" />
                   </template>
-                  <span v-else style="font-size:12px;color:var(--text-muted)">Geschlossen</span>
+                  <span v-else style="font-size:12px;color:var(--text-muted)">{{ tr('Geschlossen') }}</span>
                 </div>
               </div>
             </div>
 
             <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px 20px">
-              <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-adjustments" style="margin-right:6px;color:var(--accent)"></i>Buchungsregeln</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:14px"><i class="ti ti-adjustments" style="margin-right:6px;color:var(--accent)"></i>{{ tr('Buchungsregeln') }}</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div class="auth-field"><label>Slot-Länge (Min.)</label>
+                <div class="auth-field"><label>{{ tr('Slot-Länge (Min.)') }}</label>
                   <select v-model.number="settingsForm.termineSlotStepMinutes" class="form-select">
                     <option :value="15">15</option><option :value="30">30</option><option :value="45">45</option><option :value="60">60</option>
                   </select>
                 </div>
-                <div class="auth-field"><label>Zeitzone</label>
+                <div class="auth-field"><label>{{ tr('Zeitzone') }}</label>
                   <select v-model="settingsForm.termineTimezone" class="form-select">
-                    <option value="Europe/Berlin">Europe/Berlin</option>
-                    <option value="Europe/Vienna">Europe/Vienna</option>
-                    <option value="Europe/Zurich">Europe/Zurich</option>
+                    <option value="Europe/Berlin">{{ tr('Europe/Berlin') }}</option>
+                    <option value="Europe/Vienna">{{ tr('Europe/Vienna') }}</option>
+                    <option value="Europe/Zurich">{{ tr('Europe/Zurich') }}</option>
                   </select>
                 </div>
-                <div class="auth-field"><label>Mindest-Vorlauf (Stunden)</label><input v-model.number="settingsForm.termineMinNoticeHours" type="number" min="0" /></div>
-                <div class="auth-field"><label>Max. Vorausbuchung (Tage)</label><input v-model.number="settingsForm.termineMaxAdvanceDays" type="number" min="1" /></div>
-                <div class="auth-field"><label>Erinnerung vor dem Termin (Minuten, 0 = aus)</label><input v-model.number="settingsForm.termineReminderMinutes" type="number" min="0" /></div>
+                <div class="auth-field"><label>{{ tr('Mindest-Vorlauf (Stunden)') }}</label><input v-model.number="settingsForm.termineMinNoticeHours" type="number" min="0" /></div>
+                <div class="auth-field"><label>{{ tr('Max. Vorausbuchung (Tage)') }}</label><input v-model.number="settingsForm.termineMaxAdvanceDays" type="number" min="1" /></div>
+                <div class="auth-field"><label>{{ tr('Erinnerung vor dem Termin (Minuten, 0 = aus)') }}</label><input v-model.number="settingsForm.termineReminderMinutes" type="number" min="0" /></div>
               </div>
             </div>
 
@@ -228,7 +228,7 @@
 
         <button class="accent-btn" style="align-self:flex-start" :disabled="savingSettings" @click="saveSettings">
           <i v-if="savingSettings" class="ti ti-loader-2 spin"></i>
-          <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>Speichern</span>
+          <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ tr('Speichern') }}</span>
         </button>
       </div>
     </div>
@@ -241,11 +241,11 @@
           <button class="icon-btn" @click="showTypeModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Name *</label><input v-model="typeForm.name" placeholder="Beratungsgespräch" /></div>
-          <div class="auth-field"><label>Dauer (Minuten) *</label><input v-model.number="typeForm.durationMinutes" type="number" min="5" step="5" placeholder="30" /></div>
+          <div class="auth-field"><label>{{ tr('Name *') }}</label><input v-model="typeForm.name" :placeholder="tr('Beratungsgespräch')" /></div>
+          <div class="auth-field"><label>{{ tr('Dauer (Minuten) *') }}</label><input v-model.number="typeForm.durationMinutes" type="number" min="5" step="5" placeholder="30" /></div>
           <div class="auth-field">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-              <input type="checkbox" v-model="typeForm.active" style="width:auto" /> Aktiv
+              <input type="checkbox" v-model="typeForm.active" style="width:auto" /> {{ tr('Aktiv') }}
             </label>
           </div>
         </div>
@@ -261,17 +261,17 @@
     <!-- KALENDER ABONNIEREN (.ics) -->
     <div v-if="showSubscribe" class="modal-overlay" @click.self="showSubscribe = false">
       <div class="modal-card" style="max-width:520px">
-        <div class="modal-header"><span class="card-title">Kalender abonnieren</span><button class="icon-btn" @click="showSubscribe = false"><i class="ti ti-x"></i></button></div>
+        <div class="modal-header"><span class="card-title">{{ tr('Kalender abonnieren') }}</span><button class="icon-btn" @click="showSubscribe = false"><i class="ti ti-x"></i></button></div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:10px;font-size:13px">
-          <div style="color:var(--text-muted)">Mit diesem Link siehst du deine Termine in Google Kalender, Apple Kalender (iPhone/Mac), Outlook oder Thunderbird. Neue Buchungen erscheinen dort automatisch (je nach App mit etwas Verzögerung). Es geht nur in eine Richtung: Plexora → dein Kalender.</div>
+          <div style="color:var(--text-muted)">{{ tr('Mit diesem Link siehst du deine Termine in Google Kalender, Apple Kalender (iPhone/Mac), Outlook oder Thunderbird. Neue Buchungen erscheinen dort automatisch (je nach App mit etwas Verzögerung). Es geht nur in eine Richtung: Plexora → dein Kalender.') }}</div>
           <div v-if="subscribeLoading"><i class="ti ti-loader-2 spin"></i></div>
           <template v-else-if="subscribeUrl">
             <div style="display:flex;gap:6px"><input :value="subscribeUrl" readonly style="flex:1;font-size:12px" @focus="($event.target as HTMLInputElement).select()" /><button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" @click="copySubscribe"><i class="ti ti-copy"></i> {{ subscribeCopied ? 'Kopiert' : 'Kopieren' }}</button></div>
-            <div style="font-size:12px;color:var(--text-muted)"><strong>So geht's:</strong> Google Kalender → „Weitere Kalender“ → „Per URL“. iPhone → Einstellungen → Kalender → Accounts → „Abonnierter Kalender“. Outlook → „Kalender hinzufügen“ → „Aus dem Internet“.</div>
-            <div style="font-size:12px;color:#8a5d00;background:#F0B42822;border-radius:8px;padding:8px 10px"><i class="ti ti-lock"></i> Der Link ist geheim: Wer ihn kennt, sieht Terminart, Zeit, Gastname, Telefon und Video-Link (keine E-Mail-Adressen, keine Notizen). Nicht weitergeben. Bei Verdacht: neuen Link erzeugen, der alte funktioniert dann nicht mehr.</div>
-            <div><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="createSubscribe(true)"><i class="ti ti-refresh"></i> Neuen Link erzeugen</button></div>
+            <div style="font-size:12px;color:var(--text-muted)"><strong>{{ tr('So geht\'s:') }}</strong> {{ tr('Google Kalender → „Weitere Kalender“ → „Per URL“. iPhone → Einstellungen → Kalender → Accounts → „Abonnierter Kalender“. Outlook → „Kalender hinzufügen“ → „Aus dem Internet“.') }}</div>
+            <div style="font-size:12px;color:#8a5d00;background:#F0B42822;border-radius:8px;padding:8px 10px"><i class="ti ti-lock"></i> {{ tr('Der Link ist geheim: Wer ihn kennt, sieht Terminart, Zeit, Gastname, Telefon und Video-Link (keine E-Mail-Adressen, keine Notizen). Nicht weitergeben. Bei Verdacht: neuen Link erzeugen, der alte funktioniert dann nicht mehr.') }}</div>
+            <div><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="createSubscribe(true)"><i class="ti ti-refresh"></i> {{ tr('Neuen Link erzeugen') }}</button></div>
           </template>
-          <button v-else class="auth-btn" @click="createSubscribe(false)"><i class="ti ti-link"></i> Abo-Link erzeugen</button>
+          <button v-else class="auth-btn" @click="createSubscribe(false)"><i class="ti ti-link"></i> {{ tr('Abo-Link erzeugen') }}</button>
           <div v-if="subscribeError" style="color:#E05C5C">{{ subscribeError }}</div>
         </div>
       </div>
@@ -282,13 +282,13 @@
       <div class="modal-card" style="max-width:440px">
         <div class="modal-header"><span class="card-title">{{ detail.typeName }}</span><button class="icon-btn" @click="detail = null"><i class="ti ti-x"></i></button></div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:8px;font-size:13px">
-          <div><i class="ti ti-calendar" style="color:var(--accent)"></i> {{ new Date(detail.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) }}, {{ detail.startTime }}–{{ detail.endTime }} Uhr</div>
-          <div><i class="ti ti-user" style="color:var(--accent)"></i> <strong>{{ detail.customerName }}</strong><span v-if="detail.status === 'cancelled'" style="color:#E05C5C"> · storniert</span></div>
+          <div><i class="ti ti-calendar" style="color:var(--accent)"></i> {{ new Date(detail.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) }}, {{ detail.startTime }}–{{ detail.endTime }} {{ tr('Uhr') }}</div>
+          <div><i class="ti ti-user" style="color:var(--accent)"></i> <strong>{{ detail.customerName }}</strong><span v-if="detail.status === 'cancelled'" style="color:#E05C5C"> {{ tr('· storniert') }}</span></div>
           <div v-if="detail.customerEmail"><i class="ti ti-mail" style="color:var(--accent)"></i> {{ detail.customerEmail }}</div>
           <div v-if="detail.customerPhone"><i class="ti ti-phone" style="color:var(--accent)"></i> {{ detail.customerPhone }}</div>
-          <div v-if="detail.channel !== 'phone' && (detail.videoLink || detail.googleMeetLink)"><i class="ti ti-video" style="color:var(--accent)"></i> <a :href="detail.videoLink || detail.googleMeetLink" target="_blank" rel="noopener" style="color:var(--accent)">Video-Raum öffnen</a></div>
+          <div v-if="detail.channel !== 'phone' && (detail.videoLink || detail.googleMeetLink)"><i class="ti ti-video" style="color:var(--accent)"></i> <a :href="detail.videoLink || detail.googleMeetLink" target="_blank" rel="noopener" style="color:var(--accent)">{{ tr('Video-Raum öffnen') }}</a></div>
           <div v-if="detail.notes" style="padding:8px 10px;background:var(--bg-elevated);border-radius:8px;white-space:pre-line">{{ detail.notes }}</div>
-          <button v-if="detail.status !== 'cancelled'" class="auth-btn" style="background:#E05C5C;margin-top:6px" @click="cancelFromDetail"><i class="ti ti-x"></i> Termin stornieren</button>
+          <button v-if="detail.status !== 'cancelled'" class="auth-btn" style="background:#E05C5C;margin-top:6px" @click="cancelFromDetail"><i class="ti ti-x"></i> {{ tr('Termin stornieren') }}</button>
         </div>
       </div>
     </div>
@@ -296,46 +296,46 @@
     <div v-if="showManualBookingModal" class="modal-overlay" @click.self="showManualBookingModal=false">
       <div class="modal-card" style="max-width:440px">
         <div class="modal-header">
-          <span class="card-title">Termin eintragen</span>
+          <span class="card-title">{{ tr('Termin eintragen') }}</span>
           <button class="icon-btn" @click="showManualBookingModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
           <div class="auth-field">
-            <label>Terminart *</label>
+            <label>{{ tr('Terminart *') }}</label>
             <select v-model="manualBooking.typeId">
-              <option v-for="t in types.filter(x => x.active)" :key="t.typeId" :value="t.typeId">{{ t.name }} ({{ t.durationMinutes }} Min.)</option>
+              <option v-for="t in types.filter(x => x.active)" :key="t.typeId" :value="t.typeId">{{ t.name }} ({{ t.durationMinutes }} {{ tr('Min.)') }}</option>
             </select>
           </div>
           <div style="display:flex;gap:10px">
-            <div class="auth-field" style="flex:1"><label>Datum *</label><input v-model="manualBooking.date" type="date" /></div>
-            <div class="auth-field" style="flex:1"><label>Uhrzeit *</label><input v-model="manualBooking.startTime" type="time" /></div>
+            <div class="auth-field" style="flex:1"><label>{{ tr('Datum *') }}</label><input v-model="manualBooking.date" type="date" /></div>
+            <div class="auth-field" style="flex:1"><label>{{ tr('Uhrzeit *') }}</label><input v-model="manualBooking.startTime" type="time" /></div>
           </div>
           <div class="auth-field">
-            <label>Kanal *</label>
+            <label>{{ tr('Kanal *') }}</label>
             <div style="display:flex;gap:8px">
               <button type="button" class="theme-opt" style="flex:1" :class="{ active: manualBooking.channel === 'video' }" @click="manualBooking.channel = 'video'">
-                <i class="ti ti-video"></i> Video
+                <i class="ti ti-video"></i> {{ tr('Video') }}
               </button>
               <button type="button" class="theme-opt" style="flex:1" :class="{ active: manualBooking.channel === 'phone' }" @click="manualBooking.channel = 'phone'">
-                <i class="ti ti-phone"></i> Telefon
+                <i class="ti ti-phone"></i> {{ tr('Telefon') }}
               </button>
             </div>
           </div>
-          <div class="auth-field"><label>Name *</label><input v-model="manualBooking.customerName" placeholder="Max Mustermann" /></div>
+          <div class="auth-field"><label>{{ tr('Name *') }}</label><input v-model="manualBooking.customerName" :placeholder="tr('Max Mustermann')" /></div>
           <div class="auth-field">
-            <label>E-Mail{{ manualBooking.channel === 'video' ? ' *' : '' }}</label>
-            <input v-model="manualBooking.customerEmail" placeholder="max@firma.de" />
+            <label>{{ tr('E-Mail') }}{{ manualBooking.channel === 'video' ? ' *' : '' }}</label>
+            <input v-model="manualBooking.customerEmail" :placeholder="tr('max@firma.de')" />
           </div>
           <div class="auth-field">
-            <label>Telefon{{ manualBooking.channel === 'phone' ? ' *' : '' }}</label>
+            <label>{{ tr('Telefon') }}{{ manualBooking.channel === 'phone' ? ' *' : '' }}</label>
             <input v-model="manualBooking.customerPhone" placeholder="+49 123 456789" />
           </div>
-          <div class="auth-field"><label>Notiz</label><textarea v-model="manualBooking.notes" rows="2" placeholder="Worum geht es?"></textarea></div>
+          <div class="auth-field"><label>{{ tr('Notiz') }}</label><textarea v-model="manualBooking.notes" rows="2" :placeholder="tr('Worum geht es?')"></textarea></div>
           <div v-if="manualBookingError" style="font-size:12px;color:#e05c5c">{{ manualBookingError }}</div>
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" :disabled="!canSaveManualBooking || savingManualBooking" @click="saveManualBooking">
-            <i class="ti" :class="savingManualBooking ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>Termin eintragen
+            <i class="ti" :class="savingManualBooking ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:6px"></i>{{ tr('Termin eintragen') }}
           </button>
         </div>
       </div>
@@ -473,11 +473,11 @@ async function openSubscribe() {
   try { subscribeUrl.value = (await $fetch<{ url: string | null }>(useApiUrl('/api/termine/ical-token'), { headers: authHdr() })).url || '' } catch (e: any) { subscribeError.value = e?.data?.message || 'Der Link konnte nicht geladen werden.' } finally { subscribeLoading.value = false }
 }
 async function createSubscribe(renew: boolean) {
-  if (renew && !confirm('Neuen Link erzeugen? Der alte Link (in deinen Kalender-Apps) hört sofort auf zu funktionieren, du musst den neuen dort eintragen.')) return
+  if (renew && !confirm(tr('Neuen Link erzeugen? Der alte Link (in deinen Kalender-Apps) hört sofort auf zu funktionieren, du musst den neuen dort eintragen.'))) return
   subscribeError.value = ''; subscribeLoading.value = true
-  try { subscribeUrl.value = (await $fetch<{ url: string }>(useApiUrl('/api/termine/ical-token'), { method: 'POST', headers: authHdr() })).url } catch (e: any) { subscribeError.value = e?.data?.message || 'Der Link konnte nicht erzeugt werden.' } finally { subscribeLoading.value = false }
+  try { subscribeUrl.value = (await $fetch<{ url: string }>(useApiUrl('/api/termine/ical-token'), { method: 'POST', headers: authHdr() })).url } catch (e: any) { subscribeError.value = e?.data?.message || tr('Der Link konnte nicht erzeugt werden.') } finally { subscribeLoading.value = false }
 }
-async function copySubscribe() { try { await navigator.clipboard.writeText(subscribeUrl.value); subscribeCopied.value = true } catch { subscribeError.value = 'Kopieren nicht möglich, bitte von Hand markieren.' } }
+async function copySubscribe() { try { await navigator.clipboard.writeText(subscribeUrl.value); subscribeCopied.value = true } catch { subscribeError.value = tr('Kopieren nicht möglich, bitte von Hand markieren.') } }
 
 // ── Termin-Details (Kalender) ──
 const detail = ref<Booking | null>(null)
@@ -564,7 +564,7 @@ async function saveSettings() {
       body: { ...settingsForm },
     })
   } catch {
-    alert('Fehler beim Speichern.')
+    alert(tr('Fehler beim Speichern.'))
   } finally {
     savingSettings.value = false
   }

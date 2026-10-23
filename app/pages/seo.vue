@@ -6,8 +6,8 @@
         <i class="ti ti-chart-line" style="font-size:18px;color:#fff"></i>
       </div>
       <div>
-        <div style="font-size:18px;font-weight:700">SEO & Traffic Analytics</div>
-        <div style="font-size:12px;color:var(--text-muted)">app.plexora.eu — nur für dich sichtbar</div>
+        <div style="font-size:18px;font-weight:700">{{ tr('SEO & Traffic Analytics') }}</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('app.plexora.eu — nur für dich sichtbar') }}</div>
       </div>
       <button class="icon-btn" style="margin-left:auto" @click="reload" :disabled="loading">
         <i class="ti" :class="loading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
@@ -23,12 +23,12 @@
       <!-- CORE WEB VITALS -->
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-speedboat" style="color:var(--accent);margin-right:6px"></i>Core Web Vitals</span>
-          <span style="font-size:11px;color:var(--text-muted)">Echte Nutzerdaten · letzte 30 Tage</span>
+          <span class="card-title"><i class="ti ti-speedboat" style="color:var(--accent);margin-right:6px"></i>{{ tr('Core Web Vitals') }}</span>
+          <span style="font-size:11px;color:var(--text-muted)">{{ tr('Echte Nutzerdaten · letzte 30 Tage') }}</span>
         </div>
         <div v-if="!vitals || !Object.values(vitals).some((v:any) => v.count > 0)" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
           <i class="ti ti-clock" style="font-size:20px;display:block;margin-bottom:8px"></i>
-          Noch keine Daten — werden beim nächsten Seitenbesuch gesammelt
+          {{ tr('Noch keine Daten — werden beim nächsten Seitenbesuch gesammelt') }}
         </div>
         <div v-else style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
           <div v-for="m in vitalsList" :key="m.key" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
@@ -43,7 +43,7 @@
                 <div :style="`font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;${ratingBadge(m.key)}`">
                   {{ m.count > 0 ? ratingLabel(m.key) : '–' }}
                 </div>
-                <div style="font-size:10px;color:var(--text-muted);margin-top:4px">{{ m.count }} Messungen</div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:4px">{{ m.count }} {{ tr('Messungen') }}</div>
               </div>
             </div>
             <!-- Good/Needs/Poor bar -->
@@ -54,9 +54,9 @@
                 <div :style="`flex:${m.poorPct};background:#ef4444;min-width:${m.poorPct > 0 ? 2 : 0}px`"></div>
               </div>
               <div style="display:flex;gap:10px;font-size:10px;color:var(--text-muted)">
-                <span><span style="color:#22c55e;font-weight:700">{{ m.goodPct }}%</span> Gut</span>
-                <span><span style="color:#f59e0b;font-weight:700">{{ m.needsPct }}%</span> OK</span>
-                <span><span style="color:#ef4444;font-weight:700">{{ m.poorPct }}%</span> Schlecht</span>
+                <span><span style="color:#22c55e;font-weight:700">{{ m.goodPct }}%</span> {{ tr('Gut') }}</span>
+                <span><span style="color:#f59e0b;font-weight:700">{{ m.needsPct }}%</span> {{ tr('OK') }}</span>
+                <span><span style="color:#ef4444;font-weight:700">{{ m.poorPct }}%</span> {{ tr('Schlecht') }}</span>
               </div>
             </div>
           </div>
@@ -67,25 +67,25 @@
       <div class="stats-grid" style="margin-bottom:16px">
         <div class="stat-card">
           <i class="ti ti-users stat-icon"></i>
-          <div class="stat-label">Echte Besucher</div>
+          <div class="stat-label">{{ tr('Echte Besucher') }}</div>
           <div class="stat-value">{{ stats.humanTotal.toLocaleString('de-DE') }}</div>
-          <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ stats.todayHuman }} heute</div>
+          <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ stats.todayHuman }} {{ tr('heute') }}</div>
         </div>
         <div class="stat-card">
           <i class="ti ti-robot stat-icon"></i>
-          <div class="stat-label">Bots / Crawler</div>
+          <div class="stat-label">{{ tr('Bots / Crawler') }}</div>
           <div class="stat-value">{{ stats.botTotal.toLocaleString('de-DE') }}</div>
-          <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ stats.todayBot }} heute</div>
+          <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ stats.todayBot }} {{ tr('heute') }}</div>
         </div>
         <div class="stat-card">
           <i class="ti ti-eye stat-icon"></i>
-          <div class="stat-label">Gesamt Aufrufe</div>
+          <div class="stat-label">{{ tr('Gesamt Aufrufe') }}</div>
           <div class="stat-value">{{ (stats.humanTotal + stats.botTotal).toLocaleString('de-DE') }}</div>
-          <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ stats.todayHuman + stats.todayBot }} heute</div>
+          <div class="stat-delta up"><i class="ti ti-arrow-up-right"></i> {{ stats.todayHuman + stats.todayBot }} {{ tr('heute') }}</div>
         </div>
         <div class="stat-card">
           <i class="ti ti-percentage stat-icon"></i>
-          <div class="stat-label">Bot-Anteil</div>
+          <div class="stat-label">{{ tr('Bot-Anteil') }}</div>
           <div class="stat-value">{{ botRate }}%</div>
           <div class="stat-delta" :class="botRate > 50 ? 'danger' : 'up'">
             <i class="ti" :class="botRate > 50 ? 'ti-alert-triangle' : 'ti-check'"></i>
@@ -97,10 +97,10 @@
       <!-- CHART: 30 Tage -->
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title">Aufrufe letzte 30 Tage</span>
+          <span class="card-title">{{ tr('Aufrufe letzte 30 Tage') }}</span>
           <div style="display:flex;gap:16px;font-size:11px;color:var(--text-muted)">
-            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>Besucher</span>
-            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6C3FE8;margin-right:4px"></span>Bots</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>{{ tr('Besucher') }}</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6C3FE8;margin-right:4px"></span>{{ tr('Bots') }}</span>
           </div>
         </div>
         <div class="card-body" style="padding:16px 20px">
@@ -136,12 +136,12 @@
 
         <!-- TOP PAGES -->
         <div class="card">
-          <div class="card-header"><span class="card-title">Top Seiten</span></div>
+          <div class="card-header"><span class="card-title">{{ tr('Top Seiten') }}</span></div>
           <table class="data-table">
-            <thead><tr><th>Seite</th><th style="text-align:right">Aufrufe</th></tr></thead>
+            <thead><tr><th>{{ tr('Seite') }}</th><th style="text-align:right">{{ tr('Aufrufe') }}</th></tr></thead>
             <tbody>
               <tr v-if="!stats.topPages.length">
-                <td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Daten</td>
+                <td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">{{ tr('Noch keine Daten') }}</td>
               </tr>
               <tr v-for="p in stats.topPages" :key="p.path">
                 <td class="td-name" style="font-family:monospace;font-size:12px">{{ p.path }}</td>
@@ -153,16 +153,16 @@
 
         <!-- TOP REFERRER -->
         <div class="card">
-          <div class="card-header"><span class="card-title">Traffic-Quellen</span></div>
+          <div class="card-header"><span class="card-title">{{ tr('Traffic-Quellen') }}</span></div>
           <table class="data-table">
-            <thead><tr><th>Quelle</th><th style="text-align:right">Aufrufe</th></tr></thead>
+            <thead><tr><th>{{ tr('Quelle') }}</th><th style="text-align:right">{{ tr('Aufrufe') }}</th></tr></thead>
             <tbody>
               <tr v-if="!stats.topRefs.length">
-                <td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Daten</td>
+                <td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">{{ tr('Noch keine Daten') }}</td>
               </tr>
               <tr v-for="r in stats.topRefs" :key="r.ref">
                 <td class="td-name" style="font-size:12px">
-                  <span v-if="r.ref === 'direct'" style="color:var(--text-muted)">— direkt / bookmark —</span>
+                  <span v-if="r.ref === 'direct'" style="color:var(--text-muted)">{{ tr('— direkt / bookmark —') }}</span>
                   <span v-else>{{ r.ref }}</span>
                 </td>
                 <td style="text-align:right;font-weight:600">{{ r.count }}</td>
@@ -177,8 +177,8 @@
 
         <!-- BROWSER -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-browser" style="color:var(--accent);margin-right:6px"></i>Browser</span></div>
-          <div v-if="!stats.topBrowsers?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-browser" style="color:var(--accent);margin-right:6px"></i>{{ tr('Browser') }}</span></div>
+          <div v-if="!stats.topBrowsers?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">{{ tr('Noch keine Daten') }}</div>
           <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
             <div v-for="b in stats.topBrowsers" :key="b.name" style="display:flex;align-items:center;gap:10px">
               <span style="font-size:13px;min-width:120px">{{ b.name }}</span>
@@ -192,8 +192,8 @@
 
         <!-- OS -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-device-desktop" style="color:var(--accent);margin-right:6px"></i>Betriebssystem</span></div>
-          <div v-if="!stats.topOss?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-device-desktop" style="color:var(--accent);margin-right:6px"></i>{{ tr('Betriebssystem') }}</span></div>
+          <div v-if="!stats.topOss?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">{{ tr('Noch keine Daten') }}</div>
           <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
             <div v-for="o in stats.topOss" :key="o.name" style="display:flex;align-items:center;gap:10px">
               <span style="font-size:13px;min-width:120px">{{ osIcon(o.name) }} {{ o.name }}</span>
@@ -207,8 +207,8 @@
 
         <!-- COUNTRIES -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-world" style="color:var(--accent);margin-right:6px"></i>Länder</span></div>
-          <div v-if="!stats.topCountries?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-world" style="color:var(--accent);margin-right:6px"></i>{{ tr('Länder') }}</span></div>
+          <div v-if="!stats.topCountries?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">{{ tr('Noch keine Daten') }}</div>
           <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
             <div v-for="c in stats.topCountries" :key="c.code" style="display:flex;align-items:center;gap:10px">
               <span style="font-size:16px;width:24px">{{ flag(c.code) }}</span>
@@ -223,10 +223,10 @@
 
         <!-- CITIES -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-building" style="color:var(--accent);margin-right:6px"></i>Städte</span></div>
-          <div v-if="!stats.topCities?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-building" style="color:var(--accent);margin-right:6px"></i>{{ tr('Städte') }}</span></div>
+          <div v-if="!stats.topCities?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">{{ tr('Noch keine Daten') }}</div>
           <table v-else class="data-table">
-            <thead><tr><th>Stadt</th><th style="text-align:right">Aufrufe</th></tr></thead>
+            <thead><tr><th>{{ tr('Stadt') }}</th><th style="text-align:right">{{ tr('Aufrufe') }}</th></tr></thead>
             <tbody>
               <tr v-for="c in stats.topCities" :key="c.city">
                 <td style="font-size:13px">{{ c.city }}</td>
@@ -240,11 +240,11 @@
       <!-- BOT BREAKDOWN -->
       <div class="card" style="margin-bottom:14px">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-robot" style="color:var(--accent);margin-right:6px"></i>Bot-Aufschlüsselung</span>
-          <span style="font-size:11px;color:var(--text-muted)">{{ stats.bots.length }} verschiedene Crawler</span>
+          <span class="card-title"><i class="ti ti-robot" style="color:var(--accent);margin-right:6px"></i>{{ tr('Bot-Aufschlüsselung') }}</span>
+          <span style="font-size:11px;color:var(--text-muted)">{{ stats.bots.length }} {{ tr('verschiedene Crawler') }}</span>
         </div>
         <div v-if="!stats.bots.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
-          Noch keine Bot-Daten
+          {{ tr('Noch keine Bot-Daten') }}
         </div>
         <div v-else style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
           <div v-for="b in stats.bots" :key="b.name"
@@ -258,14 +258,14 @@
       <!-- RECENT IPs -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title"><i class="ti ti-network" style="color:var(--accent);margin-right:6px"></i>Letzte Besucher-IPs</span>
-          <span style="font-size:11px;color:var(--text-muted)">nur für Admin · letzte 100</span>
+          <span class="card-title"><i class="ti ti-network" style="color:var(--accent);margin-right:6px"></i>{{ tr('Letzte Besucher-IPs') }}</span>
+          <span style="font-size:11px;color:var(--text-muted)">{{ tr('nur für Admin · letzte 100') }}</span>
         </div>
         <div v-if="!stats.recentIps?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
-          Noch keine Daten
+          {{ tr('Noch keine Daten') }}
         </div>
         <table v-else class="data-table">
-          <thead><tr><th>Zeit</th><th>IP</th><th>Land</th><th>Stadt</th><th>Seite</th></tr></thead>
+          <thead><tr><th>{{ tr('Zeit') }}</th><th>{{ tr('IP') }}</th><th>{{ tr('Land') }}</th><th>{{ tr('Stadt') }}</th><th>{{ tr('Seite') }}</th></tr></thead>
           <tbody>
             <tr v-for="(r, i) in stats.recentIps.slice(0,20)" :key="i">
               <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">{{ r.ts?.slice(0,16).replace('T',' ') }}</td>
@@ -282,7 +282,7 @@
 
     <div v-else style="text-align:center;padding:60px;color:var(--text-muted)">
       <i class="ti ti-lock" style="font-size:32px;display:block;margin-bottom:8px"></i>
-      <div style="margin-bottom:8px">Kein Zugriff</div>
+      <div style="margin-bottom:8px">{{ tr('Kein Zugriff') }}</div>
       <div v-if="error" style="font-size:11px;font-family:monospace;color:#E05C5C">{{ error }}</div>
     </div>
 

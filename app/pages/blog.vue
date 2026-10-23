@@ -4,11 +4,11 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Blog <span style="color:var(--accent)">Admin</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Beiträge erstellen, bearbeiten und veröffentlichen</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Blog') }} <span style="color:var(--accent)">{{ tr('Admin') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Beiträge erstellen, bearbeiten und veröffentlichen') }}</p>
       </div>
       <button class="accent-btn" @click="openNew">
-        <i class="ti ti-plus"></i> Neuer Beitrag
+        <i class="ti ti-plus"></i> {{ tr('Neuer Beitrag') }}
       </button>
     </div>
 
@@ -23,12 +23,12 @@
     <!-- Kommentare: Schalter und Moderation -->
     <div v-if="activeTab === 'comments'">
       <div class="card" style="margin-bottom:16px">
-        <div class="card-header"><span class="card-title"><i class="ti ti-toggle-right" style="margin-right:8px;color:var(--accent)"></i>Kommentare auf der Webseite<HelpTip k="kommentare" /></span></div>
+        <div class="card-header"><span class="card-title"><i class="ti ti-toggle-right" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Kommentare auf der Webseite') }}<HelpTip k="kommentare" /></span></div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:10px;max-width:640px">
-          <div style="font-size:12px;color:var(--text-muted)">Besucher können unter Beiträgen kommentieren, <strong>nachdem sie ein kostenloses Konto angelegt</strong> und ihre E-Mail-Adresse bestätigt haben. Du kannst die Funktion jederzeit abschalten; bestehende Kommentare bleiben gespeichert, werden aber nicht mehr angezeigt. Einzelne Beiträge schaltest du im Beitrag ab.</div>
+          <div style="font-size:12px;color:var(--text-muted)">{{ tr('Besucher können unter Beiträgen kommentieren,') }} <strong>{{ tr('nachdem sie ein kostenloses Konto angelegt') }}</strong> {{ tr('und ihre E-Mail-Adresse bestätigt haben. Du kannst die Funktion jederzeit abschalten; bestehende Kommentare bleiben gespeichert, werden aber nicht mehr angezeigt. Einzelne Beiträge schaltest du im Beitrag ab.') }}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <select v-model="commentsMode" class="form-select" style="height:34px"><option v-for="m in COMMENT_MODE_OPTIONS" :key="m.key" :value="m.key">{{ m.label }}</option></select>
-            <button class="accent-btn" :disabled="savingMode" @click="saveCommentsMode"><i class="ti" :class="savingMode ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> Speichern</button>
+            <button class="accent-btn" :disabled="savingMode" @click="saveCommentsMode"><i class="ti" :class="savingMode ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}</button>
             <span v-if="modeMsg" style="font-size:12px;color:var(--text-muted)">{{ modeMsg }}</span>
           </div>
         </div>
@@ -37,18 +37,18 @@
         <button v-for="f in COMMENT_FILTERS" :key="f.key" class="theme-opt" :class="{ active: commentFilter === f.key }" style="font-size:12px;padding:4px 12px" @click="commentFilter = f.key">{{ f.label }} <span style="opacity:.6">{{ f.key === 'all' ? comments.length : comments.filter(c => c.status === f.key).length }}</span></button>
       </div>
       <div v-if="commentsLoading" style="padding:30px;text-align:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
-      <div v-else-if="!shownComments.length" style="padding:40px;text-align:center;color:var(--text-muted);border:1px dashed var(--border);border-radius:12px">Keine Kommentare in dieser Ansicht.</div>
+      <div v-else-if="!shownComments.length" style="padding:40px;text-align:center;color:var(--text-muted);border:1px dashed var(--border);border-radius:12px">{{ tr('Keine Kommentare in dieser Ansicht.') }}</div>
       <div v-else style="display:flex;flex-direction:column;gap:10px">
         <div v-for="c in shownComments" :key="c.commentId" style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:6px">
-            <span><strong style="color:var(--text-primary)">{{ c.authorName }}</strong> · {{ c.authorEmail }} · zu „{{ postTitle(c) }}“</span>
+            <span><strong style="color:var(--text-primary)">{{ c.authorName }}</strong> · {{ c.authorEmail }} {{ tr('· zu „') }}{{ postTitle(c) }}“</span>
             <span>{{ new Date(c.created).toLocaleString('de-DE') }} · <span class="badge" :class="c.status === 'approved' ? 'badge-success' : c.status === 'pending' ? 'badge-warning' : ''">{{ c.status === 'approved' ? 'Sichtbar' : c.status === 'pending' ? 'Wartet' : 'Verborgen' }}</span></span>
           </div>
           <p style="margin:0 0 10px;font-size:13px;white-space:pre-line;overflow-wrap:anywhere">{{ c.text }}</p>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button v-if="c.status !== 'approved'" class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" :disabled="commentBusy === c.commentId" @click="moderate(c, 'approved')"><i class="ti ti-check"></i> Freigeben</button>
-            <button v-if="c.status !== 'hidden'" class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" :disabled="commentBusy === c.commentId" @click="moderate(c, 'hidden')"><i class="ti ti-eye-off"></i> Verbergen</button>
-            <button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px;color:var(--danger)" :disabled="commentBusy === c.commentId" @click="removeComment(c)"><i class="ti ti-trash"></i> Löschen</button>
+            <button v-if="c.status !== 'approved'" class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" :disabled="commentBusy === c.commentId" @click="moderate(c, 'approved')"><i class="ti ti-check"></i> {{ tr('Freigeben') }}</button>
+            <button v-if="c.status !== 'hidden'" class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" :disabled="commentBusy === c.commentId" @click="moderate(c, 'hidden')"><i class="ti ti-eye-off"></i> {{ tr('Verbergen') }}</button>
+            <button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px;color:var(--danger)" :disabled="commentBusy === c.commentId" @click="removeComment(c)"><i class="ti ti-trash"></i> {{ tr('Löschen') }}</button>
           </div>
         </div>
       </div>
@@ -56,8 +56,8 @@
 
     <!-- Kategorie Filter -->
     <div v-if="activeTab !== 'comments' && allCategories.length" style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--text-muted);margin-right:2px">Kategorie:</span>
-      <button class="theme-opt" :class="{ active: !categoryFilter }" @click="categoryFilter = ''" style="font-size:11px;padding:3px 10px">Alle</button>
+      <span style="font-size:11px;color:var(--text-muted);margin-right:2px">{{ tr('Kategorie:') }}</span>
+      <button class="theme-opt" :class="{ active: !categoryFilter }" @click="categoryFilter = ''" style="font-size:11px;padding:3px 10px">{{ tr('Alle') }}</button>
       <button v-for="cat in allCategories" :key="cat" class="theme-opt" :class="{ active: categoryFilter === cat }" @click="categoryFilter = cat" style="font-size:11px;padding:3px 10px">{{ cat }}</button>
     </div>
 
@@ -70,7 +70,7 @@
     <div v-else-if="activeTab !== 'comments' && !filteredPosts.length" style="text-align:center;padding:80px 20px;color:var(--text-muted)">
       <i class="ti ti-pencil-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
       <p style="font-size:14px;margin-bottom:16px">{{ activeTab === 'live' ? 'Noch keine veröffentlichten Beiträge.' : activeTab === 'draft' ? 'Keine Entwürfe vorhanden.' : 'Noch keine Beiträge.' }}</p>
-      <button class="accent-btn" @click="openNew"><i class="ti ti-plus" style="margin-right:6px"></i>Ersten Beitrag erstellen</button>
+      <button class="accent-btn" @click="openNew"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Ersten Beitrag erstellen') }}</button>
     </div>
 
     <!-- Post Grid -->
@@ -94,7 +94,7 @@
         <!-- Body -->
         <div style="padding:14px;flex:1;display:flex;flex-direction:column">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-            <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;font-weight:700">/blog/{{ p.slug }}</div>
+            <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;font-weight:700">{{ tr('/blog/') }}{{ p.slug }}</div>
             <span v-if="p.category" style="font-size:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:1px 8px;color:var(--text-muted);white-space:nowrap">{{ p.category }}</span>
           </div>
           <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:var(--text);line-height:1.3">{{ p.title }}</div>
@@ -123,9 +123,9 @@
         <div class="modal-header">
           <input v-model="form.title" @input="titleToSlug"
             style="background:transparent;border:none;outline:none;font-size:16px;font-weight:700;color:var(--text);font-family:inherit;flex:1;min-width:0"
-            placeholder="Beitragstitel..." />
+            :placeholder="tr('Beitragstitel...')" />
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            <button class="icon-btn" title="Mit KI schreiben (nutzt den Titel als Thema)"
+            <button class="icon-btn" :title="tr('Mit KI schreiben (nutzt den Titel als Thema)')"
               :disabled="!form.title.trim() || generatingBlog" @click="generateBlogContent">
               <i class="ti" :class="generatingBlog ? 'ti-loader-2 spin' : 'ti-sparkles'" :style="!generatingBlog ? 'color:var(--accent)' : ''"></i>
             </button>
@@ -140,34 +140,34 @@
           <!-- Linke Spalte: Meta-Felder + Cover -->
           <div class="blog-meta-col">
             <div class="blog-field">
-              <label>Excerpt</label>
-              <input v-model="form.excerpt" placeholder="Kurzbeschreibung..." />
+              <label>{{ tr('Excerpt') }}</label>
+              <input v-model="form.excerpt" :placeholder="tr('Kurzbeschreibung...')" />
             </div>
-            <label class="blog-field" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" v-model="form.commentsEnabled" style="width:auto" /> Kommentare bei diesem Beitrag erlauben</label>
+            <label class="blog-field" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" v-model="form.commentsEnabled" style="width:auto" /> {{ tr('Kommentare bei diesem Beitrag erlauben') }}</label>
             <div class="blog-field">
-              <label>Autor (wird beim Beitrag angezeigt)</label>
-              <input v-model="form.authorName" maxlength="80" placeholder="Name des Autors" />
-            </div>
-            <div class="blog-field">
-              <label>Tags</label>
-              <input v-model="tagsInput" placeholder="tag1, tag2" />
+              <label>{{ tr('Autor (wird beim Beitrag angezeigt)') }}</label>
+              <input v-model="form.authorName" maxlength="80" :placeholder="tr('Name des Autors')" />
             </div>
             <div class="blog-field">
-              <label>Kategorie
-                <NuxtLink to="/settings" style="color:var(--text-muted);margin-left:4px" title="Kategorien verwalten">
+              <label>{{ tr('Tags') }}</label>
+              <input v-model="tagsInput" :placeholder="tr('tag1, tag2')" />
+            </div>
+            <div class="blog-field">
+              <label>{{ tr('Kategorie') }}
+                <NuxtLink to="/settings" style="color:var(--text-muted);margin-left:4px" :title="tr('Kategorien verwalten')">
                   <i class="ti ti-settings" style="font-size:11px"></i>
                 </NuxtLink>
               </label>
               <select v-model="form.category" @change="onCategoryChange">
-                <option value="">Keine</option>
-                <option value="__new__">+ Neue Kategorie…</option>
+                <option value="">{{ tr('Keine') }}</option>
+                <option value="__new__">{{ tr('+ Neue Kategorie…') }}</option>
                 <option v-for="cat in blogCategories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
             </div>
 
             <!-- Cover -->
             <div class="blog-field">
-              <label>Cover-Bild</label>
+              <label>{{ tr('Cover-Bild') }}</label>
               <ImageUploadCrop v-model="form.coverImageUrl" s3-prefix="blog/" file-name-prefix="blog" :ratios="[[16, 9], [1, 1]]" />
             </div>
           </div>
@@ -185,10 +185,10 @@
             {{ form.status === 'published' ? '● Veröffentlicht' : '○ Entwurf' }}
           </span>
           <div class="blog-modal-actions">
-            <button @click="showModal=false" class="icon-btn footer-action footer-cancel" style="font-size:12px;white-space:nowrap;flex-shrink:0">Abbrechen</button>
+            <button @click="showModal=false" class="icon-btn footer-action footer-cancel" style="font-size:12px;white-space:nowrap;flex-shrink:0">{{ tr('Abbrechen') }}</button>
             <button class="icon-btn footer-action footer-draft" style="font-size:12px;white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('draft')">
               <i v-if="saving && form.status === 'draft'" class="ti ti-loader-2 spin"></i>
-              <span v-else><i class="ti ti-file-pencil" style="margin-right:4px"></i>Entwurf speichern</span>
+              <span v-else><i class="ti ti-file-pencil" style="margin-right:4px"></i>{{ tr('Entwurf speichern') }}</span>
             </button>
             <button class="accent-btn" style="white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('published')">
               <i v-if="saving && form.status === 'published'" class="ti ti-loader-2 spin"></i>
@@ -283,7 +283,7 @@ async function loadBlogCategories() {
 // die Kategorien-Verwaltung in den Einstellungen (komplettes Array ersetzen).
 async function onCategoryChange() {
   if (form.category !== '__new__') return
-  const name = (window.prompt('Name der neuen Kategorie:') || '').trim()
+  const name = (window.prompt(tr('Name der neuen Kategorie:')) || '').trim()
   if (!name) {
     form.category = ''
     return
@@ -445,16 +445,16 @@ async function loadCommentsMode() { try { commentsMode.value = (await ofetch<{ m
 async function saveCommentsMode() {
   savingMode.value = true; modeMsg.value = ''
   try { const r = await ofetch<{ mode: string }>(useApiUrl('/api/blog/comments-settings'), { method: 'POST', headers: await useAuthHeader(), body: { mode: commentsMode.value } }); commentsMode.value = r.mode; modeMsg.value = 'Gespeichert.' }
-  catch (e: any) { modeMsg.value = e?.data?.message || 'Speichern fehlgeschlagen.' } finally { savingMode.value = false }
+  catch (e: any) { modeMsg.value = e?.data?.message || tr('Speichern fehlgeschlagen.') } finally { savingMode.value = false }
 }
 async function moderate(c: any, status: 'approved' | 'hidden') {
   commentBusy.value = c.commentId
-  try { await ofetch(useApiUrl(`/api/blog/comments/${c.commentId}`), { method: 'PATCH', headers: await useAuthHeader(), body: { status } }); c.status = status } catch (e: any) { alert(e?.data?.message || 'Das hat nicht geklappt.') } finally { commentBusy.value = '' }
+  try { await ofetch(useApiUrl(`/api/blog/comments/${c.commentId}`), { method: 'PATCH', headers: await useAuthHeader(), body: { status } }); c.status = status } catch (e: any) { alert(e?.data?.message || tr('Das hat nicht geklappt.')) } finally { commentBusy.value = '' }
 }
 async function removeComment(c: any) {
   if (!window.confirm(`Kommentar von ${c.authorName} wirklich löschen?`)) return
   commentBusy.value = c.commentId
-  try { await ofetch(useApiUrl(`/api/blog/comments/${c.commentId}`), { method: 'DELETE', headers: await useAuthHeader() }); comments.value = comments.value.filter(x => x.commentId !== c.commentId) } catch (e: any) { alert(e?.data?.message || 'Das hat nicht geklappt.') } finally { commentBusy.value = '' }
+  try { await ofetch(useApiUrl(`/api/blog/comments/${c.commentId}`), { method: 'DELETE', headers: await useAuthHeader() }); comments.value = comments.value.filter(x => x.commentId !== c.commentId) } catch (e: any) { alert(e?.data?.message || tr('Das hat nicht geklappt.')) } finally { commentBusy.value = '' }
 }
 
 onMounted(async () => {

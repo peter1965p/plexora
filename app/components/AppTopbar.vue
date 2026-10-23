@@ -3,14 +3,14 @@
     <div class="topbar-title">{{ title }}</div>
     <div class="topbar-actions">
       <AppIdleTimer />
-      <button class="icon-btn" title="Suche"><i class="ti ti-search"></i></button>
-      <div class="lang-switch" role="group" aria-label="Language / Sprache">
-        <button :class="{ on: lang === 'de' }" title="Deutsch" aria-label="Deutsch" @click="setLang('de')">🇩🇪</button>
-        <button :class="{ on: lang === 'en' }" title="English" aria-label="English" @click="setLang('en')">🇬🇧</button>
+      <button class="icon-btn" :title="tr('Suche')"><i class="ti ti-search"></i></button>
+      <div class="lang-switch" role="group" :aria-label="tr('Language / Sprache')">
+        <button :class="{ on: lang === 'de' }" :title="tr('Deutsch')" :aria-label="tr('Deutsch')" @click="switchLang('de')">🇩🇪</button>
+        <button :class="{ on: lang === 'en' }" :title="tr('English')" :aria-label="tr('English')" @click="switchLang('en')">🇬🇧</button>
       </div>
-      <button class="icon-btn" :title="lang === 'en' ? 'Help for this page' : 'Hilfe zu dieser Seite'" aria-label="Hilfe" @click="openHelp"><i class="ti ti-help-circle"></i></button>
+      <button class="icon-btn" :title="lang === 'en' ? 'Help for this page' : 'Hilfe zu dieser Seite'" :aria-label="tr('Hilfe')" @click="openHelp"><i class="ti ti-help-circle"></i></button>
       <div style="position:relative">
-        <button class="icon-btn" style="position:relative" title="Benachrichtigungen" @click="showNotifications=!showNotifications">
+        <button class="icon-btn" style="position:relative" :title="tr('Benachrichtigungen')" @click="showNotifications=!showNotifications">
           <i class="ti ti-bell"></i>
           <span v-if="unreadCount > 0" style="position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:#E05C5C;border-radius:50%;border:1.5px solid var(--bg-surface);font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px">
             {{ unreadCount }}
@@ -20,16 +20,16 @@
         <!-- Notifications Dropdown -->
         <div v-if="showNotifications" style="position:absolute;top:44px;right:0;width:360px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden">
           <div style="padding:14px 16px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-weight:700;font-size:14px">Benachrichtigungen</span>
+            <span style="font-weight:700;font-size:14px">{{ tr('Benachrichtigungen') }}</span>
             <span v-if="notifications.length" style="display:flex;gap:6px">
-              <button class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto" @click="markAllRead">Alle gelesen</button>
-              <button class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto;color:#E05C5C" @click="deleteAll">Alle löschen</button>
+              <button class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto" @click="markAllRead">{{ tr('Alle gelesen') }}</button>
+              <button class="icon-btn" style="font-size:11px;padding:2px 8px;height:auto;color:#E05C5C" @click="deleteAll">{{ tr('Alle löschen') }}</button>
             </span>
           </div>
           <div style="max-height:380px;overflow-y:auto">
             <div v-if="!notifications.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
               <i class="ti ti-bell-off" style="font-size:24px;display:block;margin-bottom:8px"></i>
-              Keine neuen Benachrichtigungen
+              {{ tr('Keine neuen Benachrichtigungen') }}
             </div>
             <div v-for="n in notifications" :key="n.notificationId"
               style="padding:14px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s"
@@ -38,10 +38,10 @@
               <div style="font-size:13px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px">
                 <i class="ti" :class="notifyIcon(n)" :style="{ color: notifyColor(n) }"></i>
                 <span style="flex:1">{{ n.title }}</span>
-                <button class="icon-btn" title="Löschen" style="width:24px;height:24px;flex-shrink:0" @click.stop="deleteNotification(n)"><i class="ti ti-trash" style="font-size:13px"></i></button>
+                <button class="icon-btn" :title="tr('Löschen')" style="width:24px;height:24px;flex-shrink:0" @click.stop="deleteNotification(n)"><i class="ti ti-trash" style="font-size:13px"></i></button>
               </div>
               <div style="font-size:12px;color:var(--text-muted);line-height:1.4">{{ n.message }}</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:6px">{{ new Date(n.created).toLocaleString('de-DE') }}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:6px">{{ new Date(n.created).toLocaleString(lang === 'en' ? 'en-GB' : 'de-DE') }}</div>
             </div>
           </div>
         </div>
@@ -53,7 +53,7 @@
         <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted)"></i>
         <div v-if="showMenu" class="topbar-menu">
           <div class="topbar-menu-item" @click="navigateTo('/profile')">
-            <i class="ti ti-user-circle"></i> Profil
+            <i class="ti ti-user-circle"></i> {{ tr('Profil') }}
           </div>
           <div class="topbar-menu-item" @click="navigateTo('/settings')">
             <i class="ti ti-settings"></i> {{ t.menuSettings }}
@@ -66,7 +66,7 @@
       </div>
       <div style="position:relative" ref="quickRef">
         <button class="accent-btn" @click="showQuick = !showQuick">
-          <i class="ti ti-plus"></i> Neu
+          <i class="ti ti-plus"></i> {{ tr('Neu') }}
         </button>
         <div v-if="showQuick" style="position:absolute;top:44px;right:0;width:220px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden;padding:6px">
           <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em">{{ lang === 'en' ? 'QUICK CREATE' : 'SCHNELL ERSTELLEN' }}</div>
@@ -89,7 +89,7 @@
           <div class="termin-splash-icon"><i class="ti ti-calendar-event"></i></div>
           <div class="termin-splash-kicker">{{ splashQueue[0].title }}</div>
           <div class="termin-splash-message">{{ splashQueue[0].message }}</div>
-          <button class="accent-btn" style="margin-top:20px;width:100%;justify-content:center" @click="dismissSplash">Verstanden</button>
+          <button class="accent-btn" style="margin-top:20px;width:100%;justify-content:center" @click="dismissSplash">{{ tr('Verstanden') }}</button>
         </div>
       </div>
     </Teleport>
@@ -102,6 +102,8 @@ import { signOut, getCurrentUser } from 'aws-amplify/auth'
 const route  = useRoute()
 const router = useRouter()
 const { t, lang, setLang } = useLang()
+// Neu laden, damit auch feste Listen und Meldungen der geöffneten Seite die Sprache wechseln
+const switchLang = (l: 'de' | 'en') => { if (l === lang.value) return; setLang(l); location.reload() }
 
 import { topicForPath, localizeHelp } from '~~/shared/helpContent'
 const openHelp = () => { const tp = topicForPath(route.path, localizeHelp(lang.value).topics); router.push(tp ? { path: '/help', query: { topic: tp.id } } : '/help') }

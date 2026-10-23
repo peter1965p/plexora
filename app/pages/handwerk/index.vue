@@ -4,11 +4,11 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">Handwerk <span style="color:var(--accent)">Manager</span></h1>
-        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">Baustellen, Aufmaß-Erfassung & Auftragszettel</p>
+        <h1 style="font-size:22px;font-weight:800;margin:0">{{ tr('Handwerk') }} <span style="color:var(--accent)">{{ tr('Manager') }}</span></h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0 0">{{ tr('Baustellen, Aufmaß-Erfassung & Auftragszettel') }}</p>
       </div>
       <button v-if="!selectedBaustelle" class="accent-btn" @click="openNewBaustelle">
-        <i class="ti ti-plus"></i> Baustelle anlegen
+        <i class="ti ti-plus"></i> {{ tr('Baustelle anlegen') }}
       </button>
     </div>
 
@@ -25,12 +25,12 @@
           <div style="font-size:12px;color:var(--text-muted)">{{ b.description }}</div>
         </div>
       </div>
-      <div v-if="!baustellen.length" style="text-align:center;padding:40px;color:var(--text-muted)">Noch keine Baustellen angelegt.</div>
+      <div v-if="!baustellen.length" style="text-align:center;padding:40px;color:var(--text-muted)">{{ tr('Noch keine Baustellen angelegt.') }}</div>
     </div>
 
     <!-- BAUSTELLE DETAIL -->
     <div v-else>
-      <button class="icon-btn" style="margin-bottom:16px" @click="selectedBaustelle=null"><i class="ti ti-arrow-left"></i> Zurück</button>
+      <button class="icon-btn" style="margin-bottom:16px" @click="selectedBaustelle=null"><i class="ti ti-arrow-left"></i> {{ tr('Zurück') }}</button>
 
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -40,16 +40,16 @@
           </div>
           <div style="display:flex;gap:8px">
             <button class="icon-btn" @click="openEditBaustelle(selectedBaustelle)"><i class="ti ti-edit"></i></button>
-            <button class="icon-btn" @click="downloadPdf(selectedBaustelle)"><i class="ti ti-file-download"></i> Auftragszettel</button>
+            <button class="icon-btn" @click="downloadPdf(selectedBaustelle)"><i class="ti ti-file-download"></i> {{ tr('Auftragszettel') }}</button>
           </div>
         </div>
         <div style="margin-top:12px;font-size:13px;color:var(--text-secondary)">{{ selectedBaustelle.description }}</div>
-        <div v-if="selectedBaustelle.notes" style="margin-top:8px;font-size:12px;color:var(--text-muted)"><strong>Notizen:</strong> {{ selectedBaustelle.notes }}</div>
+        <div v-if="selectedBaustelle.notes" style="margin-top:8px;font-size:12px;color:var(--text-muted)"><strong>{{ tr('Notizen:') }}</strong> {{ selectedBaustelle.notes }}</div>
       </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-weight:700;font-size:14px">Aufmaß-Erfassung</div>
-        <button class="accent-btn" @click="openNewAufmass"><i class="ti ti-plus"></i> Aufmaß erfassen</button>
+        <div style="font-weight:700;font-size:14px">{{ tr('Aufmaß-Erfassung') }}</div>
+        <button class="accent-btn" @click="openNewAufmass"><i class="ti ti-plus"></i> {{ tr('Aufmaß erfassen') }}</button>
       </div>
 
       <div v-for="a in baustelleAufmasse" :key="a.aufmassId" style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px">
@@ -61,7 +61,7 @@
           </div>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:12px" v-if="a.measurements?.length">
-          <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px">Position</th><th style="padding:4px">B×H</th><th style="padding:4px">Menge</th><th style="padding:4px">Notiz</th></tr></thead>
+          <thead><tr style="text-align:left;color:var(--text-muted)"><th style="padding:4px">{{ tr('Position') }}</th><th style="padding:4px">B×H</th><th style="padding:4px">{{ tr('Menge') }}</th><th style="padding:4px">{{ tr('Notiz') }}</th></tr></thead>
           <tbody>
             <tr v-for="(m,i) in a.measurements" :key="i" style="border-top:0.5px solid var(--border)">
               <td style="padding:4px">{{ m.label }}</td>
@@ -73,7 +73,7 @@
         </table>
         <div v-if="a.notes" style="font-size:12px;color:var(--text-muted);margin-top:8px">{{ a.notes }}</div>
       </div>
-      <div v-if="!baustelleAufmasse.length" style="text-align:center;padding:24px;color:var(--text-muted)">Noch kein Aufmaß erfasst.</div>
+      <div v-if="!baustelleAufmasse.length" style="text-align:center;padding:24px;color:var(--text-muted)">{{ tr('Noch kein Aufmaß erfasst.') }}</div>
     </div>
 
     <!-- BAUSTELLE MODAL -->
@@ -83,22 +83,22 @@
           <div style="font-size:16px;font-weight:700">{{ editingBaustelleId ? 'Baustelle bearbeiten' : 'Baustelle anlegen' }}</div>
           <button class="icon-btn" @click="showBaustelleModal=false"><i class="ti ti-x"></i></button>
         </div>
-        <div class="auth-field" style="margin-bottom:12px"><label>Kunde</label><input v-model="bForm.customerName" placeholder="Kundenname" /></div>
-        <div class="auth-field" style="margin-bottom:12px"><label>Adresse</label><input v-model="bForm.address" placeholder="Baustellen-Adresse" /></div>
-        <div class="auth-field" style="margin-bottom:12px"><label>Beschreibung</label>
-          <textarea v-model="bForm.description" style="height:70px;resize:none;width:100%" class="form-select" placeholder="Auftragsbeschreibung..."></textarea>
+        <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Kunde') }}</label><input v-model="bForm.customerName" :placeholder="tr('Kundenname')" /></div>
+        <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Adresse') }}</label><input v-model="bForm.address" :placeholder="tr('Baustellen-Adresse')" /></div>
+        <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Beschreibung') }}</label>
+          <textarea v-model="bForm.description" style="height:70px;resize:none;width:100%" class="form-select" :placeholder="tr('Auftragsbeschreibung...')"></textarea>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-          <div class="auth-field"><label>Status</label>
+          <div class="auth-field"><label>{{ tr('Status') }}</label>
             <select v-model="bForm.status" class="form-select">
-              <option value="geplant">Geplant</option><option value="laufend">Laufend</option><option value="abgeschlossen">Abgeschlossen</option>
+              <option value="geplant">{{ tr('Geplant') }}</option><option value="laufend">{{ tr('Laufend') }}</option><option value="abgeschlossen">{{ tr('Abgeschlossen') }}</option>
             </select>
           </div>
-          <div class="auth-field"><label>Start</label><input v-model="bForm.startDate" type="date" /></div>
-          <div class="auth-field"><label>Ende</label><input v-model="bForm.endDate" type="date" /></div>
+          <div class="auth-field"><label>{{ tr('Start') }}</label><input v-model="bForm.startDate" type="date" /></div>
+          <div class="auth-field"><label>{{ tr('Ende') }}</label><input v-model="bForm.endDate" type="date" /></div>
         </div>
-        <div class="auth-field" style="margin-bottom:20px"><label>Notizen</label>
-          <textarea v-model="bForm.notes" style="height:60px;resize:none;width:100%" class="form-select" placeholder="Interne Notizen..."></textarea>
+        <div class="auth-field" style="margin-bottom:20px"><label>{{ tr('Notizen') }}</label>
+          <textarea v-model="bForm.notes" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('Interne Notizen...')"></textarea>
         </div>
         <button class="auth-btn" :disabled="!bForm.customerName" @click="saveBaustelle">
           <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingBaustelleId ? 'Speichern' : 'Anlegen' }}
@@ -113,24 +113,24 @@
           <div style="font-size:16px;font-weight:700">{{ editingAufmassId ? 'Aufmaß bearbeiten' : 'Aufmaß erfassen' }}</div>
           <button class="icon-btn" @click="showAufmassModal=false"><i class="ti ti-x"></i></button>
         </div>
-        <div class="auth-field" style="margin-bottom:14px"><label>Bereich</label><input v-model="aForm.bereich" placeholder="z.B. Wohnzimmer, Fassade Nord..." /></div>
+        <div class="auth-field" style="margin-bottom:14px"><label>{{ tr('Bereich') }}</label><input v-model="aForm.bereich" :placeholder="tr('z.B. Wohnzimmer, Fassade Nord...')" /></div>
 
-        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px">Maße</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px">{{ tr('Maße') }}</div>
         <div v-for="(m, i) in aForm.measurements" :key="i" style="display:grid;grid-template-columns:1.4fr 0.8fr 0.8fr 0.8fr 0.6fr 1.2fr auto;gap:6px;margin-bottom:8px;align-items:center">
-          <input v-model="m.label" placeholder="Position" class="form-select" style="padding:6px 8px;font-size:12px" />
-          <input v-model="m.width" placeholder="Breite" class="form-select" style="padding:6px 8px;font-size:12px" />
-          <input v-model="m.height" placeholder="Höhe" class="form-select" style="padding:6px 8px;font-size:12px" />
-          <input v-model="m.qty" placeholder="Menge" class="form-select" style="padding:6px 8px;font-size:12px" />
-          <input v-model="m.unit" placeholder="Einh." class="form-select" style="padding:6px 8px;font-size:12px" />
-          <input v-model="m.note" placeholder="Notiz" class="form-select" style="padding:6px 8px;font-size:12px" />
+          <input v-model="m.label" :placeholder="tr('Position')" class="form-select" style="padding:6px 8px;font-size:12px" />
+          <input v-model="m.width" :placeholder="tr('Breite')" class="form-select" style="padding:6px 8px;font-size:12px" />
+          <input v-model="m.height" :placeholder="tr('Höhe')" class="form-select" style="padding:6px 8px;font-size:12px" />
+          <input v-model="m.qty" :placeholder="tr('Menge')" class="form-select" style="padding:6px 8px;font-size:12px" />
+          <input v-model="m.unit" :placeholder="tr('Einh.')" class="form-select" style="padding:6px 8px;font-size:12px" />
+          <input v-model="m.note" :placeholder="tr('Notiz')" class="form-select" style="padding:6px 8px;font-size:12px" />
           <button class="icon-btn" style="width:26px;height:26px" @click="aForm.measurements.splice(i,1)"><i class="ti ti-x"></i></button>
         </div>
         <button class="icon-btn" style="margin-bottom:16px" @click="aForm.measurements.push({label:'',width:'',height:'',qty:'',unit:'m',note:''})">
-          <i class="ti ti-plus"></i> Maß hinzufügen
+          <i class="ti ti-plus"></i> {{ tr('Maß hinzufügen') }}
         </button>
 
-        <div class="auth-field" style="margin-bottom:20px"><label>Notizen</label>
-          <textarea v-model="aForm.notes" style="height:60px;resize:none;width:100%" class="form-select" placeholder="Zusätzliche Notizen..."></textarea>
+        <div class="auth-field" style="margin-bottom:20px"><label>{{ tr('Notizen') }}</label>
+          <textarea v-model="aForm.notes" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('Zusätzliche Notizen...')"></textarea>
         </div>
         <button class="auth-btn" :disabled="!aForm.bereich" @click="saveAufmass">
           <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingAufmassId ? 'Speichern' : 'Erfassen' }}
@@ -225,7 +225,7 @@ async function saveAufmass() {
   } catch {}
 }
 async function deleteAufmass(a: any) {
-  if (!confirm('Aufmaß löschen?')) return
+  if (!confirm(tr('Aufmaß löschen?'))) return
   await $fetch(useApiUrl(`/api/handwerk/aufmass/${a.aufmassId}`), { method: 'DELETE', headers: authHeaders() })
   await loadAufmasse()
 }

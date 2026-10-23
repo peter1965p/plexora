@@ -10,9 +10,9 @@
         <div v-if="state.name" class="plx-confirm-name">{{ state.name }}</div>
         <div v-if="state.sub" class="plx-confirm-sub">{{ state.sub }}</div>
         <div class="plx-confirm-actions">
-          <button class="plx-confirm-cancel" @click="_answer(false)">Abbrechen</button>
+          <button class="plx-confirm-cancel" @click="_answer(false)">{{ tr('Abbrechen') }}</button>
           <button class="plx-confirm-ok" @click="_answer(true)">
-            <i class="ti" :class="state.icon"></i> Ja, weiter
+            <i class="ti" :class="state.icon"></i> {{ tr('Ja, weiter') }}
           </button>
         </div>
       </div>

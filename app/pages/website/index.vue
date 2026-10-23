@@ -7,12 +7,12 @@
         <i class="ti ti-world" style="font-size:18px;color:#fff"></i>
       </div>
       <div>
-        <div style="font-size:18px;font-weight:700">Unternehmens-Webseite</div>
-        <div style="font-size:12px;color:var(--text-muted)">Nexora · powered by Plexora</div>
+        <div style="font-size:18px;font-weight:700">{{ tr('Unternehmens-Webseite') }}</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ tr('Nexora · powered by Plexora') }}</div>
       </div>
       <div style="margin-left:auto;display:flex;gap:8px">
         <a v-if="nexora?.customDomain" :href="`https://${nexora.customDomain}`" target="_blank" class="btn-secondary" style="font-size:12px;display:flex;align-items:center;gap:6px">
-          <i class="ti ti-external-link"></i> Vorschau
+          <i class="ti ti-external-link"></i> {{ tr('Vorschau') }}
         </a>
         <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" @click="save" :disabled="saving">
           <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
@@ -26,10 +26,10 @@
       <div style="width:64px;height:64px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
         <i class="ti ti-world-off" style="font-size:28px;color:var(--text-muted)"></i>
       </div>
-      <div style="font-size:16px;font-weight:600;margin-bottom:8px">Nexora noch nicht aktiviert</div>
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px">Kaufe das Modul "Unternehmens-Webseite" im Modul-Store.</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:8px">{{ tr('Nexora noch nicht aktiviert') }}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px">{{ tr('Kaufe das Modul "Unternehmens-Webseite" im Modul-Store.') }}</div>
       <NuxtLink to="/store" class="accent-btn" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;font-size:13px">
-        <i class="ti ti-building-store"></i> Zum Modul-Store
+        <i class="ti ti-building-store"></i> {{ tr('Zum Modul-Store') }}
       </NuxtLink>
     </div>
 
@@ -42,9 +42,9 @@
       <!-- Status Banner -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px">
         <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px #22c55e88;flex-shrink:0"></div>
-        <div style="font-size:13px;font-weight:600">Nexora ist aktiv</div>
+        <div style="font-size:13px;font-weight:600">{{ tr('Nexora ist aktiv') }}</div>
         <div style="font-size:12px;color:var(--text-muted)">{{ nexora.customDomain || 'Domain noch nicht konfiguriert' }}</div>
-        <div style="margin-left:auto;font-size:11px;color:var(--text-muted)">Tenant: {{ nexora.tenantId }}</div>
+        <div style="margin-left:auto;font-size:11px;color:var(--text-muted)">{{ tr('Tenant:') }} {{ nexora.tenantId }}</div>
       </div>
 
       <!-- Tabs -->
@@ -66,49 +66,49 @@
 
           <!-- Unternehmensname -->
           <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>Dein Unternehmen</span></div>
+            <div class="card-header"><span class="card-title"><i class="ti ti-building" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Dein Unternehmen') }}</span></div>
             <div style="display:flex;flex-direction:column;gap:14px">
               <div>
-                <label class="field-label">Unternehmensname</label>
-                <input v-model="form.companyName" class="field-input" placeholder="Muster GmbH" />
+                <label class="field-label">{{ tr('Unternehmensname') }}</label>
+                <input v-model="form.companyName" class="field-input" :placeholder="tr('Muster GmbH')" />
               </div>
             </div>
           </div>
 
           <!-- Domain -->
           <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>Deine Domain</span></div>
+            <div class="card-header"><span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Deine Domain') }}</span></div>
             <div style="display:flex;flex-direction:column;gap:16px">
               <div>
-                <label class="field-label">Domain (z.B. meinefirma.de)</label>
-                <input v-model="form.customDomain" class="field-input" placeholder="meinefirma.de" />
-                <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Trag hier die Domain ein, auf der deine Website erreichbar sein soll.</div>
+                <label class="field-label">{{ tr('Domain (z.B. meinefirma.de)') }}</label>
+                <input v-model="form.customDomain" class="field-input" :placeholder="tr('meinefirma.de')" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px">{{ tr('Trag hier die Domain ein, auf der deine Website erreichbar sein soll.') }}</div>
               </div>
 
               <!-- CNAME Anweisung -->
               <div v-if="form.customDomain" style="border:1px solid var(--accent);border-radius:10px;overflow:hidden">
                 <div style="padding:10px 14px;background:var(--accent)11;display:flex;align-items:center;gap:8px">
                   <i class="ti ti-info-circle" style="color:var(--accent)"></i>
-                  <span style="font-size:12px;font-weight:600;color:var(--accent)">Einmalig in deinem DNS eintragen</span>
+                  <span style="font-size:12px;font-weight:600;color:var(--accent)">{{ tr('Einmalig in deinem DNS eintragen') }}</span>
                 </div>
                 <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
-                  <div style="font-size:12px;color:var(--text-muted)">Gehe zu deinem Domain-Anbieter (z.B. Namecheap, IONOS, Strato, Cloudflare) und erstelle folgenden DNS-Eintrag:</div>
+                  <div style="font-size:12px;color:var(--text-muted)">{{ tr('Gehe zu deinem Domain-Anbieter (z.B. Namecheap, IONOS, Strato, Cloudflare) und erstelle folgenden DNS-Eintrag:') }}</div>
                   <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                    <span style="color:var(--text-muted)">Typ:</span>
-                    <span style="font-weight:700;color:var(--accent)">CNAME</span>
+                    <span style="color:var(--text-muted)">{{ tr('Typ:') }}</span>
+                    <span style="font-weight:700;color:var(--accent)">{{ tr('CNAME') }}</span>
                     <span style="color:var(--border)">|</span>
-                    <span style="color:var(--text-muted)">Name:</span>
+                    <span style="color:var(--text-muted)">{{ tr('Name:') }}</span>
                     <span style="color:var(--text)">{{ form.customDomain }}</span>
                     <span style="color:var(--border)">|</span>
-                    <span style="color:var(--text-muted)">Ziel:</span>
-                    <span style="color:var(--accent)">nexora-nuxt.pages.dev</span>
+                    <span style="color:var(--text-muted)">{{ tr('Ziel:') }}</span>
+                    <span style="color:var(--accent)">{{ tr('nexora-nuxt.pages.dev') }}</span>
                   </div>
-                  <div style="font-size:11px;color:var(--text-muted)">Das war's! Nach 5–10 Minuten ist deine Website unter <strong style="color:var(--text)">{{ form.customDomain }}</strong> erreichbar.</div>
+                  <div style="font-size:11px;color:var(--text-muted)">{{ tr('Das war\'s! Nach 5–10 Minuten ist deine Website unter') }} <strong style="color:var(--text)">{{ form.customDomain }}</strong> {{ tr('erreichbar.') }}</div>
                 </div>
               </div>
 
               <div v-else style="padding:14px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);text-align:center">
-                <i class="ti ti-arrow-up" style="margin-right:6px"></i>Trag deine Domain ein — dann zeigen wir dir den DNS-Eintrag
+                <i class="ti ti-arrow-up" style="margin-right:6px"></i>{{ tr('Trag deine Domain ein — dann zeigen wir dir den DNS-Eintrag') }}
               </div>
             </div>
           </div>
@@ -120,7 +120,7 @@
 
           <!-- So einfach geht's -->
           <div class="card">
-            <div class="card-header"><span class="card-title"><i class="ti ti-rocket" style="margin-right:8px;color:var(--accent)"></i>So einfach geht's</span></div>
+            <div class="card-header"><span class="card-title"><i class="ti ti-rocket" style="margin-right:8px;color:var(--accent)"></i>{{ tr('So einfach geht\'s') }}</span></div>
             <div style="display:flex;flex-direction:column;gap:0">
               <div v-for="(step, i) in customerSteps" :key="i"
                 style="display:flex;gap:14px;align-items:flex-start;padding:14px 0"
@@ -141,11 +141,11 @@
           <!-- Für Entwickler (aufklappbar) -->
           <div class="card">
             <div class="card-header" style="cursor:pointer" @click="showDevSection = !showDevSection">
-              <span class="card-title"><i class="ti ti-code" style="margin-right:8px;color:var(--text-muted)"></i><span style="color:var(--text-muted)">Für Entwickler</span></span>
+              <span class="card-title"><i class="ti ti-code" style="margin-right:8px;color:var(--text-muted)"></i><span style="color:var(--text-muted)">{{ tr('Für Entwickler') }}</span></span>
               <i class="ti" :class="showDevSection ? 'ti-chevron-up' : 'ti-chevron-down'" style="color:var(--text-muted)"></i>
             </div>
             <div v-if="showDevSection" style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Self-Hosting: Tenant-ID als <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">PLEXORA_TENANT_ID</code> Env-Variable setzen.</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">{{ tr('Self-Hosting: Tenant-ID als') }} <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">PLEXORA_TENANT_ID</code> {{ tr('Env-Variable setzen.') }}</div>
               <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px">
                 <div style="flex:1;font-family:monospace;font-size:11px;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                   {{ showKey ? nexora.apiKey : nexora.apiKey.slice(0,12) + '••••••••••' }}
@@ -153,7 +153,7 @@
                 <button class="icon-btn" @click="showKey = !showKey"><i class="ti" :class="showKey ? 'ti-eye-off' : 'ti-eye'"></i></button>
                 <button class="icon-btn" @click="copyKey"><i class="ti" :class="copied ? 'ti-check' : 'ti-copy'" :style="copied ? 'color:#22c55e' : ''"></i></button>
               </div>
-              <div style="font-size:11px;color:var(--text-muted)">Tenant-ID: <code style="font-size:11px">{{ nexora.tenantId }}</code></div>
+              <div style="font-size:11px;color:var(--text-muted)">{{ tr('Tenant-ID:') }} <code style="font-size:11px">{{ nexora.tenantId }}</code></div>
             </div>
           </div>
 
@@ -167,15 +167,15 @@
         </div>
         <div v-else-if="!siteStats" style="text-align:center;padding:60px;color:var(--text-muted)">
           <i class="ti ti-chart-line" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i>
-          <p style="font-size:13px">Noch keine Besucherdaten vorhanden.</p>
+          <p style="font-size:13px">{{ tr('Noch keine Besucherdaten vorhanden.') }}</p>
         </div>
         <template v-else>
           <div class="card" style="margin-bottom:14px">
             <div class="card-header">
-              <span class="card-title">Aufrufe letzte 30 Tage</span>
+              <span class="card-title">{{ tr('Aufrufe letzte 30 Tage') }}</span>
               <div style="display:flex;gap:16px;font-size:11px;color:var(--text-muted)">
-                <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>Besucher</span>
-                <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6C3FE8;margin-right:4px"></span>Bots</span>
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>{{ tr('Besucher') }}</span>
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6C3FE8;margin-right:4px"></span>{{ tr('Bots') }}</span>
               </div>
             </div>
             <div style="padding:16px 20px">
@@ -197,11 +197,11 @@
 
           <div class="grid-2" style="margin-bottom:14px">
             <div class="card">
-              <div class="card-header"><span class="card-title">Top Seiten</span></div>
+              <div class="card-header"><span class="card-title">{{ tr('Top Seiten') }}</span></div>
               <table class="data-table">
-                <thead><tr><th>Seite</th><th style="text-align:right">Aufrufe</th></tr></thead>
+                <thead><tr><th>{{ tr('Seite') }}</th><th style="text-align:right">{{ tr('Aufrufe') }}</th></tr></thead>
                 <tbody>
-                  <tr v-if="!siteStats.topPages.length"><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Daten</td></tr>
+                  <tr v-if="!siteStats.topPages.length"><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">{{ tr('Noch keine Daten') }}</td></tr>
                   <tr v-for="p in siteStats.topPages" :key="p.path">
                     <td class="td-name" style="font-family:monospace;font-size:12px">{{ p.path }}</td>
                     <td style="text-align:right;font-weight:600">{{ p.count }}</td>
@@ -210,14 +210,14 @@
               </table>
             </div>
             <div class="card">
-              <div class="card-header"><span class="card-title">Traffic-Quellen</span></div>
+              <div class="card-header"><span class="card-title">{{ tr('Traffic-Quellen') }}</span></div>
               <table class="data-table">
-                <thead><tr><th>Quelle</th><th style="text-align:right">Aufrufe</th></tr></thead>
+                <thead><tr><th>{{ tr('Quelle') }}</th><th style="text-align:right">{{ tr('Aufrufe') }}</th></tr></thead>
                 <tbody>
-                  <tr v-if="!siteStats.topRefs.length"><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">Noch keine Daten</td></tr>
+                  <tr v-if="!siteStats.topRefs.length"><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px">{{ tr('Noch keine Daten') }}</td></tr>
                   <tr v-for="r in siteStats.topRefs" :key="r.ref">
                     <td class="td-name" style="font-size:12px">
-                      <span v-if="r.ref === 'direct'" style="color:var(--text-muted)">— direkt / bookmark —</span>
+                      <span v-if="r.ref === 'direct'" style="color:var(--text-muted)">{{ tr('— direkt / bookmark —') }}</span>
                       <span v-else>{{ r.ref }}</span>
                     </td>
                     <td style="text-align:right;font-weight:600">{{ r.count }}</td>
@@ -229,8 +229,8 @@
 
           <div class="grid-2">
             <div class="card">
-              <div class="card-header"><span class="card-title"><i class="ti ti-world" style="color:var(--accent);margin-right:6px"></i>Länder</span></div>
-              <div v-if="!siteStats.topCountries?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+              <div class="card-header"><span class="card-title"><i class="ti ti-world" style="color:var(--accent);margin-right:6px"></i>{{ tr('Länder') }}</span></div>
+              <div v-if="!siteStats.topCountries?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">{{ tr('Noch keine Daten') }}</div>
               <div v-else style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
                 <div v-for="c in siteStats.topCountries" :key="c.code" style="display:flex;align-items:center;gap:10px">
                   <span style="font-size:16px;width:24px">{{ siteFlag(c.code) }}</span>
@@ -243,10 +243,10 @@
               </div>
             </div>
             <div class="card">
-              <div class="card-header"><span class="card-title"><i class="ti ti-building" style="color:var(--accent);margin-right:6px"></i>Städte</span></div>
-              <div v-if="!siteStats.topCities?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Noch keine Daten</div>
+              <div class="card-header"><span class="card-title"><i class="ti ti-building" style="color:var(--accent);margin-right:6px"></i>{{ tr('Städte') }}</span></div>
+              <div v-if="!siteStats.topCities?.length" style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">{{ tr('Noch keine Daten') }}</div>
               <table v-else class="data-table">
-                <thead><tr><th>Stadt</th><th style="text-align:right">Aufrufe</th></tr></thead>
+                <thead><tr><th>{{ tr('Stadt') }}</th><th style="text-align:right">{{ tr('Aufrufe') }}</th></tr></thead>
                 <tbody>
                   <tr v-for="c in siteStats.topCities" :key="c.city">
                     <td style="font-size:13px">{{ c.city }}</td>
@@ -262,44 +262,44 @@
       <!-- ── TAB: INHALTE ── -->
       <div v-else-if="activeTab === 'content'" style="display:flex;flex-direction:column;gap:16px;max-width:760px">
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-home" style="margin-right:8px;color:var(--accent)"></i>Hero-Bereich</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-home" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Hero-Bereich') }}</span></div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <label class="field-label">Standort / Tag</label>
-              <input v-model="form.heroLocation" class="field-input" placeholder="Frankfurt · Remote · Worldwide" />
+              <label class="field-label">{{ tr('Standort / Tag') }}</label>
+              <input v-model="form.heroLocation" class="field-input" :placeholder="tr('Frankfurt · Remote · Worldwide')" />
             </div>
             <div>
-              <label class="field-label">Headline</label>
-              <input v-model="form.heroHeadline" class="field-input" placeholder='Software, die **wirklich** skaliert.' />
+              <label class="field-label">{{ tr('Headline') }}</label>
+              <input v-model="form.heroHeadline" class="field-input" :placeholder="tr('Software, die **wirklich** skaliert.')" />
               <div style="margin-top:5px;font-size:11px;color:var(--text-muted);padding:6px 10px;background:var(--bg-elevated);border-radius:6px;border:1px solid var(--border)">
                 <i class="ti ti-info-circle" style="margin-right:4px;color:var(--accent)"></i>
-                Tipp: <code style="font-family:monospace;background:var(--bg-hover);padding:1px 5px;border-radius:3px">**Wort**</code> markiert ein Wort mit rotem Oval und Akzentfarbe
+                {{ tr('Tipp:') }} <code style="font-family:monospace;background:var(--bg-hover);padding:1px 5px;border-radius:3px">**Wort**</code> {{ tr('markiert ein Wort mit rotem Oval und Akzentfarbe') }}
               </div>
             </div>
             <div>
-              <label class="field-label">Beschreibungstext</label>
-              <textarea v-model="form.heroDesc" class="field-input" rows="3" style="resize:vertical" placeholder="Kurze Beschreibung deines Unternehmens..."></textarea>
+              <label class="field-label">{{ tr('Beschreibungstext') }}</label>
+              <textarea v-model="form.heroDesc" class="field-input" rows="3" style="resize:vertical" :placeholder="tr('Kurze Beschreibung deines Unternehmens...')"></textarea>
             </div>
             <div>
-              <label class="field-label">CTA-Button Text</label>
-              <input v-model="form.heroCtaLabel" class="field-input" placeholder="Kontakt aufnehmen" />
+              <label class="field-label">{{ tr('CTA-Button Text') }}</label>
+              <input v-model="form.heroCtaLabel" class="field-input" :placeholder="tr('Kontakt aufnehmen')" />
             </div>
 
             <!-- Title font size -->
             <div>
-              <label class="field-label">Schriftgröße Firmenname</label>
+              <label class="field-label">{{ tr('Schriftgröße Firmenname') }}</label>
               <select v-model="form.heroTitleSize" class="field-input" style="cursor:pointer">
-                <option value="sm">Klein (36pt)</option>
-                <option value="md">Mittel (48pt)</option>
-                <option value="lg">Groß (64pt) — Standard</option>
-                <option value="xl">Sehr groß (80pt)</option>
-                <option value="xxl">Riesig (96pt)</option>
+                <option value="sm">{{ tr('Klein (36pt)') }}</option>
+                <option value="md">{{ tr('Mittel (48pt)') }}</option>
+                <option value="lg">{{ tr('Groß (64pt) — Standard') }}</option>
+                <option value="xl">{{ tr('Sehr groß (80pt)') }}</option>
+                <option value="xxl">{{ tr('Riesig (96pt)') }}</option>
               </select>
             </div>
 
             <!-- Background type -->
             <div>
-              <label class="field-label">Hintergrund-Stil</label>
+              <label class="field-label">{{ tr('Hintergrund-Stil') }}</label>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button v-for="bg in heroBgOptions" :key="bg.value" @click="form.heroBackground = bg.value"
                   style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .15s"
@@ -311,18 +311,18 @@
 
             <!-- Gradient colors -->
             <div>
-              <label class="field-label">Logo-Farbverlauf (Firmenname)</label>
+              <label class="field-label">{{ tr('Logo-Farbverlauf (Firmenname)') }}</label>
               <div style="display:flex;gap:10px;align-items:center">
                 <div style="flex:1;text-align:center">
-                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Von</div>
+                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">{{ tr('Von') }}</div>
                   <input type="color" v-model="form.heroGradientFrom" style="width:100%;height:32px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
                 </div>
                 <div style="flex:1;text-align:center">
-                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Über</div>
+                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">{{ tr('Über') }}</div>
                   <input type="color" v-model="form.heroGradientVia" style="width:100%;height:32px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
                 </div>
                 <div style="flex:1;text-align:center">
-                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Bis</div>
+                  <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">{{ tr('Bis') }}</div>
                   <input type="color" v-model="form.heroGradientTo" style="width:100%;height:32px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
                 </div>
                 <!-- Preview -->
@@ -334,16 +334,16 @@
         </div>
 
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-info-circle" style="margin-right:8px;color:var(--accent)"></i>About / Über uns</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-info-circle" style="margin-right:8px;color:var(--accent)"></i>{{ tr('About / Über uns') }}</span></div>
           <div>
-            <label class="field-label">Text</label>
-            <textarea v-model="form.aboutText" class="field-input" rows="4" style="resize:vertical" placeholder="Über uns..."></textarea>
+            <label class="field-label">{{ tr('Text') }}</label>
+            <textarea v-model="form.aboutText" class="field-input" rows="4" style="resize:vertical" :placeholder="tr('Über uns...')"></textarea>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-chart-bar" style="margin-right:8px;color:var(--accent)"></i>Zahlen & Fakten</span>
+            <span class="card-title"><i class="ti ti-chart-bar" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Zahlen & Fakten') }}</span>
             <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="addStat">
               <i class="ti ti-plus"></i>
             </button>
@@ -351,27 +351,27 @@
           <div style="display:flex;flex-direction:column;gap:10px">
             <div v-for="(stat, i) in form.stats" :key="i" style="display:flex;gap:10px;align-items:center">
               <input v-model="stat.value" class="field-input" placeholder="120+" style="width:100px;flex-shrink:0" />
-              <input v-model="stat.label" class="field-input" placeholder="Projekte abgeschlossen" style="flex:1" />
+              <input v-model="stat.label" class="field-input" :placeholder="tr('Projekte abgeschlossen')" style="flex:1" />
               <button class="icon-btn" @click="removeStat(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
             </div>
-            <div v-if="!form.stats.length" style="font-size:12px;color:var(--text-muted)">Noch keine Fakten — klick auf +</div>
+            <div v-if="!form.stats.length" style="font-size:12px;color:var(--text-muted)">{{ tr('Noch keine Fakten — klick auf +') }}</div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-layout-bottombar" style="margin-right:8px;color:var(--accent)"></i>Footer</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-layout-bottombar" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Footer') }}</span></div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <label class="field-label">Tagline (unter Copyright)</label>
-              <input v-model="form.footerTagline" class="field-input" placeholder="Ihr Partner für digitale Lösungen" />
+              <label class="field-label">{{ tr('Tagline (unter Copyright)') }}</label>
+              <input v-model="form.footerTagline" class="field-input" :placeholder="tr('Ihr Partner für digitale Lösungen')" />
             </div>
             <div style="display:flex;gap:12px;align-items:flex-start">
               <div style="flex:1">
-                <label class="field-label">Status-Label</label>
-                <input v-model="form.footerStatusLabel" class="field-input" placeholder="System Online" />
+                <label class="field-label">{{ tr('Status-Label') }}</label>
+                <input v-model="form.footerStatusLabel" class="field-input" :placeholder="tr('System Online')" />
               </div>
               <div style="display:flex;flex-direction:column;gap:6px;padding-top:2px">
-                <label class="field-label">Anzeigen</label>
+                <label class="field-label">{{ tr('Anzeigen') }}</label>
                 <button @click="form.footerShowStatus = !form.footerShowStatus"
                   style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                   :style="form.footerShowStatus ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -381,15 +381,15 @@
               </div>
             </div>
             <div>
-              <label class="field-label">Copyright-Text (leer = automatisch)</label>
+              <label class="field-label">{{ tr('Copyright-Text (leer = automatisch)') }}</label>
               <input v-model="form.footerCopyrightText" class="field-input" :placeholder="`© ${new Date().getFullYear()} ${form.companyName || 'Dein Unternehmen'} — Alle Rechte vorbehalten`" />
             </div>
             <div>
-              <label class="field-label">Credit-Text (z.B. "Programmiert mit Herz aus der Vulkaneifel")</label>
-              <input v-model="form.footerCreditText" class="field-input" placeholder="Programmiert mit Herz aus der Vulkaneifel" />
+              <label class="field-label">{{ tr('Credit-Text (z.B. "Programmiert mit Herz aus der Vulkaneifel")') }}</label>
+              <input v-model="form.footerCreditText" class="field-input" :placeholder="tr('Programmiert mit Herz aus der Vulkaneifel')" />
             </div>
             <div v-if="form.footerCreditText">
-              <label class="field-label">Credit-Icon</label>
+              <label class="field-label">{{ tr('Credit-Icon') }}</label>
               <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
                 <button v-for="ic in ['ti-heart','ti-heart-filled','ti-flame','ti-bolt','ti-coffee','ti-rocket','ti-mountain','ti-bulb','ti-code','ti-star','ti-moon','ti-sun','ti-music','ti-leaf','ti-diamond','ti-award']"
                   :key="ic"
@@ -409,8 +409,8 @@
       <!-- ── TAB: MEDIEN ── -->
       <div v-else-if="activeTab === 'media'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-layout-sidebar-right" style="margin-right:8px;color:var(--accent)"></i>Hero-Bereich rechts</span></div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Was soll auf der Startseite rechts neben dem Text angezeigt werden?</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-layout-sidebar-right" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Hero-Bereich rechts') }}</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ tr('Was soll auf der Startseite rechts neben dem Text angezeigt werden?') }}</div>
 
           <!-- Toggle: Code vs Bild -->
           <div style="display:flex;gap:10px;margin-bottom:20px">
@@ -419,24 +419,24 @@
               :style="form.heroMediaType === 'code' ? 'border-color:var(--accent);background:var(--accent)11;color:var(--accent)' : 'border-color:var(--border);background:var(--bg-elevated);color:var(--text-muted)'">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
                 <i class="ti ti-code" style="font-size:16px"></i>
-                <span style="font-size:13px;font-weight:700">Code-Animation</span>
+                <span style="font-size:13px;font-weight:700">{{ tr('Code-Animation') }}</span>
               </div>
-              <div style="font-size:11px;opacity:.7">Animierter TypeScript-Code wird live getippt und wiederholt.</div>
+              <div style="font-size:11px;opacity:.7">{{ tr('Animierter TypeScript-Code wird live getippt und wiederholt.') }}</div>
             </button>
             <button @click="form.heroMediaType = 'image'"
               style="flex:1;padding:14px;border-radius:10px;border:2px solid;cursor:pointer;font-family:inherit;transition:all .15s;text-align:left"
               :style="form.heroMediaType === 'image' ? 'border-color:var(--accent);background:var(--accent)11;color:var(--accent)' : 'border-color:var(--border);background:var(--bg-elevated);color:var(--text-muted)'">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
                 <i class="ti ti-photo" style="font-size:16px"></i>
-                <span style="font-size:13px;font-weight:700">Eigenes Bild</span>
+                <span style="font-size:13px;font-weight:700">{{ tr('Eigenes Bild') }}</span>
               </div>
-              <div style="font-size:11px;opacity:.7">Lade ein eigenes Bild hoch — z.B. dein Team, ein Produkt-Screenshot oder Mockup.</div>
+              <div style="font-size:11px;opacity:.7">{{ tr('Lade ein eigenes Bild hoch — z.B. dein Team, ein Produkt-Screenshot oder Mockup.') }}</div>
             </button>
           </div>
 
           <!-- Image upload (only when 'image' is selected) -->
           <div v-if="form.heroMediaType === 'image'" style="border-top:1px solid var(--border);padding-top:18px">
-            <label class="field-label">Hero-Bild</label>
+            <label class="field-label">{{ tr('Hero-Bild') }}</label>
             <div style="display:flex;align-items:flex-start;gap:14px">
               <!-- Preview -->
               <div style="width:120px;height:80px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">
@@ -455,7 +455,7 @@
                   {{ form.heroImageUrl ? '✓ Bild gesetzt' : 'JPG/PNG/WebP empfohlen · optimal: 480×360 px' }}
                 </div>
                 <button v-if="form.heroImageUrl" @click="form.heroImageUrl=''" class="icon-btn" style="font-size:11px;gap:4px;padding:4px 8px;display:inline-flex;align-items:center">
-                  <i class="ti ti-x"></i> Bild entfernen
+                  <i class="ti ti-x"></i> {{ tr('Bild entfernen') }}
                 </button>
               </div>
             </div>
@@ -465,7 +465,7 @@
           <!-- Code animation info (when 'code' is selected) -->
           <div v-else style="padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);display:flex;align-items:flex-start;gap:10px">
             <i class="ti ti-info-circle" style="color:var(--accent);flex-shrink:0;margin-top:1px"></i>
-            <span>Die Code-Animation tippt automatisch TypeScript-Code und wiederholt sich in einer Endlosschleife. Der angezeigte Cloud-Provider kommt aus deinem <strong style="color:var(--text)">Stack-Tab</strong> (gelbe Items = Cloud).</span>
+            <span>{{ tr('Die Code-Animation tippt automatisch TypeScript-Code und wiederholt sich in einer Endlosschleife. Der angezeigte Cloud-Provider kommt aus deinem') }} <strong style="color:var(--text)">{{ tr('Stack-Tab') }}</strong> {{ tr('(gelbe Items = Cloud).') }}</span>
           </div>
         </div>
       </div>
@@ -474,7 +474,7 @@
 
         <!-- Grid Layout selector -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-layout-grid" style="margin-right:8px;color:var(--accent)"></i>Grid-Layout</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-layout-grid" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Grid-Layout') }}</span></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button v-for="layout in serviceLayoutOptions" :key="layout.value" @click="form.servicesLayout = layout.value"
               style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:all .15s"
@@ -486,9 +486,9 @@
 
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-briefcase" style="margin-right:8px;color:var(--accent)"></i>Leistungen</span>
+            <span class="card-title"><i class="ti ti-briefcase" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Leistungen') }}</span>
             <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="addService">
-              <i class="ti ti-plus"></i> Neue Leistung
+              <i class="ti ti-plus"></i> {{ tr('Neue Leistung') }}
             </button>
           </div>
           <div style="display:flex;flex-direction:column;gap:12px">
@@ -519,7 +519,7 @@
                   </div>
                 </div>
 
-                <input v-model="svc.title" class="field-input" placeholder="Leistungstitel" style="flex:1" />
+                <input v-model="svc.title" class="field-input" :placeholder="tr('Leistungstitel')" style="flex:1" />
 
                 <!-- Color picker -->
                 <div style="flex-shrink:0;display:flex;align-items:center;gap:6px">
@@ -528,18 +528,18 @@
                     style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:3px;background:var(--bg);cursor:pointer;flex-shrink:0" />
                 </div>
 
-                <button class="icon-btn" title="Mit KI beschreiben (nutzt den Titel als Thema)"
+                <button class="icon-btn" :title="tr('Mit KI beschreiben (nutzt den Titel als Thema)')"
                   :disabled="!svc.title.trim() || generatingServiceIndex === i" @click="generateServiceContent(i)" style="flex-shrink:0">
                   <i class="ti" :class="generatingServiceIndex === i ? 'ti-loader-2 spin' : 'ti-sparkles'" :style="generatingServiceIndex !== i ? 'color:var(--accent)' : ''"></i>
                 </button>
                 <button class="icon-btn" @click="removeService(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
               </div>
-              <textarea v-model="svc.description" class="field-input" rows="2" placeholder="Kurzbeschreibung..." style="resize:vertical;margin-bottom:8px"></textarea>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Features (kommagetrennt):</div>
-              <input v-model="svc.featuresRaw" class="field-input" placeholder="Feature 1, Feature 2, Feature 3" style="font-size:12px" />
+              <textarea v-model="svc.description" class="field-input" rows="2" :placeholder="tr('Kurzbeschreibung...')" style="resize:vertical;margin-bottom:8px"></textarea>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">{{ tr('Features (kommagetrennt):') }}</div>
+              <input v-model="svc.featuresRaw" class="field-input" :placeholder="tr('Feature 1, Feature 2, Feature 3')" style="font-size:12px" />
             </div>
             <div v-if="!form.services.length" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">
-              Noch keine Leistungen — klick auf "Neue Leistung"
+              {{ tr('Noch keine Leistungen — klick auf "Neue Leistung"') }}
             </div>
           </div>
         </div>
@@ -547,7 +547,7 @@
         <!-- Preispakete -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>Preispakete</span>
+            <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Preispakete') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <button @click="form.pricingEnabled = !form.pricingEnabled"
                 style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s"
@@ -556,35 +556,35 @@
                   :style="form.pricingEnabled ? 'left:19px' : 'left:3px'"></span>
               </button>
               <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" @click="addPricingPackage">
-                <i class="ti ti-plus"></i> Neues Paket
+                <i class="ti ti-plus"></i> {{ tr('Neues Paket') }}
               </button>
             </div>
           </div>
           <div v-if="form.pricingEnabled" style="display:flex;flex-direction:column;gap:16px">
             <div style="display:flex;gap:10px">
-              <input v-model="form.pricingTitle" class="field-input" placeholder="Titel (z.B. Leistungen & Preise)" style="flex:1" />
-              <input v-model="form.pricingSubtitle" class="field-input" placeholder="Untertitel" style="flex:1" />
+              <input v-model="form.pricingTitle" class="field-input" :placeholder="tr('Titel (z.B. Leistungen & Preise)')" style="flex:1" />
+              <input v-model="form.pricingSubtitle" class="field-input" :placeholder="tr('Untertitel')" style="flex:1" />
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
               <div v-for="(pkg, i) in form.pricingPackages" :key="i" style="padding:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;gap:8px">
                 <div style="display:flex;gap:8px;align-items:center">
-                  <input v-model="pkg.name" class="field-input" placeholder="Paketname (z.B. Business)" style="flex:1" />
-                  <button class="icon-btn" title="Beliebteste Wahl" @click="pkg.highlighted = !pkg.highlighted"
+                  <input v-model="pkg.name" class="field-input" :placeholder="tr('Paketname (z.B. Business)')" style="flex:1" />
+                  <button class="icon-btn" :title="tr('Beliebteste Wahl')" @click="pkg.highlighted = !pkg.highlighted"
                     :style="pkg.highlighted ? 'color:var(--accent)' : ''">
                     <i class="ti" :class="pkg.highlighted ? 'ti-star-filled' : 'ti-star'"></i>
                   </button>
                   <button class="icon-btn" @click="removePricingPackage(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
                 </div>
                 <div style="display:flex;gap:8px">
-                  <input v-model="pkg.price" class="field-input" placeholder="590 € / ab 2.500 €" style="flex:1" />
-                  <input v-model="pkg.period" class="field-input" placeholder="einmalig" style="flex:1" />
+                  <input v-model="pkg.price" class="field-input" :placeholder="tr('590 € / ab 2.500 €')" style="flex:1" />
+                  <input v-model="pkg.period" class="field-input" :placeholder="tr('einmalig')" style="flex:1" />
                 </div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Features (eine Zeile pro Punkt):</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ tr('Features (eine Zeile pro Punkt):') }}</div>
                 <textarea v-model="pkg.featuresRaw" class="field-input" rows="4" placeholder="Bis zu 8 Seiten&#10;CMS – Inhalte selbst pflegen&#10;SEO-Grundlagen" style="font-size:12px;resize:vertical"></textarea>
               </div>
             </div>
             <div v-if="!form.pricingPackages.length" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">
-              Noch keine Pakete — klick auf "Neues Paket"
+              {{ tr('Noch keine Pakete — klick auf "Neues Paket"') }}
             </div>
           </div>
         </div>
@@ -596,7 +596,7 @@
         <!-- Items Card -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-stack-2" style="margin-right:8px;color:var(--accent)"></i>Tech-Stack Ticker</span>
+            <span class="card-title"><i class="ti ti-stack-2" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Tech-Stack Ticker') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.stackEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.stackEnabled = !form.stackEnabled"
@@ -607,12 +607,12 @@
               </button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Endloser Ticker mit deinen Technologien und Tools. Pausiert beim Hover.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">{{ tr('Endloser Ticker mit deinen Technologien und Tools. Pausiert beim Hover.') }}</div>
 
           <!-- Section title -->
           <div style="margin-bottom:14px">
-            <label class="field-label">Abschnittstitel</label>
-            <input v-model="form.stackTitle" class="field-input" placeholder="TECH STACK" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
+            <label class="field-label">{{ tr('Abschnittstitel') }}</label>
+            <input v-model="form.stackTitle" class="field-input" :placeholder="tr('TECH STACK')" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
           </div>
 
           <!-- Items list -->
@@ -626,34 +626,34 @@
               </div>
               <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 12px;border-radius:9999px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em;border:1px solid;min-width:80px;text-align:center"
                 :style="stackChipStyle(item.color)">{{ item.label || '…' }}</span>
-              <input v-model="item.label" class="field-input" placeholder="Label" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
+              <input v-model="item.label" class="field-input" :placeholder="tr('Label')" style="flex:1;padding:5px 10px;height:32px;font-size:12px" />
               <select v-model="item.color" class="field-input" style="width:148px;padding:5px 8px;height:32px;font-size:12px;cursor:pointer">
                 <option v-for="col in STACK_COLORS" :key="col.value" :value="col.value">{{ col.label }}</option>
               </select>
               <button class="icon-btn" @click="removeStackItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
             </div>
             <div v-if="!form.stackItems.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
-              Noch keine Items — nutze die Schnellauswahl oder trag manuell ein
+              {{ tr('Noch keine Items — nutze die Schnellauswahl oder trag manuell ein') }}
             </div>
           </div>
 
           <!-- Add new item -->
           <div style="display:flex;gap:8px;align-items:center;padding:10px;background:var(--bg);border:1px dashed var(--border);border-radius:8px">
-            <input v-model="form.stackNewLabel" class="field-input" placeholder="z.B. Vue.js" style="flex:1;padding:5px 10px;height:32px;font-size:12px"
+            <input v-model="form.stackNewLabel" class="field-input" :placeholder="tr('z.B. Vue.js')" style="flex:1;padding:5px 10px;height:32px;font-size:12px"
               @keydown.enter="addStackItem" />
             <select v-model="form.stackNewColor" class="field-input" style="width:148px;padding:5px 8px;height:32px;font-size:12px;cursor:pointer">
               <option v-for="col in STACK_COLORS" :key="col.value" :value="col.value">{{ col.label }}</option>
             </select>
             <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;flex-shrink:0" @click="addStackItem">
-              <i class="ti ti-plus" style="margin-right:4px"></i> Hinzufügen
+              <i class="ti ti-plus" style="margin-right:4px"></i> {{ tr('Hinzufügen') }}
             </button>
           </div>
         </div>
 
         <!-- Schnellauswahl -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Schnellauswahl</span></div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Klick auf einen Chip um ihn zur Liste hinzuzufügen (bereits hinzugefügte sind gedimmt):</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Schnellauswahl') }}</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">{{ tr('Klick auf einen Chip um ihn zur Liste hinzuzufügen (bereits hinzugefügte sind gedimmt):') }}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             <button v-for="preset in STACK_PRESETS" :key="preset.label"
               @click="addPreset(preset)"
@@ -667,8 +667,8 @@
 
         <!-- Legende -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-tag" style="margin-right:8px;color:var(--accent)"></i>Legende — Kategorienamen</span></div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Benenne die Farbkategorien wie du möchtest — erscheint als Legende neben dem Ticker.</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-tag" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Legende — Kategorienamen') }}</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">{{ tr('Benenne die Farbkategorien wie du möchtest — erscheint als Legende neben dem Ticker.') }}</div>
           <div style="display:flex;flex-direction:column;gap:10px">
             <div v-for="col in STACK_COLORS" :key="col.value" style="display:flex;gap:10px;align-items:center">
               <span style="font-size:10px;font-weight:700;padding:4px 14px;border-radius:9999px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em;border:1px solid;flex-shrink:0;min-width:110px;text-align:center"
@@ -686,7 +686,7 @@
       <div v-else-if="activeTab === 'clients'" style="max-width:700px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-building-community" style="margin-right:8px;color:var(--accent)"></i>Referenz-Ticker</span>
+            <span class="card-title"><i class="ti ti-building-community" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Referenz-Ticker') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.clientsEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.clientsEnabled = !form.clientsEnabled"
@@ -697,29 +697,29 @@
               </button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Endloser Ticker mit deinen Kunden, Referenzen oder Projektnamen. Trenner "/" zwischen den Einträgen.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">{{ tr('Endloser Ticker mit deinen Kunden, Referenzen oder Projektnamen. Trenner "/" zwischen den Einträgen.') }}</div>
 
           <!-- Section title -->
           <div style="margin-bottom:16px">
-            <label class="field-label">Abschnittstitel</label>
-            <input v-model="form.clientsTitle" class="field-input" placeholder="REFERENZEN" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
+            <label class="field-label">{{ tr('Abschnittstitel') }}</label>
+            <input v-model="form.clientsTitle" class="field-input" :placeholder="tr('REFERENZEN')" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
           </div>
 
           <!-- Logo-Darstellung -->
           <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
             <div style="flex:1;min-width:200px">
-              <label class="field-label">Logo-Darstellung</label>
+              <label class="field-label">{{ tr('Logo-Darstellung') }}</label>
               <select v-model="form.clientsLogoStyle" class="field-input">
-                <option value="accent">Eingefärbt in Akzentfarbe (Freistell-Look)</option>
-                <option value="grayscale">Graustufen</option>
-                <option value="original">Originalfarben</option>
+                <option value="accent">{{ tr('Eingefärbt in Akzentfarbe (Freistell-Look)') }}</option>
+                <option value="grayscale">{{ tr('Graustufen') }}</option>
+                <option value="original">{{ tr('Originalfarben') }}</option>
               </select>
             </div>
             <div>
-              <label class="field-label">Firmenname</label>
+              <label class="field-label">{{ tr('Firmenname') }}</label>
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;height:38px">
                 <input type="checkbox" v-model="form.clientsShowText" style="width:auto" />
-                <span style="font-size:13px">zusätzlich zum Logo anzeigen</span>
+                <span style="font-size:13px">{{ tr('zusätzlich zum Logo anzeigen') }}</span>
               </label>
             </div>
           </div>
@@ -735,25 +735,25 @@
                   <button class="icon-btn" style="height:14px;width:20px;font-size:10px;padding:0" @click="moveClientItem(i, 1)" :disabled="i === form.clientsItems.length - 1"><i class="ti ti-chevron-down"></i></button>
                 </div>
                 <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);flex-shrink:0;min-width:8px">/</span>
-                <input v-model="item.name" class="field-input" placeholder="Firmenname" style="flex:1;padding:5px 10px;height:32px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-family:monospace" />
+                <input v-model="item.name" class="field-input" :placeholder="tr('Firmenname')" style="flex:1;padding:5px 10px;height:32px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-family:monospace" />
                 <button class="icon-btn" @click="removeClientItem(i)" style="color:#ef4444;flex-shrink:0"><i class="ti ti-trash"></i></button>
               </div>
               <div>
-                <label class="field-label" style="font-size:11px">Logo — am besten PNG/SVG mit transparentem Hintergrund</label>
+                <label class="field-label" style="font-size:11px">{{ tr('Logo — am besten PNG/SVG mit transparentem Hintergrund') }}</label>
                 <ImageUploadCrop v-model="item.logoUrl" s3-prefix="nexora/clients/" file-name-prefix="logo" :ratios="[[1, 1], [3, 1]]" />
               </div>
             </div>
             <div v-if="!form.clientsItems.length" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
-              Noch keine Einträge — füge deine Kunden oder Referenzen hinzu
+              {{ tr('Noch keine Einträge — füge deine Kunden oder Referenzen hinzu') }}
             </div>
           </div>
 
           <!-- Add new -->
           <div style="display:flex;gap:8px;align-items:center;padding:10px;background:var(--bg);border:1px dashed var(--border);border-radius:8px">
-            <input v-model="form.clientsNewName" class="field-input" placeholder="z.B. Dell Technologies" style="flex:1;padding:5px 10px;height:32px;font-size:12px"
+            <input v-model="form.clientsNewName" class="field-input" :placeholder="tr('z.B. Dell Technologies')" style="flex:1;padding:5px 10px;height:32px;font-size:12px"
               @keydown.enter="addClientItem" />
             <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;flex-shrink:0" @click="addClientItem">
-              <i class="ti ti-plus" style="margin-right:4px"></i> Hinzufügen
+              <i class="ti ti-plus" style="margin-right:4px"></i> {{ tr('Hinzufügen') }}
             </button>
           </div>
         </div>
@@ -788,11 +788,11 @@
             </button>
           </div>
           <button class="accent-btn" style="height:32px;font-size:12px;margin-top:4px" @click="addPage">
-            <i class="ti ti-plus" style="margin-right:4px"></i> Neue Seite
+            <i class="ti ti-plus" style="margin-right:4px"></i> {{ tr('Neue Seite') }}
           </button>
           <div style="padding:10px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
-            Rechtsseiten (AGB/Datenschutz/Impressum) haben eigene Tabs und stehen hier bewusst nicht — sie beeinflussen die Navigation nicht. Reihenfolge hier bestimmt nur, wo deine eigenen Seiten untereinander stehen. Die Gesamt-Reihenfolge der Navigation (inkl. Start/Leistungen/Shop/eigene Seiten) legst du unter <strong>Positionen → Navigation-Reihenfolge</strong> fest.
+            {{ tr('Rechtsseiten (AGB/Datenschutz/Impressum) haben eigene Tabs und stehen hier bewusst nicht — sie beeinflussen die Navigation nicht. Reihenfolge hier bestimmt nur, wo deine eigenen Seiten untereinander stehen. Die Gesamt-Reihenfolge der Navigation (inkl. Start/Leistungen/Shop/eigene Seiten) legst du unter') }} <strong>{{ tr('Positionen → Navigation-Reihenfolge') }}</strong> {{ tr('fest.') }}
           </div>
         </div>
 
@@ -802,15 +802,15 @@
           <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border)">
             <div style="display:flex;align-items:center;gap:6px;flex:1">
               <i class="ti ti-file-code" style="color:var(--accent)"></i>
-              <input v-model="form.pages[editingPage!].title" style="background:transparent;border:none;outline:none;font-size:13px;font-weight:600;color:var(--text);font-family:inherit;width:200px" placeholder="Seitentitel" />
+              <input v-model="form.pages[editingPage!].title" style="background:transparent;border:none;outline:none;font-size:13px;font-weight:600;color:var(--text);font-family:inherit;width:200px" :placeholder="tr('Seitentitel')" />
               <span style="color:var(--border)">|</span>
               <span style="font-size:11px;color:var(--text-muted)">/</span>
               <input :value="form.pages[editingPage!].slug"
                 @input="setPageSlug(editingPage!, ($event.target as HTMLInputElement).value)"
                 style="background:transparent;border:none;outline:none;font-size:11px;color:var(--text-muted);font-family:monospace;width:160px"
-                placeholder="url-slug" />
-              <span v-if="slugTaken(editingPage!)" style="font-size:11px;color:#ef4444" title="Diese URL ist schon vergeben oder reserviert">
-                <i class="ti ti-alert-triangle"></i> vergeben
+                :placeholder="tr('url-slug')" />
+              <span v-if="slugTaken(editingPage!)" style="font-size:11px;color:#ef4444" :title="tr('Diese URL ist schon vergeben oder reserviert')">
+                <i class="ti ti-alert-triangle"></i> {{ tr('vergeben') }}
               </span>
             </div>
             <!-- Content type toggle -->
@@ -857,7 +857,7 @@
 
         <div v-else style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);gap:12px">
           <i class="ti ti-file-text" style="font-size:40px;opacity:.3"></i>
-          <div style="font-size:13px">Seite auswählen oder neue erstellen</div>
+          <div style="font-size:13px">{{ tr('Seite auswählen oder neue erstellen') }}</div>
         </div>
       </div>
 
@@ -865,7 +865,7 @@
       <div v-else-if="activeTab === 'blog-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-news" style="margin-right:8px;color:var(--accent)"></i>Blog</span>
+            <span class="card-title"><i class="ti ti-news" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Blog') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.blogEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.blogEnabled = !form.blogEnabled"
@@ -876,10 +876,10 @@
               </button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Blog-Sektion auf der Website aktivieren. Beiträge verwaltest du im Sidebar-Menü unter <strong>Blog</strong>.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ tr('Blog-Sektion auf der Website aktivieren. Beiträge verwaltest du im Sidebar-Menü unter') }} <strong>{{ tr('Blog') }}</strong>.</div>
           <div>
-            <label class="field-label">Blog-Titel (Navigation & Überschrift)</label>
-            <input v-model="form.blogTitle" class="field-input" placeholder="Blog" />
+            <label class="field-label">{{ tr('Blog-Titel (Navigation & Überschrift)') }}</label>
+            <input v-model="form.blogTitle" class="field-input" :placeholder="tr('Blog')" />
           </div>
         </div>
       </div>
@@ -888,7 +888,7 @@
       <div v-else-if="activeTab === 'shop-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>Shop</span>
+            <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Shop') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.shopEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.shopEnabled = !form.shopEnabled"
@@ -899,10 +899,10 @@
               </button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Shop-Link in der Navigation der Website aktivieren. Shop-Produkte verwaltest du im Sidebar-Menü unter <strong>Shop</strong>.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ tr('Shop-Link in der Navigation der Website aktivieren. Shop-Produkte verwaltest du im Sidebar-Menü unter') }} <strong>{{ tr('Shop') }}</strong>.</div>
           <div>
-            <label class="field-label">Shop-Titel (Navigation & Überschrift)</label>
-            <input v-model="form.shopTitle" class="field-input" placeholder="Shop" />
+            <label class="field-label">{{ tr('Shop-Titel (Navigation & Überschrift)') }}</label>
+            <input v-model="form.shopTitle" class="field-input" :placeholder="tr('Shop')" />
           </div>
         </div>
       </div>
@@ -911,7 +911,7 @@
       <div v-else-if="activeTab === 'newsletter-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-mail" style="margin-right:8px;color:var(--accent)"></i>Newsletter</span>
+            <span class="card-title"><i class="ti ti-mail" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Newsletter') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.newsletterEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.newsletterEnabled = !form.newsletterEnabled"
@@ -922,10 +922,10 @@
               </button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Anmeldeformular im Footer der Website anzeigen. Abonnenten und Absender-Einstellungen verwaltest du im Sidebar-Menü unter <strong>Newsletter</strong>.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ tr('Anmeldeformular im Footer der Website anzeigen. Abonnenten und Absender-Einstellungen verwaltest du im Sidebar-Menü unter') }} <strong>{{ tr('Newsletter') }}</strong>.</div>
           <div>
-            <label class="field-label">Überschrift im Footer</label>
-            <input v-model="form.newsletterTitle" class="field-input" placeholder="Newsletter" />
+            <label class="field-label">{{ tr('Überschrift im Footer') }}</label>
+            <input v-model="form.newsletterTitle" class="field-input" :placeholder="tr('Newsletter')" />
           </div>
         </div>
       </div>
@@ -934,7 +934,7 @@
       <div v-else-if="activeTab === 'plexi-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>Plexi — KI-Chat-Widget</span>
+            <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Plexi — KI-Chat-Widget') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.plexiEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.plexiEnabled = !form.plexiEnabled"
@@ -946,12 +946,11 @@
             </div>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
-            Schwebender KI-Chat auf deiner Website, der Besuchern anhand deiner Leistungen, Kontaktdaten & Über-uns-Texte
-            antwortet. Nutzt den API-Key, den du unter <NuxtLink to="/settings" style="color:var(--accent)">Einstellungen → Plexora AI</NuxtLink> hinterlegt hast.
+            {{ tr('Schwebender KI-Chat auf deiner Website, der Besuchern anhand deiner Leistungen, Kontaktdaten & Über-uns-Texte antwortet. Nutzt den API-Key, den du unter') }} <NuxtLink to="/settings" style="color:var(--accent)">{{ tr('Einstellungen → Plexora AI') }}</NuxtLink> {{ tr('hinterlegt hast.') }}
           </div>
           <div>
-            <label class="field-label">Begrüßungstext</label>
-            <input v-model="form.plexiWelcome" class="field-input" placeholder="Hallo! Wie kann ich dir helfen?" />
+            <label class="field-label">{{ tr('Begrüßungstext') }}</label>
+            <input v-model="form.plexiWelcome" class="field-input" :placeholder="tr('Hallo! Wie kann ich dir helfen?')" />
           </div>
         </div>
       </div>
@@ -960,7 +959,7 @@
       <div v-else-if="activeTab === 'termine-settings'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-calendar-event" style="margin-right:8px;color:var(--accent)"></i>Termine</span>
+            <span class="card-title"><i class="ti ti-calendar-event" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Termine') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ termineForm.enabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="toggleTermineEnabled" :disabled="!termineForm.loaded"
@@ -972,21 +971,20 @@
             </div>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
-            Terminbuchung-Sektion auf der Website aktivieren. Terminarten, Google-Kalender-Verbindung
-            und Arbeitszeiten verwaltest du im Sidebar-Menü unter <strong>Termine</strong>.
+            {{ tr('Terminbuchung-Sektion auf der Website aktivieren. Terminarten, Google-Kalender-Verbindung und Arbeitszeiten verwaltest du im Sidebar-Menü unter') }} <strong>{{ tr('Termine') }}</strong>.
           </div>
           <div>
-            <label class="field-label">Titel (Navigation & Überschrift)</label>
-            <input v-model="termineForm.title" class="field-input" placeholder="Termine" @blur="saveTermineSettings" />
+            <label class="field-label">{{ tr('Titel (Navigation & Überschrift)') }}</label>
+            <input v-model="termineForm.title" class="field-input" :placeholder="tr('Termine')" @blur="saveTermineSettings" />
           </div>
           <div>
-            <label class="field-label">Beschreibungstext (unter der Überschrift)</label>
+            <label class="field-label">{{ tr('Beschreibungstext (unter der Überschrift)') }}</label>
             <textarea v-model="termineForm.description" class="field-input" rows="3"
-              placeholder="Vereinbare unkompliziert einen Termin mit uns — telefonisch oder per Video-Call."
+              :placeholder="tr('Vereinbare unkompliziert einen Termin mit uns — telefonisch oder per Video-Call.')"
               @blur="saveTermineSettings"></textarea>
           </div>
           <div>
-            <label class="field-label">Foto (optional)</label>
+            <label class="field-label">{{ tr('Foto (optional)') }}</label>
             <ImageUploadCrop :model-value="termineForm.avatarUrl" @update:model-value="onTermineAvatarChange" s3-prefix="termine/" file-name-prefix="termine-avatar" :ratios="[[1, 1]]" />
           </div>
         </div>
@@ -996,39 +994,39 @@
       <div v-else-if="activeTab === 'seo'" style="max-width:640px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-heading" style="margin-right:8px;color:var(--accent)"></i>Seiten-Titel</span>
+            <span class="card-title"><i class="ti ti-heading" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Seiten-Titel') }}</span>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Titel, der im Browser-Tab und in Suchergebnissen für jede Seite erscheint. Leer lassen für den Standard-Titel.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">{{ tr('Titel, der im Browser-Tab und in Suchergebnissen für jede Seite erscheint. Leer lassen für den Standard-Titel.') }}</div>
           <div style="display:flex;flex-direction:column;gap:10px">
-            <div><label class="field-label">Start</label><input v-model="form.pageTitles.start" class="field-input" :placeholder="form.companyName || 'Nexora'" /></div>
-            <div><label class="field-label">Leistungen</label><input v-model="form.pageTitles.leistungen" class="field-input" :placeholder="`Leistungen · ${form.companyName || 'Nexora'}`" /></div>
-            <div><label class="field-label">Über uns</label><input v-model="form.pageTitles.about" class="field-input" :placeholder="`Über uns · ${form.companyName || 'Nexora'}`" /></div>
-            <div><label class="field-label">Kontakt</label><input v-model="form.pageTitles.kontakt" class="field-input" :placeholder="`Kontakt · ${form.companyName || 'Nexora'}`" /></div>
-            <div><label class="field-label">Impressum</label><input v-model="form.pageTitles.impressum" class="field-input" :placeholder="`Impressum — ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">{{ tr('Start') }}</label><input v-model="form.pageTitles.start" class="field-input" :placeholder="form.companyName || 'Nexora'" /></div>
+            <div><label class="field-label">{{ tr('Leistungen') }}</label><input v-model="form.pageTitles.leistungen" class="field-input" :placeholder="`Leistungen · ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">{{ tr('Über uns') }}</label><input v-model="form.pageTitles.about" class="field-input" :placeholder="`Über uns · ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">{{ tr('Kontakt') }}</label><input v-model="form.pageTitles.kontakt" class="field-input" :placeholder="`Kontakt · ${form.companyName || 'Nexora'}`" /></div>
+            <div><label class="field-label">{{ tr('Impressum') }}</label><input v-model="form.pageTitles.impressum" class="field-input" :placeholder="`Impressum — ${form.companyName || 'Nexora'}`" /></div>
           </div>
         </div>
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-robot" style="margin-right:8px;color:var(--accent)"></i>Robots.txt</span>
+            <span class="card-title"><i class="ti ti-robot" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Robots.txt') }}</span>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Steuert, welche Bereiche Suchmaschinen-Crawler durchsuchen dürfen. Leer lassen für die Standard-Einstellung (alles erlaubt).</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">{{ tr('Steuert, welche Bereiche Suchmaschinen-Crawler durchsuchen dürfen. Leer lassen für die Standard-Einstellung (alles erlaubt).') }}</div>
           <textarea v-model="form.robotsTxt" class="field-input" style="height:120px;resize:vertical;font-family:monospace;font-size:12px" placeholder="User-Agent: *&#10;Disallow:"></textarea>
         </div>
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>Meta-Keywords</span>
+            <span class="card-title"><i class="ti ti-tags" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Meta-Keywords') }}</span>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Kommagetrennte Schlagworte für Suchmaschinen (heute kaum noch relevant fürs Ranking, schadet aber nicht).</div>
-          <input v-model="form.metaKeywords" class="field-input" placeholder="handwerk, sanitär, heizung, köln" />
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">{{ tr('Kommagetrennte Schlagworte für Suchmaschinen (heute kaum noch relevant fürs Ranking, schadet aber nicht).') }}</div>
+          <input v-model="form.metaKeywords" class="field-input" :placeholder="tr('handwerk, sanitär, heizung, köln')" />
         </div>
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-brand-google" style="margin-right:8px;color:var(--accent)"></i>Google Analytics</span>
+            <span class="card-title"><i class="ti ti-brand-google" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Google Analytics') }}</span>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-            Measurement-ID aus <a href="https://analytics.google.com" target="_blank" rel="noopener" style="color:var(--accent)">analytics.google.com</a> (Format <code>G-XXXXXXXXXX</code>). Lädt nur, wenn Besucher der Cookie-Nutzung zustimmen.
+            {{ tr('Measurement-ID aus') }} <a href="https://analytics.google.com" target="_blank" rel="noopener" style="color:var(--accent)">{{ tr('analytics.google.com') }}</a> {{ tr('(Format') }} <code>G-XXXXXXXXXX</code>{{ tr('). Lädt nur, wenn Besucher der Cookie-Nutzung zustimmen.') }}
           </div>
-          <input v-model="form.gaMeasurementId" class="field-input" placeholder="G-XXXXXXXXXX" />
+          <input v-model="form.gaMeasurementId" class="field-input" :placeholder="tr('G-XXXXXXXXXX')" />
         </div>
       </div>
 
@@ -1036,7 +1034,7 @@
       <div v-else-if="activeTab === 'agb'" style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0">
           <i class="ti ti-license" style="color:var(--accent)"></i>
-          <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">Allgemeine Geschäftsbedingungen</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">{{ tr('Allgemeine Geschäftsbedingungen') }}</span>
           <code style="font-size:11px;color:var(--text-muted)">/agb</code>
           <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden">
             <button v-for="ct in ['html','markdown']" :key="ct"
@@ -1067,7 +1065,7 @@
       <div v-else-if="activeTab === 'datenschutz'" style="display:flex;flex-direction:column;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0">
           <i class="ti ti-shield-lock" style="color:var(--accent)"></i>
-          <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">Datenschutzerklärung</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">{{ tr('Datenschutzerklärung') }}</span>
           <code style="font-size:11px;color:var(--text-muted)">/datenschutz</code>
           <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden">
             <button v-for="ct in ['html','markdown']" :key="ct"
@@ -1097,8 +1095,8 @@
       <!-- ── TAB: THEME ── -->
       <div v-else-if="activeTab === 'theme'" style="max-width:760px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-brush" style="margin-right:8px;color:var(--accent)"></i>Website-Theme wählen</span></div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Das Theme bestimmt das visuelle Erscheinungsbild deiner Nexora-Webseite. Weitere Premium-Themes folgen im Theme Shop.</div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-brush" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Website-Theme wählen') }}</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ tr('Das Theme bestimmt das visuelle Erscheinungsbild deiner Nexora-Webseite. Weitere Premium-Themes folgen im Theme Shop.') }}</div>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
             <div v-for="t in nexoraThemes" :key="t.key"
               @click="form.theme = t.key; form.primaryColor = t.preview.accent"
@@ -1133,12 +1131,12 @@
 
         <!-- Logo & Favicon -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-photo" style="margin-right:8px;color:var(--accent)"></i>Logo & Favicon</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-photo" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Logo & Favicon') }}</span></div>
           <div style="display:flex;flex-direction:column;gap:16px">
 
             <!-- Logo -->
             <div>
-              <label class="field-label">Logo</label>
+              <label class="field-label">{{ tr('Logo') }}</label>
               <div style="display:flex;align-items:center;gap:12px">
                 <div style="width:56px;height:56px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
                   <img v-if="form.logoUrl" :src="form.logoUrl" style="width:100%;height:100%;object-fit:contain" @error="form.logoUrl=''" />
@@ -1161,7 +1159,7 @@
 
             <!-- Favicon -->
             <div>
-              <label class="field-label">Favicon (Browser-Tab Icon)</label>
+              <label class="field-label">{{ tr('Favicon (Browser-Tab Icon)') }}</label>
               <div style="display:flex;align-items:center;gap:12px">
                 <div style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
                   <img v-if="form.faviconUrl" :src="form.faviconUrl" style="width:24px;height:24px;object-fit:contain" @error="form.faviconUrl=''" />
@@ -1187,17 +1185,17 @@
 
         <!-- Design -->
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>Design</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-palette" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Design') }}</span></div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <label class="field-label">Primärfarbe (Akzent)</label>
+              <label class="field-label">{{ tr('Primärfarbe (Akzent)') }}</label>
               <div style="display:flex;align-items:center;gap:10px">
                 <input type="color" v-model="form.primaryColor" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
                 <input v-model="form.primaryColor" class="field-input" style="flex:1;font-family:monospace" />
               </div>
             </div>
             <div>
-              <label class="field-label">Hintergrundfarbe</label>
+              <label class="field-label">{{ tr('Hintergrundfarbe') }}</label>
               <div style="display:flex;align-items:center;gap:10px">
                 <input type="color" v-model="form.secondaryColor" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer" />
                 <input v-model="form.secondaryColor" class="field-input" style="flex:1;font-family:monospace" />
@@ -1207,14 +1205,14 @@
         </div>
 
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-building-store" style="margin-right:8px;color:var(--accent)"></i>Theme Shop</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-building-store" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Theme Shop') }}</span></div>
           <div style="display:flex;align-items:center;gap:16px;padding:8px 0">
             <div style="width:44px;height:44px;background:var(--accent)18;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
               <i class="ti ti-sparkles" style="font-size:22px;color:var(--accent)"></i>
             </div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:3px">Weitere Themes demnächst verfügbar</div>
-              <div style="font-size:12px;color:var(--text-muted)">Premium-Themes für Nexora Web & Plexora Dashboard — einmalig kaufen oder im Pro-Plan enthalten.</div>
+              <div style="font-size:14px;font-weight:600;margin-bottom:3px">{{ tr('Weitere Themes demnächst verfügbar') }}</div>
+              <div style="font-size:12px;color:var(--text-muted)">{{ tr('Premium-Themes für Nexora Web & Plexora Dashboard — einmalig kaufen oder im Pro-Plan enthalten.') }}</div>
             </div>
           </div>
         </div>
@@ -1224,7 +1222,7 @@
       <div v-else-if="activeTab === 'github'" style="max-width:760px;display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-brand-github" style="margin-right:8px;color:var(--accent)"></i>GitHub Projekte</span>
+            <span class="card-title"><i class="ti ti-brand-github" style="margin-right:8px;color:var(--accent)"></i>{{ tr('GitHub Projekte') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:12px;color:var(--text-muted)">{{ form.githubEnabled ? 'Aktiv' : 'Versteckt' }}</span>
               <button @click="form.githubEnabled = !form.githubEnabled"
@@ -1235,19 +1233,19 @@
               </button>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Zeige deine öffentlichen GitHub-Repos als Projekt-Cards auf der Website. Der PAT wird niemals an den Browser weitergegeben.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ tr('Zeige deine öffentlichen GitHub-Repos als Projekt-Cards auf der Website. Der PAT wird niemals an den Browser weitergegeben.') }}</div>
 
           <!-- Section title -->
           <div style="margin-bottom:16px">
-            <label class="field-label">Abschnittstitel</label>
-            <input v-model="form.githubTitle" class="field-input" placeholder="PROJEKTE" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
+            <label class="field-label">{{ tr('Abschnittstitel') }}</label>
+            <input v-model="form.githubTitle" class="field-input" :placeholder="tr('PROJEKTE')" style="font-family:monospace;text-transform:uppercase;letter-spacing:.1em" />
           </div>
 
           <!-- PAT -->
           <div style="margin-bottom:12px">
-            <label class="field-label">GitHub Personal Access Token (PAT) <span v-if="form.githubPatConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">Hinterlegt</span></label>
+            <label class="field-label">{{ tr('GitHub Personal Access Token (PAT)') }} <span v-if="form.githubPatConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
             <div v-if="form.githubPatConfigured && form.githubPatMasked" style="font-size:11px;font-family:monospace;color:var(--text-muted);margin-bottom:6px">
-              Aktuell: {{ form.githubPatMasked }}
+              {{ tr('Aktuell:') }} {{ form.githubPatMasked }}
             </div>
             <div style="display:flex;gap:8px">
               <div style="flex:1;position:relative">
@@ -1267,11 +1265,11 @@
             </div>
             <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">
               <i class="ti ti-info-circle" style="margin-right:4px"></i>
-              Nur "Read-only" auf Public Repositories nötig — kein Schreibzugriff.
+              {{ tr('Nur "Read-only" auf Public Repositories nötig — kein Schreibzugriff.') }}
             </div>
             <div v-if="form.githubPatConfigured && !form.githubPat.trim()" style="margin-top:4px;font-size:11px;color:var(--text-muted)">
               <i class="ti ti-info-circle" style="margin-right:4px"></i>
-              "Repos laden" nutzt das hinterlegte PAT. Nur bei einem neuen/anderen Token hier erneut einfügen.
+              {{ tr('"Repos laden" nutzt das hinterlegte PAT. Nur bei einem neuen/anderen Token hier erneut einfügen.') }}
             </div>
           </div>
 
@@ -1283,7 +1281,7 @@
               <span style="position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
                 :style="form.githubShowForks ? 'left:18px' : 'left:2px'"></span>
             </button>
-            <span style="font-size:12px;color:var(--text-muted)">Forks anzeigen</span>
+            <span style="font-size:12px;color:var(--text-muted)">{{ tr('Forks anzeigen') }}</span>
           </div>
 
           <!-- Card shadow toggle -->
@@ -1294,13 +1292,13 @@
               <span style="position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s"
                 :style="form.githubCardShadow ? 'left:18px' : 'left:2px'"></span>
             </button>
-            <span style="font-size:12px;color:var(--text-muted)">Schatten auf den Projekt-Kacheln</span>
+            <span style="font-size:12px;color:var(--text-muted)">{{ tr('Schatten auf den Projekt-Kacheln') }}</span>
           </div>
 
           <!-- Repo selection -->
           <div v-if="form.githubAvailable.length > 0">
             <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">
-              Repos auswählen <span style="font-weight:400;color:var(--text-muted)">(leer = alle anzeigen)</span>
+              {{ tr('Repos auswählen') }} <span style="font-weight:400;color:var(--text-muted)">{{ tr('(leer = alle anzeigen)') }}</span>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto">
               <div v-for="repo in form.githubAvailable" :key="repo.name"
@@ -1331,7 +1329,7 @@
           </div>
           <div v-else style="text-align:center;padding:32px;color:var(--text-muted);font-size:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px">
             <i class="ti ti-brand-github" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i>
-            PAT eingeben und "Repos laden" klicken
+            {{ tr('PAT eingeben und "Repos laden" klicken') }}
           </div>
         </div>
       </div>
@@ -1340,9 +1338,9 @@
       <div v-else-if="activeTab === 'position'" style="max-width:1160px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
         <div class="card" style="display:flex;flex-direction:column;height:100%;max-height:600px">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-layout-rows" style="margin-right:8px;color:var(--accent)"></i>Sektions-Reihenfolge</span>
+            <span class="card-title"><i class="ti ti-layout-rows" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Sektions-Reihenfolge') }}</span>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Bestimme die Reihenfolge der Sektionen auf der Website. Hero und Footer sind immer fest.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">{{ tr('Bestimme die Reihenfolge der Sektionen auf der Website. Hero und Footer sind immer fest.') }}</div>
           <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow-y:auto">
             <template v-for="(key, idx) in form.sectionOrder" :key="key">
             <div v-if="SECTION_META[key]"
@@ -1372,15 +1370,15 @@
           </div>
           <div style="margin-top:16px;padding:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
-            Die Vorschau rechts aktualisiert sich sofort. Zum Übernehmen oben auf <strong>Speichern</strong> klicken.
+            {{ tr('Die Vorschau rechts aktualisiert sich sofort. Zum Übernehmen oben auf') }} <strong>{{ tr('Speichern') }}</strong> {{ tr('klicken.') }}
           </div>
         </div>
 
         <div class="card" style="display:flex;flex-direction:column;height:100%;max-height:600px">
           <div class="card-header">
-            <span class="card-title"><i class="ti ti-menu-2" style="margin-right:8px;color:var(--accent)"></i>Navigation-Reihenfolge</span>
+            <span class="card-title"><i class="ti ti-menu-2" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Navigation-Reihenfolge') }}</span>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">Ziehe die Menüpunkte in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">{{ tr('Ziehe die Menüpunkte in die gewünschte Reihenfolge — so erscheinen sie in der Navigation deiner Webseite.') }}</div>
           <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow-y:auto">
             <template v-for="(key, idx) in form.navOrder" :key="key">
             <div v-if="NAV_META[key] || pageBySlug(key)"
@@ -1401,7 +1399,7 @@
               <!-- Icon + label -->
               <i class="ti" :class="navIcon(key)" style="font-size:16px;flex-shrink:0;color:var(--accent)"></i>
               <div style="flex:1;font-size:13px;font-weight:600">{{ navLabel(key) }}</div>
-              <span v-if="!NAV_META[key]" style="font-size:10px;color:var(--text-muted);flex-shrink:0">eigene Seite</span>
+              <span v-if="!NAV_META[key]" style="font-size:10px;color:var(--text-muted);flex-shrink:0">{{ tr('eigene Seite') }}</span>
               <!-- Enabled indicator -->
               <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
                 <div style="width:6px;height:6px;border-radius:50%" :style="navEnabled(key) ? 'background:#22c55e;box-shadow:0 0 4px #22c55e88' : 'background:var(--border)'"></div>
@@ -1412,7 +1410,7 @@
           </div>
           <div style="margin-top:16px;padding:12px;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--text-muted)">
             <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
-            Ausgeblendete Menüpunkte (z.B. weil das Modul noch nicht aktiviert ist) erscheinen erst live, sobald sie aktiv sind — die Reihenfolge bleibt erhalten.
+            {{ tr('Ausgeblendete Menüpunkte (z.B. weil das Modul noch nicht aktiviert ist) erscheinen erst live, sobald sie aktiv sind — die Reihenfolge bleibt erhalten.') }}
           </div>
         </div>
       </div>
@@ -1420,45 +1418,45 @@
       <!-- ── TAB: KONTAKT ── -->
       <div v-else-if="activeTab === 'contact'" style="max-width:560px">
         <div class="card">
-          <div class="card-header"><span class="card-title"><i class="ti ti-map-pin" style="margin-right:8px;color:var(--accent)"></i>Kontaktdaten</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-map-pin" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Kontaktdaten') }}</span></div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <label class="field-label">Adresse</label>
+              <label class="field-label">{{ tr('Adresse') }}</label>
               <textarea v-model="form.contactAddress" class="field-input" rows="2" placeholder="Musterstraße 1&#10;12345 Musterstadt" style="resize:vertical"></textarea>
             </div>
             <div>
-              <label class="field-label">E-Mail</label>
-              <input v-model="form.contactEmail" class="field-input" type="email" placeholder="info@meine-firma.de" />
+              <label class="field-label">{{ tr('E-Mail') }}</label>
+              <input v-model="form.contactEmail" class="field-input" type="email" :placeholder="tr('info@meine-firma.de')" />
             </div>
             <div>
-              <label class="field-label">Telefon</label>
+              <label class="field-label">{{ tr('Telefon') }}</label>
               <input v-model="form.contactPhone" class="field-input" placeholder="+49 123 456789" />
             </div>
             <div>
-              <label class="field-label">Erreichbarkeit</label>
-              <input v-model="form.contactAvailability" class="field-input" placeholder="Mo – Fr, 9:00 – 18:00 Uhr" />
+              <label class="field-label">{{ tr('Erreichbarkeit') }}</label>
+              <input v-model="form.contactAvailability" class="field-input" :placeholder="tr('Mo – Fr, 9:00 – 18:00 Uhr')" />
             </div>
           </div>
         </div>
 
         <!-- Impressum-Felder -->
         <div class="card" style="margin-top:14px">
-          <div class="card-header"><span class="card-title"><i class="ti ti-gavel" style="margin-right:8px;color:var(--accent)"></i>Impressum (§ 5 TMG)</span></div>
+          <div class="card-header"><span class="card-title"><i class="ti ti-gavel" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Impressum (§ 5 TMG)') }}</span></div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <label class="field-label">Inhaber / Verantwortliche Person</label>
-              <input v-model="form.contactLegalName" class="field-input" placeholder="Max Mustermann" />
+              <label class="field-label">{{ tr('Inhaber / Verantwortliche Person') }}</label>
+              <input v-model="form.contactLegalName" class="field-input" :placeholder="tr('Max Mustermann')" />
             </div>
             <div>
-              <label class="field-label">Umsatzsteuer-ID (optional)</label>
-              <input v-model="form.contactVatId" class="field-input" placeholder="DE123456789" />
+              <label class="field-label">{{ tr('Umsatzsteuer-ID (optional)') }}</label>
+              <input v-model="form.contactVatId" class="field-input" :placeholder="tr('DE123456789')" />
             </div>
           </div>
         </div>
 
         <div style="margin-top:14px;padding:12px 16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted)">
           <i class="ti ti-info-circle" style="margin-right:6px;color:var(--accent)"></i>
-          Kontaktformular-Submissions landen automatisch als Leads in deinem <NuxtLink to="/crm" style="color:var(--accent);text-decoration:none">CRM</NuxtLink>.
+          {{ tr('Kontaktformular-Submissions landen automatisch als Leads in deinem') }} <NuxtLink to="/crm" style="color:var(--accent);text-decoration:none">{{ tr('CRM') }}</NuxtLink>.
         </div>
       </div>
 
@@ -1467,7 +1465,7 @@
       <!-- ── WIREFRAME PREVIEW PANEL ── -->
       <div style="position:sticky;top:120px;display:flex;flex-direction:column;gap:0">
         <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <i class="ti ti-device-desktop" style="font-size:13px"></i> Vorschau
+          <i class="ti ti-device-desktop" style="font-size:13px"></i> {{ tr('Vorschau') }}
         </div>
         <!-- Browser chrome -->
         <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg-elevated)">
@@ -1521,7 +1519,7 @@
             </div>
           </div>
         </div>
-        <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">▲▼ zum Verschieben — Speichern nicht vergessen</div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">{{ tr('▲▼ zum Verschieben — Speichern nicht vergessen') }}</div>
       </div>
 
       </div><!-- /grid -->
@@ -1894,7 +1892,7 @@ async function saveTermineSettings() {
       },
     })
   } catch (e: any) {
-    alert('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
+    alert(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
   }
 }
 
@@ -2009,7 +2007,7 @@ async function save() {
     })
     if (nexora.value) nexora.value.subdomain = form.subdomain
   } catch (e: any) {
-    alert('Fehler: ' + (e?.message || ''))
+    alert(tr('Fehler: ') + (e?.message || ''))
   }
   saving.value = false
 }
@@ -2341,10 +2339,10 @@ async function loadGithubRepos() {
     form.githubAvailable = res.repos || []
     form.githubLoaded = true
     if (form.githubAvailable.length === 0) {
-      form.githubError = 'Keine öffentlichen Repos gefunden. Prüfe, ob das PAT Zugriff auf die richtigen Repos/Organisationen hat.'
+      form.githubError = tr('Keine öffentlichen Repos gefunden. Prüfe, ob das PAT Zugriff auf die richtigen Repos/Organisationen hat.')
     }
   } catch (err: any) {
-    form.githubError = err?.data?.message || err?.data?.statusMessage || 'Fehler beim Laden der Repos.'
+    form.githubError = err?.data?.message || err?.data?.statusMessage || tr('Fehler beim Laden der Repos.')
   }
   form.githubLoading = false
 }
@@ -2412,7 +2410,7 @@ const customerSteps = computed(() => [
     done:  false,
   },
   {
-    title: 'Fertig — Website ist live!',
+    title: tr('Fertig — Website ist live!'),
     desc:  'Nach 5–10 Minuten ist deine Website auf deiner Domain erreichbar. Kein Code, kein Deploy, kein Stress.',
     done:  false,
   },

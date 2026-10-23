@@ -77,7 +77,7 @@
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>{{ t.contracts.colTitle }}</label><input v-model="form.title" placeholder="Hosting-Vertrag" /></div>
+          <div class="auth-field"><label>{{ t.contracts.colTitle }}</label><input v-model="form.title" :placeholder="tr('Hosting-Vertrag')" /></div>
           <div class="auth-row">
             <div class="auth-field"><label>{{ t.contracts.contractNumber }}</label><input v-model="form.contractNumber" placeholder="V-2026-001" /></div>
             <div class="auth-field">
@@ -144,7 +144,7 @@
             </select>
           </div>
 
-          <div class="auth-field"><label>{{ t.common.notes }}</label><textarea v-model="form.notes" rows="2" placeholder="Interne Notizen..."></textarea></div>
+          <div class="auth-field"><label>{{ t.common.notes }}</label><textarea v-model="form.notes" rows="2" :placeholder="tr('Interne Notizen...')"></textarea></div>
 
           <button class="auth-btn" :disabled="saving" @click="save">
             <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
@@ -255,7 +255,7 @@ async function save() {
 const { openConfirm } = useConfirm()
 
 async function deleteContract(c: Contract) {
-  if (!await openConfirm({ title: 'Vertrag löschen?', name: c.title })) return
+  if (!await openConfirm({ title: tr('Vertrag löschen?'), name: c.title })) return
   await $fetch(useApiUrl(`/api/contracts/${c.contractId}`), { method: 'DELETE', headers: authHeaders })
   await refreshContracts()
 }

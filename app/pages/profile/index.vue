@@ -1,14 +1,14 @@
 <template>
   <div style="max-width:720px">
-    <div class="topbar-title" style="margin-bottom:20px">Mein Konto</div>
+    <div class="topbar-title" style="margin-bottom:20px">{{ tr('Mein Konto') }}</div>
 
     <!-- PROFIL / AVATAR -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-user-circle" style="margin-right:8px;color:var(--accent)"></i>Profil</span>
+        <span class="card-title"><i class="ti ti-user-circle" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Profil') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="saving" @click="saveProfile">
           <span v-if="saving"><i class="ti ti-loader-2 spin"></i></span>
-          <span v-else><i class="ti ti-device-floppy"></i> Speichern</span>
+          <span v-else><i class="ti ti-device-floppy"></i> {{ tr('Speichern') }}</span>
         </button>
       </div>
       <div class="card-body" style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
@@ -21,19 +21,19 @@
               <input type="file" accept="image/*" style="display:none" :disabled="avatarUploading" @change="uploadAvatar" />
             </label>
           </div>
-          <span style="font-size:11px;color:var(--text-muted)">Bild ändern</span>
+          <span style="font-size:11px;color:var(--text-muted)">{{ tr('Bild ändern') }}</span>
         </div>
         <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:14px">
           <div class="auth-field">
-            <label>Name</label>
-            <input v-model="profileForm.name" placeholder="Dein Name" />
+            <label>{{ tr('Name') }}</label>
+            <input v-model="profileForm.name" :placeholder="tr('Dein Name')" />
           </div>
           <div class="auth-field">
-            <label>E-Mail</label>
+            <label>{{ tr('E-Mail') }}</label>
             <input :value="userEmail" disabled style="opacity:.6;cursor:not-allowed" />
           </div>
           <div class="auth-field">
-            <label>Rolle</label>
+            <label>{{ tr('Rolle') }}</label>
             <input :value="userRole" disabled style="opacity:.6;cursor:not-allowed" />
           </div>
         </div>
@@ -43,7 +43,7 @@
     <!-- SICHERHEIT -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-shield-lock" style="margin-right:8px;color:var(--accent)"></i>Sicherheit</span>
+        <span class="card-title"><i class="ti ti-shield-lock" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Sicherheit') }}</span>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px">
@@ -54,34 +54,34 @@
               <path fill="#FBBC05" d="M3.96 10.7A5.4 5.4 0 013.68 9c0-.59.1-1.17.28-1.7V4.96H.96A9 9 0 000 9c0 1.45.35 2.83.96 4.04l3-2.34z"/>
               <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/>
             </svg>
-            <span style="font-size:13px;font-weight:600">Google-Konto</span>
+            <span style="font-size:13px;font-weight:600">{{ tr('Google-Konto') }}</span>
           </div>
           <span v-if="googleLinked" style="padding:4px 12px;background:#22c55e18;border:1px solid #22c55e44;border-radius:20px;font-size:11px;font-weight:600;color:#22c55e">
-            <i class="ti ti-check"></i> Verbunden
+            <i class="ti ti-check"></i> {{ tr('Verbunden') }}
           </span>
-          <span v-else style="font-size:12px;color:var(--text-muted)">Nicht verbunden</span>
+          <span v-else style="font-size:12px;color:var(--text-muted)">{{ tr('Nicht verbunden') }}</span>
         </div>
 
         <div>
-          <div class="settings-label" style="margin-bottom:10px">Passwort ändern</div>
+          <div class="settings-label" style="margin-bottom:10px">{{ tr('Passwort ändern') }}</div>
           <div v-if="pwError" class="auth-error" style="margin-bottom:10px"><i class="ti ti-alert-circle"></i> {{ pwError }}</div>
-          <div v-if="pwSuccess" style="font-size:12px;color:#22c55e;margin-bottom:10px"><i class="ti ti-circle-check"></i> Passwort geändert!</div>
+          <div v-if="pwSuccess" style="font-size:12px;color:#22c55e;margin-bottom:10px"><i class="ti ti-circle-check"></i> {{ tr('Passwort geändert!') }}</div>
           <div style="display:flex;flex-direction:column;gap:10px;max-width:340px">
             <div class="auth-field">
-              <label>Aktuelles Passwort</label>
+              <label>{{ tr('Aktuelles Passwort') }}</label>
               <input v-model="pwForm.oldPassword" type="password" placeholder="••••••••" />
             </div>
             <div class="auth-field">
-              <label>Neues Passwort</label>
+              <label>{{ tr('Neues Passwort') }}</label>
               <input v-model="pwForm.newPassword" type="password" placeholder="••••••••" />
             </div>
             <div class="auth-field">
-              <label>Neues Passwort bestätigen</label>
+              <label>{{ tr('Neues Passwort bestätigen') }}</label>
               <input v-model="pwForm.confirmPassword" type="password" placeholder="••••••••" />
             </div>
             <button class="accent-btn" style="height:32px;font-size:12px" :disabled="pwSaving" @click="changePassword">
               <span v-if="pwSaving"><i class="ti ti-loader-2 spin"></i></span>
-              <span v-else>Passwort ändern</span>
+              <span v-else>{{ tr('Passwort ändern') }}</span>
             </button>
           </div>
         </div>
@@ -93,7 +93,7 @@
     <!-- ABRECHNUNG -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>Abrechnung</span>
+        <span class="card-title"><i class="ti ti-credit-card" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Abrechnung') }}</span>
       </div>
       <div class="card-body">
         <div v-if="store.license" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -102,10 +102,10 @@
             <div style="font-size:13px;color:var(--text-muted);margin-top:2px">{{ TIER_PRICES[store.license.tier] ? `€${TIER_PRICES[store.license.tier]}/Monat` : '' }}</div>
           </div>
           <button class="accent-btn" style="height:32px;font-size:12px" @click="navigateTo('/settings?tab=billing')">
-            <i class="ti ti-external-link" style="margin-right:4px"></i> Abrechnung verwalten
+            <i class="ti ti-external-link" style="margin-right:4px"></i> {{ tr('Abrechnung verwalten') }}
           </button>
         </div>
-        <div v-else style="color:var(--text-muted);font-size:13px">Keine aktive Lizenz gefunden.</div>
+        <div v-else style="color:var(--text-muted);font-size:13px">{{ tr('Keine aktive Lizenz gefunden.') }}</div>
       </div>
     </div>
 
@@ -194,7 +194,7 @@ async function saveProfile() {
     })
     showToast('Profil gespeichert!')
   } catch (e: any) {
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'), true)
   } finally {
     saving.value = false
   }

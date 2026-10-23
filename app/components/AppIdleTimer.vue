@@ -1,5 +1,5 @@
 <template>
-  <div v-if="enabled" class="session-badge" :class="{ warn: showWarning }" title="Automatische Abmeldung nach Inaktivität">
+  <div v-if="enabled" class="session-badge" :class="{ warn: showWarning }" :title="tr('Automatische Abmeldung nach Inaktivität')">
     <i class="ti ti-clock"></i>
     <span>{{ formatTime(remainingSeconds) }}</span>
   </div>
@@ -10,13 +10,13 @@
         <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;align-items:center;padding:32px 24px">
           <i class="ti ti-clock-exclamation" style="font-size:40px;color:var(--accent)"></i>
           <div>
-            <div style="font-weight:700;font-size:16px;margin-bottom:6px">Bist du noch da?</div>
+            <div style="font-weight:700;font-size:16px;margin-bottom:6px">{{ tr('Bist du noch da?') }}</div>
             <div style="font-size:13px;color:var(--text-secondary)">
-              Aus Sicherheitsgründen wirst du wegen Inaktivität abgemeldet in
+              {{ tr('Aus Sicherheitsgründen wirst du wegen Inaktivität abgemeldet in') }}
             </div>
             <div style="font-size:32px;font-weight:800;color:var(--accent);margin:8px 0">{{ formatTime(remainingSeconds) }}</div>
           </div>
-          <button class="auth-btn" @click="stayLoggedIn">Angemeldet bleiben</button>
+          <button class="auth-btn" @click="stayLoggedIn">{{ tr('Angemeldet bleiben') }}</button>
         </div>
       </div>
     </div>

@@ -1,35 +1,35 @@
 <template>
   <div class="brte-wrap">
     <div class="brte-toolbar">
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('bold') }" title="Fett" @click="editor?.chain().focus().toggleBold().run()"><i class="ti ti-bold"></i></button>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('italic') }" title="Kursiv" @click="editor?.chain().focus().toggleItalic().run()"><i class="ti ti-italic"></i></button>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('underline') }" title="Unterstrichen" @click="editor?.chain().focus().toggleUnderline().run()"><i class="ti ti-underline"></i></button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('bold') }" :title="tr('Fett')" @click="editor?.chain().focus().toggleBold().run()"><i class="ti ti-bold"></i></button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('italic') }" :title="tr('Kursiv')" @click="editor?.chain().focus().toggleItalic().run()"><i class="ti ti-italic"></i></button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('underline') }" :title="tr('Unterstrichen')" @click="editor?.chain().focus().toggleUnderline().run()"><i class="ti ti-underline"></i></button>
       <span class="brte-sep"></span>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('heading', { level: 1 }) }" title="Überschrift 1" @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()">H1</button>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('heading', { level: 2 }) }" title="Überschrift 2" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()">H2</button>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('heading', { level: 3 }) }" title="Überschrift 3" @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()">H3</button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('heading', { level: 1 }) }" :title="tr('Überschrift 1')" @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()">H1</button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('heading', { level: 2 }) }" :title="tr('Überschrift 2')" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()">H2</button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('heading', { level: 3 }) }" :title="tr('Überschrift 3')" @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()">H3</button>
       <span class="brte-sep"></span>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('bulletList') }" title="Aufzählung" @click="editor?.chain().focus().toggleBulletList().run()"><i class="ti ti-list"></i></button>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('orderedList') }" title="Nummerierte Liste" @click="editor?.chain().focus().toggleOrderedList().run()"><i class="ti ti-list-numbers"></i></button>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('blockquote') }" title="Zitat" @click="editor?.chain().focus().toggleBlockquote().run()"><i class="ti ti-blockquote"></i></button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('bulletList') }" :title="tr('Aufzählung')" @click="editor?.chain().focus().toggleBulletList().run()"><i class="ti ti-list"></i></button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('orderedList') }" :title="tr('Nummerierte Liste')" @click="editor?.chain().focus().toggleOrderedList().run()"><i class="ti ti-list-numbers"></i></button>
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('blockquote') }" :title="tr('Zitat')" @click="editor?.chain().focus().toggleBlockquote().run()"><i class="ti ti-blockquote"></i></button>
       <span class="brte-sep"></span>
-      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('link') }" title="Link" @click="toggleLink"><i class="ti ti-link"></i></button>
-      <button type="button" class="brte-btn" title="Bild einfügen" :disabled="uploading" @click="fileInputRef?.click()">
+      <button type="button" class="brte-btn" :class="{ active: editor?.isActive('link') }" :title="tr('Link')" @click="toggleLink"><i class="ti ti-link"></i></button>
+      <button type="button" class="brte-btn" :title="tr('Bild einfügen')" :disabled="uploading" @click="fileInputRef?.click()">
         <i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-photo-up'"></i>
       </button>
       <span class="brte-sep"></span>
-      <button type="button" class="brte-btn" title="Rückgängig" @click="editor?.chain().focus().undo().run()"><i class="ti ti-arrow-back-up"></i></button>
-      <button type="button" class="brte-btn" title="Wiederholen" @click="editor?.chain().focus().redo().run()"><i class="ti ti-arrow-forward-up"></i></button>
+      <button type="button" class="brte-btn" :title="tr('Rückgängig')" @click="editor?.chain().focus().undo().run()"><i class="ti ti-arrow-back-up"></i></button>
+      <button type="button" class="brte-btn" :title="tr('Wiederholen')" @click="editor?.chain().focus().redo().run()"><i class="ti ti-arrow-forward-up"></i></button>
     </div>
 
     <div v-if="selectedImage" class="brte-image-toolbar">
-      <span class="brte-image-label"><i class="ti ti-photo"></i> Bild ausrichten</span>
-      <button type="button" class="brte-btn" title="Links, Text fließt rechts vorbei" @click="setAlign('left')"><i class="ti ti-align-left"></i></button>
-      <button type="button" class="brte-btn" title="Zentriert, kein Textumfluss" @click="setAlign('center')"><i class="ti ti-align-center"></i></button>
-      <button type="button" class="brte-btn" title="Rechts, Text fließt links vorbei" @click="setAlign('right')"><i class="ti ti-align-right"></i></button>
-      <button type="button" class="brte-btn" title="Ausrichtung entfernen" @click="setAlign(null)"><i class="ti ti-align-justified"></i></button>
+      <span class="brte-image-label"><i class="ti ti-photo"></i> {{ tr('Bild ausrichten') }}</span>
+      <button type="button" class="brte-btn" :title="tr('Links, Text fließt rechts vorbei')" @click="setAlign('left')"><i class="ti ti-align-left"></i></button>
+      <button type="button" class="brte-btn" :title="tr('Zentriert, kein Textumfluss')" @click="setAlign('center')"><i class="ti ti-align-center"></i></button>
+      <button type="button" class="brte-btn" :title="tr('Rechts, Text fließt links vorbei')" @click="setAlign('right')"><i class="ti ti-align-right"></i></button>
+      <button type="button" class="brte-btn" :title="tr('Ausrichtung entfernen')" @click="setAlign(null)"><i class="ti ti-align-justified"></i></button>
       <span class="brte-sep"></span>
-      <button type="button" class="brte-btn danger" title="Bild entfernen" @click="removeImage"><i class="ti ti-trash"></i></button>
+      <button type="button" class="brte-btn danger" :title="tr('Bild entfernen')" @click="removeImage"><i class="ti ti-trash"></i></button>
     </div>
 
     <ClientOnly>

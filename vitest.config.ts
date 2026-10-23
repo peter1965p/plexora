@@ -8,6 +8,6 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
   },
   resolve: {
-    alias: { '~': fileURLToPath(new URL('./app', import.meta.url)) },
+    alias: { '~~': fileURLToPath(new URL('.', import.meta.url)), '~': fileURLToPath(new URL('./app', import.meta.url)) },
   },
 })

@@ -2,9 +2,9 @@
   <div class="mkt-page">
 
     <div class="mkt-tabs">
-      <button class="mkt-tab" :class="{ active: tab === 'campaigns' }" @click="setTab('campaigns')"><i class="ti ti-speakerphone"></i> Kampagnen <span class="mkt-tab-count">{{ campaigns.length }}</span></button>
-      <button class="mkt-tab" :class="{ active: tab === 'automations' }" @click="setTab('automations')"><i class="ti ti-bolt"></i> Automatisierungen <span class="mkt-tab-count">{{ automations.length }}</span></button>
-      <button class="mkt-tab" :class="{ active: tab === 'mail' }" @click="setTab('mail')"><i class="ti ti-mail"></i> Versand-Protokoll <span class="mkt-tab-count">{{ mailLog.length }}</span></button>
+      <button class="mkt-tab" :class="{ active: tab === 'campaigns' }" @click="setTab('campaigns')"><i class="ti ti-speakerphone"></i> {{ tr('Kampagnen') }} <span class="mkt-tab-count">{{ campaigns.length }}</span></button>
+      <button class="mkt-tab" :class="{ active: tab === 'automations' }" @click="setTab('automations')"><i class="ti ti-bolt"></i> {{ tr('Automatisierungen') }} <span class="mkt-tab-count">{{ automations.length }}</span></button>
+      <button class="mkt-tab" :class="{ active: tab === 'mail' }" @click="setTab('mail')"><i class="ti ti-mail"></i> {{ tr('Versand-Protokoll') }} <span class="mkt-tab-count">{{ mailLog.length }}</span></button>
     </div>
 
     <!-- STATS -->
@@ -41,8 +41,8 @@
         <div class="mkt-stat-icon"><i class="ti ti-world"></i></div>
         <div class="mkt-stat-body">
           <div class="mkt-stat-label">{{ t.marketing.baseUrl }}</div>
-          <div class="mkt-stat-value" style="font-size:13px">app.plexora.eu</div>
-          <div class="mkt-stat-sub">/lead/[formId]</div>
+          <div class="mkt-stat-value" style="font-size:13px">{{ tr('app.plexora.eu') }}</div>
+          <div class="mkt-stat-sub">{{ tr('/lead/[formId]') }}</div>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:16px">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text-muted)">
-          <span>URL-Shortener</span>
+          <span>{{ tr('URL-Shortener') }}</span>
           <button @click="toggleShortener"
             style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
             :style="shortenerEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -76,23 +76,23 @@
         <div style="display:flex;align-items:center;gap:14px">
           <div class="auto-icon"><i class="ti ti-bolt"></i></div>
           <div>
-            <div class="auto-title">Automatisierungen <span class="auto-count">{{ automations.length }}</span></div>
-            <div class="auto-sub">Wenn etwas passiert, läuft automatisch eine Aktion ab.</div>
+            <div class="auto-title">{{ tr('Automatisierungen') }} <span class="auto-count">{{ automations.length }}</span></div>
+            <div class="auto-sub">{{ tr('Wenn etwas passiert, läuft automatisch eine Aktion ab.') }}</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Funnel-Editor</NuxtLink>
-          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Neue Automatisierung</button>
+          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> {{ tr('Funnel-Editor') }}</NuxtLink>
+          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> {{ tr('Neue Automatisierung') }}</button>
         </div>
       </div>
 
       <div v-if="!automations.length" class="auto-empty">
         <i class="ti ti-bolt-off"></i>
-        <div class="auto-empty-title">Noch keine Automatisierung aktiv</div>
-        <div class="auto-empty-sub">Lass Plexora z.B. nach jeder Formular-Abgabe automatisch eine Terminbestätigung oder einen Termin-Link schicken.</div>
+        <div class="auto-empty-title">{{ tr('Noch keine Automatisierung aktiv') }}</div>
+        <div class="auto-empty-sub">{{ tr('Lass Plexora z.B. nach jeder Formular-Abgabe automatisch eine Terminbestätigung oder einen Termin-Link schicken.') }}</div>
         <div style="display:flex;gap:8px;margin-top:6px">
-          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> Erste Automatisierung</button>
-          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> Mehrstufigen Funnel bauen</NuxtLink>
+          <button class="auto-btn" @click="openAddAutomation"><i class="ti ti-plus"></i> {{ tr('Erste Automatisierung') }}</button>
+          <NuxtLink to="/funnels" class="auto-btn-ghost"><i class="ti ti-route"></i> {{ tr('Mehrstufigen Funnel bauen') }}</NuxtLink>
         </div>
       </div>
 
@@ -108,7 +108,7 @@
           </div>
           <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? 'Aktiv' : 'Pausiert' }}</span>
           <button class="fn-toggle" :class="{ on: a.enabled }" :title="a.enabled ? 'Pausieren' : 'Aktivieren'" @click="toggleAutomation(a)"><span></span></button>
-          <button class="auto-del" title="Löschen" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
+          <button class="auto-del" :title="tr('Löschen')" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
         </div>
       </div>
     </div>
@@ -117,7 +117,7 @@
     <div v-if="!campaigns.length" class="mkt-empty">
       <div class="mkt-empty-icon"><i class="ti ti-speakerphone"></i></div>
       <div class="mkt-empty-title">{{ t.marketing.noCampaigns }}</div>
-      <button class="mkt-new-btn" @click="openAdd"><i class="ti ti-plus"></i> Erste Kampagne erstellen</button>
+      <button class="mkt-new-btn" @click="openAdd"><i class="ti ti-plus"></i> {{ tr('Erste Kampagne erstellen') }}</button>
     </div>
 
     <!-- KAMPAGNEN GRID -->
@@ -151,7 +151,7 @@
           <div class="mkt-campaign-meta">
             <div class="mkt-meta-item">
               <i class="ti ti-users"></i>
-              <span>{{ leadStats[c.utmCampaign || c.name] || 0 }} Leads</span>
+              <span>{{ leadStats[c.utmCampaign || c.name] || 0 }} {{ tr('Leads') }}</span>
             </div>
             <div class="mkt-meta-item">
               <i class="ti ti-link"></i>
@@ -162,9 +162,9 @@
 
         <!-- Email Stats -->
         <div v-if="emailStats[c.campaignId]" class="mkt-email-stats">
-          <div class="mkt-estat-item" title="Gesendet"><i class="ti ti-send"></i> {{ emailStats[c.campaignId].sent }}</div>
-          <div class="mkt-estat-item" title="Geöffnet"><i class="ti ti-mail-opened"></i> {{ emailStats[c.campaignId].opened }} ({{ emailStats[c.campaignId].openRate }}%)</div>
-          <div class="mkt-estat-item" title="Geklickt"><i class="ti ti-cursor-text"></i> {{ emailStats[c.campaignId].clicked }}</div>
+          <div class="mkt-estat-item" :title="tr('Gesendet')"><i class="ti ti-send"></i> {{ emailStats[c.campaignId].sent }}</div>
+          <div class="mkt-estat-item" :title="tr('Geöffnet')"><i class="ti ti-mail-opened"></i> {{ emailStats[c.campaignId].opened }} ({{ emailStats[c.campaignId].openRate }}%)</div>
+          <div class="mkt-estat-item" :title="tr('Geklickt')"><i class="ti ti-cursor-text"></i> {{ emailStats[c.campaignId].clicked }}</div>
         </div>
 
         <!-- Actions -->
@@ -172,16 +172,16 @@
           <button class="mkt-action-btn" :title="t.marketing.copyLink" @click="copyLink(c)">
             <i class="ti ti-copy"></i>
           </button>
-          <button class="mkt-action-btn" title="Kurzlink erstellen &amp; kopieren" @click="shortenAndCopy(c)">
+          <button class="mkt-action-btn" :title="tr('Kurzlink erstellen & kopieren')" @click="shortenAndCopy(c)">
             <i class="ti" :class="shorteningId === c.campaignId ? 'ti-loader-2 spin' : 'ti-scissors'"></i>
           </button>
           <button class="mkt-action-btn" :title="t.marketing.qrCode" @click="showQr(c)">
             <i class="ti ti-qrcode"></i>
           </button>
-          <button class="mkt-action-btn" title="E-Mail Kampagne senden" @click="openSendEmail(c)">
+          <button class="mkt-action-btn" :title="tr('E-Mail Kampagne senden')" @click="openSendEmail(c)">
             <i class="ti ti-mail-forward"></i>
           </button>
-          <NuxtLink class="mkt-action-btn mkt-design-btn" title="Design-Editor öffnen" :to="`/marketing/design/${c.campaignId}`">
+          <NuxtLink class="mkt-action-btn mkt-design-btn" :title="tr('Design-Editor öffnen')" :to="`/marketing/design/${c.campaignId}`">
             <i class="ti ti-palette"></i>
           </NuxtLink>
           <button class="mkt-action-btn" @click="openEdit(c)">
@@ -205,16 +205,16 @@
           <button class="icon-btn" @click="showModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div v-if="!editing && draft.candidate.value" class="draft-restore">
-          <span><i class="ti ti-history"></i> Entwurf vom {{ draft.candidateTime.value }} wiederherstellen?</span>
+          <span><i class="ti ti-history"></i> {{ tr('Entwurf vom') }} {{ draft.candidateTime.value }} {{ tr('wiederherstellen?') }}</span>
           <span style="display:flex;gap:8px">
-            <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px" @click="draft.restore()">Wiederherstellen</button>
-            <button class="icon-btn" style="font-size:12px;padding:4px 12px;height:auto" @click="draft.discard()">Verwerfen</button>
+            <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px" @click="draft.restore()">{{ tr('Wiederherstellen') }}</button>
+            <button class="icon-btn" style="font-size:12px;padding:4px 12px;height:auto" @click="draft.discard()">{{ tr('Verwerfen') }}</button>
           </span>
         </div>
         <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="auth-field"><label>{{ t.marketing.campaignName }}</label><input v-model="form.name" placeholder="Kostenlose Beratung" /></div>
+            <div class="auth-field"><label>{{ t.marketing.campaignName }}</label><input v-model="form.name" :placeholder="tr('Kostenlose Beratung')" /></div>
             <div class="auth-field">
               <label>{{ t.marketing.form }}</label>
               <select v-model="form.formId" class="form-select">
@@ -226,21 +226,21 @@
               <label>{{ t.marketing.vanitySlug }}</label>
               <div style="display:flex;align-items:center;gap:6px">
                 <span style="font-size:13px;color:var(--text-muted)">/</span>
-                <input v-model="form.slug" placeholder="beratung" style="flex:1" />
+                <input v-model="form.slug" :placeholder="tr('beratung')" style="flex:1" />
               </div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
-                {{ t.marketing.link }} app.plexora.eu/{{ form.slug || 'lead/' + (form.formId?.slice(0,8) || '...') }}
+                {{ t.marketing.link }} {{ tr('app.plexora.eu/') }}{{ form.slug || 'lead/' + (form.formId?.slice(0,8) || '...') }}
               </div>
             </div>
 
             <div style="border-top:0.5px solid var(--border);padding-top:14px">
               <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.design }}</div>
-              <div class="auth-field"><label>{{ t.marketing.headline }}</label><input v-model="form.headline" placeholder="Kostenlose IT-Beratung" /></div>
-              <div class="auth-field"><label>{{ t.marketing.subtext }}</label><input v-model="form.subtext" placeholder="Jetzt unverbindlich anfragen" /></div>
+              <div class="auth-field"><label>{{ t.marketing.headline }}</label><input v-model="form.headline" :placeholder="tr('Kostenlose IT-Beratung')" /></div>
+              <div class="auth-field"><label>{{ t.marketing.subtext }}</label><input v-model="form.subtext" :placeholder="tr('Jetzt unverbindlich anfragen')" /></div>
               <div class="auth-field">
                 <label>{{ t.marketing.headerBanner }}</label>
                 <div v-if="cropSrc" style="margin-bottom:10px">
-                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">{{ tr('Zuschneiden — dann "Übernehmen" klicken:') }}</div>
                   <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
                     <img ref="cropImgRef" :src="cropSrc" style="width:100%;max-height:180px;object-fit:contain;display:block" />
                     <div v-if="cropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${cropRect.x}px;top:${cropRect.y}px;width:${cropRect.w}px;height:${cropRect.h}px`"></div>
@@ -248,7 +248,7 @@
                   <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(16,9)">16:9</button>
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setCropRatio(3,1)">3:1</button>
-                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">Original</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">{{ tr('Original') }}</button>
                     <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="headerUploading" @click="confirmCropAndUpload">
                       <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
                       {{ headerUploading ? t.common.loading : 'Übernehmen' }}
@@ -272,9 +272,9 @@
                 </label>
               </div>
               <div class="auth-field">
-                <label>Hintergrundbild (Landing Page)</label>
+                <label>{{ tr('Hintergrundbild (Landing Page)') }}</label>
                 <div v-if="bgCropSrc" style="margin-bottom:10px">
-                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Zuschneiden — dann "Übernehmen" klicken:</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">{{ tr('Zuschneiden — dann "Übernehmen" klicken:') }}</div>
                   <div style="position:relative;overflow:hidden;border-radius:8px;border:0.5px solid var(--border);background:#000">
                     <img ref="bgCropImgRef" :src="bgCropSrc" style="width:100%;max-height:180px;object-fit:contain;display:block" />
                     <div v-if="bgCropRect" :style="`position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;left:${bgCropRect.x}px;top:${bgCropRect.y}px;width:${bgCropRect.w}px;height:${bgCropRect.h}px`"></div>
@@ -282,7 +282,7 @@
                   <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setBgCropRatio(16,9)">16:9</button>
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="setBgCropRatio(4,3)">4:3</button>
-                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="bgCropRect=null">Original</button>
+                    <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="bgCropRect=null">{{ tr('Original') }}</button>
                     <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="bgUploading" @click="confirmBgCropAndUpload">
                       <i class="ti" :class="bgUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
                       {{ bgUploading ? t.common.loading : 'Übernehmen' }}
@@ -303,19 +303,19 @@
                 <div v-if="!form.bgImageUrl && !bgCropSrc" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                   <label style="cursor:pointer">
                     <input type="file" accept="image/*" style="display:none" @change="selectBgFile" />
-                    <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none"><i class="ti ti-photo-up"></i> Bild hochladen</span>
+                    <span class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;pointer-events:none"><i class="ti ti-photo-up"></i> {{ tr('Bild hochladen') }}</span>
                   </label>
-                  <span style="font-size:11px;color:var(--text-muted)">oder Farbe:</span>
+                  <span style="font-size:11px;color:var(--text-muted)">{{ tr('oder Farbe:') }}</span>
                   <input type="color" v-model="form.bgColor" style="width:36px;height:32px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer" />
                   <span style="font-size:11px;color:var(--text-muted)">{{ form.bgColor }}</span>
                 </div>
                 <div v-if="form.bgImageUrl && !bgCropSrc" style="display:flex;gap:8px;align-items:center;margin-top:6px">
-                  <span style="font-size:11px;color:var(--text-muted)">Fallback-Farbe:</span>
+                  <span style="font-size:11px;color:var(--text-muted)">{{ tr('Fallback-Farbe:') }}</span>
                   <input type="color" v-model="form.bgColor" style="width:36px;height:32px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer" />
                 </div>
               </div>
               <div class="auth-field">
-                <label>Akzentfarbe</label>
+                <label>{{ tr('Akzentfarbe') }}</label>
                 <div style="display:flex;gap:8px;align-items:center">
                   <input type="color" v-model="form.accentColor" style="width:48px;height:36px;border-radius:6px;border:0.5px solid var(--border);background:none;cursor:pointer" />
                   <span style="font-size:12px;color:var(--text-muted)">{{ form.accentColor }}</span>
@@ -324,9 +324,9 @@
             </div>
 
             <div style="border-top:0.5px solid var(--border);padding-top:14px">
-              <div class="settings-label" style="margin-bottom:4px">Content-Block</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Wird links neben dem Formular angezeigt (Bullet-Points)</div>
-              <div class="auth-field"><label>Block-Titel (optional)</label><input v-model="form.contentTitle" placeholder="Was Sie erwartet" /></div>
+              <div class="settings-label" style="margin-bottom:4px">{{ tr('Content-Block') }}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">{{ tr('Wird links neben dem Formular angezeigt (Bullet-Points)') }}</div>
+              <div class="auth-field"><label>{{ tr('Block-Titel (optional)') }}</label><input v-model="form.contentTitle" :placeholder="tr('Was Sie erwartet')" /></div>
               <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
                 <input v-for="(_, i) in 4" :key="i" v-model="form.contentItems[i]"
                   :placeholder="`Punkt ${i+1} (z.B. Kostenlose Erstberatung)`"
@@ -337,64 +337,63 @@
             <div style="border-top:0.5px solid var(--border);padding-top:14px">
               <div class="settings-label" style="margin-bottom:10px">{{ t.marketing.utmTracking }}</div>
               <div class="auth-row">
-                <div class="auth-field"><label>utm_source</label><input v-model="form.utmSource" placeholder="linkedin" /></div>
-                <div class="auth-field"><label>utm_medium</label><input v-model="form.utmMedium" placeholder="social" /></div>
+                <div class="auth-field"><label>{{ tr('utm_source') }}</label><input v-model="form.utmSource" :placeholder="tr('linkedin')" /></div>
+                <div class="auth-field"><label>{{ tr('utm_medium') }}</label><input v-model="form.utmMedium" :placeholder="tr('social')" /></div>
               </div>
-              <div class="auth-field"><label>utm_campaign</label><input v-model="form.utmCampaign" placeholder="beratung-2026" /></div>
+              <div class="auth-field"><label>{{ tr('utm_campaign') }}</label><input v-model="form.utmCampaign" :placeholder="tr('beratung-2026')" /></div>
             </div>
 
             <div v-if="!editing" style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
-              <div class="settings-label" style="margin-bottom:6px">Kampagnen-Termin</div>
+              <div class="settings-label" style="margin-bottom:6px">{{ tr('Kampagnen-Termin') }}</div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-                Wird automatisch zusammen mit der Kampagne angelegt. Er erscheint nicht auf der allgemeinen Terminseite,
-                sondern nur über den Link in der Bestätigungsmail. Mit Ablauf der Kampagne wird er wieder entfernt.
+                {{ tr('Wird automatisch zusammen mit der Kampagne angelegt. Er erscheint nicht auf der allgemeinen Terminseite, sondern nur über den Link in der Bestätigungsmail. Mit Ablauf der Kampagne wird er wieder entfernt.') }}
               </div>
               <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px;cursor:pointer">
-                <input type="checkbox" v-model="form.appointmentEnabled" /> Kampagnen-Termin anlegen
+                <input type="checkbox" v-model="form.appointmentEnabled" /> {{ tr('Kampagnen-Termin anlegen') }}
               </label>
               <template v-if="form.appointmentEnabled">
-                <div class="auth-field"><label>Terminname</label><input v-model="form.appointmentName" placeholder="Kostenlose AI Beratung" /></div>
+                <div class="auth-field"><label>{{ tr('Terminname') }}</label><input v-model="form.appointmentName" :placeholder="tr('Kostenlose AI Beratung')" /></div>
                 <div class="auth-row">
-                  <div class="auth-field"><label>Dauer (Min.)</label><input v-model.number="form.appointmentDurationMinutes" type="number" min="15" step="15" /></div>
-                  <div class="auth-field"><label>Läuft ab am</label><input v-model="form.endsAt" type="date" /></div>
+                  <div class="auth-field"><label>{{ tr('Dauer (Min.)') }}</label><input v-model.number="form.appointmentDurationMinutes" type="number" min="15" step="15" /></div>
+                  <div class="auth-field"><label>{{ tr('Läuft ab am') }}</label><input v-model="form.endsAt" type="date" /></div>
                 </div>
               </template>
             </div>
 
             <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
-              <div class="settings-label" style="margin-bottom:6px">Bot-Schutz</div>
+              <div class="settings-label" style="margin-bottom:6px">{{ tr('Bot-Schutz') }}</div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-                Schützt das Formular dieser Kampagne (und die Terminbuchung) mit Cloudflare Turnstile vor Spam-Einträgen.
+                {{ tr('Schützt das Formular dieser Kampagne (und die Terminbuchung) mit Cloudflare Turnstile vor Spam-Einträgen.') }}
               </div>
               <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"
                 :style="!botKeysReady ? 'opacity:.6;cursor:not-allowed' : ''">
-                <input type="checkbox" v-model="form.turnstileEnabled" :disabled="!botKeysReady && !form.turnstileEnabled" /> Bot-Schutz aktiv
+                <input type="checkbox" v-model="form.turnstileEnabled" :disabled="!botKeysReady && !form.turnstileEnabled" /> {{ tr('Bot-Schutz aktiv') }}
               </label>
               <div v-if="!botKeysReady" style="font-size:12px;color:var(--text-muted);margin-top:6px">
-                <i class="ti ti-info-circle"></i> Erst nach Hinterlegen von Sitekey und Secret möglich:
-                <NuxtLink to="/settings" style="color:var(--accent)">Einstellungen → Bot-Schutz</NuxtLink>
+                <i class="ti ti-info-circle"></i> {{ tr('Erst nach Hinterlegen von Sitekey und Secret möglich:') }}
+                <NuxtLink to="/settings" style="color:var(--accent)">{{ tr('Einstellungen → Bot-Schutz') }}</NuxtLink>
               </div>
               <div v-else-if="form.turnstileEnabled && !botMainEnabled" style="font-size:12px;color:var(--text-muted);margin-top:6px">
-                <i class="ti ti-alert-triangle"></i> Der Hauptschalter unter Einstellungen → Bot-Schutz ist aus – der Schutz ruht derzeit.
+                <i class="ti ti-alert-triangle"></i> {{ tr('Der Hauptschalter unter Einstellungen → Bot-Schutz ist aus – der Schutz ruht derzeit.') }}
               </div>
             </div>
 
             <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)">
-              <div class="settings-label" style="margin-bottom:6px">Automatisches Angebot</div>
+              <div class="settings-label" style="margin-bottom:6px">{{ tr('Automatisches Angebot') }}</div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-                Bei jeder Anfrage mit E-Mail-Adresse legt Plexora unter Finanzen → Angebote einen <b>Entwurf</b> an. Gesendet wird nichts von selbst: du prüfst und schickst ihn ab.
+                {{ tr('Bei jeder Anfrage mit E-Mail-Adresse legt Plexora unter Finanzen → Angebote einen') }} <b>{{ tr('Entwurf') }}</b> {{ tr('an. Gesendet wird nichts von selbst: du prüfst und schickst ihn ab.') }}
               </div>
-              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="form.autoQuote.enabled" /> Bei Anfrage Angebot-Entwurf anlegen</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" v-model="form.autoQuote.enabled" /> {{ tr('Bei Anfrage Angebot-Entwurf anlegen') }}</label>
               <template v-if="form.autoQuote.enabled">
-                <div class="auth-field" style="margin-top:10px"><label>Paket / Leistung</label><input v-model="form.autoQuote.description" maxlength="300" placeholder="z. B. Website-Paket (Aktion)" /></div>
+                <div class="auth-field" style="margin-top:10px"><label>{{ tr('Paket / Leistung') }}</label><input v-model="form.autoQuote.description" maxlength="300" :placeholder="tr('z. B. Website-Paket (Aktion)')" /></div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap">
-                  <div class="auth-field" style="flex:1;min-width:120px"><label>Preis netto (€)</label><input v-model.number="form.autoQuote.price" type="number" min="0" step="0.01" /></div>
-                  <div class="auth-field" style="flex:1;min-width:120px"><label>Gültig (Tage)</label><input v-model.number="form.autoQuote.validDays" type="number" min="1" max="90" /></div>
-                  <div class="auth-field" style="flex:1;min-width:150px"><label>Aktion endet am (optional)</label><input v-model="form.autoQuote.promoUntil" type="date" /></div>
+                  <div class="auth-field" style="flex:1;min-width:120px"><label>{{ tr('Preis netto (€)') }}</label><input v-model.number="form.autoQuote.price" type="number" min="0" step="0.01" /></div>
+                  <div class="auth-field" style="flex:1;min-width:120px"><label>{{ tr('Gültig (Tage)') }}</label><input v-model.number="form.autoQuote.validDays" type="number" min="1" max="90" /></div>
+                  <div class="auth-field" style="flex:1;min-width:150px"><label>{{ tr('Aktion endet am (optional)') }}</label><input v-model="form.autoQuote.promoUntil" type="date" /></div>
                 </div>
-                <div class="auth-field"><label>Überschrift (optional)</label><input v-model="form.autoQuote.title" maxlength="120" /></div>
-                <div class="auth-field"><label>Begleittext (optional)</label><textarea v-model="form.autoQuote.intro" rows="3" maxlength="1500"></textarea></div>
-                <div style="font-size:12px;color:var(--text-muted)">Das Angebot endet nie nach dem Aktionsende. Der Preis ist netto; die Steuer kommt aus deinen Rechnungs-Einstellungen.</div>
+                <div class="auth-field"><label>{{ tr('Überschrift (optional)') }}</label><input v-model="form.autoQuote.title" maxlength="120" /></div>
+                <div class="auth-field"><label>{{ tr('Begleittext (optional)') }}</label><textarea v-model="form.autoQuote.intro" rows="3" maxlength="1500"></textarea></div>
+                <div style="font-size:12px;color:var(--text-muted)">{{ tr('Das Angebot endet nie nach dem Aktionsende. Der Preis ist netto; die Steuer kommt aus deinen Rechnungs-Einstellungen.') }}</div>
               </template>
             </div>
 
@@ -407,15 +406,15 @@
             <LeadPreview v-model:mode="previewMode" :campaign="previewCampaign" :form="selectedForm" :selected-overlay-id="selectedOverlayId"
               @select-overlay="selectedOverlayId = $event" @move-overlay="(m: any) => decorEditor?.setOverlayPos(m.id, m.x, m.y, m.view)" />
             <div v-if="form.formId" style="margin-top:8px;background:var(--bg-elevated);border-radius:8px;padding:10px;font-size:11px">
-              <div style="color:var(--text-muted);margin-bottom:3px">Link:</div>
+              <div style="color:var(--text-muted);margin-bottom:3px">{{ tr('Link:') }}</div>
               <div style="color:var(--accent);word-break:break-all;font-size:10px">{{ campaignUrl }}</div>
             </div>
 
             <!-- Vertrauenspunkte, Datenschutzzeile & Sticker: direkt unter der Vorschau, damit Änderungen sofort sichtbar sind -->
             <div style="margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border)">
-              <div class="settings-label" style="margin-bottom:6px">Vertrauenspunkte, Datenschutzzeile &amp; Sticker</div>
+              <div class="settings-label" style="margin-bottom:6px">{{ tr('Vertrauenspunkte, Datenschutzzeile & Sticker') }}</div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
-                Bestimmt, was unter dem Hero-Bild und unter dem Button der Lead-Seite steht, und welche Sticker auf dem Hero-Bild oder frei auf der Seite liegen. Ohne Änderung bleibt alles wie bisher.
+                {{ tr('Bestimmt, was unter dem Hero-Bild und unter dem Button der Lead-Seite steht, und welche Sticker auf dem Hero-Bild oder frei auf der Seite liegen. Ohne Änderung bleibt alles wie bisher.') }}
               </div>
               <LeadDecorEditor ref="decorEditor" :selected-id="selectedOverlayId" :view="previewMode" @select="selectedOverlayId = $event" :model-value="decor" :has-hero="!!form.headerImageUrl" :custom-template="!!editing?.customTemplateHtml"
                 @update:model-value="(v: any) => Object.assign(decor, v)" @touched="decorTouched = true" />
@@ -435,7 +434,7 @@
     <div v-if="sendEmailCampaign" class="modal-overlay" @click.self="sendEmailCampaign=null">
       <div class="modal-card" style="max-width:980px;width:95vw;max-height:90vh;overflow-y:auto">
         <div class="modal-header">
-          <span class="card-title"><i class="ti ti-mail-forward"></i> E-Mail Kampagne — {{ sendEmailCampaign.name }}</span>
+          <span class="card-title"><i class="ti ti-mail-forward"></i> {{ tr('E-Mail Kampagne —') }} {{ sendEmailCampaign.name }}</span>
           <button class="icon-btn" @click="sendEmailCampaign=null"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
@@ -444,40 +443,39 @@
           <div style="display:flex;flex-direction:column;gap:14px">
             <div style="display:flex;gap:8px">
               <button class="theme-opt" :class="{ active: sendEmailForm.mode === 'ai' }" @click="sendEmailForm.mode = 'ai'">
-                <i class="ti ti-sparkles"></i> Mit KI verfassen
+                <i class="ti ti-sparkles"></i> {{ tr('Mit KI verfassen') }}
               </button>
               <button class="theme-opt" :class="{ active: sendEmailForm.mode === 'manual' }" @click="sendEmailForm.mode = 'manual'">
-                <i class="ti ti-pencil"></i> Selbst schreiben
+                <i class="ti ti-pencil"></i> {{ tr('Selbst schreiben') }}
               </button>
             </div>
 
             <div class="auth-field">
-              <label>Betreff</label>
+              <label>{{ tr('Betreff') }}</label>
               <input v-model="sendEmailForm.subject" :placeholder="`${sendEmailCampaign.name} — ${sendEmailCampaign.headline || 'Unser Angebot'}`" />
             </div>
             <div v-if="sendEmailForm.mode === 'ai'" class="auth-field">
-              <label>Ton der KI-E-Mail</label>
+              <label>{{ tr('Ton der KI-E-Mail') }}</label>
               <select v-model="sendEmailForm.tone" class="form-select">
-                <option value="freundlich">Freundlich</option>
-                <option value="sachlich">Sachlich</option>
-                <option value="direkt">Direkt</option>
-                <option value="motivierend">Motivierend</option>
+                <option value="freundlich">{{ tr('Freundlich') }}</option>
+                <option value="sachlich">{{ tr('Sachlich') }}</option>
+                <option value="direkt">{{ tr('Direkt') }}</option>
+                <option value="motivierend">{{ tr('Motivierend') }}</option>
               </select>
             </div>
             <div class="auth-field">
-              <label>Empfänger</label>
+              <label>{{ tr('Empfänger') }}</label>
               <select v-model="sendEmailForm.contactStatus" class="form-select">
-                <option value="">Alle Kontakte mit E-Mail ({{ segmentCounts.all }})</option>
-                <option value="lead">Nur Leads ({{ segmentCounts.lead }})</option>
-                <option value="customer">Nur Kunden ({{ segmentCounts.customer }})</option>
-                <option value="churned">Nur Verlorene ({{ segmentCounts.churned }})</option>
+                <option value="">{{ tr('Alle Kontakte mit E-Mail (') }}{{ segmentCounts.all }})</option>
+                <option value="lead">{{ tr('Nur Leads (') }}{{ segmentCounts.lead }})</option>
+                <option value="customer">{{ tr('Nur Kunden (') }}{{ segmentCounts.customer }})</option>
+                <option value="churned">{{ tr('Nur Verlorene (') }}{{ segmentCounts.churned }})</option>
               </select>
             </div>
 
             <div v-if="sendEmailForm.mode === 'ai'" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text-muted)">
               <i class="ti ti-sparkles" style="color:var(--accent)"></i>
-              Claude generiert für jeden Kontakt eine personalisierte E-Mail.
-              Ohne API-Key wird eine Standard-E-Mail verwendet.
+              {{ tr('Claude generiert für jeden Kontakt eine personalisierte E-Mail. Ohne API-Key wird eine Standard-E-Mail verwendet.') }}
             </div>
 
             <button class="auth-btn" :disabled="sending" @click="sendEmailBlast">
@@ -487,12 +485,12 @@
 
             <div v-if="sendEmailResult" class="mkt-send-result" :class="sendEmailResult.sent > 0 ? 'success' : 'warn'">
               <i class="ti" :class="sendEmailResult.sent > 0 ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
-              <span>{{ sendEmailResult.sent }} von {{ sendEmailResult.total }} E-Mails gesendet</span>
+              <span>{{ sendEmailResult.sent }} {{ tr('von') }} {{ sendEmailResult.total }} {{ tr('E-Mails gesendet') }}</span>
             </div>
             <div v-if="sendEmailResult?.failed?.length" class="mkt-send-failed">
               <button class="mkt-failed-toggle" @click="showFailedList = !showFailedList">
                 <i class="ti" :class="showFailedList ? 'ti-chevron-up' : 'ti-chevron-down'"></i>
-                {{ sendEmailResult.failed.length }} Fehler anzeigen
+                {{ sendEmailResult.failed.length }} {{ tr('Fehler anzeigen') }}
               </button>
               <div v-if="showFailedList" class="mkt-failed-list">
                 <div v-for="f in sendEmailResult.failed" :key="f.contactId" class="mkt-failed-item">
@@ -503,7 +501,7 @@
 
             <button class="mkt-secondary-btn" @click="runFollowups" :disabled="followupRunning">
               <i class="ti" :class="followupRunning ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
-              Follow-ups prüfen & senden
+              {{ tr('Follow-ups prüfen & senden') }}
             </button>
           </div>
 
@@ -516,7 +514,7 @@
 
             <div v-if="!emailPreview && !previewLoading" class="mkt-preview-empty">
               <i class="ti ti-mail-forward"></i>
-              <span>Vorschau zeigt eine KI-generierte Beispiel-E-Mail für einen Kontakt aus dem gewählten Segment — vor dem echten Versand an alle.</span>
+              <span>{{ tr('Vorschau zeigt eine KI-generierte Beispiel-E-Mail für einen Kontakt aus dem gewählten Segment — vor dem echten Versand an alle.') }}</span>
             </div>
 
             <div v-else-if="emailPreview && emailPreview.available === false" class="mkt-preview-empty">
@@ -526,8 +524,8 @@
 
             <div v-else-if="emailPreview" class="mkt-preview-card">
               <div class="mkt-preview-meta">
-                <div><strong>An:</strong> {{ emailPreview.contactName || emailPreview.to }} ({{ emailPreview.to }})</div>
-                <div><strong>Betreff:</strong> {{ emailPreview.subject }}</div>
+                <div><strong>{{ tr('An:') }}</strong> {{ emailPreview.contactName || emailPreview.to }} ({{ emailPreview.to }})</div>
+                <div><strong>{{ tr('Betreff:') }}</strong> {{ emailPreview.subject }}</div>
               </div>
               <div class="mkt-preview-html" v-html="emailPreview.html"></div>
             </div>
@@ -536,7 +534,7 @@
           <!-- Right: Manueller Text-Modus -->
           <div v-else style="display:flex;flex-direction:column;gap:14px">
             <div class="auth-field">
-              <label>E-Mail-Text</label>
+              <label>{{ tr('E-Mail-Text') }}</label>
               <textarea v-model="sendEmailForm.manualBody" rows="8"
                 placeholder="Hallo {{vorname}}, ..."
                 style="width:100%;font-family:inherit;font-size:13px;resize:vertical;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary)"></textarea>
@@ -547,12 +545,12 @@
 
             <div v-if="!manualPreviewContact" class="mkt-preview-empty">
               <i class="ti ti-mail-forward"></i>
-              <span>Vorschau erscheint, sobald ein Kontakt im gewählten Segment gefunden wird.</span>
+              <span>{{ tr('Vorschau erscheint, sobald ein Kontakt im gewählten Segment gefunden wird.') }}</span>
             </div>
             <div v-else class="mkt-preview-card">
               <div class="mkt-preview-meta">
-                <div><strong>An:</strong> {{ manualPreviewContact.firstName }} {{ manualPreviewContact.lastName }} ({{ manualPreviewContact.email }})</div>
-                <div><strong>Betreff:</strong> {{ manualPreviewSubject }}</div>
+                <div><strong>{{ tr('An:') }}</strong> {{ manualPreviewContact.firstName }} {{ manualPreviewContact.lastName }} ({{ manualPreviewContact.email }})</div>
+                <div><strong>{{ tr('Betreff:') }}</strong> {{ manualPreviewSubject }}</div>
               </div>
               <div class="mkt-preview-html" v-html="manualPreviewHtml"></div>
             </div>
@@ -565,8 +563,8 @@
     <div v-if="tab === 'mail'" class="mail-app">
       <aside class="mail-folders">
         <div class="mail-acc">
-          <span><i class="ti ti-mail"></i> Versand</span>
-          <button class="mail-icon-btn" title="Aktualisieren" :disabled="mailLoading" @click="loadMailLog"><i class="ti" :class="mailLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i></button>
+          <span><i class="ti ti-mail"></i> {{ tr('Versand') }}</span>
+          <button class="mail-icon-btn" :title="tr('Aktualisieren')" :disabled="mailLoading" @click="loadMailLog"><i class="ti" :class="mailLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i></button>
         </div>
         <button v-for="f in mailFolders" :key="f.key" class="mail-folder" :class="{ active: mailFolder === f.key, sep: f.sep }" @click="mailFolder = f.key">
           <i class="ti" :class="f.icon"></i> {{ f.label }} <span class="mail-fcount">{{ mailCounts[f.key] || 0 }}</span>
@@ -574,8 +572,8 @@
       </aside>
 
       <section class="mail-list">
-        <div class="mail-search"><i class="ti ti-search"></i><input v-model="mailSearch" placeholder="Empfänger oder Betreff suchen" /></div>
-        <div v-if="!filteredMails.length" class="mail-empty">Keine Mails in diesem Ordner.</div>
+        <div class="mail-search"><i class="ti ti-search"></i><input v-model="mailSearch" :placeholder="tr('Empfänger oder Betreff suchen')" /></div>
+        <div v-if="!filteredMails.length" class="mail-empty">{{ tr('Keine Mails in diesem Ordner.') }}</div>
         <button v-for="m in filteredMails" :key="m.mailId" class="mail-item" :class="{ active: selectedMailId === m.mailId }" @click="selectedMailId = m.mailId">
           <div class="mail-item-top">
             <span class="mail-dot" :class="m.status"></span>
@@ -588,14 +586,14 @@
       </section>
 
       <section class="mail-read">
-        <div v-if="!selectedMail" class="mail-empty">Mail auswählen, um Details zu sehen.</div>
+        <div v-if="!selectedMail" class="mail-empty">{{ tr('Mail auswählen, um Details zu sehen.') }}</div>
         <template v-else>
           <div class="mail-read-subj">{{ selectedMail.subject }}</div>
           <div class="mail-meta">
-            <div><span>An</span>{{ selectedMail.to }}</div>
-            <div><span>Art</span>{{ mailKindLabel(selectedMail.kind) }}</div>
-            <div><span>Zeit</span>{{ new Date(selectedMail.created).toLocaleString('de-DE') }}</div>
-            <div><span>Status</span><b :class="selectedMail.status">{{ selectedMail.status === 'sent' ? 'Versendet' : 'Fehlgeschlagen' }}</b></div>
+            <div><span>{{ tr('An') }}</span>{{ selectedMail.to }}</div>
+            <div><span>{{ tr('Art') }}</span>{{ mailKindLabel(selectedMail.kind) }}</div>
+            <div><span>{{ tr('Zeit') }}</span>{{ new Date(selectedMail.created).toLocaleString('de-DE') }}</div>
+            <div><span>{{ tr('Status') }}</span><b :class="selectedMail.status">{{ selectedMail.status === 'sent' ? 'Versendet' : 'Fehlgeschlagen' }}</b></div>
           </div>
           <div v-if="selectedMail.error" class="mail-error"><i class="ti ti-alert-triangle"></i> {{ selectedMail.error }}</div>
           <div class="mail-body">{{ selectedMail.preview || 'Keine Vorschau gespeichert (ältere Mail).' }}</div>
@@ -607,68 +605,68 @@
     <div v-if="showAutomationModal" class="modal-overlay" @click.self="showAutomationModal=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">Neue Automatisierung</span>
+          <span class="card-title">{{ tr('Neue Automatisierung') }}</span>
           <button class="icon-btn" @click="showAutomationModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
-          <div class="auth-field"><label>Name</label><input v-model="newAutomation.name" placeholder="z.B. Lead an ActiveCampaign" /></div>
+          <div class="auth-field"><label>{{ tr('Name') }}</label><input v-model="newAutomation.name" :placeholder="tr('z.B. Lead an ActiveCampaign')" /></div>
           <div class="auth-field">
-            <label>Wenn...</label>
+            <label>{{ tr('Wenn...') }}</label>
             <select v-model="newAutomation.trigger" class="form-select">
-              <option value="new_lead">Neuer Lead (mit E-Mail)</option>
-              <option value="form_submitted">Formular abgeschickt</option>
+              <option value="new_lead">{{ tr('Neuer Lead (mit E-Mail)') }}</option>
+              <option value="form_submitted">{{ tr('Formular abgeschickt') }}</option>
             </select>
           </div>
           <div class="auth-field">
-            <label>Dann...</label>
+            <label>{{ tr('Dann...') }}</label>
             <select v-model="newAutomation.action" class="form-select">
-              <option value="send_email_template">E-Mail-Vorlage an den Lead senden</option>
-              <option value="send_booking_link">Termin-Buchungslink senden (Video-Gespräch)</option>
-              <option value="set_lead_status">Lead-Status setzen</option>
-              <option value="email">Interne Benachrichtigung senden</option>
-              <option value="webhook">Webhook aufrufen (nur für externe Ziele)</option>
+              <option value="send_email_template">{{ tr('E-Mail-Vorlage an den Lead senden') }}</option>
+              <option value="send_booking_link">{{ tr('Termin-Buchungslink senden (Video-Gespräch)') }}</option>
+              <option value="set_lead_status">{{ tr('Lead-Status setzen') }}</option>
+              <option value="email">{{ tr('Interne Benachrichtigung senden') }}</option>
+              <option value="webhook">{{ tr('Webhook aufrufen (nur für externe Ziele)') }}</option>
             </select>
           </div>
           <div v-if="newAutomation.action === 'send_email_template'" class="auth-field">
-            <label>Vorlage</label>
+            <label>{{ tr('Vorlage') }}</label>
             <select v-model="newAutomation.templateId" class="form-select">
-              <option value="" disabled>Vorlage wählen...</option>
+              <option value="" disabled>{{ tr('Vorlage wählen...') }}</option>
               <option v-for="tpl in emailTemplates" :key="tpl.templateId" :value="tpl.templateId">{{ tpl.name }}</option>
             </select>
             <div v-if="!emailTemplates.length" style="font-size:11px;color:var(--text-muted);margin-top:4px">
-              Noch keine Vorlagen vorhanden — unter Newsletter eine Vorlage anlegen.
+              {{ tr('Noch keine Vorlagen vorhanden — unter Newsletter eine Vorlage anlegen.') }}
             </div>
           </div>
           <div v-else-if="newAutomation.action === 'send_booking_link'" class="auth-field">
-            <label>Terminart (optional)</label>
+            <label>{{ tr('Terminart (optional)') }}</label>
             <select v-model="newAutomation.appointmentTypeId" class="form-select">
-              <option value="">Alle Terminarten anzeigen</option>
+              <option value="">{{ tr('Alle Terminarten anzeigen') }}</option>
               <option v-for="tp in appointmentTypes" :key="tp.typeId" :value="tp.typeId">{{ tp.name }}</option>
             </select>
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
-              Mit Terminart springt der Lead direkt zur Buchung dieses einen Termins, sonst sieht er die komplette Übersicht.
+              {{ tr('Mit Terminart springt der Lead direkt zur Buchung dieses einen Termins, sonst sieht er die komplette Übersicht.') }}
             </div>
           </div>
           <div v-else-if="newAutomation.action === 'set_lead_status'" class="auth-field">
-            <label>Neuer Lead-Status</label>
+            <label>{{ tr('Neuer Lead-Status') }}</label>
             <select v-model="newAutomation.leadStatus" class="form-select">
-              <option value="new">Neu</option>
-              <option value="contacted">Kontaktiert</option>
-              <option value="qualified">Qualifiziert</option>
-              <option value="unqualified">Unqualifiziert</option>
+              <option value="new">{{ tr('Neu') }}</option>
+              <option value="contacted">{{ tr('Kontaktiert') }}</option>
+              <option value="qualified">{{ tr('Qualifiziert') }}</option>
+              <option value="unqualified">{{ tr('Unqualifiziert') }}</option>
             </select>
           </div>
           <div v-else-if="newAutomation.action === 'webhook'" class="auth-field">
-            <label>Webhook-URL</label>
-            <input v-model="newAutomation.webhookUrl" placeholder="https://hooks.zapier.com/..." />
+            <label>{{ tr('Webhook-URL') }}</label>
+            <input v-model="newAutomation.webhookUrl" :placeholder="tr('https://hooks.zapier.com/...')" />
           </div>
           <template v-else>
-            <div class="auth-field"><label>E-Mail-Adresse</label><input v-model="newAutomation.emailTo" placeholder="du@firma.de" /></div>
-            <div class="auth-field"><label>Betreff</label><input v-model="newAutomation.emailSubject" placeholder="Neuer Lead: {{name}}" /></div>
+            <div class="auth-field"><label>{{ tr('E-Mail-Adresse') }}</label><input v-model="newAutomation.emailTo" :placeholder="tr('du@firma.de')" /></div>
+            <div class="auth-field"><label>{{ tr('Betreff') }}</label><input v-model="newAutomation.emailSubject" placeholder="Neuer Lead: {{name}}" /></div>
           </template>
           <button class="auth-btn" :disabled="savingAutomation || !newAutomation.name" @click="saveAutomation">
             <span v-if="savingAutomation"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else>Automatisierung anlegen</span>
+            <span v-else>{{ tr('Automatisierung anlegen') }}</span>
           </button>
         </div>
       </div>
@@ -842,7 +840,7 @@ async function saveAutomation() {
     showAutomationModal.value = false
     showToast('Automatisierung angelegt!')
   } catch (e: any) {
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Anlegen fehlgeschlagen'))
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Anlegen fehlgeschlagen'))
   } finally {
     savingAutomation.value = false
   }
@@ -888,7 +886,7 @@ async function toggleShortener() {
 }
 
 async function shortenAndCopy(c: any) {
-  if (!shortenerEnabled.value) { showToast('Bitte zuerst den URL-Shortener oben aktivieren.'); return }
+  if (!shortenerEnabled.value) { showToast(tr('Bitte zuerst den URL-Shortener oben aktivieren.')); return }
   shorteningId.value = c.campaignId
   try {
     const res = await $fetch<{ link: { shortCode: string } }>(useApiUrl('/api/marketing/shortlinks'), {
@@ -898,7 +896,7 @@ async function shortenAndCopy(c: any) {
     await navigator.clipboard.writeText(shortUrl)
     showToast(`Kurzlink kopiert: ${shortUrl}`)
   } catch (e: any) {
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Kurzlink fehlgeschlagen'))
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Kurzlink fehlgeschlagen'))
   } finally {
     shorteningId.value = ''
   }
@@ -1084,7 +1082,7 @@ async function save() {
     showModal.value = false
     showToast(editing.value ? 'Kampagne aktualisiert!' : 'Kampagne erstellt!')
   } catch (e: any) {
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Speichern fehlgeschlagen'))
   } finally {
     saving.value = false
   }
@@ -1093,14 +1091,14 @@ async function save() {
 const { openConfirm } = useConfirm()
 
 async function deleteCampaign(c: any) {
-  if (!await openConfirm({ title: 'Kampagne löschen?', name: c.name, accentColor: c.accentColor })) return
+  if (!await openConfirm({ title: tr('Kampagne löschen?'), name: c.name, accentColor: c.accentColor })) return
   try {
     await $fetch(useApiUrl(`/api/marketing/${c.campaignId}`), { method: 'DELETE', headers: authHeaders })
     await new Promise(r => setTimeout(r, 300))
     await Promise.all([refresh(), refreshStats()])
-    showToast('Kampagne gelöscht!')
+    showToast(tr('Kampagne gelöscht!'))
   } catch (e: any) {
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'))
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Löschen fehlgeschlagen'))
   }
 }
 
@@ -1207,7 +1205,7 @@ async function generatePreview() {
       },
     })
   } catch (e: any) {
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Vorschau fehlgeschlagen'))
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Vorschau fehlgeschlagen'))
   } finally {
     previewLoading.value = false
   }
@@ -1237,7 +1235,7 @@ async function sendEmailBlast() {
     await loadEmailStats(sendEmailCampaign.value.campaignId)
   } catch (e: any) {
     sendEmailResult.value = { sent: 0, total: 0, failed: [] }
-    showToast('Fehler: ' + (e?.data?.message || e?.message || 'Senden fehlgeschlagen'))
+    showToast(tr('Fehler: ') + (e?.data?.message || e?.message || 'Senden fehlgeschlagen'))
   } finally {
     sending.value = false
   }

@@ -2,18 +2,18 @@
   <div class="gt">
     <div class="gt-bar">
       <div class="seg"><button v-for="z in ZOOMS" :key="z.key" :class="{ on: zoom === z.key }" @click="zoom = z.key as any">{{ z.label }}</button></div>
-      <label class="chk"><input type="checkbox" v-model="showCritical" /> Kritischer Pfad <HelpTip k="kritisch" /></label>
-      <button class="mini" @click="scrollToToday"><i class="ti ti-calendar-event"></i> Heute</button>
+      <label class="chk"><input type="checkbox" v-model="showCritical" /> {{ tr('Kritischer Pfad') }} <HelpTip k="kritisch" /></label>
+      <button class="mini" @click="scrollToToday"><i class="ti ti-calendar-event"></i> {{ tr('Heute') }}</button>
       <span style="flex:1"></span>
-      <span class="prog" :title="'Gesamtfortschritt (nach Dauer gewichtet)'">{{ total }} % fertig</span>
-      <template v-if="!readonly"><button class="mini" @click="$emit('create', false)"><i class="ti ti-plus"></i> Vorgang</button><button class="mini" @click="$emit('create', true)"><i class="ti ti-diamond"></i> Meilenstein</button></template>
+      <span class="prog" :title="'Gesamtfortschritt (nach Dauer gewichtet)'">{{ total }} {{ tr('% fertig') }}</span>
+      <template v-if="!readonly"><button class="mini" @click="$emit('create', false)"><i class="ti ti-plus"></i> {{ tr('Vorgang') }}</button><button class="mini" @click="$emit('create', true)"><i class="ti ti-diamond"></i> {{ tr('Meilenstein') }}</button></template>
     </div>
 
-    <div v-if="!rows.length" class="empty">Noch keine Vorgänge. Lege den ersten mit „Vorgang“ oder „Meilenstein“ an.</div>
+    <div v-if="!rows.length" class="empty">{{ tr('Noch keine Vorgänge. Lege den ersten mit „Vorgang“ oder „Meilenstein“ an.') }}</div>
     <div v-else ref="scroller" class="gt-scroll">
       <div class="gt-grid" :style="{ gridTemplateColumns: `${LEFT}px ${totalW}px` }">
         <!-- Kopf links -->
-        <div class="gt-hl"><div class="c t">Vorgang</div><div class="c a">Zuständig</div><div class="c d">Start</div><div class="c d">Ende</div><div class="c n">Tage</div><div class="c n">%</div></div>
+        <div class="gt-hl"><div class="c t">{{ tr('Vorgang') }}</div><div class="c a">{{ tr('Zuständig') }}</div><div class="c d">{{ tr('Start') }}</div><div class="c d">{{ tr('Ende') }}</div><div class="c n">{{ tr('Tage') }}</div><div class="c n">%</div></div>
         <!-- Kopf rechts: Monate / Tage bzw. Wochen -->
         <div class="gt-hr" :style="{ width: totalW + 'px' }">
           <div class="mrow"><div v-for="m in monthCells" :key="m.key" class="mc" :style="{ left: m.x + 'px', width: m.w + 'px' }">{{ m.label }}</div></div>
@@ -23,7 +23,7 @@
         <!-- Tabelle links -->
         <div class="gt-left">
           <div v-for="r in rows" :key="r.t.taskId" class="lrow" :class="{ sel: selected === r.t.taskId }" :style="{ height: ROW + 'px' }" @click="selected = r.t.taskId" @dblclick="!readonly && $emit('edit', r.t.taskId)">
-            <div class="c t"><input v-if="!readonly" type="checkbox" :checked="(r.t.progress ?? 0) >= 100" title="Erledigt" @click.stop @change="toggleDone(r.t, ($event.target as HTMLInputElement).checked)" /><i v-if="r.t.milestone" class="ti ti-diamond" style="color:var(--accent)"></i><span class="tt" :title="r.t.title">{{ r.t.title }}</span></div>
+            <div class="c t"><input v-if="!readonly" type="checkbox" :checked="(r.t.progress ?? 0) >= 100" :title="tr('Erledigt')" @click.stop @change="toggleDone(r.t, ($event.target as HTMLInputElement).checked)" /><i v-if="r.t.milestone" class="ti ti-diamond" style="color:var(--accent)"></i><span class="tt" :title="r.t.title">{{ r.t.title }}</span></div>
             <div class="c a">{{ r.t.assignee || '–' }}</div>
             <div class="c d">{{ dateDe(r.t.startDate) }}</div>
             <div class="c d">{{ r.t.milestone ? '–' : dateDe(r.t.endDate) }}</div>
@@ -57,17 +57,17 @@
                 <span class="bl" v-if="r.w > 70">{{ r.t.title }}</span>
                 <i v-if="!readonly" class="h hl2" @pointerdown.stop="startDrag($event, r.t, 'left')"></i>
                 <i v-if="!readonly" class="h hr2" @pointerdown.stop="startDrag($event, r.t, 'right')"></i>
-                <i v-if="!readonly && r.w > 30" class="ph" :style="{ left: (r.t.progress ?? 0) + '%' }" title="Fortschritt ziehen" @pointerdown.stop="startDrag($event, r.t, 'progress')"></i>
+                <i v-if="!readonly && r.w > 30" class="ph" :style="{ left: (r.t.progress ?? 0) + '%' }" :title="tr('Fortschritt ziehen')" @pointerdown.stop="startDrag($event, r.t, 'progress')"></i>
               </div>
               <span v-if="r.w <= 70" class="outlabel" :style="{ left: r.x + r.w + 10 + 'px' }">{{ r.t.title }}</span>
             </template>
-            <i v-if="!readonly" class="dot" :style="{ left: (r.t.milestone ? r.x + px / 2 + 9 : r.x + r.w) + 4 + 'px' }" title="Zum Verknüpfen auf einen anderen Vorgang ziehen" @pointerdown.stop="startLink($event, r.t)"></i>
+            <i v-if="!readonly" class="dot" :style="{ left: (r.t.milestone ? r.x + px / 2 + 9 : r.x + r.w) + 4 + 'px' }" :title="tr('Zum Verknüpfen auf einen anderen Vorgang ziehen')" @pointerdown.stop="startLink($event, r.t)"></i>
           </div>
           <div v-if="drag && dragLabel" class="dragtip" :style="{ left: dragTip.x + 'px', top: dragTip.y + 'px' }">{{ dragLabel }}</div>
         </div>
       </div>
     </div>
-    <div class="legend"><span><i class="sw n"></i> Vorgang</span><span><i class="sw c"></i> kritisch</span><span><i class="sw dn"></i> erledigt</span><span><i class="ti ti-diamond"></i> Meilenstein</span><span style="margin-left:auto" v-if="!readonly">Ziehen: verschieben · Ränder: Dauer · unten: Fortschritt · Punkt rechts: verknüpfen · Doppelklick: bearbeiten</span></div>
+    <div class="legend"><span><i class="sw n"></i> {{ tr('Vorgang') }}</span><span><i class="sw c"></i> {{ tr('kritisch') }}</span><span><i class="sw dn"></i> {{ tr('erledigt') }}</span><span><i class="ti ti-diamond"></i> {{ tr('Meilenstein') }}</span><span style="margin-left:auto" v-if="!readonly">{{ tr('Ziehen: verschieben · Ränder: Dauer · unten: Fortschritt · Punkt rechts: verknüpfen · Doppelklick: bearbeiten') }}</span></div>
   </div>
 </template>
 
@@ -227,14 +227,14 @@ function startLink(ev: PointerEvent, from: GanttTask) {
     if (!l || !targetId || targetId === l.fromId) return
     const target = base.value.find(x => x.taskId === targetId)!
     if ((target.predecessors || []).includes(l.fromId)) return
-    if (wouldCycle(base.value, targetId, l.fromId)) { emit('error', 'Diese Verknüpfung ergäbe einen Kreis (A hinge am Ende wieder von A ab).'); return }
+    if (wouldCycle(base.value, targetId, l.fromId)) { emit('error', tr('Diese Verknüpfung ergäbe einen Kreis (A hinge am Ende wieder von A ab).')); return }
     emit('change', [{ taskId: targetId, predecessors: [...(target.predecessors || []), l.fromId] }])
   }
   window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp, { once: true })
   cleanup = () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); cleanup = null }
 }
 function removeDep(a: { from: string; to: string }) {
-  if (!window.confirm('Diese Abhängigkeit entfernen?')) return
+  if (!window.confirm(tr('Diese Abhängigkeit entfernen?'))) return
   const t = base.value.find(x => x.taskId === a.to)!
   emit('change', [{ taskId: a.to, predecessors: (t.predecessors || []).filter(p => p !== a.from) }])
 }

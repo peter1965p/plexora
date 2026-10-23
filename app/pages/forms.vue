@@ -30,7 +30,7 @@
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">{{ f.description }}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">{{ f.fields?.length || 0 }} {{ t.forms.fields }}</div>
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;font-family:monospace;background:var(--bg-elevated);padding:6px 10px;border-radius:6px">
-            ID: {{ f.formId?.slice(0,16) }}...
+            {{ tr('ID:') }} {{ f.formId?.slice(0,16) }}...
           </div>
           <div style="display:flex;gap:8px">
             <button class="accent-btn" style="flex:1;height:32px;font-size:12px" @click="editForm(f)">
@@ -54,11 +54,11 @@
         <div>
           <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px">
             <div style="font-weight:700;font-size:14px;margin-bottom:16px">{{ t.forms.settings }}</div>
-            <div class="auth-field"><label>{{ t.forms.titleLabel }}</label><input v-model="current.title" placeholder="Kontaktformular" /></div>
-            <div class="auth-field"><label>{{ t.forms.descLabel }}</label><input v-model="current.description" placeholder="Kurze Beschreibung" /></div>
-            <div class="auth-field"><label>{{ t.forms.btnText }}</label><input v-model="current.submitLabel" placeholder="Absenden" /></div>
-            <div class="auth-field"><label>{{ t.forms.successMsg }}</label><input v-model="current.successMsg" placeholder="Vielen Dank!" /></div>
-            <div class="auth-field"><label>{{ t.forms.notifyTo }}</label><input v-model="current.notifyEmail" placeholder="info@firma.de" /></div>
+            <div class="auth-field"><label>{{ t.forms.titleLabel }}</label><input v-model="current.title" :placeholder="tr('Kontaktformular')" /></div>
+            <div class="auth-field"><label>{{ t.forms.descLabel }}</label><input v-model="current.description" :placeholder="tr('Kurze Beschreibung')" /></div>
+            <div class="auth-field"><label>{{ t.forms.btnText }}</label><input v-model="current.submitLabel" :placeholder="tr('Absenden')" /></div>
+            <div class="auth-field"><label>{{ t.forms.successMsg }}</label><input v-model="current.successMsg" :placeholder="tr('Vielen Dank!')" /></div>
+            <div class="auth-field"><label>{{ t.forms.notifyTo }}</label><input v-model="current.notifyEmail" :placeholder="tr('info@firma.de')" /></div>
           </div>
 
           <!-- Feld-Typen -->
@@ -90,7 +90,7 @@
           <!-- Preview -->
           <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
             <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:12px;text-transform:uppercase">{{ t.common.preview }}</div>
-            <div v-if="!current.fields.length" style="color:var(--text-muted);font-size:13px">Füge Felder hinzu...</div>
+            <div v-if="!current.fields.length" style="color:var(--text-muted);font-size:13px">{{ tr('Füge Felder hinzu...') }}</div>
             <div v-for="field in current.fields" :key="field.id" style="margin-bottom:12px">
               <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">{{ field.label }}<span v-if="field.required" style="color:#E05C5C">*</span></label>
               <input v-if="['text','email','phone','number'].includes(field.type)" :type="field.type" :placeholder="field.placeholder" disabled
@@ -122,11 +122,11 @@
               </div>
             </div>
             <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <div class="auth-field" style="margin:0"><label>{{ t.forms.labelField }}</label><input v-model="field.label" placeholder="Feldbezeichnung" /></div>
-              <div class="auth-field" style="margin:0"><label>{{ t.forms.placeholderField }}</label><input v-model="field.placeholder" placeholder="Platzhaltertext" /></div>
+              <div class="auth-field" style="margin:0"><label>{{ t.forms.labelField }}</label><input v-model="field.label" :placeholder="tr('Feldbezeichnung')" /></div>
+              <div class="auth-field" style="margin:0"><label>{{ t.forms.placeholderField }}</label><input v-model="field.placeholder" :placeholder="tr('Platzhaltertext')" /></div>
               <div v-if="field.type==='select'" class="auth-field" style="margin:0;grid-column:span 2">
                 <label>{{ t.forms.optionsField }}</label>
-                <input :value="field.options?.join(',')" @input="field.options = $event.target.value.split(',')" placeholder="Option 1,Option 2" />
+                <input :value="field.options?.join(',')" @input="field.options = $event.target.value.split(',')" :placeholder="tr('Option 1,Option 2')" />
               </div>
               <div style="display:flex;align-items:center;gap:8px">
                 <input type="checkbox" v-model="field.required" :id="`req-${field.id}`" style="accent-color:var(--accent)" />
@@ -196,7 +196,7 @@ const forms = computed(() => (data.value as any)?.forms || [])
 
 const current = reactive({
   formId: '', title: '', description: '', submitLabel: 'Absenden',
-  successMsg: 'Vielen Dank für deine Nachricht!', notifyEmail: '', fields: [] as any[]
+  successMsg: tr('Vielen Dank für deine Nachricht!'), notifyEmail: '', fields: [] as any[]
 })
 
 const fieldTypes = computed(() => [
@@ -249,7 +249,7 @@ async function saveForm() {
 async function deleteForm(f: any) {
   await $fetch(useApiUrl(`/api/forms/${f.formId}`), { method: 'DELETE', headers: authHeaders })
   await refresh()
-  toast.value = 'Formular gelöscht!'
+  toast.value = tr('Formular gelöscht!')
   setTimeout(() => toast.value = '', 2000)
 }
 

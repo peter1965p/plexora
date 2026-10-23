@@ -4,6 +4,11 @@ const EVT = 'plexora-lang-change'
 type Lang = 'de' | 'en'
 
 const _lang = ref<Lang>('de')
+export const uiLang = _lang
+// Gemerkte Sprache sofort laden (nicht bei vorab erzeugten Seiten, damit nichts verspringt)
+if (import.meta.client && !(window as any).__NUXT__?.prerenderedAt) {
+  try { if (localStorage.getItem(KEY) === 'en') _lang.value = 'en' } catch {}
+}
 
 export function useLang() {
   onMounted(() => {
