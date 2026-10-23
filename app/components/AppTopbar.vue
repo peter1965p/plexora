@@ -4,7 +4,11 @@
     <div class="topbar-actions">
       <AppIdleTimer />
       <button class="icon-btn" title="Suche"><i class="ti ti-search"></i></button>
-      <button class="icon-btn" title="Hilfe zu dieser Seite" aria-label="Hilfe" @click="openHelp"><i class="ti ti-help-circle"></i></button>
+      <div class="lang-switch" role="group" aria-label="Language / Sprache">
+        <button :class="{ on: lang === 'de' }" title="Deutsch" aria-label="Deutsch" @click="setLang('de')">🇩🇪</button>
+        <button :class="{ on: lang === 'en' }" title="English" aria-label="English" @click="setLang('en')">🇬🇧</button>
+      </div>
+      <button class="icon-btn" :title="lang === 'en' ? 'Help for this page' : 'Hilfe zu dieser Seite'" aria-label="Hilfe" @click="openHelp"><i class="ti ti-help-circle"></i></button>
       <div style="position:relative">
         <button class="icon-btn" style="position:relative" title="Benachrichtigungen" @click="showNotifications=!showNotifications">
           <i class="ti ti-bell"></i>
@@ -97,7 +101,7 @@ import { signOut, getCurrentUser } from 'aws-amplify/auth'
 
 const route  = useRoute()
 const router = useRouter()
-const { t, lang } = useLang()
+const { t, lang, setLang } = useLang()
 
 import { topicForPath, localizeHelp } from '~~/shared/helpContent'
 const openHelp = () => { const tp = topicForPath(route.path, localizeHelp(lang.value).topics); router.push(tp ? { path: '/help', query: { topic: tp.id } } : '/help') }
