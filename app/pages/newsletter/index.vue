@@ -134,7 +134,7 @@
           <tr v-for="r in automationRules" :key="r.ruleId" style="cursor:pointer" @click="openEditRule(r)">
             <td class="td-name">{{ r.name }}</td>
             <td style="font-size:12px;color:var(--text-muted)">{{ ruleTriggerLabel(r) }}</td>
-            <td><span class="badge" :class="r.active ? 'badge-success' : 'badge-muted'">{{ r.active ? 'Aktiv' : 'Pausiert' }}</span></td>
+            <td><span class="badge" :class="r.active ? 'badge-success' : 'badge-muted'">{{ r.active ? tr('Aktiv') : tr('Pausiert') }}</span></td>
             <td>
               <button @click.stop="deleteRule(r)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:4px 6px">
                 <i class="ti ti-trash"></i>
@@ -252,7 +252,7 @@
     <div v-if="showRuleModal" class="modal-overlay" @click.self="showRuleModal = false">
       <div class="modal-card" style="max-width:480px">
         <div class="modal-header">
-          <span style="font-weight:700">{{ editingRuleId ? 'Regel bearbeiten' : 'Neue Regel' }}</span>
+          <span style="font-weight:700">{{ editingRuleId ? tr('Regel bearbeiten') : tr('Neue Regel') }}</span>
           <button @click="showRuleModal = false" class="icon-btn"><i class="ti ti-x"></i></button>
         </div>
         <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
@@ -286,7 +286,7 @@
             </div>
           </template>
           <div class="blog-field">
-            <label>{{ ruleForm.trigger === 'campaign-reminder' ? 'Vorlage für die Erinnerung' : 'Vorlage' }}</label>
+            <label>{{ ruleForm.trigger === 'campaign-reminder' ? tr('Vorlage für die Erinnerung') : tr('Vorlage') }}</label>
             <select v-model="ruleForm.templateId" style="width:100%;height:32px;font-size:12px;font-family:inherit;color:var(--text);background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;padding:0 10px">
               <option value="">{{ tr('Vorlage wählen...') }}</option>
               <option v-for="t in templates" :key="t.templateId" :value="t.templateId">{{ t.name }}</option>
@@ -321,11 +321,11 @@ interface Subscriber {
 }
 
 const tabs = [
-  { key: 'subscribers',  label: 'Abonnenten', icon: 'ti-users' },
-  { key: 'campaigns',    label: 'Kampagnen', icon: 'ti-send' },
-  { key: 'templates',    label: 'Vorlagen', icon: 'ti-layout-grid' },
-  { key: 'automation',   label: 'Automatisierung', icon: 'ti-bolt' },
-  { key: 'settings',     label: 'Einstellungen', icon: 'ti-settings' },
+  { key: 'subscribers',  label: tr('Abonnenten'), icon: 'ti-users' },
+  { key: 'campaigns',    label: tr('Kampagnen'), icon: 'ti-send' },
+  { key: 'templates',    label: tr('Vorlagen'), icon: 'ti-layout-grid' },
+  { key: 'automation',   label: tr('Automatisierung'), icon: 'ti-bolt' },
+  { key: 'settings',     label: tr('Einstellungen'), icon: 'ti-settings' },
 ]
 const activeTab = ref('subscribers')
 

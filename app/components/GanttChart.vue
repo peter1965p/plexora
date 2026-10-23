@@ -5,7 +5,7 @@
       <label class="chk"><input type="checkbox" v-model="showCritical" /> {{ tr('Kritischer Pfad') }} <HelpTip k="kritisch" /></label>
       <button class="mini" @click="scrollToToday"><i class="ti ti-calendar-event"></i> {{ tr('Heute') }}</button>
       <span style="flex:1"></span>
-      <span class="prog" :title="'Gesamtfortschritt (nach Dauer gewichtet)'">{{ total }} {{ tr('% fertig') }}</span>
+      <span class="prog" :title="tr('Gesamtfortschritt (nach Dauer gewichtet)')">{{ total }} {{ tr('% fertig') }}</span>
       <template v-if="!readonly"><button class="mini" @click="$emit('create', false)"><i class="ti ti-plus"></i> {{ tr('Vorgang') }}</button><button class="mini" @click="$emit('create', true)"><i class="ti ti-diamond"></i> {{ tr('Meilenstein') }}</button></template>
     </div>
 
@@ -80,7 +80,7 @@ import { addDays, diffDays, duration, criticalPath, projectProgress, pushSuccess
 const props = defineProps<{ tasks: any[]; readonly?: boolean }>()
 const emit = defineEmits<{ (e: 'change', changes: ScheduleChange[]): void; (e: 'create', milestone: boolean): void; (e: 'edit', taskId: string): void; (e: 'error', msg: string): void }>()
 
-const ZOOMS = [{ key: 'day', label: 'Tage' }, { key: 'week', label: 'Wochen' }, { key: 'month', label: 'Monate' }]
+const ZOOMS = [{ key: 'day', label: tr('Tage') }, { key: 'week', label: tr('Wochen') }, { key: 'month', label: tr('Monate') }]
 const PX = { day: 34, week: 12, month: 4 } as const
 const ROW = 34, LEFT = 566
 const zoom = ref<'day' | 'week' | 'month'>('day')

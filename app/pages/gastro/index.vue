@@ -158,7 +158,7 @@
               </div>
               <div style="font-weight:800;font-size:16px;color:var(--accent);flex-shrink:0">{{ formatPrice(item.price) }}</div>
               <div style="display:flex;gap:4px;flex-shrink:0">
-                <button @click="toggleAvailable(item)" class="icon-btn" :title="item.available ? 'Als ausverkauft markieren' : 'Wieder verfügbar'">
+                <button @click="toggleAvailable(item)" class="icon-btn" :title="item.available ? tr('Als ausverkauft markieren') : tr('Wieder verfügbar')">
                   <i class="ti" :class="item.available ? 'ti-eye' : 'ti-eye-off'"></i>
                 </button>
                 <button @click="openEditItem(item)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
@@ -226,7 +226,7 @@
               <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
                 <i class="ti ti-phone" style="margin-right:3px"></i>{{ o.phone }}
                 <span style="margin:0 6px">·</span>
-                <i class="ti ti-clock" style="margin-right:3px"></i>{{ o.pickupTime === 'sofort' ? 'So schnell wie möglich' : formatOrderTime(o.pickupTime) }}
+                <i class="ti ti-clock" style="margin-right:3px"></i>{{ o.pickupTime === 'sofort' ? tr('So schnell wie möglich') : formatOrderTime(o.pickupTime) }}
                 <span style="margin:0 6px">·</span>{{ formatOrderTime(o.createdAt) }}
               </div>
             </div>
@@ -310,7 +310,7 @@
     <div v-if="showItemModal" class="modal-overlay" @click.self="showItemModal=false">
       <div class="modal-card" style="max-width:480px">
         <div class="modal-header">
-          <span class="card-title">{{ editingItemId ? 'Gericht bearbeiten' : 'Gericht anlegen' }}</span>
+          <span class="card-title">{{ editingItemId ? tr('Gericht bearbeiten') : tr('Gericht anlegen') }}</span>
           <button class="icon-btn" @click="showItemModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -334,7 +334,7 @@
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveItem" :disabled="savingItem || !iForm.name || !iForm.category || !iForm.price">
             <span v-if="savingItem"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingItemId ? 'Speichern' : 'Gericht anlegen' }}</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingItemId ? tr('Speichern') : tr('Gericht anlegen') }}</span>
           </button>
         </div>
       </div>
@@ -344,7 +344,7 @@
     <div v-if="showTableModal" class="modal-overlay" @click.self="showTableModal=false">
       <div class="modal-card" style="max-width:480px">
         <div class="modal-header">
-          <span class="card-title">{{ editingTableId ? 'Tisch bearbeiten' : 'Tisch anlegen' }}</span>
+          <span class="card-title">{{ editingTableId ? tr('Tisch bearbeiten') : tr('Tisch anlegen') }}</span>
           <button class="icon-btn" @click="showTableModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -364,7 +364,7 @@
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveTable" :disabled="!tForm.name">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingTableId ? 'Speichern' : 'Tisch anlegen' }}
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingTableId ? tr('Speichern') : tr('Tisch anlegen') }}
           </button>
         </div>
       </div>
@@ -374,7 +374,7 @@
     <div v-if="showStaffModal" class="modal-overlay" @click.self="showStaffModal=false">
       <div class="modal-card" style="max-width:420px">
         <div class="modal-header">
-          <span class="card-title">{{ editingStaffId ? 'Mitarbeiter bearbeiten' : 'Mitarbeiter anlegen' }}</span>
+          <span class="card-title">{{ editingStaffId ? tr('Mitarbeiter bearbeiten') : tr('Mitarbeiter anlegen') }}</span>
           <button class="icon-btn" @click="showStaffModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -392,7 +392,7 @@
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveStaff" :disabled="!sForm.name">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingStaffId ? 'Speichern' : 'Mitarbeiter anlegen' }}
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingStaffId ? tr('Speichern') : tr('Mitarbeiter anlegen') }}
           </button>
         </div>
       </div>
@@ -435,10 +435,10 @@ const authToken = ref('')
 const activeTab = ref('speisekarte')
 
 const tabs = [
-  { key: 'speisekarte',   label: 'Speisekarte',  icon: 'ti-tools-kitchen-2' },
-  { key: 'tische',        label: 'Tische',        icon: 'ti-armchair' },
-  { key: 'bestellungen',  label: 'Bestellungen',  icon: 'ti-shopping-cart' },
-  { key: 'service',       label: 'Service & Trinkgeld', icon: 'ti-users' },
+  { key: 'speisekarte',   label: tr('Speisekarte'),  icon: 'ti-tools-kitchen-2' },
+  { key: 'tische',        label: tr('Tische'),        icon: 'ti-armchair' },
+  { key: 'bestellungen',  label: tr('Bestellungen'),  icon: 'ti-shopping-cart' },
+  { key: 'service',       label: tr('Service & Trinkgeld'), icon: 'ti-users' },
 ]
 
 interface MenuItem {

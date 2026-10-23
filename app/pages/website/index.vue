@@ -16,7 +16,7 @@
         </a>
         <button class="accent-btn" style="height:32px;font-size:12px;padding:0 14px" @click="save" :disabled="saving">
           <i class="ti" :class="saving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
-          {{ saving ? 'Speichern...' : 'Speichern' }}
+          {{ saving ? tr('Speichern...') : tr('Speichern') }}
         </button>
       </div>
     </div>
@@ -43,7 +43,7 @@
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 18px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px">
         <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px #22c55e88;flex-shrink:0"></div>
         <div style="font-size:13px;font-weight:600">{{ tr('Nexora ist aktiv') }}</div>
-        <div style="font-size:12px;color:var(--text-muted)">{{ nexora.customDomain || 'Domain noch nicht konfiguriert' }}</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ nexora.customDomain || tr('Domain noch nicht konfiguriert') }}</div>
         <div style="margin-left:auto;font-size:11px;color:var(--text-muted)">{{ tr('Tenant:') }} {{ nexora.tenantId }}</div>
       </div>
 
@@ -449,10 +449,10 @@
                 <button @click="($refs.heroImageInput as HTMLInputElement).click()" :disabled="heroImageUploading"
                   class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px">
                   <i class="ti" :class="heroImageUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                  {{ heroImageUploading ? 'Lädt hoch...' : 'Bild vom Computer wählen' }}
+                  {{ heroImageUploading ? tr('Lädt hoch...') : tr('Bild vom Computer wählen') }}
                 </button>
                 <div style="font-size:11px;margin-bottom:8px" :style="form.heroImageUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
-                  {{ form.heroImageUrl ? '✓ Bild gesetzt' : 'JPG/PNG/WebP empfohlen · optimal: 480×360 px' }}
+                  {{ form.heroImageUrl ? tr('✓ Bild gesetzt') : tr('JPG/PNG/WebP empfohlen · optimal: 480×360 px') }}
                 </div>
                 <button v-if="form.heroImageUrl" @click="form.heroImageUrl=''" class="icon-btn" style="font-size:11px;gap:4px;padding:4px 8px;display:inline-flex;align-items:center">
                   <i class="ti ti-x"></i> {{ tr('Bild entfernen') }}
@@ -598,7 +598,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-stack-2" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Tech-Stack Ticker') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.stackEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.stackEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.stackEnabled = !form.stackEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.stackEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -688,7 +688,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-building-community" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Referenz-Ticker') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.clientsEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.clientsEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.clientsEnabled = !form.clientsEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.clientsEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -842,7 +842,7 @@
                 wordWrap: 'on',
                 tabSize: 2,
                 scrollBeyondLastLine: false,
-                fontFamily: '\'JetBrains Mono\', \'Fira Code\', monospace',
+                fontFamily: tr('\'JetBrains Mono\', \'Fira Code\', monospace'),
                 padding: { top: 16, bottom: 16 },
               }"
               style="flex:1;min-height:520px"
@@ -867,7 +867,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-news" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Blog') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.blogEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.blogEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.blogEnabled = !form.blogEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.blogEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -890,7 +890,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-shopping-cart" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Shop') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.shopEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.shopEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.shopEnabled = !form.shopEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.shopEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -913,7 +913,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-mail" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Newsletter') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.newsletterEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.newsletterEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.newsletterEnabled = !form.newsletterEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.newsletterEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -936,7 +936,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Plexi — KI-Chat-Widget') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.plexiEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.plexiEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.plexiEnabled = !form.plexiEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.plexiEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -961,7 +961,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-calendar-event" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Termine') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ termineForm.enabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ termineForm.enabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="toggleTermineEnabled" :disabled="!termineForm.loaded"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="termineForm.enabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -998,7 +998,7 @@
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">{{ tr('Titel, der im Browser-Tab und in Suchergebnissen für jede Seite erscheint. Leer lassen für den Standard-Titel.') }}</div>
           <div style="display:flex;flex-direction:column;gap:10px">
-            <div><label class="field-label">{{ tr('Start') }}</label><input v-model="form.pageTitles.start" class="field-input" :placeholder="form.companyName || 'Nexora'" /></div>
+            <div><label class="field-label">{{ tr('Start') }}</label><input v-model="form.pageTitles.start" class="field-input" :placeholder="form.companyName || tr('Nexora')" /></div>
             <div><label class="field-label">{{ tr('Leistungen') }}</label><input v-model="form.pageTitles.leistungen" class="field-input" :placeholder="`Leistungen · ${form.companyName || 'Nexora'}`" /></div>
             <div><label class="field-label">{{ tr('Über uns') }}</label><input v-model="form.pageTitles.about" class="field-input" :placeholder="`Über uns · ${form.companyName || 'Nexora'}`" /></div>
             <div><label class="field-label">{{ tr('Kontakt') }}</label><input v-model="form.pageTitles.kontakt" class="field-input" :placeholder="`Kontakt · ${form.companyName || 'Nexora'}`" /></div>
@@ -1054,7 +1054,7 @@
             v-model:value="legalPage('agb').content"
             :language="legalPage('agb').contentType === 'markdown' ? 'markdown' : 'html'"
             :theme="monacoTheme"
-            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
+            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:tr('\'JetBrains Mono\',\'Fira Code\',monospace'), padding:{top:16,bottom:16} }"
             style="flex:1"
           />
           <template #fallback><div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div></template>
@@ -1085,7 +1085,7 @@
             v-model:value="legalPage('datenschutz').content"
             :language="legalPage('datenschutz').contentType === 'markdown' ? 'markdown' : 'html'"
             :theme="monacoTheme"
-            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:'\'JetBrains Mono\',\'Fira Code\',monospace', padding:{top:16,bottom:16} }"
+            :options="{ fontSize:13, lineHeight:22, minimap:{enabled:false}, wordWrap:'on', tabSize:2, scrollBeyondLastLine:false, fontFamily:tr('\'JetBrains Mono\',\'Fira Code\',monospace'), padding:{top:16,bottom:16} }"
             style="flex:1"
           />
           <template #fallback><div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div></template>
@@ -1146,10 +1146,10 @@
                   <button @click="($refs.logoInput as HTMLInputElement).click()" :disabled="logoUploading"
                     class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
                     <i class="ti" :class="logoUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                    {{ logoUploading ? 'Lädt hoch...' : 'Datei wählen' }}
+                    {{ logoUploading ? tr('Lädt hoch...') : tr('Datei wählen') }}
                   </button>
                   <div style="font-size:11px" :style="form.logoUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
-                    {{ form.logoUrl ? '✓ Logo gesetzt' : 'PNG/SVG empfohlen · Leer = Firmenname als Text' }}
+                    {{ form.logoUrl ? tr('✓ Logo gesetzt') : tr('PNG/SVG empfohlen · Leer = Firmenname als Text') }}
                   </div>
                 </div>
                 <button v-if="form.logoUrl" @click="form.logoUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
@@ -1169,10 +1169,10 @@
                   <button @click="($refs.faviconInput as HTMLInputElement).click()" :disabled="faviconUploading"
                     class="accent-btn" style="height:32px;font-size:12px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px">
                     <i class="ti" :class="faviconUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                    {{ faviconUploading ? 'Lädt hoch...' : 'Datei wählen' }}
+                    {{ faviconUploading ? tr('Lädt hoch...') : tr('Datei wählen') }}
                   </button>
                   <div style="font-size:11px" :style="form.faviconUrl ? 'color:var(--accent)' : 'color:var(--text-muted)'">
-                    {{ form.faviconUrl ? '✓ Favicon gesetzt' : 'ICO/PNG · 32×32 oder 64×64 px' }}
+                    {{ form.faviconUrl ? tr('✓ Favicon gesetzt') : tr('ICO/PNG · 32×32 oder 64×64 px') }}
                   </div>
                 </div>
                 <button v-if="form.faviconUrl" @click="form.faviconUrl=''" class="icon-btn"><i class="ti ti-x"></i></button>
@@ -1224,7 +1224,7 @@
           <div class="card-header">
             <span class="card-title"><i class="ti ti-brand-github" style="margin-right:8px;color:var(--accent)"></i>{{ tr('GitHub Projekte') }}</span>
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;color:var(--text-muted)">{{ form.githubEnabled ? 'Aktiv' : 'Versteckt' }}</span>
+              <span style="font-size:12px;color:var(--text-muted)">{{ form.githubEnabled ? tr('Aktiv') : tr('Versteckt') }}</span>
               <button @click="form.githubEnabled = !form.githubEnabled"
                 style="width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="form.githubEnabled ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -1249,7 +1249,7 @@
             </div>
             <div style="display:flex;gap:8px">
               <div style="flex:1;position:relative">
-                <input v-model="form.githubPat" class="field-input" :placeholder="form.githubPatConfigured ? 'Unverändert lassen zum Beibehalten' : 'github_pat_...'"
+                <input v-model="form.githubPat" class="field-input" :placeholder="form.githubPatConfigured ? tr('Unverändert lassen zum Beibehalten') : 'github_pat_...'"
                   :style="`width:100%;font-family:monospace;font-size:12px;padding-right:40px;${form.githubPatVisible ? '' : '-webkit-text-security:disc;'}`"
                   type="text" autocomplete="off" />
                 <button @click="form.githubPatVisible = !form.githubPatVisible"
@@ -1260,7 +1260,7 @@
               <button class="accent-btn" style="height:36px;padding:0 16px;font-size:12px;flex-shrink:0;white-space:nowrap"
                 :disabled="(!form.githubPat.trim() && !form.githubPatConfigured) || form.githubLoading" @click="loadGithubRepos">
                 <i class="ti" :class="form.githubLoading ? 'ti-loader-2' : 'ti-refresh'" style="margin-right:4px"></i>
-                {{ form.githubLoading ? 'Laden...' : 'Repos laden' }}
+                {{ form.githubLoading ? tr('Laden...') : tr('Repos laden') }}
               </button>
             </div>
             <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">
@@ -1320,7 +1320,7 @@
               </div>
             </div>
             <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">
-              {{ form.githubRepos.length === 0 ? 'Alle öffentlichen Repos werden angezeigt' : `${form.githubRepos.length} Repo(s) ausgewählt` }}
+              {{ form.githubRepos.length === 0 ? tr('Alle öffentlichen Repos werden angezeigt') : `${form.githubRepos.length} Repo(s) ausgewählt` }}
             </div>
           </div>
           <div v-else-if="form.githubError" style="text-align:center;padding:32px;color:#f59e0b;font-size:12px;background:var(--bg-elevated);border:1px dashed #f59e0b;border-radius:8px">
@@ -1358,7 +1358,7 @@
               <!-- Enabled indicator -->
               <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
                 <div style="width:6px;height:6px;border-radius:50%" :style="sectionEnabled(key) ? 'background:#22c55e;box-shadow:0 0 4px #22c55e88' : 'background:var(--border)'"></div>
-                <span style="font-size:10px;color:var(--text-muted)">{{ sectionEnabled(key) ? 'Aktiv' : 'Aus' }}</span>
+                <span style="font-size:10px;color:var(--text-muted)">{{ sectionEnabled(key) ? tr('Aktiv') : tr('Aus') }}</span>
               </div>
               <!-- Reorder arrows -->
               <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
@@ -1403,7 +1403,7 @@
               <!-- Enabled indicator -->
               <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
                 <div style="width:6px;height:6px;border-radius:50%" :style="navEnabled(key) ? 'background:#22c55e;box-shadow:0 0 4px #22c55e88' : 'background:var(--border)'"></div>
-                <span style="font-size:10px;color:var(--text-muted)">{{ navEnabled(key) ? 'Aktiv' : 'Aus' }}</span>
+                <span style="font-size:10px;color:var(--text-muted)">{{ navEnabled(key) ? tr('Aktiv') : tr('Aus') }}</span>
               </div>
             </div>
             </template>
@@ -1643,26 +1643,26 @@ function siteCountryName(code: string): string {
 }
 
 const tabs = [
-  { key: 'connection', label: 'Verbindung', icon: 'ti-plug' },
-  { key: 'traffic',    label: 'Traffic',    icon: 'ti-chart-line' },
-  { key: 'content',    label: 'Inhalte',    icon: 'ti-text-size' },
-  { key: 'media',      label: 'Medien',     icon: 'ti-photo' },
-  { key: 'services',   label: 'Leistungen', icon: 'ti-briefcase' },
-  { key: 'stack',      label: 'Stack',      icon: 'ti-stack-2' },
-  { key: 'clients',    label: 'Kunden',     icon: 'ti-building-community' },
-  { key: 'github',     label: 'GitHub',      icon: 'ti-brand-github' },
-  { key: 'position',   label: 'Positionen', icon: 'ti-layout-rows' },
-  { key: 'contact',    label: 'Kontakt',    icon: 'ti-map-pin' },
-  { key: 'pages',         label: 'Seiten',     icon: 'ti-file-text' },
-  { key: 'blog-settings',  label: 'Blog',       icon: 'ti-news' },
-  { key: 'shop-settings',  label: 'Shop',       icon: 'ti-shopping-cart' },
-  { key: 'newsletter-settings', label: 'Newsletter', icon: 'ti-mail' },
-  { key: 'plexi-settings', label: 'Plexi', icon: 'ti-sparkles' },
-  { key: 'termine-settings', label: 'Termine', icon: 'ti-calendar-event' },
+  { key: 'connection', label: tr('Verbindung'), icon: 'ti-plug' },
+  { key: 'traffic',    label: tr('Traffic'),    icon: 'ti-chart-line' },
+  { key: 'content',    label: tr('Inhalte'),    icon: 'ti-text-size' },
+  { key: 'media',      label: tr('Medien'),     icon: 'ti-photo' },
+  { key: 'services',   label: tr('Leistungen'), icon: 'ti-briefcase' },
+  { key: 'stack',      label: tr('Stack'),      icon: 'ti-stack-2' },
+  { key: 'clients',    label: tr('Kunden'),     icon: 'ti-building-community' },
+  { key: 'github',     label: tr('GitHub'),      icon: 'ti-brand-github' },
+  { key: 'position',   label: tr('Positionen'), icon: 'ti-layout-rows' },
+  { key: 'contact',    label: tr('Kontakt'),    icon: 'ti-map-pin' },
+  { key: 'pages',         label: tr('Seiten'),     icon: 'ti-file-text' },
+  { key: 'blog-settings',  label: tr('Blog'),       icon: 'ti-news' },
+  { key: 'shop-settings',  label: tr('Shop'),       icon: 'ti-shopping-cart' },
+  { key: 'newsletter-settings', label: tr('Newsletter'), icon: 'ti-mail' },
+  { key: 'plexi-settings', label: tr('Plexi'), icon: 'ti-sparkles' },
+  { key: 'termine-settings', label: tr('Termine'), icon: 'ti-calendar-event' },
   { key: 'seo',           label: 'SEO',        icon: 'ti-search' },
   { key: 'agb',           label: 'AGB',        icon: 'ti-license' },
-  { key: 'datenschutz',label: 'Datenschutz',icon: 'ti-shield-lock' },
-  { key: 'theme',      label: 'Theme',      icon: 'ti-palette' },
+  { key: 'datenschutz',label: tr('Datenschutz'),icon: 'ti-shield-lock' },
+  { key: 'theme',      label: tr('Theme'),      icon: 'ti-palette' },
 ]
 
 const form = reactive({
@@ -1864,7 +1864,7 @@ onMounted(async () => {
 })
 
 // ── Termine (eigener Bereich — /api/termine/settings statt /api/nexora/my) ──
-const termineForm = reactive({ enabled: false, title: 'Termine', description: '', avatarUrl: '', loaded: false, raw: null as any })
+const termineForm = reactive({ enabled: false, title: tr('Termine'), description: '', avatarUrl: '', loaded: false, raw: null as any })
 
 async function loadTermineSettings() {
   try {
@@ -2013,17 +2013,17 @@ async function save() {
 }
 
 const heroBgOptions = [
-  { value: 'grid',   label: 'Gitter',   icon: 'ti-grid-dots' },
-  { value: 'dots',   label: 'Punkte',   icon: 'ti-dots' },
-  { value: 'neural', label: 'Neural',   icon: 'ti-vector-triangle' },
-  { value: 'waves',  label: 'Wellen',   icon: 'ti-wave-sine' },
-  { value: 'solid',  label: 'Einfarbig',icon: 'ti-square-filled' },
+  { value: 'grid',   label: tr('Gitter'),   icon: 'ti-grid-dots' },
+  { value: 'dots',   label: tr('Punkte'),   icon: 'ti-dots' },
+  { value: 'neural', label: tr('Neural'),   icon: 'ti-vector-triangle' },
+  { value: 'waves',  label: tr('Wellen'),   icon: 'ti-wave-sine' },
+  { value: 'solid',  label: tr('Einfarbig'),icon: 'ti-square-filled' },
 ]
 const serviceLayoutOptions = [
-  { value: 'auto', label: 'Auto',     icon: 'ti-layout-grid' },
-  { value: '2',    label: '2 Spalten',icon: 'ti-columns-2' },
-  { value: '3',    label: '3 Spalten',icon: 'ti-columns-3' },
-  { value: '4',    label: '4 Spalten',icon: 'ti-layout-grid' },
+  { value: 'auto', label: tr('Auto'),     icon: 'ti-layout-grid' },
+  { value: '2',    label: tr('2 Spalten'),icon: 'ti-columns-2' },
+  { value: '3',    label: tr('3 Spalten'),icon: 'ti-columns-3' },
+  { value: '4',    label: tr('4 Spalten'),icon: 'ti-layout-grid' },
   { value: '2x2',  label: '2×2',      icon: 'ti-grid-4x4' },
 ]
 const openPickerIndex = ref<number | null>(null)
@@ -2065,10 +2065,10 @@ function removeStat(i: number)    { form.stats.splice(i, 1) }
 const monacoTheme   = ref(import.meta.client ? (localStorage.getItem('plx_editor_theme') || 'vs-dark') : 'vs-dark')
 const editingPage   = ref<number | null>(null)
 const monacoThemes  = [
-  { value: 'vs-dark',  label: 'VS Dark' },
-  { value: 'vs',       label: 'VS Light' },
-  { value: 'hc-black', label: 'High Contrast Dark' },
-  { value: 'hc-light', label: 'High Contrast Light' },
+  { value: 'vs-dark',  label: tr('VS Dark') },
+  { value: 'vs',       label: tr('VS Light') },
+  { value: 'hc-black', label: tr('High Contrast Dark') },
+  { value: 'hc-light', label: tr('High Contrast Light') },
 ]
 function setMonacoTheme(v: string) {
   monacoTheme.value = v
@@ -2079,7 +2079,7 @@ function legalPage(slug: string) {
   if (!pg) {
     const defaults: Record<string, { title: string; content: string }> = {
       agb:         { title: 'AGB',               content: '<h1>Allgemeine Geschäftsbedingungen</h1>\n<p>§ 1 Geltungsbereich</p>' },
-      datenschutz: { title: 'Datenschutzerklärung', content: '<h1>Datenschutzerklärung</h1>\n<p>Der Schutz deiner persönlichen Daten ist uns wichtig.</p>' },
+      datenschutz: { title: tr('Datenschutzerklärung'), content: '<h1>Datenschutzerklärung</h1>\n<p>Der Schutz deiner persönlichen Daten ist uns wichtig.</p>' },
     }
     const d = defaults[slug] || { title: slug, content: '' }
     form.pages.push({ slug, title: d.title, content: d.content, contentType: 'html' as const })
@@ -2089,8 +2089,8 @@ function legalPage(slug: string) {
 }
 function defaultPages() {
   return [
-    { slug: 'impressum',    title: 'Impressum',     content: '<h1>Impressum</h1>\n<p>Angaben gemäß § 5 TMG</p>\n<p><strong>Firmenname</strong><br/>Straße, PLZ Ort</p>',              contentType: 'html' as const },
-    { slug: 'datenschutz',  title: 'Datenschutz',   content: '<h1>Datenschutzerklärung</h1>\n<p>Der Schutz deiner persönlichen Daten ist uns wichtig.</p>',                         contentType: 'html' as const },
+    { slug: 'impressum',    title: tr('Impressum'),     content: '<h1>Impressum</h1>\n<p>Angaben gemäß § 5 TMG</p>\n<p><strong>Firmenname</strong><br/>Straße, PLZ Ort</p>',              contentType: 'html' as const },
+    { slug: 'datenschutz',  title: tr('Datenschutz'),   content: '<h1>Datenschutzerklärung</h1>\n<p>Der Schutz deiner persönlichen Daten ist uns wichtig.</p>',                         contentType: 'html' as const },
     { slug: 'agb',          title: 'AGB',            content: '<h1>Allgemeine Geschäftsbedingungen</h1>\n<p>§ 1 Geltungsbereich</p>',                                               contentType: 'html' as const },
   ]
 }
@@ -2134,34 +2134,34 @@ function addPreset(preset: { label: string; color: string }) {
 }
 
 const STACK_COLORS = [
-  { value: 'blue',   label: 'Frontend'       },
-  { value: 'green',  label: 'Backend'        },
-  { value: 'red',    label: 'Database'       },
-  { value: 'orange', label: 'Systems'        },
-  { value: 'yellow', label: 'Cloud'          },
-  { value: 'violet', label: 'Microsoft Stack'},
+  { value: 'blue',   label: tr('Frontend')       },
+  { value: 'green',  label: tr('Backend')        },
+  { value: 'red',    label: tr('Database')       },
+  { value: 'orange', label: tr('Systems')        },
+  { value: 'yellow', label: tr('Cloud')          },
+  { value: 'violet', label: tr('Microsoft Stack')},
 ]
 
 const STACK_PRESETS = [
-  { label: 'Vue.js',      color: 'green'  }, { label: 'React',       color: 'blue'   },
-  { label: 'Angular',     color: 'red'    }, { label: 'Nuxt',        color: 'green'  },
-  { label: 'Next.js',     color: 'blue'   }, { label: 'TypeScript',  color: 'blue'   },
-  { label: 'JavaScript',  color: 'yellow' }, { label: 'Tailwind',    color: 'blue'   },
-  { label: 'Node.js',     color: 'green'  }, { label: 'Python',      color: 'yellow' },
-  { label: 'Go',          color: 'green'  }, { label: 'Rust',        color: 'orange' },
-  { label: 'PHP',         color: 'violet' }, { label: 'Java',        color: 'orange' },
+  { label: tr('Vue.js'),      color: 'green'  }, { label: tr('React'),       color: 'blue'   },
+  { label: tr('Angular'),     color: 'red'    }, { label: tr('Nuxt'),        color: 'green'  },
+  { label: tr('Next.js'),     color: 'blue'   }, { label: tr('TypeScript'),  color: 'blue'   },
+  { label: tr('JavaScript'),  color: 'yellow' }, { label: tr('Tailwind'),    color: 'blue'   },
+  { label: tr('Node.js'),     color: 'green'  }, { label: tr('Python'),      color: 'yellow' },
+  { label: tr('Go'),          color: 'green'  }, { label: tr('Rust'),        color: 'orange' },
+  { label: 'PHP',         color: 'violet' }, { label: tr('Java'),        color: 'orange' },
   { label: 'C#',          color: 'violet' }, { label: '.NET',        color: 'violet' },
-  { label: 'ASP.NET',     color: 'violet' }, { label: 'Docker',      color: 'orange' },
-  { label: 'Linux',       color: 'orange' }, { label: 'Nginx',       color: 'orange' },
-  { label: 'Kubernetes',  color: 'orange' }, { label: 'PostgreSQL',  color: 'red'    },
-  { label: 'MySQL',       color: 'red'    }, { label: 'MongoDB',     color: 'green'  },
-  { label: 'Redis',       color: 'red'    }, { label: 'DynamoDB',    color: 'yellow' },
-  { label: 'LibSQL',      color: 'red'    }, { label: 'AWS',         color: 'yellow' },
-  { label: 'AWS S3',      color: 'yellow' }, { label: 'AWS Lambda',  color: 'yellow' },
-  { label: 'AWS DynamoDB',color: 'yellow' }, { label: 'AWS IAM',     color: 'yellow' },
-  { label: 'Azure',       color: 'violet' }, { label: 'GCP',         color: 'blue'   },
-  { label: 'Vercel',      color: 'blue'   }, { label: 'Cloudflare',  color: 'orange' },
-  { label: 'GitHub CI/CD',color: 'orange' },
+  { label: tr('ASP.NET'),     color: 'violet' }, { label: tr('Docker'),      color: 'orange' },
+  { label: tr('Linux'),       color: 'orange' }, { label: tr('Nginx'),       color: 'orange' },
+  { label: tr('Kubernetes'),  color: 'orange' }, { label: tr('PostgreSQL'),  color: 'red'    },
+  { label: tr('MySQL'),       color: 'red'    }, { label: tr('MongoDB'),     color: 'green'  },
+  { label: tr('Redis'),       color: 'red'    }, { label: tr('DynamoDB'),    color: 'yellow' },
+  { label: tr('LibSQL'),      color: 'red'    }, { label: 'AWS',         color: 'yellow' },
+  { label: tr('AWS S3'),      color: 'yellow' }, { label: tr('AWS Lambda'),  color: 'yellow' },
+  { label: tr('AWS DynamoDB'),color: 'yellow' }, { label: tr('AWS IAM'),     color: 'yellow' },
+  { label: tr('Azure'),       color: 'violet' }, { label: 'GCP',         color: 'blue'   },
+  { label: tr('Vercel'),      color: 'blue'   }, { label: tr('Cloudflare'),  color: 'orange' },
+  { label: tr('GitHub CI/CD'),color: 'orange' },
 ]
 
 const CHIP_COLOR: Record<string, { bg: string; text: string; bd: string }> = {
@@ -2192,11 +2192,11 @@ function stackChipStyle(color: string) {
 
 // ── Section Positioning ───────────────────────────────────────────────────────
 const SECTION_META: Record<string, { label: string; icon: string; color: string; height: number; desc: string }> = {
-  stack:    { label: 'Tech Stack',  icon: 'ti-stack-2',            color: '#10b981', height: 28, desc: 'Endlos-Ticker mit deinen Technologien' },
-  clients:  { label: 'Referenzen', icon: 'ti-building-community',  color: '#f97316', height: 28, desc: 'Ticker mit Kunden & Partnernamen' },
-  github:   { label: 'Projekte',   icon: 'ti-brand-github',        color: '#8b5cf6', height: 52, desc: 'GitHub Projekt-Cards' },
-  services: { label: 'Leistungen', icon: 'ti-briefcase',           color: '#3b82f6', height: 52, desc: 'Deine Dienstleistungen als Cards' },
-  contact:  { label: 'Kontakt',    icon: 'ti-map-pin',             color: '#06b6d4', height: 44, desc: 'Kontaktformular & Infos' },
+  stack:    { label: tr('Tech Stack'),  icon: 'ti-stack-2',            color: '#10b981', height: 28, desc: tr('Endlos-Ticker mit deinen Technologien') },
+  clients:  { label: tr('Referenzen'), icon: 'ti-building-community',  color: '#f97316', height: 28, desc: tr('Ticker mit Kunden & Partnernamen') },
+  github:   { label: tr('Projekte'),   icon: 'ti-brand-github',        color: '#8b5cf6', height: 52, desc: tr('GitHub Projekt-Cards') },
+  services: { label: tr('Leistungen'), icon: 'ti-briefcase',           color: '#3b82f6', height: 52, desc: tr('Deine Dienstleistungen als Cards') },
+  contact:  { label: tr('Kontakt'),    icon: 'ti-map-pin',             color: '#06b6d4', height: 44, desc: tr('Kontaktformular & Infos') },
 }
 
 function sectionEnabled(key: string): boolean {
@@ -2221,16 +2221,16 @@ const navStatus = reactive({
 })
 
 const NAV_META: Record<string, { label: string; icon: string }> = {
-  start:      { label: 'Start',       icon: 'ti-home' },
-  leistungen: { label: 'Leistungen',  icon: 'ti-briefcase' },
-  about:      { label: 'Über uns',    icon: 'ti-info-circle' },
-  kontakt:    { label: 'Kontakt',     icon: 'ti-map-pin' },
-  shop:       { label: 'Shop',        icon: 'ti-shopping-cart' },
-  blog:       { label: 'Blog',        icon: 'ti-news' },
-  vehicles:   { label: 'Fahrzeuge',   icon: 'ti-car' },
-  menu:       { label: 'Speisekarte', icon: 'ti-tools-kitchen-2' },
-  properties: { label: 'Immobilien',  icon: 'ti-building-estate' },
-  termine:    { label: 'Termine',     icon: 'ti-calendar-event' },
+  start:      { label: tr('Start'),       icon: 'ti-home' },
+  leistungen: { label: tr('Leistungen'),  icon: 'ti-briefcase' },
+  about:      { label: tr('Über uns'),    icon: 'ti-info-circle' },
+  kontakt:    { label: tr('Kontakt'),     icon: 'ti-map-pin' },
+  shop:       { label: tr('Shop'),        icon: 'ti-shopping-cart' },
+  blog:       { label: tr('Blog'),        icon: 'ti-news' },
+  vehicles:   { label: tr('Fahrzeuge'),   icon: 'ti-car' },
+  menu:       { label: tr('Speisekarte'), icon: 'ti-tools-kitchen-2' },
+  properties: { label: tr('Immobilien'),  icon: 'ti-building-estate' },
+  termine:    { label: tr('Termine'),     icon: 'ti-calendar-event' },
 }
 
 const LEGAL_SLUGS = ['agb', 'datenschutz', 'impressum']
@@ -2356,32 +2356,32 @@ function toggleGithubRepo(name: string) {
 const nexoraThemes = [
   {
     key: 'midnight',
-    label: 'Midnight',
-    desc: 'Dark Navy + Orange',
+    label: tr('Midnight'),
+    desc: tr('Dark Navy + Orange'),
     preview: { bg: '#05070a', accent: '#f97316', text: '#f1f5f9', surface: '#0d1117' },
   },
   {
     key: 'slate',
-    label: 'Slate',
-    desc: 'Slate Dark + Blau',
+    label: tr('Slate'),
+    desc: tr('Slate Dark + Blau'),
     preview: { bg: '#0f172a', accent: '#3b82f6', text: '#e2e8f0', surface: '#1e293b' },
   },
   {
     key: 'emerald',
-    label: 'Emerald',
-    desc: 'Dunkel + Grün',
+    label: tr('Emerald'),
+    desc: tr('Dunkel + Grün'),
     preview: { bg: '#0a0f0a', accent: '#10b981', text: '#f0fdf4', surface: '#111811' },
   },
   {
     key: 'light',
-    label: 'Light',
-    desc: 'Hell + Blau',
+    label: tr('Light'),
+    desc: tr('Hell + Blau'),
     preview: { bg: '#ffffff', accent: '#2563eb', text: '#1e293b', surface: '#f8fafc' },
   },
   {
     key: 'dusk',
-    label: 'Dusk',
-    desc: 'Warmgrau + Amber — dunkel, aber luftiger',
+    label: tr('Dusk'),
+    desc: tr('Warmgrau + Amber — dunkel, aber luftiger'),
     preview: { bg: '#242230', accent: '#fb923c', text: '#f5f2fa', surface: '#2f2c3d' },
   },
 ]
@@ -2395,23 +2395,23 @@ function copyKey() {
 
 const customerSteps = computed(() => [
   {
-    title: 'Unternehmensname & Domain eintragen',
-    desc:  'Tab "Verbindung" → Firmenname + deine Domain eintragen → Speichern.',
+    title: tr('Unternehmensname & Domain eintragen'),
+    desc:  tr('Tab "Verbindung" → Firmenname + deine Domain eintragen → Speichern.'),
     done:  !!(form.companyName && form.customDomain),
   },
   {
-    title: 'Inhalte befüllen',
-    desc:  'Tabs "Inhalte", "Leistungen" und "Kontakt" ausfüllen → Speichern.',
+    title: tr('Inhalte befüllen'),
+    desc:  tr('Tabs "Inhalte", "Leistungen" und "Kontakt" ausfüllen → Speichern.'),
     done:  !!(form.heroHeadline && form.aboutText),
   },
   {
-    title: 'Einen DNS-Eintrag setzen',
-    desc:  'Bei deinem Domain-Anbieter: CNAME deinedomain.de → nexora-nuxt.pages.dev. Der genaue Eintrag wird oben angezeigt sobald du deine Domain einträgst.',
+    title: tr('Einen DNS-Eintrag setzen'),
+    desc:  tr('Bei deinem Domain-Anbieter: CNAME deinedomain.de → nexora-nuxt.pages.dev. Der genaue Eintrag wird oben angezeigt sobald du deine Domain einträgst.'),
     done:  false,
   },
   {
     title: tr('Fertig — Website ist live!'),
-    desc:  'Nach 5–10 Minuten ist deine Website auf deiner Domain erreichbar. Kein Code, kein Deploy, kein Stress.',
+    desc:  tr('Nach 5–10 Minuten ist deine Website auf deiner Domain erreichbar. Kein Code, kein Deploy, kein Stress.'),
     done:  false,
   },
 ])

@@ -42,7 +42,7 @@
         <div v-for="c in shownComments" :key="c.commentId" style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:6px">
             <span><strong style="color:var(--text-primary)">{{ c.authorName }}</strong> · {{ c.authorEmail }} {{ tr('· zu „') }}{{ postTitle(c) }}“</span>
-            <span>{{ new Date(c.created).toLocaleString('de-DE') }} · <span class="badge" :class="c.status === 'approved' ? 'badge-success' : c.status === 'pending' ? 'badge-warning' : ''">{{ c.status === 'approved' ? 'Sichtbar' : c.status === 'pending' ? 'Wartet' : 'Verborgen' }}</span></span>
+            <span>{{ new Date(c.created).toLocaleString('de-DE') }} · <span class="badge" :class="c.status === 'approved' ? 'badge-success' : c.status === 'pending' ? 'badge-warning' : ''">{{ c.status === 'approved' ? tr('Sichtbar') : c.status === 'pending' ? tr('Wartet') : tr('Verborgen') }}</span></span>
           </div>
           <p style="margin:0 0 10px;font-size:13px;white-space:pre-line;overflow-wrap:anywhere">{{ c.text }}</p>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -69,7 +69,7 @@
     <!-- Empty -->
     <div v-else-if="activeTab !== 'comments' && !filteredPosts.length" style="text-align:center;padding:80px 20px;color:var(--text-muted)">
       <i class="ti ti-pencil-off" style="font-size:48px;display:block;margin-bottom:12px;opacity:.3"></i>
-      <p style="font-size:14px;margin-bottom:16px">{{ activeTab === 'live' ? 'Noch keine veröffentlichten Beiträge.' : activeTab === 'draft' ? 'Keine Entwürfe vorhanden.' : 'Noch keine Beiträge.' }}</p>
+      <p style="font-size:14px;margin-bottom:16px">{{ activeTab === 'live' ? tr('Noch keine veröffentlichten Beiträge.') : activeTab === 'draft' ? tr('Keine Entwürfe vorhanden.') : tr('Noch keine Beiträge.') }}</p>
       <button class="accent-btn" @click="openNew"><i class="ti ti-plus" style="margin-right:6px"></i>{{ tr('Ersten Beitrag erstellen') }}</button>
     </div>
 
@@ -85,7 +85,7 @@
           <i v-else class="ti ti-article" style="font-size:40px;color:var(--text-muted);opacity:.3"></i>
           <span style="position:absolute;top:8px;left:8px;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.05em;text-transform:uppercase"
             :style="p.status === 'published' ? 'background:#22c55e22;color:#22c55e;border:1px solid #22c55e44' : 'background:var(--bg-elevated);color:var(--text-muted);border:1px solid var(--border)'">
-            {{ p.status === 'published' ? '● Live' : '○ Entwurf' }}
+            {{ p.status === 'published' ? tr('● Live') : tr('○ Entwurf') }}
           </span>
           <span v-if="p.tags?.length" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600">
             {{ p.tags[0] }}
@@ -182,7 +182,7 @@
         <!-- Modal Footer -->
         <div class="blog-modal-footer">
           <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">
-            {{ form.status === 'published' ? '● Veröffentlicht' : '○ Entwurf' }}
+            {{ form.status === 'published' ? tr('● Veröffentlicht') : tr('○ Entwurf') }}
           </span>
           <div class="blog-modal-actions">
             <button @click="showModal=false" class="icon-btn footer-action footer-cancel" style="font-size:12px;white-space:nowrap;flex-shrink:0">{{ tr('Abbrechen') }}</button>
@@ -192,7 +192,7 @@
             </button>
             <button class="accent-btn" style="white-space:nowrap;flex-shrink:0" :disabled="saving || !form.title" @click="savePost('published')">
               <i v-if="saving && form.status === 'published'" class="ti ti-loader-2 spin"></i>
-              <span v-else><i class="ti ti-send" style="margin-right:4px"></i>{{ editingId && form.status === 'published' ? 'Aktualisieren' : 'Veröffentlichen' }}</span>
+              <span v-else><i class="ti ti-send" style="margin-right:4px"></i>{{ editingId && form.status === 'published' ? tr('Aktualisieren') : tr('Veröffentlichen') }}</span>
             </button>
           </div>
         </div>
@@ -238,10 +238,10 @@ const editingId       = ref('')
 const categoryFilter  = ref('')
 
 const tabs = [
-  { key: 'all',   label: 'Alle',     icon: 'ti-list' },
-  { key: 'live',  label: 'Live',     icon: 'ti-circle-check' },
-  { key: 'draft', label: 'Entwürfe', icon: 'ti-pencil' },
-  { key: 'comments', label: 'Kommentare', icon: 'ti-message-circle' },
+  { key: 'all',   label: tr('Alle'),     icon: 'ti-list' },
+  { key: 'live',  label: tr('Live'),     icon: 'ti-circle-check' },
+  { key: 'draft', label: tr('Entwürfe'), icon: 'ti-pencil' },
+  { key: 'comments', label: tr('Kommentare'), icon: 'ti-message-circle' },
 ]
 
 const DEFAULT_CONTENT = '<h1>Neuer Beitrag</h1><p>Hier beginnt dein Text...</p>'
@@ -431,8 +431,8 @@ async function deletePost(p: BlogPost) {
 }
 
 // ── Kommentare (Verwaltung) ──
-const COMMENT_MODE_OPTIONS = [{ key: 'off', label: 'Aus (keine Kommentare)' }, { key: 'open', label: 'An (sofort sichtbar)' }, { key: 'moderated', label: 'An (erst nach deiner Freigabe)' }]
-const COMMENT_FILTERS = [{ key: 'pending', label: 'Wartet' }, { key: 'approved', label: 'Sichtbar' }, { key: 'hidden', label: 'Verborgen' }, { key: 'all', label: 'Alle' }]
+const COMMENT_MODE_OPTIONS = [{ key: 'off', label: tr('Aus (keine Kommentare)') }, { key: 'open', label: tr('An (sofort sichtbar)') }, { key: 'moderated', label: tr('An (erst nach deiner Freigabe)') }]
+const COMMENT_FILTERS = [{ key: 'pending', label: tr('Wartet') }, { key: 'approved', label: tr('Sichtbar') }, { key: 'hidden', label: tr('Verborgen') }, { key: 'all', label: tr('Alle') }]
 const comments = ref<any[]>([]), commentsLoading = ref(false), commentFilter = ref('pending'), commentBusy = ref('')
 const commentsMode = ref('off'), savingMode = ref(false), modeMsg = ref('')
 const shownComments = computed(() => comments.value.filter(c => commentFilter.value === 'all' || c.status === commentFilter.value))

@@ -11,7 +11,7 @@
         <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">{{ tr('Original') }}</button>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="uploading" @click="confirmCropAndUpload">
           <i class="ti" :class="uploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
-          {{ uploading ? 'Lädt...' : 'Übernehmen' }}
+          {{ uploading ? tr('Lädt...') : tr('Übernehmen') }}
         </button>
         <button class="icon-btn" style="color:var(--danger)" @click="cropSrc=null;cropRect=null"><i class="ti ti-x"></i></button>
       </div>

@@ -106,8 +106,8 @@
               <span class="auto-chip act"><i class="ti ti-player-play"></i> {{ actionLabel(a) }}</span>
             </div>
           </div>
-          <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? 'Aktiv' : 'Pausiert' }}</span>
-          <button class="fn-toggle" :class="{ on: a.enabled }" :title="a.enabled ? 'Pausieren' : 'Aktivieren'" @click="toggleAutomation(a)"><span></span></button>
+          <span class="auto-status" :class="a.enabled ? 'on' : 'off'">{{ a.enabled ? tr('Aktiv') : tr('Pausiert') }}</span>
+          <button class="fn-toggle" :class="{ on: a.enabled }" :title="a.enabled ? tr('Pausieren') : tr('Aktivieren')" @click="toggleAutomation(a)"><span></span></button>
           <button class="auto-del" :title="tr('Löschen')" @click="deleteAutomation(a)"><i class="ti ti-trash"></i></button>
         </div>
       </div>
@@ -251,7 +251,7 @@
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="cropRect=null">{{ tr('Original') }}</button>
                     <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="headerUploading" @click="confirmCropAndUpload">
                       <i class="ti" :class="headerUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
-                      {{ headerUploading ? t.common.loading : 'Übernehmen' }}
+                      {{ headerUploading ? t.common.loading : tr('Übernehmen') }}
                     </button>
                     <button class="icon-btn" style="color:var(--danger)" @click="cropSrc=null;cropRect=null"><i class="ti ti-x"></i></button>
                   </div>
@@ -285,7 +285,7 @@
                     <button class="icon-btn" style="font-size:11px;padding:4px 10px;height:auto" @click="bgCropRect=null">{{ tr('Original') }}</button>
                     <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px;margin-left:auto" :disabled="bgUploading" @click="confirmBgCropAndUpload">
                       <i class="ti" :class="bgUploading ? 'ti-loader-2 spin' : 'ti-check'"></i>
-                      {{ bgUploading ? t.common.loading : 'Übernehmen' }}
+                      {{ bgUploading ? t.common.loading : tr('Übernehmen') }}
                     </button>
                     <button class="icon-btn" style="color:var(--danger)" @click="bgCropSrc=null;bgCropRect=null"><i class="ti ti-x"></i></button>
                   </div>
@@ -480,7 +480,7 @@
 
             <button class="auth-btn" :disabled="sending" @click="sendEmailBlast">
               <i class="ti" :class="sending ? 'ti-loader-2 spin' : 'ti-send'"></i>
-              {{ sending ? 'Wird gesendet...' : 'Kampagne jetzt senden' }}
+              {{ sending ? tr('Wird gesendet...') : tr('Kampagne jetzt senden') }}
             </button>
 
             <div v-if="sendEmailResult" class="mkt-send-result" :class="sendEmailResult.sent > 0 ? 'success' : 'warn'">
@@ -509,7 +509,7 @@
           <div v-if="sendEmailForm.mode === 'ai'" style="display:flex;flex-direction:column;gap:14px">
             <button class="mkt-secondary-btn" :disabled="previewLoading" @click="generatePreview">
               <i class="ti" :class="previewLoading ? 'ti-loader-2 spin' : 'ti-eye'"></i>
-              {{ previewLoading ? 'Vorschau wird generiert...' : (emailPreview ? 'Vorschau aktualisieren' : 'Vorschau generieren') }}
+              {{ previewLoading ? tr('Vorschau wird generiert...') : (emailPreview ? tr('Vorschau aktualisieren') : tr('Vorschau generieren')) }}
             </button>
 
             <div v-if="!emailPreview && !previewLoading" class="mkt-preview-empty">
@@ -593,10 +593,10 @@
             <div><span>{{ tr('An') }}</span>{{ selectedMail.to }}</div>
             <div><span>{{ tr('Art') }}</span>{{ mailKindLabel(selectedMail.kind) }}</div>
             <div><span>{{ tr('Zeit') }}</span>{{ new Date(selectedMail.created).toLocaleString('de-DE') }}</div>
-            <div><span>{{ tr('Status') }}</span><b :class="selectedMail.status">{{ selectedMail.status === 'sent' ? 'Versendet' : 'Fehlgeschlagen' }}</b></div>
+            <div><span>{{ tr('Status') }}</span><b :class="selectedMail.status">{{ selectedMail.status === 'sent' ? tr('Versendet') : tr('Fehlgeschlagen') }}</b></div>
           </div>
           <div v-if="selectedMail.error" class="mail-error"><i class="ti ti-alert-triangle"></i> {{ selectedMail.error }}</div>
-          <div class="mail-body">{{ selectedMail.preview || 'Keine Vorschau gespeichert (ältere Mail).' }}</div>
+          <div class="mail-body">{{ selectedMail.preview || tr('Keine Vorschau gespeichert (ältere Mail).') }}</div>
         </template>
       </section>
     </div>
@@ -942,12 +942,12 @@ const mailFolder = ref('all')
 const mailSearch = ref('')
 const selectedMailId = ref<string | null>(null)
 const mailFolders = [
-  { key: 'all', label: 'Alle Mails', icon: 'ti-inbox' },
-  { key: 'sent', label: 'Versendet', icon: 'ti-send' },
-  { key: 'failed', label: 'Fehlgeschlagen', icon: 'ti-alert-circle' },
-  { key: 'automation', label: 'Automatisierungen', icon: 'ti-bolt', sep: true },
-  { key: 'booking_confirmation', label: 'Terminbestätigungen', icon: 'ti-calendar-check' },
-  { key: 'internal', label: 'Intern', icon: 'ti-bell' },
+  { key: 'all', label: tr('Alle Mails'), icon: 'ti-inbox' },
+  { key: 'sent', label: tr('Versendet'), icon: 'ti-send' },
+  { key: 'failed', label: tr('Fehlgeschlagen'), icon: 'ti-alert-circle' },
+  { key: 'automation', label: tr('Automatisierungen'), icon: 'ti-bolt', sep: true },
+  { key: 'booking_confirmation', label: tr('Terminbestätigungen'), icon: 'ti-calendar-check' },
+  { key: 'internal', label: tr('Intern'), icon: 'ti-bell' },
 ]
 const mailCounts = computed<Record<string, number>>(() => {
   const c: Record<string, number> = { all: mailLog.value.length, sent: 0, failed: 0 }

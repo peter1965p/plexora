@@ -11,10 +11,10 @@ export interface Ticket {
 
 export function priorityLabel(priority: string): string {
   const labels: Record<string, string> = {
-    low:      'Niedrig',
-    medium:   'Mittel',
-    high:     'Hoch',
-    critical: 'Kritisch',
+    low:      tr('Niedrig'),
+    medium:   tr('Mittel'),
+    high:     tr('Hoch'),
+    critical: tr('Kritisch'),
   }
   return labels[priority] || priority
 }
@@ -31,10 +31,10 @@ export function priorityBadge(priority: string): string {
 
 export function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    open:        'Offen',
-    in_progress: 'In Bearbeitung',
-    resolved:    'Gelöst',
-    closed:      'Geschlossen',
+    open:        tr('Offen'),
+    in_progress: tr('In Bearbeitung'),
+    resolved:    tr('Gelöst'),
+    closed:      tr('Geschlossen'),
   }
   return labels[status] || status
 }

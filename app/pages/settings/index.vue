@@ -33,7 +33,7 @@
                 <input type="file" accept="image/*" style="display:none" @change="uploadLogo" :disabled="logoUploading" />
                 <span class="accent-btn" style="height:28px;font-size:12px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;pointer-events:none">
                   <i class="ti" :class="logoUploading ? 'ti-loader-2 spin' : 'ti-upload'"></i>
-                  {{ logoUploading ? 'Lädt...' : brand.logoUrl ? 'Ändern' : 'Logo hochladen' }}
+                  {{ logoUploading ? tr('Lädt...') : brand.logoUrl ? tr('Ändern') : tr('Logo hochladen') }}
                 </span>
               </label>
               <button v-if="brand.logoUrl" class="icon-btn" style="color:var(--danger)" @click="brand.logoUrl=''" :title="tr('Logo entfernen')">
@@ -346,7 +346,7 @@
                   @click="invoiceSettings.smallBusiness = !invoiceSettings.smallBusiness"
                   style="cursor:pointer"><div class="pill-thumb"></div></div>
                 <span style="font-size:12px;color:var(--text-muted)">
-                  {{ invoiceSettings.smallBusiness ? 'Aktiv — kein MwSt.-Ausweis' : 'Inaktiv' }}
+                  {{ invoiceSettings.smallBusiness ? tr('Aktiv — kein MwSt.-Ausweis') : tr('Inaktiv') }}
                 </span>
               </div>
             </div>
@@ -374,7 +374,7 @@
                 <div class="pill-toggle" :class="{ on: invoicePayment.sepaEnabled }"
                   @click="invoicePayment.sepaEnabled = !invoicePayment.sepaEnabled"
                   style="cursor:pointer"><div class="pill-thumb"></div></div>
-                <span style="font-size:12px;color:var(--text-muted)">{{ invoicePayment.sepaEnabled ? 'Aktiv' : 'Inaktiv' }}</span>
+                <span style="font-size:12px;color:var(--text-muted)">{{ invoicePayment.sepaEnabled ? tr('Aktiv') : tr('Inaktiv') }}</span>
               </div>
             </div>
             <div class="auth-field">
@@ -383,7 +383,7 @@
                 <div class="pill-toggle" :class="{ on: invoicePayment.stripeEnabled }"
                   @click="invoicePayment.stripeEnabled = !invoicePayment.stripeEnabled"
                   style="cursor:pointer"><div class="pill-thumb"></div></div>
-                <span style="font-size:12px;color:var(--text-muted)">{{ invoicePayment.stripeEnabled ? 'Aktiv' : 'Inaktiv' }}</span>
+                <span style="font-size:12px;color:var(--text-muted)">{{ invoicePayment.stripeEnabled ? tr('Aktiv') : tr('Inaktiv') }}</span>
               </div>
             </div>
           </div>
@@ -464,7 +464,7 @@
                 <label>{{ tr('Inkasso-Androhung') }}</label>
                 <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
                   <div class="pill-toggle" :class="{ on: dunning.level3.inkasso }" @click="dunning.level3.inkasso=!dunning.level3.inkasso" style="cursor:pointer"><div class="pill-thumb"></div></div>
-                  <span style="font-size:12px;color:var(--text-muted)">{{ dunning.level3.inkasso ? 'Aktiv' : 'Inaktiv' }}</span>
+                  <span style="font-size:12px;color:var(--text-muted)">{{ dunning.level3.inkasso ? tr('Aktiv') : tr('Inaktiv') }}</span>
                 </div>
               </div>
             </div>
@@ -485,7 +485,7 @@
           <div style="display:flex;gap:8px;align-items:center">
             <span v-if="store.license" class="badge" :class="store.license.tier==='enterprise' ? 'badge-warning' : store.license.tier==='pro' ? 'badge-info' : 'badge-success'">
               <i class="ti ti-key" style="margin-right:4px"></i>
-              {{ store.license.tier === 'enterprise' ? 'Enterprise' : store.license.tier === 'pro' ? 'Pro' : 'Starter' }}
+              {{ store.license.tier === 'enterprise' ? tr('Enterprise') : store.license.tier === 'pro' ? tr('Pro') : tr('Starter') }}
             </span>
             <span v-else class="badge badge-danger"><i class="ti ti-key-off" style="margin-right:4px"></i>{{ tr('Keine Lizenz') }}</span>
             <span style="font-size:12px;color:var(--text-muted)">{{ store.modules.filter(m => m.on && !m.locked).length }} / {{ store.modules.length }} {{ tr('aktiv') }}</span>
@@ -516,7 +516,7 @@
                   <div style="font-weight:700;font-size:14px">{{ m.name }}</div>
                   <span class="badge" style="font-size:10px;margin-top:2px"
                     :class="m.plan === 'basic' ? 'badge-success' : m.plan === 'pro' ? 'badge-info' : 'badge-warning'">
-                    {{ m.plan === 'basic' ? 'Basic' : m.plan === 'pro' ? 'Pro' : 'Enterprise' }}
+                    {{ m.plan === 'basic' ? tr('Basic') : m.plan === 'pro' ? tr('Pro') : tr('Enterprise') }}
                   </span>
                 </div>
                 <div class="pill-toggle" :class="{ on: m.on && !m.locked }"
@@ -549,8 +549,8 @@
           <!-- Eingabe bleibt immer offen -->
           <div style="display:flex;gap:10px;align-items:flex-end">
             <div class="auth-field" style="flex:1;margin:0">
-              <label>{{ currentCategoryArea.inputLabel || 'Neue Kategorie' }}</label>
-              <input v-model="newCategoryInput[activeCategoryArea]" :placeholder="currentCategoryArea.placeholder || 'z.B. Ratgeber'" @keyup.enter="addCategory(activeCategoryArea)" />
+              <label>{{ currentCategoryArea.inputLabel || tr('Neue Kategorie') }}</label>
+              <input v-model="newCategoryInput[activeCategoryArea]" :placeholder="currentCategoryArea.placeholder || tr('z.B. Ratgeber')" @keyup.enter="addCategory(activeCategoryArea)" />
             </div>
             <button class="accent-btn" :disabled="isDemo || !newCategoryInput[activeCategoryArea]?.trim() || categoriesSaving" @click="addCategory(activeCategoryArea)">
               <i class="ti ti-plus"></i> {{ tr('Hinzufügen') }}
@@ -565,7 +565,7 @@
 
           <div v-if="showCategoryOverview">
             <div v-if="!categories[activeCategoryArea]?.length" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">
-              {{ currentCategoryArea.emptyText || 'Noch keine Kategorien angelegt.' }}
+              {{ currentCategoryArea.emptyText || tr('Noch keine Kategorien angelegt.') }}
             </div>
             <div v-for="cat in sortedCategories(activeCategoryArea)" :key="cat"
               style="padding:10px 4px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -662,19 +662,19 @@
                 <td style="font-size:12px">{{ lic.customerEmail }}</td>
                 <td>
                   <span class="badge" :class="lic.tier==='enterprise' ? 'badge-warning' : lic.tier==='pro' ? 'badge-info' : 'badge-success'">
-                    {{ lic.tier === 'enterprise' ? 'Enterprise' : lic.tier === 'pro' ? 'Pro' : 'Starter' }}
+                    {{ lic.tier === 'enterprise' ? tr('Enterprise') : lic.tier === 'pro' ? tr('Pro') : tr('Starter') }}
                   </span>
                 </td>
                 <td>
                   <span class="badge" :class="lic.status==='active' ? 'badge-success' : 'badge-danger'">
-                    {{ lic.status === 'active' ? 'Aktiv' : 'Inaktiv' }}
+                    {{ lic.status === 'active' ? tr('Aktiv') : tr('Inaktiv') }}
                   </span>
                 </td>
-                <td style="font-size:12px;color:var(--text-muted)">{{ lic.validUntil ? new Date(lic.validUntil).toLocaleDateString('de-DE') : '∞ Unbegrenzt' }}</td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ lic.validUntil ? new Date(lic.validUntil).toLocaleDateString('de-DE') : tr('∞ Unbegrenzt') }}</td>
                 <td style="font-size:11px;color:var(--text-muted)">{{ new Date(lic.created).toLocaleDateString('de-DE') }}</td>
                 <td>
                   <div style="display:flex;gap:4px">
-                    <button @click="toggleLicStatus(lic)" class="icon-btn" :title="lic.status==='active' ? 'Deaktivieren' : 'Aktivieren'"
+                    <button @click="toggleLicStatus(lic)" class="icon-btn" :title="lic.status==='active' ? tr('Deaktivieren') : tr('Aktivieren')"
                       :style="lic.status==='active' ? 'color:#E05C5C' : 'color:#00C853'">
                       <i class="ti" :class="lic.status==='active' ? 'ti-ban' : 'ti-check'"></i>
                     </button>
@@ -773,7 +773,7 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="auth-field">
               <label>{{ tr('Secret Key') }} <span v-if="payment.stripeSecretKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
-              <input v-model="payment.stripeSecretKey" type="password" :placeholder="payment.stripeSecretKeyConfigured ? 'Unverändert lassen zum Beibehalten' : 'sk_live_...'" />
+              <input v-model="payment.stripeSecretKey" type="password" :placeholder="payment.stripeSecretKeyConfigured ? tr('Unverändert lassen zum Beibehalten') : 'sk_live_...'" />
             </div>
             <div class="auth-field">
               <label>{{ tr('Publishable Key') }}</label>
@@ -781,7 +781,7 @@
             </div>
             <div class="auth-field">
               <label>{{ tr('Webhook Secret') }} <span v-if="payment.stripeWebhookSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
-              <input v-model="payment.stripeWebhookSecret" type="password" :placeholder="payment.stripeWebhookSecretConfigured ? 'Unverändert lassen zum Beibehalten' : 'whsec_...'" />
+              <input v-model="payment.stripeWebhookSecret" type="password" :placeholder="payment.stripeWebhookSecretConfigured ? tr('Unverändert lassen zum Beibehalten') : 'whsec_...'" />
             </div>
           </div>
         </div>
@@ -801,7 +801,7 @@
             </div>
             <div class="auth-field">
               <label>{{ tr('Secret') }} <span v-if="payment.paypalSecretConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
-              <input v-model="payment.paypalSecret" type="password" :placeholder="payment.paypalSecretConfigured ? 'Unverändert lassen zum Beibehalten' : 'EXxx...'" />
+              <input v-model="payment.paypalSecret" type="password" :placeholder="payment.paypalSecretConfigured ? tr('Unverändert lassen zum Beibehalten') : tr('EXxx...')" />
             </div>
             <div class="auth-field" style="grid-column:span 2">
               <label>{{ tr('Modus') }}</label>
@@ -827,7 +827,7 @@
           </div>
           <div class="auth-field" style="max-width:400px">
             <label>{{ tr('API Key') }} <span v-if="payment.mollieApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
-            <input v-model="payment.mollieApiKey" type="password" :placeholder="payment.mollieApiKeyConfigured ? 'Unverändert lassen zum Beibehalten' : 'live_xxx oder test_xxx'" />
+            <input v-model="payment.mollieApiKey" type="password" :placeholder="payment.mollieApiKeyConfigured ? tr('Unverändert lassen zum Beibehalten') : tr('live_xxx oder test_xxx')" />
           </div>
         </div>
 
@@ -850,7 +850,7 @@
             </div>
             <div class="auth-field">
               <label>{{ tr('API Key') }} <span v-if="payment.customApiKeyConfigured" class="badge badge-success" style="font-size:10px;margin-left:4px">{{ tr('Hinterlegt') }}</span></label>
-              <input v-model="payment.customApiKey" type="password" :placeholder="payment.customApiKeyConfigured ? 'Unverändert lassen zum Beibehalten' : '...'" />
+              <input v-model="payment.customApiKey" type="password" :placeholder="payment.customApiKeyConfigured ? tr('Unverändert lassen zum Beibehalten') : '...'" />
             </div>
           </div>
         </div>
@@ -1007,7 +1007,7 @@
         </div>
         <div style="margin-top:16px;display:flex;gap:8px">
           <button class="accent-btn" @click="saveNavOrder" :disabled="isDemo || savingNav">
-            <i class="ti ti-device-floppy"></i> {{ savingNav ? 'Speichern...' : 'Reihenfolge speichern' }}
+            <i class="ti ti-device-floppy"></i> {{ savingNav ? tr('Speichern...') : tr('Reihenfolge speichern') }}
           </button>
         </div>
       </div>
@@ -1105,7 +1105,7 @@
           </select>
           <button class="accent-btn" :disabled="teamInviting || !teamInviteEmail" @click="inviteTeamMember">
             <i class="ti" :class="teamInviting ? 'ti-loader-2 spin' : 'ti-send'"></i>
-            {{ teamInviting ? 'Sendet...' : 'Einladen' }}
+            {{ teamInviting ? tr('Sendet...') : tr('Einladen') }}
           </button>
         </div>
 
@@ -1125,19 +1125,19 @@
               </div>
               <div>
                 <div style="font-size:13px;font-weight:600">{{ m.memberEmail }}</div>
-                <div style="font-size:11px;color:var(--text-muted)">{{ m.role === 'admin' ? 'Admin' : 'Mitglied' }} · {{ m.status === 'invited' ? (m.inviteExpired ? 'Einladung abgelaufen' : 'Einladung ausstehend' + (m.inviteExpiresAt ? ' bis ' + new Date(m.inviteExpiresAt).toLocaleDateString('de-DE') : '')) : 'Aktiv' }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">{{ m.role === 'admin' ? tr('Admin') : tr('Mitglied') }} · {{ m.status === 'invited' ? (m.inviteExpired ? tr('Einladung abgelaufen') : tr('Einladung ausstehend') + (m.inviteExpiresAt ? tr(' bis ') + new Date(m.inviteExpiresAt).toLocaleDateString('de-DE') : '')) : tr('Aktiv') }}</div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <span :style="m.status === 'active' ? 'font-size:11px;padding:3px 8px;border-radius:5px;background:#00C85322;color:#00C853' : 'font-size:11px;padding:3px 8px;border-radius:5px;background:#F0B42822;color:#F0B428'">
-                {{ m.status === 'active' ? 'Aktiv' : (m.inviteExpired ? 'Abgelaufen' : 'Eingeladen') }}
+                {{ m.status === 'active' ? tr('Aktiv') : (m.inviteExpired ? tr('Abgelaufen') : tr('Eingeladen')) }}
               </span>
               <select v-if="m.memberEmail !== userEmail && m.status === 'active' && !isDemo" :value="m.role === 'admin' ? 'admin' : 'member'" :title="tr('Rolle ändern')"
                 style="height:28px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:12px" @change="changeMemberRole(m.memberEmail, ($event.target as HTMLSelectElement).value)">
                 <option value="member">{{ tr('Mitglied') }}</option>
                 <option value="admin">{{ tr('Admin') }}</option>
               </select>
-              <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" :title="m.status === 'invited' ? 'Einladung zurückziehen' : 'Entfernen'">
+              <button v-if="m.memberEmail !== userEmail" class="icon-btn" style="color:var(--danger)" @click="removeTeamMember(m.memberEmail)" :title="m.status === 'invited' ? tr('Einladung zurückziehen') : tr('Entfernen')">
                 <i class="ti ti-trash"></i>
               </button>
             </div>
@@ -1166,7 +1166,7 @@
           :style="item.enabled === false ? 'opacity:.55' : ''">
           <div style="display:flex;gap:8px;align-items:center">
             <input v-model="item.name" class="field-input" :placeholder="tr('Name (z.B. Markus T.)')" style="flex:1" />
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" :title="item.enabled === false ? 'Deaktiviert' : 'Aktiv'">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" :title="item.enabled === false ? tr('Deaktiviert') : tr('Aktiv')">
               <button type="button" @click="item.enabled = item.enabled === false"
                 style="width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0"
                 :style="item.enabled !== false ? 'background:var(--accent)' : 'background:var(--border)'">
@@ -1299,7 +1299,7 @@
           <div style="display:flex;gap:6px;flex-wrap:wrap"><button v-for="p in lpHidden" :key="p.key" class="lt-chip" @click="lp.shown.push(p.key)"><i class="ti ti-plus"></i> {{ p.name }} · {{ eur0(p.price) }}</button></div>
           <div v-if="!lp.shown.length" style="font-size:12px;color:#8a5d00"><i class="ti ti-alert-triangle"></i> {{ tr('Keine Auswahl: die Startseite zeigt dann keinen Abschnitt „Branchen-Pakete“ (ihre festen Platzhalter erscheinen nur, wenn der Abruf scheitert).') }}</div>
         </div>
-        <div v-else style="font-size:12px;color:var(--text-muted)">{{ tr('Aktuell im Store:') }} {{ lp.available.map((p: any) => p.name).join(', ') || 'keine Pakete' }}.</div>
+        <div v-else style="font-size:12px;color:var(--text-muted)">{{ tr('Aktuell im Store:') }} {{ lp.available.map((p: any) => p.name).join(', ') || tr('keine Pakete') }}.</div>
         <div><button class="accent-btn" :disabled="lpSaving || isDemo" @click="saveLp"><i class="ti" :class="lpSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'"></i> {{ tr('Speichern') }}</button></div>
       </div>
     </div>
@@ -1310,7 +1310,7 @@
         <span class="card-title"><i class="ti ti-world" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Website Domain') }}</span>
         <button class="accent-btn" style="height:28px;font-size:12px;padding:0 14px" :disabled="nexoraSaving" @click="saveNexora(userEmail)">
           <i class="ti" :class="nexoraSaving ? 'ti-loader-2 spin' : 'ti-device-floppy'" style="margin-right:4px"></i>
-          {{ nexoraSaving ? 'Speichern...' : 'Speichern' }}
+          {{ nexoraSaving ? tr('Speichern...') : tr('Speichern') }}
         </button>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
@@ -1348,7 +1348,7 @@
             <div class="settings-label">{{ tr('API-Key') }}</div>
             <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:8px">
               <code style="font-size:12px;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ nexora.apiKey }}</code>
-              <button class="icon-btn" @click="copyNexoraKey" :title="nexoraCopied ? 'Kopiert!' : 'Kopieren'">
+              <button class="icon-btn" @click="copyNexoraKey" :title="nexoraCopied ? tr('Kopiert!') : tr('Kopieren')">
                 <i class="ti" :class="nexoraCopied ? 'ti-check' : 'ti-copy'" :style="nexoraCopied ? 'color:#22c55e' : ''"></i>
               </button>
             </div>
@@ -1397,7 +1397,7 @@
             </div>
             <div v-if="backupCurrent.status === 'queued' || backupCurrent.status === 'running'" style="margin-top:10px">
               <div style="height:8px;border-radius:6px;background:var(--border);overflow:hidden"><div :style="`height:100%;width:${backupPercent(backupCurrent)}%;background:var(--accent);transition:width .4s`"></div></div>
-              <div style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ backupCurrent.step || 'wartet auf den Start' }} · {{ backupCurrent.progress?.done || 0 }} / {{ backupCurrent.progress?.total || '…' }} {{ tr('Tabellen') }}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ backupCurrent.step || tr('wartet auf den Start') }} · {{ backupCurrent.progress?.done || 0 }} / {{ backupCurrent.progress?.total || '…' }} {{ tr('Tabellen') }}</div>
             </div>
             <div v-if="backupCurrent.error" style="font-size:12px;color:#ef4444;margin-top:8px">{{ backupCurrent.error }}</div>
             <table v-if="backupCurrent.tables && Object.keys(backupCurrent.tables).length" style="width:100%;font-size:12px;margin-top:10px;border-collapse:collapse">
@@ -1405,7 +1405,7 @@
               <tbody>
                 <tr v-for="(t, name) in backupCurrent.tables" :key="name" v-show="t.rows > 0 || backupCurrent.status === 'done'">
                   <td style="padding:3px 0">{{ String(name).replace('plexora-', '') }}</td><td>{{ t.rows }}</td><td>{{ backupBytes(t.bytes) }}</td>
-                  <td :style="t.verified === t.rows ? 'color:#22c55e' : t.verified < 0 ? '' : 'color:#f59e0b'">{{ t.verified < 0 ? '…' : t.verified === t.rows ? 'gleich' : 'Abweichung' }}</td>
+                  <td :style="t.verified === t.rows ? 'color:#22c55e' : t.verified < 0 ? '' : 'color:#f59e0b'">{{ t.verified < 0 ? '…' : t.verified === t.rows ? 'gleich' : tr('Abweichung') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1500,7 +1500,7 @@
           <label>{{ tr('Secret') }} <span v-if="botInfo.secretConfigured" class="badge badge-success" style="font-size:10px;margin-left:6px">{{ tr('Hinterlegt') }}</span></label>
           <div style="position:relative">
             <input v-model="bot.secret" class="field-input" style="width:100%;font-family:monospace;font-size:12px;padding-right:40px"
-              :type="bot.secretVisible ? 'text' : 'password'" :placeholder="botInfo.secretMasked || 'Secret aus dem Cloudflare-Widget'" :disabled="isDemo" autocomplete="new-password" />
+              :type="bot.secretVisible ? 'text' : 'password'" :placeholder="botInfo.secretMasked || tr('Secret aus dem Cloudflare-Widget')" :disabled="isDemo" autocomplete="new-password" />
             <button type="button" @click="bot.secretVisible = !bot.secretVisible"
               style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
               <i class="ti" :class="bot.secretVisible ? 'ti-eye-off' : 'ti-eye'"></i>
@@ -1545,7 +1545,7 @@
           <div style="margin-top:8px">
             <button class="theme-opt" :disabled="isDemo" @click="insertTurnstilePrivacy">
               <i class="ti ti-file-text"></i>
-              {{ hasTurnstilePrivacy(datenschutz.content) ? 'Absatz ist in der Datenschutzerklärung enthalten' : 'Absatz in die Datenschutzerklärung einfügen' }}
+              {{ hasTurnstilePrivacy(datenschutz.content) ? tr('Absatz ist in der Datenschutzerklärung enthalten') : tr('Absatz in die Datenschutzerklärung einfügen') }}
             </button>
           </div>
         </div>
@@ -1607,7 +1607,7 @@
 
             <div v-if="aiForms[p.key].testResult" class="mkt-send-result" :class="aiForms[p.key].testResult.ok ? 'success' : 'warn'" style="margin-top:8px">
               <i class="ti" :class="aiForms[p.key].testResult.ok ? 'ti-circle-check' : 'ti-alert-triangle'"></i>
-              <span>{{ aiForms[p.key].testResult.ok ? 'Verbindung erfolgreich!' : ('Fehler: ' + aiForms[p.key].testResult.error) }}</span>
+              <span>{{ aiForms[p.key].testResult.ok ? tr('Verbindung erfolgreich!') : (tr('Fehler: ') + aiForms[p.key].testResult.error) }}</span>
             </div>
 
             <button style="margin-top:8px;background:none;border:none;padding:0;color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px"
@@ -1821,37 +1821,37 @@ async function saveSecurity() {
 }
 
 const BASE_TABS = [
-  { key: 'branding',    label: 'Branding',        icon: 'ti-building'        },
-  { key: 'company',     label: 'Unternehmen',      icon: 'ti-building-bank'   },
-  { key: 'appearance',  label: 'Darstellung',      icon: 'ti-palette'         },
-  { key: 'security',    label: 'Sicherheit',       icon: 'ti-shield-lock'     },
-  { key: 'invoices',    label: 'Rechnungen',       icon: 'ti-receipt'         },
-  { key: 'modules',     label: 'Module',           icon: 'ti-puzzle'          },
-  { key: 'video',       label: 'Video', icon: 'ti-video'           },
-  { key: 'categories',  label: 'Kategorien',       icon: 'ti-tags'            },
-  { key: 'licenses',    label: 'Lizenzen',         icon: 'ti-key'             },
-  { key: 'account',     label: 'Konto',            icon: 'ti-user-circle'     },
-  { key: 'billing',     label: 'Abrechnung',       icon: 'ti-credit-card'     },
-  { key: 'navbar',      label: 'Navigation',       icon: 'ti-navigation'      },
-  { key: 'team',        label: 'Team',             icon: 'ti-users'           },
+  { key: 'branding',    label: tr('Branding'),        icon: 'ti-building'        },
+  { key: 'company',     label: tr('Unternehmen'),      icon: 'ti-building-bank'   },
+  { key: 'appearance',  label: tr('Darstellung'),      icon: 'ti-palette'         },
+  { key: 'security',    label: tr('Sicherheit'),       icon: 'ti-shield-lock'     },
+  { key: 'invoices',    label: tr('Rechnungen'),       icon: 'ti-receipt'         },
+  { key: 'modules',     label: tr('Module'),           icon: 'ti-puzzle'          },
+  { key: 'video',       label: tr('Video'), icon: 'ti-video'           },
+  { key: 'categories',  label: tr('Kategorien'),       icon: 'ti-tags'            },
+  { key: 'licenses',    label: tr('Lizenzen'),         icon: 'ti-key'             },
+  { key: 'account',     label: tr('Konto'),            icon: 'ti-user-circle'     },
+  { key: 'billing',     label: tr('Abrechnung'),       icon: 'ti-credit-card'     },
+  { key: 'navbar',      label: tr('Navigation'),       icon: 'ti-navigation'      },
+  { key: 'team',        label: tr('Team'),             icon: 'ti-users'           },
 ]
 
 // Plattformweite (nicht pro-Tenant) Einstellungen — EIN gemeinsames Payment-Konto,
 // EIN Mahnwesen-Default, Plexoras eigene öffentliche AGB-Seite — daher admin-only.
 const ADMIN_TABS = [
   { key: 'agb',          label: 'AGB',              icon: 'ti-file-text'       },
-  { key: 'datenschutz',  label: 'Datenschutz',      icon: 'ti-lock'            },
-  { key: 'dunning',      label: 'Mahnwesen',        icon: 'ti-alert-triangle'  },
-  { key: 'payment',      label: 'Payment',          icon: 'ti-credit-card'     },
-  { key: 'testimonials', label: 'Testimonials',     icon: 'ti-quote'           },
-  { key: 'landing',      label: 'Startseite (Design)', icon: 'ti-palette'      },
+  { key: 'datenschutz',  label: tr('Datenschutz'),      icon: 'ti-lock'            },
+  { key: 'dunning',      label: tr('Mahnwesen'),        icon: 'ti-alert-triangle'  },
+  { key: 'payment',      label: tr('Payment'),          icon: 'ti-credit-card'     },
+  { key: 'testimonials', label: tr('Testimonials'),     icon: 'ti-quote'           },
+  { key: 'landing',      label: tr('Startseite (Design)'), icon: 'ti-palette'      },
 ]
 
 const tabs = computed(() => {
   const extra = store.licenseModules?.includes('nexora')
-    ? [{ key: 'nexora', label: 'Website', icon: 'ti-world' }]
+    ? [{ key: 'nexora', label: tr('Website'), icon: 'ti-world' }]
     : []
-  const aiExtra = [{ key: 'ai', label: 'Plexora AI', icon: 'ti-sparkles' }, { key: 'botprotection', label: 'Bot-Schutz', icon: 'ti-shield-check' }, { key: 'backup', label: 'Sicherung', icon: 'ti-database-export' }, { key: 'mailtemplates', label: 'E-Mail-Vorlagen', icon: 'ti-mail-cog' }]
+  const aiExtra = [{ key: 'ai', label: tr('Plexora AI'), icon: 'ti-sparkles' }, { key: 'botprotection', label: tr('Bot-Schutz'), icon: 'ti-shield-check' }, { key: 'backup', label: tr('Sicherung'), icon: 'ti-database-export' }, { key: 'mailtemplates', label: tr('E-Mail-Vorlagen'), icon: 'ti-mail-cog' }]
   const adminExtra = isAdmin.value || isDemo.value ? ADMIN_TABS : []       // Demo-Konto sieht die Betreiber-Reiter schreibgeschützt (Datenintegrität und Gesamtsicherung nicht)
   return [...BASE_TABS, ...adminExtra, ...extra, ...aiExtra]
 })
@@ -2050,10 +2050,10 @@ async function removeBotProtection() {
 
 // ── Plexora AI: Multi-Provider BYOK ────────────────────────────────────
 const aiProviderList = [
-  { key: 'anthropic', label: 'Claude (Anthropic)', placeholder: 'sk-ant-...' },
-  { key: 'openai',    label: 'OpenAI',              placeholder: 'sk-...' },
-  { key: 'groq',      label: 'Groq',                placeholder: 'gsk_...' },
-  { key: 'gemini',    label: 'Gemini (Google)',     placeholder: 'AIza...' },
+  { key: 'anthropic', label: tr('Claude (Anthropic)'), placeholder: 'sk-ant-...' },
+  { key: 'openai',    label: tr('OpenAI'),              placeholder: 'sk-...' },
+  { key: 'groq',      label: tr('Groq'),                placeholder: 'gsk_...' },
+  { key: 'gemini',    label: tr('Gemini (Google)'),     placeholder: tr('AIza...') },
 ] as const
 
 type AiProviderKey = typeof aiProviderList[number]['key']
@@ -2332,10 +2332,10 @@ const invoicePayment = reactive({ sepaEnabled: true, stripeEnabled: true })
 
 // ── Kategorien ────────────────────────────────────────
 const categoryAreas = [
-  { key: 'blog', label: 'Blog', icon: 'ti-news' },
-  { key: 'shop', label: 'Shop', icon: 'ti-shopping-cart' },
-  { key: 'serviceUnits', label: 'Leistungseinheiten', title: 'Leistungseinheiten', icon: 'ti-list-details', inputLabel: 'Neue Einheit', placeholder: 'z.B. Std.', emptyText: 'Noch keine Einheiten angelegt.' },
-  { key: 'articles', label: 'Artikel', title: 'Artikel-Kategorien', icon: 'ti-package', placeholder: 'z.B. Hardware', emptyText: 'Noch keine Kategorien angelegt.' },
+  { key: 'blog', label: tr('Blog'), icon: 'ti-news' },
+  { key: 'shop', label: tr('Shop'), icon: 'ti-shopping-cart' },
+  { key: 'serviceUnits', label: tr('Leistungseinheiten'), title: tr('Leistungseinheiten'), icon: 'ti-list-details', inputLabel: 'Neue Einheit', placeholder: tr('z.B. Std.'), emptyText: 'Noch keine Einheiten angelegt.' },
+  { key: 'articles', label: tr('Artikel'), title: tr('Artikel-Kategorien'), icon: 'ti-package', placeholder: tr('z.B. Hardware'), emptyText: 'Noch keine Kategorien angelegt.' },
 ]
 const activeCategoryArea = ref(categoryAreas[0].key)
 const currentCategoryArea = computed(() => categoryAreas.find(a => a.key === activeCategoryArea.value) || categoryAreas[0])
@@ -2594,10 +2594,10 @@ const payment = reactive({
 })
 
 const gateways = [
-  { key: 'stripe',  name: 'Stripe',  icon: 'ti-brand-stripe', desc: 'Kreditkarte, SEPA' },
-  { key: 'paypal',  name: 'PayPal',  icon: 'ti-brand-paypal', desc: 'PayPal, Kreditkarte' },
-  { key: 'mollie',  name: 'Mollie',  icon: 'ti-credit-card',  desc: 'iDEAL, SOFORT, mehr' },
-  { key: 'custom',  name: 'Custom',  icon: 'ti-plug',         desc: 'Eigener Anbieter' },
+  { key: 'stripe',  name: 'Stripe',  icon: 'ti-brand-stripe', desc: tr('Kreditkarte, SEPA') },
+  { key: 'paypal',  name: 'PayPal',  icon: 'ti-brand-paypal', desc: tr('PayPal, Kreditkarte') },
+  { key: 'mollie',  name: 'Mollie',  icon: 'ti-credit-card',  desc: tr('iDEAL, SOFORT, mehr') },
+  { key: 'custom',  name: 'Custom',  icon: 'ti-plug',         desc: tr('Eigener Anbieter') },
 ]
 
 async function savePayment() {
@@ -2702,7 +2702,7 @@ async function saveTestimonials() {
 }
 
 // ── Startseite (Design) ──
-const LT_MODES = [{ key: 'light', label: 'Freundlich hell', icon: 'ti-sun' }, { key: 'dark', label: 'Dunkel', icon: 'ti-moon' }, { key: 'custom', label: 'Eigene Farben', icon: 'ti-palette' }]
+const LT_MODES = [{ key: 'light', label: tr('Freundlich hell'), icon: 'ti-sun' }, { key: 'dark', label: tr('Dunkel'), icon: 'ti-moon' }, { key: 'custom', label: tr('Eigene Farben'), icon: 'ti-palette' }]
 const lt = reactive<LandingTheme>({ ...DEFAULT_LANDING_THEME, display: { ...DEFAULT_LANDING_THEME.display }, wall: { ...DEFAULT_LANDING_THEME.wall, images: [...DEFAULT_LANDING_THEME.wall.images] } })
 const wallLabel = (k: string) => WALL_IMAGES.find(i => i.key === k)?.label || k
 const wallFree = computed(() => WALL_IMAGES.filter(i => !lt.wall.images.includes(i.key)))

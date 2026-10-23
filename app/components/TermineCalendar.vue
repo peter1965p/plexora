@@ -52,7 +52,7 @@ interface Booking { bookingId: string; typeName: string; date: string; startTime
 const props = defineProps<{ bookings: Booking[]; canCreate?: boolean }>()
 const emit = defineEmits<{ (e: 'new', date: string, time: string): void; (e: 'open', b: any): void }>()
 
-const VIEWS = [{ key: 'month', label: 'Monat' }, { key: 'week', label: 'Woche' }, { key: 'day', label: 'Tag' }]
+const VIEWS = [{ key: 'month', label: tr('Monat') }, { key: 'week', label: tr('Woche') }, { key: 'day', label: tr('Tag') }]
 const DOW = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 const HOUR_PX = 52
 const view = ref<'month' | 'week' | 'day'>('week')

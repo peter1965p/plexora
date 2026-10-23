@@ -6,7 +6,7 @@ const settings = readFileSync('app/pages/settings/index.vue', 'utf8')
 
 describe('Editor E-Mail-Vorlagen (Oberfläche)', () => {
   it('ist ein eigener Reiter der globalen Einstellungen (Muster Bot-Schutz) und bekommt das Demo-Flag', () => {
-    expect(settings).toContain("{ key: 'mailtemplates', label: 'E-Mail-Vorlagen', icon: 'ti-mail-cog' }")
+    expect(settings).toContain("{ key: 'mailtemplates', label: tr('E-Mail-Vorlagen'), icon: 'ti-mail-cog' }")
     expect(settings).toContain(`<MailTemplateEditor v-if="tab === 'mailtemplates'" :disabled="isDemo" />`)
   })
   it('nutzt für die Vorschau dieselbe Funktion wie der Server und zeigt sie in einem Iframe ohne Skripte (sandbox leer)', () => {

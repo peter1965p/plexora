@@ -119,7 +119,7 @@
     <!-- UNTERKUNFT-FORMULAR -->
     <div v-if="showUnit" class="modal-overlay" @click.self="showUnit = false">
       <div class="modal-card">
-        <div class="modal-header"><span class="card-title">{{ editingUnit ? 'Unterkunft bearbeiten' : 'Neue Unterkunft' }}</span><button class="icon-btn" @click="showUnit = false"><i class="ti ti-x"></i></button></div>
+        <div class="modal-header"><span class="card-title">{{ editingUnit ? tr('Unterkunft bearbeiten') : tr('Neue Unterkunft') }}</span><button class="icon-btn" @click="showUnit = false"><i class="ti ti-x"></i></button></div>
         <div class="modal-body">
           <div v-if="formError" class="err">{{ formError }}</div>
           <div class="auth-field"><label>{{ tr('Name *') }}</label><input v-model="uf.name" maxlength="100" :placeholder="tr('z. B. Seeblick, Haus 1')" /></div>
@@ -154,7 +154,7 @@
     <!-- BUCHUNGS-FORMULAR -->
     <div v-if="showBooking" class="modal-overlay" @click.self="showBooking = false">
       <div class="modal-card">
-        <div class="modal-header"><span class="card-title">{{ editingBooking ? 'Buchung bearbeiten' : 'Neue Buchung' }}</span><button class="icon-btn" @click="showBooking = false"><i class="ti ti-x"></i></button></div>
+        <div class="modal-header"><span class="card-title">{{ editingBooking ? tr('Buchung bearbeiten') : tr('Neue Buchung') }}</span><button class="icon-btn" @click="showBooking = false"><i class="ti ti-x"></i></button></div>
         <div class="modal-body">
           <div v-if="formError" class="err">{{ formError }}</div>
           <div class="auth-row">
@@ -194,7 +194,7 @@ import { FEWO_STATUS_LABELS, priceStay, nightsBetween, addDays, todayIsoDate, is
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 // Ferienwohnungs-Verwaltung. Alle Regeln (Überschneidungen, Preise, wer was darf) setzt der Server durch; die Oberfläche zeigt nur an und fragt ab.
-const TABS = [{ key: 'plan', label: 'Belegungsplan', icon: 'ti-calendar-month' }, { key: 'bookings', label: 'Buchungen', icon: 'ti-list-details' }, { key: 'units', label: 'Unterkünfte & Kanäle', icon: 'ti-home-cog' }]
+const TABS = [{ key: 'plan', label: tr('Belegungsplan'), icon: 'ti-calendar-month' }, { key: 'bookings', label: tr('Buchungen'), icon: 'ti-list-details' }, { key: 'units', label: tr('Unterkünfte & Kanäle'), icon: 'ti-home-cog' }]
 const STATUS = FEWO_STATUS_LABELS as Record<string, string>
 const tab = ref('plan')
 const units = ref<any[]>([]), bookings = ref<any[]>([])

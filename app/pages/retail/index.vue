@@ -40,7 +40,7 @@
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:18px;position:sticky;top:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div style="font-weight:700;font-size:14px"><i class="ti ti-shopping-cart" style="color:var(--accent)"></i> {{ tr('Warenkorb') }}</div>
-          <button class="icon-btn" style="width:28px;height:28px" :title="showDisplay ? 'Anzeige ausblenden' : 'Anzeige einblenden'" @click="toggleDisplay">
+          <button class="icon-btn" style="width:28px;height:28px" :title="showDisplay ? tr('Anzeige ausblenden') : tr('Anzeige einblenden')" @click="toggleDisplay">
             <i class="ti" :class="showDisplay ? 'ti-eye' : 'ti-eye-off'"></i>
           </button>
         </div>
@@ -85,7 +85,7 @@
             <button class="form-select" style="flex:1" :style="paymentMethod==='karte' ? 'border-color:var(--accent);color:var(--accent)' : ''" @click="paymentMethod='karte'">{{ tr('Karte') }}</button>
           </div>
           <button class="auth-btn" :disabled="checkingOut" @click="checkout">
-            <i class="ti ti-check" style="margin-right:6px"></i>{{ checkingOut ? 'Speichere…' : 'Verkauf abschließen' }}
+            <i class="ti ti-check" style="margin-right:6px"></i>{{ checkingOut ? tr('Speichere…') : tr('Verkauf abschließen') }}
           </button>
         </div>
       </div>
@@ -124,7 +124,7 @@
         <div style="font-size:28px;font-weight:900;color:var(--accent);margin-bottom:12px">€ {{ todayTotal.toFixed(2) }}</div>
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">{{ todaySales.length }} {{ tr('Verkäufe') }}</div>
         <button class="accent-btn" :disabled="closingDay" @click="closeDay">
-          <i class="ti ti-lock" style="margin-right:6px"></i>{{ closingDay ? 'Speichere…' : 'Tag abschließen' }}
+          <i class="ti ti-lock" style="margin-right:6px"></i>{{ closingDay ? tr('Speichere…') : tr('Tag abschließen') }}
         </button>
       </div>
 
@@ -188,7 +188,7 @@
         <div class="auth-field" style="margin-bottom:20px"><label>{{ tr('Grund (optional)') }}</label><input v-model="returnForm.reason" /></div>
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px"><i class="ti ti-info-circle"></i> {{ tr('POS-Verkäufe haben keine Stripe-Zahlung — nur Bestand wird zurückgebucht, keine automatische Erstattung.') }}</div>
         <button class="auth-btn" :disabled="returnSaving || !returnForm.qty" @click="submitReturn">
-          <i class="ti ti-rotate-2" style="margin-right:6px"></i>{{ returnSaving ? 'Speichere…' : 'Retoure abschließen' }}
+          <i class="ti ti-rotate-2" style="margin-right:6px"></i>{{ returnSaving ? tr('Speichere…') : tr('Retoure abschließen') }}
         </button>
       </div>
     </div>
@@ -197,7 +197,7 @@
     <div v-if="showProductModal" class="modal-overlay" @click.self="showProductModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:440px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">{{ editingProductId ? 'Produkt bearbeiten' : 'Produkt anlegen' }}</div>
+          <div style="font-size:16px;font-weight:700">{{ editingProductId ? tr('Produkt bearbeiten') : tr('Produkt anlegen') }}</div>
           <button class="icon-btn" @click="showProductModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Name') }}</label><input v-model="pForm.name" :placeholder="tr('Produktname')" /></div>
@@ -211,7 +211,7 @@
           <div class="auth-field"><label>{{ tr('Einheit') }}</label><input v-model="pForm.unit" :placeholder="tr('Stk')" /></div>
         </div>
         <button class="auth-btn" :disabled="savingProduct || !pForm.name" @click="saveProduct">
-          <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingProductId ? 'Speichern' : 'Anlegen' }}
+          <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingProductId ? tr('Speichern') : tr('Anlegen') }}
         </button>
       </div>
     </div>
@@ -234,10 +234,10 @@ const sales     = ref<any[]>([])
 const closings  = ref<any[]>([])
 
 const tabs = [
-  { key: 'kasse',    label: 'Kasse',          icon: 'ti-cash-register' },
-  { key: 'lager',    label: 'Lager',          icon: 'ti-boxes' },
-  { key: 'abschluss', label: 'Tagesabschluss', icon: 'ti-report-money' },
-  { key: 'verkaeufe', label: 'Verkäufe',       icon: 'ti-receipt' },
+  { key: 'kasse',    label: tr('Kasse'),          icon: 'ti-cash-register' },
+  { key: 'lager',    label: tr('Lager'),          icon: 'ti-boxes' },
+  { key: 'abschluss', label: tr('Tagesabschluss'), icon: 'ti-report-money' },
+  { key: 'verkaeufe', label: tr('Verkäufe'),       icon: 'ti-receipt' },
 ]
 
 function authHeaders() { return { 'x-user-email': userEmail.value, Authorization: `Bearer ${authToken.value}` } }

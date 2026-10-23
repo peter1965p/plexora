@@ -30,16 +30,16 @@
             <td></td>
           </tr>
           <tr v-for="m in members" :key="m.memberEmail">
-            <td><div class="who"><span class="av">{{ initial(m.memberEmail) }}</span><div><strong>{{ m.memberEmail }}</strong><div class="sub" v-if="m.invitedAt">{{ m.status === 'invited' ? 'eingeladen am ' : 'dabei seit ' }}{{ dateDe(m.invitedAt) }}</div></div></div></td>
+            <td><div class="who"><span class="av">{{ initial(m.memberEmail) }}</span><div><strong>{{ m.memberEmail }}</strong><div class="sub" v-if="m.invitedAt">{{ m.status === 'invited' ? tr('eingeladen am ') : tr('dabei seit ') }}{{ dateDe(m.invitedAt) }}</div></div></div></td>
             <td>
               <select class="form-select" style="height:30px" :value="m.role === 'admin' ? 'admin' : 'member'" :disabled="isDemo || busy === m.memberEmail" :title="tr('Rolle ändern')" @change="changeRole(m, ($event.target as HTMLSelectElement).value)">
                 <option value="member">{{ tr('Mitglied') }}</option><option value="admin">{{ tr('Admin') }}</option>
               </select>
             </td>
-            <td><span class="st" :class="m.status === 'active' ? 'on' : (m.inviteExpired ? 'exp' : 'pend')">{{ m.status === 'active' ? 'Aktiv' : (m.inviteExpired ? 'Einladung abgelaufen' : 'Eingeladen') }}</span></td>
+            <td><span class="st" :class="m.status === 'active' ? 'on' : (m.inviteExpired ? 'exp' : 'pend')">{{ m.status === 'active' ? tr('Aktiv') : (m.inviteExpired ? tr('Einladung abgelaufen') : tr('Eingeladen')) }}</span></td>
             <td style="white-space:nowrap;text-align:right">
               <button v-if="m.status === 'invited' && m.inviteExpired" class="icon-btn" :title="tr('Einladung erneut senden')" :disabled="isDemo" @click="resend(m)"><i class="ti ti-send"></i></button>
-              <button class="icon-btn" style="color:var(--danger)" :title="m.status === 'invited' ? 'Einladung zurückziehen' : 'Aus dem Team entfernen'" :disabled="isDemo" @click="remove(m)"><i class="ti ti-trash"></i></button>
+              <button class="icon-btn" style="color:var(--danger)" :title="m.status === 'invited' ? tr('Einladung zurückziehen') : tr('Aus dem Team entfernen')" :disabled="isDemo" @click="remove(m)"><i class="ti ti-trash"></i></button>
             </td>
           </tr>
           <tr v-if="!members.length"><td colspan="4" style="text-align:center;color:var(--text-muted);padding:22px">{{ tr('Noch niemand eingeladen. Mit „Mitglied einladen“ legst du los.') }}</td></tr>

@@ -19,22 +19,22 @@ export interface Contract {
 
 export function typeLabel(type: string): string {
   const labels: Record<string, string> = {
-    service:     'Dienstleistung',
-    license:     'Lizenz',
-    maintenance: 'Wartung',
-    rental:      'Miete',
-    insurance:   'Versicherung',
-    other:       'Sonstiges',
+    service:     tr('Dienstleistung'),
+    license:     tr('Lizenz'),
+    maintenance: tr('Wartung'),
+    rental:      tr('Miete'),
+    insurance:   tr('Versicherung'),
+    other:       tr('Sonstiges'),
   }
   return labels[type] || type
 }
 
 export function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    draft:     'Entwurf',
-    active:    'Aktiv',
-    cancelled: 'Gekündigt',
-    expired:   'Abgelaufen',
+    draft:     tr('Entwurf'),
+    active:    tr('Aktiv'),
+    cancelled: tr('Gekündigt'),
+    expired:   tr('Abgelaufen'),
   }
   return labels[status] || status
 }
@@ -100,7 +100,7 @@ export function expiryInfo(c: Contract): ExpiryInfo | null {
   if (c.status !== 'active' || !c.endDate) return null
   const days = daysUntil(c.endDate)
   if (days === null) return null
-  if (days < 0) return { label: 'Abgelaufen', badge: 'badge-danger' }
+  if (days < 0) return { label: tr('Abgelaufen'), badge: 'badge-danger' }
   const notice = c.noticePeriodDays || 0
   if (notice > 0 && days <= notice) return { label: `Kündigungsfrist! ${days}d`, badge: 'badge-danger' }
   if (days <= 30) return { label: `läuft in ${days}d aus`, badge: 'badge-warning' }

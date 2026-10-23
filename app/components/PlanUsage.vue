@@ -7,8 +7,8 @@ const failed = ref(false)
 const mb = (n: number) => (n >= 1048576 ? `${Math.round(n / 1048576)} MB` : `${Math.round(n / 1024)} KB`)
 const pct = (used: number, max: number) => (max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0)
 const rows = computed(() => !data.value ? [] : [
-  { label: 'Systemmails heute (Rechnungen, Bestätigungen, Einladungen)', used: data.value.usage.system, max: data.value.limits.mailSystemPerDay },
-  { label: 'Massenmails heute (Kampagnen, Newsletter, Follow-ups)', used: data.value.usage.bulk, max: data.value.limits.mailBulkPerDay },
+  { label: tr('Systemmails heute (Rechnungen, Bestätigungen, Einladungen)'), used: data.value.usage.system, max: data.value.limits.mailSystemPerDay },
+  { label: tr('Massenmails heute (Kampagnen, Newsletter, Follow-ups)'), used: data.value.usage.bulk, max: data.value.limits.mailBulkPerDay },
 ])
 onMounted(async () => {
   try {

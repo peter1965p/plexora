@@ -132,7 +132,7 @@
           <div style="padding:14px;flex:1;display:flex;flex-direction:column">
             <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:700">{{ p.street }}</div>
             <div style="font-weight:700;font-size:15px;margin-bottom:4px">{{ p.zipCity }}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">{{ p.size ? p.size + ' m²' : '—' }} · {{ p.rooms ? p.rooms + ' Zimmer' : '—' }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">{{ p.size ? p.size + ' m²' : '—' }} · {{ p.rooms ? p.rooms + tr(' Zimmer') : '—' }}</div>
 
             <div v-if="p.priceType === 'miete'" style="background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:auto;display:flex;flex-direction:column;gap:3px">
               <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)"><span>{{ tr('Kaltmiete') }}</span><span>{{ formatEuro(p.kaltmiete) }}</span></div>
@@ -221,7 +221,7 @@
               <td style="padding:12px;font-size:13px;font-weight:700;color:var(--accent)">{{ formatEuro(renterWarmmiete(r)) }}</td>
               <td style="padding:12px">
                 <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em"
-                  :style="r.utilityStatus === 'abgerechnet' ? 'background:#22c55e22;color:#22c55e' : 'background:#f59e0b22;color:#f59e0b'">{{ r.utilityStatus === 'abgerechnet' ? 'Abgerechnet' : 'Offen' }}</span>
+                  :style="r.utilityStatus === 'abgerechnet' ? 'background:#22c55e22;color:#22c55e' : 'background:#f59e0b22;color:#f59e0b'">{{ r.utilityStatus === 'abgerechnet' ? tr('Abgerechnet') : tr('Offen') }}</span>
               </td>
               <td style="padding:12px;text-align:right;display:flex;gap:4px;justify-content:flex-end">
                 <button @click="openEditRenter(r)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
@@ -251,13 +251,13 @@
           </div>
           <div style="flex:1">
             <div style="font-weight:700;font-size:14px">{{ r.name }}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ r.propertyName || 'Kein Objekt zugeordnet' }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ r.propertyName || tr('Kein Objekt zugeordnet') }}</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:13px;font-weight:700">{{ formatEuro(r.nebenkosten) }} {{ tr('/ Monat') }}</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px">{{ tr('Vorauszahlung') }}</div>
           </div>
-          <button @click="toggleUtilityStatus(r)" class="icon-btn" style="flex-shrink:0" :title="r.utilityStatus === 'abgerechnet' ? 'Als offen markieren' : 'Als abgerechnet markieren'">
+          <button @click="toggleUtilityStatus(r)" class="icon-btn" style="flex-shrink:0" :title="r.utilityStatus === 'abgerechnet' ? tr('Als offen markieren') : tr('Als abgerechnet markieren')">
             <i class="ti" :class="r.utilityStatus === 'abgerechnet' ? 'ti-rotate' : 'ti-check'"></i>
           </button>
         </div>
@@ -268,7 +268,7 @@
     <div v-if="showPropertyModal" class="modal-overlay" @click.self="showPropertyModal=false">
       <div class="modal-card" style="max-width:640px">
         <div class="modal-header">
-          <span class="card-title">{{ editingPropertyId ? 'Objekt bearbeiten' : 'Objekt anlegen' }}</span>
+          <span class="card-title">{{ editingPropertyId ? tr('Objekt bearbeiten') : tr('Objekt anlegen') }}</span>
           <button class="icon-btn" @click="showPropertyModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -310,7 +310,7 @@
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveProperty" :disabled="savingProperty || !pForm.street || !pForm.zipCity">
             <span v-if="savingProperty"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingPropertyId ? 'Speichern' : 'Objekt anlegen' }}</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingPropertyId ? tr('Speichern') : tr('Objekt anlegen') }}</span>
           </button>
         </div>
       </div>
@@ -351,7 +351,7 @@
     <div v-if="showRenterModal" class="modal-overlay" @click.self="showRenterModal=false">
       <div class="modal-card" style="max-width:520px">
         <div class="modal-header">
-          <span class="card-title">{{ editingRenterId ? 'Mieter bearbeiten' : 'Mieter anlegen' }}</span>
+          <span class="card-title">{{ editingRenterId ? tr('Mieter bearbeiten') : tr('Mieter anlegen') }}</span>
           <button class="icon-btn" @click="showRenterModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -379,7 +379,7 @@
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveRenter" :disabled="!rForm.name">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingRenterId ? 'Speichern' : 'Mieter anlegen' }}
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingRenterId ? tr('Speichern') : tr('Mieter anlegen') }}
           </button>
         </div>
       </div>
@@ -397,10 +397,10 @@ const userId = ref('demo-user')
 const activeTab = ref('objekte')
 
 const tabs = [
-  { key: 'objekte',        label: 'Objekte',        icon: 'ti-building-estate' },
-  { key: 'besichtigungen', label: 'Besichtigungen', icon: 'ti-calendar-event' },
-  { key: 'mieter',         label: 'Mieter',         icon: 'ti-users' },
-  { key: 'nebenkosten',    label: 'Nebenkosten',    icon: 'ti-file-invoice' },
+  { key: 'objekte',        label: tr('Objekte'),        icon: 'ti-building-estate' },
+  { key: 'besichtigungen', label: tr('Besichtigungen'), icon: 'ti-calendar-event' },
+  { key: 'mieter',         label: tr('Mieter'),         icon: 'ti-users' },
+  { key: 'nebenkosten',    label: tr('Nebenkosten'),    icon: 'ti-file-invoice' },
 ]
 
 interface Property {

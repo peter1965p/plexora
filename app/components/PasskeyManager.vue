@@ -27,7 +27,7 @@
           <div style="display:flex;align-items:center;gap:10px">
             <i class="ti ti-fingerprint" style="color:var(--accent);font-size:18px"></i>
             <div>
-              <div style="font-size:13px;font-weight:600;color:var(--text-primary)">{{ cred.friendlyCredentialName || 'Passkey' }}</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary)">{{ cred.friendlyCredentialName || tr('Passkey') }}</div>
               <div style="font-size:11px;color:var(--text-muted)">{{ tr('Registriert am') }} {{ formatPasskeyDate(cred.createdAt) }}</div>
             </div>
           </div>

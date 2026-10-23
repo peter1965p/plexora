@@ -186,7 +186,7 @@
       <span class="card-title"><i class="ti ti-sparkles" style="margin-right:8px;color:var(--accent)"></i>{{ tr('KI-Insights') }}</span>
       <button class="accent-btn" style="height:28px;font-size:12px;padding:0 12px" :disabled="insightsLoading" @click="loadInsights">
         <i class="ti" :class="insightsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i>
-        {{ insightsLoading ? 'Analysiere...' : (insightsText ? 'Neu generieren' : 'Analyse generieren') }}
+        {{ insightsLoading ? tr('Analysiere...') : (insightsText ? tr('Neu generieren') : tr('Analyse generieren')) }}
       </button>
     </div>
     <div class="card-body">

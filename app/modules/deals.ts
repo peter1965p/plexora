@@ -10,10 +10,10 @@ export interface Deal {
 }
 
 export const stageLabel: Record<string, string> = {
-  success: 'Gewonnen',
-  warning: 'Verhandlung',
-  info:    'In Arbeit',
-  danger:  'Verloren',
+  success: tr('Gewonnen'),
+  warning: tr('Verhandlung'),
+  info:    tr('In Arbeit'),
+  danger:  tr('Verloren'),
 }
 
 function parseValue(v: any): number {

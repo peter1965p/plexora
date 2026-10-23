@@ -2,7 +2,7 @@
   <div class="page">
     <div class="header-row">
       <div>
-        <h1 class="title">{{ type === 'job' ? 'Stellenanzeige-' : 'Kampagnen-' }}<span style="color:var(--accent)">{{ tr('Design') }}</span></h1>
+        <h1 class="title">{{ type === 'job' ? tr('Stellenanzeige-') : tr('Kampagnen-') }}<span style="color:var(--accent)">{{ tr('Design') }}</span></h1>
         <p class="subtitle">{{ campaignLabel }} {{ tr('— Vorlage wählen, anpassen, live prüfen.') }}</p>
       </div>
       <div class="header-actions">
@@ -79,7 +79,7 @@
                 wordWrap: 'on',
                 tabSize: 2,
                 scrollBeyondLastLine: false,
-                fontFamily: '\'JetBrains Mono\', \'Fira Code\', monospace',
+                fontFamily: tr('\'JetBrains Mono\', \'Fira Code\', monospace'),
                 padding: { top: 16, bottom: 16 },
               }"
               style="flex:1;min-height:420px"
@@ -148,7 +148,7 @@
             <div class="image-size-buttons">
               <button v-for="pct in [25, 50, 75, 100]" :key="pct" class="image-size-btn"
                 :class="{ active: currentImageWidthPct === pct }" @click="setImageWidthPct(pct)">
-                {{ pct === 100 ? 'Volle Breite' : pct + '%' }}
+                {{ pct === 100 ? tr('Volle Breite') : pct + '%' }}
               </button>
             </div>
           </div>
@@ -194,26 +194,26 @@ const backLink = computed(() => props.type === 'job' ? '/hr' : '/marketing')
 
 const monacoTheme  = ref(import.meta.client ? (localStorage.getItem('plx_editor_theme') || 'vs-dark') : 'vs-dark')
 const monacoThemes = [
-  { value: 'vs-dark',  label: 'VS Dark' },
-  { value: 'vs',       label: 'VS Light' },
-  { value: 'hc-black', label: 'High Contrast Dark' },
-  { value: 'hc-light', label: 'High Contrast Light' },
+  { value: 'vs-dark',  label: tr('VS Dark') },
+  { value: 'vs',       label: tr('VS Light') },
+  { value: 'hc-black', label: tr('High Contrast Dark') },
+  { value: 'hc-light', label: tr('High Contrast Light') },
 ]
 function setMonacoTheme(v: string) {
   localStorage.setItem('plx_editor_theme', v)
 }
 
 const LEAD_PLACEHOLDER_GROUPS = [
-  { label: 'Kampagne', items: ['{{campaign.headline}}', '{{campaign.subtext}}', '{{campaign.accentColor}}', '{{campaign.logoUrl}}', '{{campaign.headerImageUrl}}', '{{campaign.bgImageUrl}}', '{{campaign.bgColor}}'] },
-  { label: 'Vorteile', items: ['{{campaign.contentTitle}}', '{{#each campaign.contentItems}}...{{/each}}'] },
-  { label: 'Formular', items: ['{{{form_html}}}', '{{form.title}}', '{{form.description}}'] },
-  { label: 'Branding', items: ['{{branding.brandName}}', '{{branding.brandNameFirst}}', '{{branding.brandNameLast}}', '{{branding.brandTagline}}', '{{branding.logoUrl}}'] },
+  { label: tr('Kampagne'), items: ['{{campaign.headline}}', '{{campaign.subtext}}', '{{campaign.accentColor}}', '{{campaign.logoUrl}}', '{{campaign.headerImageUrl}}', '{{campaign.bgImageUrl}}', '{{campaign.bgColor}}'] },
+  { label: tr('Vorteile'), items: ['{{campaign.contentTitle}}', '{{#each campaign.contentItems}}...{{/each}}'] },
+  { label: tr('Formular'), items: ['{{{form_html}}}', '{{form.title}}', '{{form.description}}'] },
+  { label: tr('Branding'), items: ['{{branding.brandName}}', '{{branding.brandNameFirst}}', '{{branding.brandNameLast}}', '{{branding.brandTagline}}', '{{branding.logoUrl}}'] },
 ]
 const JOB_PLACEHOLDER_GROUPS = [
-  { label: 'Stelle', items: ['{{campaign.title}}', '{{campaign.department}}', '{{campaign.location}}', '{{campaign.typeLabel}}', '{{campaign.description}}', '{{campaign.requirements}}'] },
-  { label: 'Unternehmen', items: ['{{campaign.companyName}}', '{{campaign.accentColor}}', '{{campaign.logoUrl}}', '{{campaign.headerImageUrl}}'] },
-  { label: 'Bewerbungsformular', items: ['{{{application_form_html}}}'] },
-  { label: 'Branding', items: ['{{branding.brandName}}', '{{branding.brandNameFirst}}', '{{branding.brandNameLast}}'] },
+  { label: tr('Stelle'), items: ['{{campaign.title}}', '{{campaign.department}}', '{{campaign.location}}', '{{campaign.typeLabel}}', '{{campaign.description}}', '{{campaign.requirements}}'] },
+  { label: tr('Unternehmen'), items: ['{{campaign.companyName}}', '{{campaign.accentColor}}', '{{campaign.logoUrl}}', '{{campaign.headerImageUrl}}'] },
+  { label: tr('Bewerbungsformular'), items: ['{{{application_form_html}}}'] },
+  { label: tr('Branding'), items: ['{{branding.brandName}}', '{{branding.brandNameFirst}}', '{{branding.brandNameLast}}'] },
 ]
 const placeholderGroups = computed(() => props.type === 'job' ? JOB_PLACEHOLDER_GROUPS : LEAD_PLACEHOLDER_GROUPS)
 
@@ -266,7 +266,7 @@ function onIframeLoad() {
 }
 
 const FIELD_LABELS: Record<string, string> = {
-  title: 'Titel', headline: 'Headline', subtext: 'Subtext', description: 'Beschreibung',
+  title: tr('Titel'), headline: 'Headline', subtext: 'Subtext', description: tr('Beschreibung'),
   requirements: 'Anforderungen', department: 'Abteilung', location: 'Standort',
   companyName: 'Firmenname', contentTitle: 'Block-Titel',
   logoUrl: 'Logo', headerImageUrl: 'Header-Bild', bgImageUrl: 'Hintergrundbild',

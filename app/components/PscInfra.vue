@@ -3,7 +3,7 @@
       <div class="card-header">
         <span class="card-title"><i class="ti ti-cloud" style="margin-right:8px;color:var(--accent)"></i>{{ tr('AWS Controlcenter') }}</span>
         <button class="accent-btn" style="height:32px;font-size:12px" @click="loadAws" :disabled="awsLoading">
-          <i class="ti" :class="awsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> {{ awsLoading ? 'Lädt...' : 'Aktualisieren' }}
+          <i class="ti" :class="awsLoading ? 'ti-loader-2 spin' : 'ti-refresh'"></i> {{ awsLoading ? tr('Lädt...') : tr('Aktualisieren') }}
         </button>
       </div>
       <div class="card-body">

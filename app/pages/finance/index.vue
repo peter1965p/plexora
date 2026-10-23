@@ -391,8 +391,8 @@
             <div v-for="k in (['xrechnung', 'zugferd'] as const)" :key="k" style="margin-bottom:12px">
               <div style="font-weight:700;font-size:13px;margin-bottom:6px">
                 <i class="ti" :class="checkResult[k].some((p: any) => p.level === 'error') ? 'ti-alert-triangle' : 'ti-circle-check'" :style="{ color: checkResult[k].some((p: any) => p.level === 'error') ? '#E05C5C' : '#22c55e' }"></i>
-                {{ k === 'xrechnung' ? 'XRechnung 3.0 (XML)' : 'ZUGFeRD (PDF mit E-Rechnung)' }}
-                <span style="font-weight:400;color:var(--text-muted)">{{ checkResult[k].some((p: any) => p.level === 'error') ? 'noch nicht vollständig' : 'bereit' }}</span>
+                {{ k === 'xrechnung' ? tr('XRechnung 3.0 (XML)') : tr('ZUGFeRD (PDF mit E-Rechnung)') }}
+                <span style="font-weight:400;color:var(--text-muted)">{{ checkResult[k].some((p: any) => p.level === 'error') ? tr('noch nicht vollständig') : 'bereit' }}</span>
               </div>
               <ul v-if="checkResult[k].length" style="margin:0;padding-left:20px;font-size:12px;line-height:1.6">
                 <li v-for="(p, i) in checkResult[k]" :key="i" :style="{ color: p.level === 'error' ? 'var(--text-primary)' : 'var(--text-muted)' }"><strong>{{ p.field }}:</strong> {{ p.message }}</li>
@@ -514,7 +514,7 @@
     <div v-if="showArticle" class="modal-overlay" @click.self="showArticle=false">
       <div class="modal-card">
         <div class="modal-header">
-          <span class="card-title">{{ editingArticle ? t.common.save : 'Neuer Artikel' }}</span>
+          <span class="card-title">{{ editingArticle ? t.common.save : tr('Neuer Artikel') }}</span>
           <button class="icon-btn" @click="showArticle=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -886,7 +886,7 @@ async function checkEInvoice(invoice: any) {
 const { openConfirm } = useConfirm()
 
 async function finalizeInvoice(invoice: any) {
-  if (!await openConfirm({ title: 'GoBD-Archivierung?', name: `Rechnung ${invoice.number}`, sub: tr('Nach der Archivierung kann die Rechnung nicht mehr gelöscht werden.'), icon: 'ti-lock' })) return
+  if (!await openConfirm({ title: tr('GoBD-Archivierung?'), name: `Rechnung ${invoice.number}`, sub: tr('Nach der Archivierung kann die Rechnung nicht mehr gelöscht werden.'), icon: 'ti-lock' })) return
   await $fetch(useApiUrl(`/api/finance/${invoice.invoiceId}/finalize`), {
     method: 'POST', headers: authHeaders, body: { userId: invoice.userId || userId }
   })

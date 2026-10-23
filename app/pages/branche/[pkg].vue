@@ -24,7 +24,7 @@
         <div v-if="loading" style="padding:24px;color:var(--text-muted)"><i class="ti ti-loader-2 spin"></i></div>
         <div v-else-if="loadError" class="err" style="margin:12px">{{ loadError }}</div>
         <div v-else-if="!rows.length" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px">
-          {{ query ? 'Kein Treffer.' : `Noch keine Einträge. Lege mit „${entity.one} anlegen“ den ersten an.` }}
+          {{ query ? tr('Kein Treffer.') : `Noch keine Einträge. Lege mit „${entity.one} anlegen“ den ersten an.` }}
         </div>
         <div v-else style="overflow-x:auto">
           <table class="data-table">
@@ -49,7 +49,7 @@
       <div v-if="showForm" class="modal-overlay" @click.self="showForm = false">
         <div class="modal-card" role="dialog" aria-modal="true" :aria-label="entity.one">
           <div class="modal-header">
-            <span class="card-title">{{ editingId ? entity.one + ' bearbeiten' : entity.one + ' anlegen' }}</span>
+            <span class="card-title">{{ editingId ? entity.one + tr(' bearbeiten') : entity.one + tr(' anlegen') }}</span>
             <button class="icon-btn" @click="showForm = false"><i class="ti ti-x"></i></button>
           </div>
           <form class="modal-body" @submit.prevent="save">
@@ -62,7 +62,7 @@
                 <option v-for="o in f.options" :key="o" :value="o">{{ o }}</option>
               </select>
               <select v-else-if="f.type === 'ref'" v-model="form[f.key]" class="f-input">
-                <option value="">{{ f.required ? 'Bitte wählen' : '—' }}</option>
+                <option value="">{{ f.required ? tr('Bitte wählen') : '—' }}</option>
                 <option v-for="o in data[f.ref!] || []" :key="o.id" :value="o.id">{{ label(f.ref!, o) }}</option>
               </select>
               <label v-else-if="f.type === 'bool'" style="display:flex;align-items:center;gap:8px;font-size:13px"><input v-model="form[f.key]" type="checkbox" /> {{ f.label }}</label>

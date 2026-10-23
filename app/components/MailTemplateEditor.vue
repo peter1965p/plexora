@@ -41,11 +41,11 @@ onMounted(load)
 
 // ── Prüfungen im Editor (dieselben Regeln wie auf dem Server; der Server prüft beim Speichern trotzdem noch einmal) ──
 const TEXT_FIELDS = [
-  { key: 'subject', label: 'Betreff', max: MAIL_LIMITS.subject, multi: false },
-  { key: 'heading', label: 'Überschrift', max: MAIL_LIMITS.heading, multi: false },
-  { key: 'body', label: 'Text', max: MAIL_LIMITS.body, multi: true },
-  { key: 'buttonText', label: 'Button-Text', max: MAIL_LIMITS.button, multi: false },
-  { key: 'footer', label: 'Fußzeile', max: MAIL_LIMITS.footer, multi: false },
+  { key: 'subject', label: tr('Betreff'), max: MAIL_LIMITS.subject, multi: false },
+  { key: 'heading', label: tr('Überschrift'), max: MAIL_LIMITS.heading, multi: false },
+  { key: 'body', label: tr('Text'), max: MAIL_LIMITS.body, multi: true },
+  { key: 'buttonText', label: tr('Button-Text'), max: MAIL_LIMITS.button, multi: false },
+  { key: 'footer', label: tr('Fußzeile'), max: MAIL_LIMITS.footer, multi: false },
 ] as const
 const fieldProblems = computed(() => {
   const out: Record<string, string> = {}

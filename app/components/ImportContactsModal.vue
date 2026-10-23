@@ -105,11 +105,11 @@ const errorCount = ref(0)
 const importLeadSource = ref('csv-import')
 
 const targetFields = [
-  { key: 'firstName', label: 'Vorname', required: false },
-  { key: 'lastName',  label: 'Nachname', required: false },
-  { key: 'email',     label: 'E-Mail', required: true },
-  { key: 'company',   label: 'Firma', required: false },
-  { key: 'phone',     label: 'Telefon', required: false },
+  { key: 'firstName', label: tr('Vorname'), required: false },
+  { key: 'lastName',  label: tr('Nachname'), required: false },
+  { key: 'email',     label: tr('E-Mail'), required: true },
+  { key: 'company',   label: tr('Firma'), required: false },
+  { key: 'phone',     label: tr('Telefon'), required: false },
 ]
 
 const mapping = reactive<Record<string, string>>({

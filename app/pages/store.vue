@@ -101,7 +101,7 @@
             </div>
             <div v-if="branchStatus(pkg.key) === 'active'" class="badge-owned"><i class="ti ti-check"></i> {{ tr('Aktiv') }}</div>
             <div v-else-if="branchStatus(pkg.key) === 'disabled'" class="badge-soon"><i class="ti ti-player-pause"></i> {{ tr('Deaktiviert') }}</div>
-            <div v-else class="badge-new">{{ pkg.builtin ? 'Branchen-Paket' : 'Plugin' }}</div>
+            <div v-else class="badge-new">{{ pkg.builtin ? tr('Branchen-Paket') : tr('Plugin') }}</div>
           </div>
           <div class="store-card-name">{{ pkg.name }}</div>
           <div class="store-card-desc">{{ pkg.desc }}</div>
@@ -148,7 +148,7 @@
           <button class="btn-secondary" style="flex:1" @click="buyItem = null">{{ tr('Abbrechen') }}</button>
           <button class="btn-accent" style="flex:2" @click="checkout" :disabled="checkoutLoading">
             <i class="ti" :class="checkoutLoading ? 'ti-loader-2 spin' : 'ti-credit-card'" style="margin-right:6px"></i>
-            {{ checkoutLoading ? 'Weiterleitung...' : 'Jetzt kaufen' }}
+            {{ checkoutLoading ? tr('Weiterleitung...') : tr('Jetzt kaufen') }}
           </button>
         </div>
         <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-muted)">
@@ -231,7 +231,7 @@
           <button class="btn-secondary" style="flex:1" @click="showNewModuleForm = false">{{ tr('Abbrechen') }}</button>
           <button class="btn-accent" style="flex:2" @click="registerNewModule" :disabled="registeringModule">
             <i class="ti" :class="registeringModule ? 'ti-loader-2 spin' : 'ti-plus'" style="margin-right:6px"></i>
-            {{ registeringModule ? 'Wird angelegt...' : 'Modul registrieren' }}
+            {{ registeringModule ? tr('Wird angelegt...') : tr('Modul registrieren') }}
           </button>
         </div>
       </div>
@@ -248,9 +248,9 @@ const store = useAppStore()
 const activeTab = ref('addons')
 
 const TIER_INFO: Record<string, { label: string; price: number }> = {
-  starter:    { label: 'Starter',    price: 49 },
-  pro:        { label: 'Pro',        price: 149 },
-  enterprise: { label: 'Enterprise', price: 299 },
+  starter:    { label: tr('Starter'),    price: 49 },
+  pro:        { label: tr('Pro'),        price: 149 },
+  enterprise: { label: tr('Enterprise'), price: 299 },
 }
 
 const currentPlan = computed(() => {
@@ -259,8 +259,8 @@ const currentPlan = computed(() => {
 })
 
 const tabs = [
-  { key: 'addons',   label: 'Add-on Module',   icon: 'ti-puzzle' },
-  { key: 'branchen', label: 'Branchen-Pakete', icon: 'ti-building-factory-2' },
+  { key: 'addons',   label: tr('Add-on Module'),   icon: 'ti-puzzle' },
+  { key: 'branchen', label: tr('Branchen-Pakete'), icon: 'ti-building-factory-2' },
 ]
 
 // licenseModules = Quelle der Wahrheit ob ein Modul gekauft/freigeschaltet ist
@@ -313,13 +313,13 @@ const addons = computed(() => [
   {
     key: 'forms', name: 'Formulare', icon: 'ti-forms', price: '€7', badge: null,
     owned: owned('forms'),
-    desc: 'Formular-Builder zum Einbetten in jede Website.',
+    desc: tr('Formular-Builder zum Einbetten in jede Website.'),
     features: ['Drag & Drop', 'Einbettbar', 'Submissions-Übersicht', 'E-Mail-Benachrichtigung'],
   },
   {
     key: 'nexora', name: 'Unternehmens-Webseite', icon: 'ti-world', price: '€19', badge: 'NEU',
     owned: owned('nexora'),
-    desc: 'Professionelle Firmenwebseite, komplett aus Plexora verwaltet. Auto-Provisioning via API.',
+    desc: tr('Professionelle Firmenwebseite, komplett aus Plexora verwaltet. Auto-Provisioning via API.'),
     features: ['Auto-Provisioning', 'API-gesteuert', 'Inhalts-Editor', 'DSGVO-konform', 'Nexora-Frontend'],
   },
   {

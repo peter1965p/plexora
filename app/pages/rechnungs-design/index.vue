@@ -48,7 +48,7 @@
                 wordWrap: 'on',
                 tabSize: 2,
                 scrollBeyondLastLine: false,
-                fontFamily: '\'JetBrains Mono\', \'Fira Code\', monospace',
+                fontFamily: tr('\'JetBrains Mono\', \'Fira Code\', monospace'),
                 padding: { top: 16, bottom: 16 },
               }"
               style="flex:1;min-height:420px"
@@ -129,23 +129,23 @@ const invoiceSettingsData = ref<any>({})
 
 const monacoTheme  = ref(import.meta.client ? (localStorage.getItem('plx_editor_theme') || 'vs-dark') : 'vs-dark')
 const monacoThemes = [
-  { value: 'vs-dark',  label: 'VS Dark' },
-  { value: 'vs',       label: 'VS Light' },
-  { value: 'hc-black', label: 'High Contrast Dark' },
-  { value: 'hc-light', label: 'High Contrast Light' },
+  { value: 'vs-dark',  label: tr('VS Dark') },
+  { value: 'vs',       label: tr('VS Light') },
+  { value: 'hc-black', label: tr('High Contrast Dark') },
+  { value: 'hc-light', label: tr('High Contrast Light') },
 ]
 function setMonacoTheme(v: string) {
   localStorage.setItem('plx_editor_theme', v)
 }
 
 const PLACEHOLDER_GROUPS = [
-  { label: 'Firma',    items: ['{{firma.name}}', '{{firma.strasse}}', '{{firma.plz_ort}}', '{{firma.email}}', '{{firma.telefon}}', '{{firma.ustid}}', '{{firma.iban}}', '{{firma.bic}}', '{{firma.bankname}}'] },
-  { label: 'Kunde',     items: ['{{kunde.name}}', '{{kunde.adresse}}', '{{kunde.email}}'] },
-  { label: 'Rechnung',  items: ['{{rechnung.nummer}}', '{{rechnung.datum}}', '{{rechnung.faelligkeit}}', '{{rechnung.kundennummer}}'] },
-  { label: 'Positionen', items: ['{{positionen}}', '{{#each positionenListe}}...{{/each}}'] },
-  { label: 'Summen',    items: ['{{summe.netto}}', '{{summe.mwst}}', '{{summe.mwst_satz}}', '{{summe.brutto}}'] },
-  { label: 'Branding',  items: ['{{branding.farbe}}', '{{branding.firmenname}}', '{{branding.slogan}}', '{{branding.logo}}'] },
-  { label: 'QR-Code & Zahlung', items: ['{{qr_code}}', '{{qr_code_online}}', '{{zahllink}}'] },
+  { label: tr('Firma'),    items: ['{{firma.name}}', '{{firma.strasse}}', '{{firma.plz_ort}}', '{{firma.email}}', '{{firma.telefon}}', '{{firma.ustid}}', '{{firma.iban}}', '{{firma.bic}}', '{{firma.bankname}}'] },
+  { label: tr('Kunde'),     items: ['{{kunde.name}}', '{{kunde.adresse}}', '{{kunde.email}}'] },
+  { label: tr('Rechnung'),  items: ['{{rechnung.nummer}}', '{{rechnung.datum}}', '{{rechnung.faelligkeit}}', '{{rechnung.kundennummer}}'] },
+  { label: tr('Positionen'), items: ['{{positionen}}', '{{#each positionenListe}}...{{/each}}'] },
+  { label: tr('Summen'),    items: ['{{summe.netto}}', '{{summe.mwst}}', '{{summe.mwst_satz}}', '{{summe.brutto}}'] },
+  { label: tr('Branding'),  items: ['{{branding.farbe}}', '{{branding.firmenname}}', '{{branding.slogan}}', '{{branding.logo}}'] },
+  { label: tr('QR-Code & Zahlung'), items: ['{{qr_code}}', '{{qr_code_online}}', '{{zahllink}}'] },
 ]
 
 let monacoEditorRef: any = null

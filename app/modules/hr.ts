@@ -17,10 +17,10 @@ export function fullName(e: Employee): string {
 
 export function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    active:      'Aktiv',
-    vacation:    'Urlaub',
-    sick:        'Krank',
-    offboarding: 'Offboarding',
+    active:      tr('Aktiv'),
+    vacation:    tr('Urlaub'),
+    sick:        tr('Krank'),
+    offboarding: tr('Offboarding'),
   }
   return labels[status] || status
 }

@@ -89,8 +89,8 @@ const navSections = computed(() => [
   {
     label: t.value.navOverview,
     items: [
-      { to: '/dashboard', label: 'Dashboard', icon: 'ti-layout-dashboard', key: 'dashboard' },
-      { to: '/analytics', label: 'Analytics',  icon: 'ti-chart-bar',        key: 'analytics' },
+      { to: '/dashboard', label: tr('Dashboard'), icon: 'ti-layout-dashboard', key: 'dashboard' },
+      { to: '/analytics', label: tr('Analytics'),  icon: 'ti-chart-bar',        key: 'analytics' },
     ]
   },
   {
@@ -105,7 +105,7 @@ const navSections = computed(() => [
           key: m.key,
         })),
       ...((store.licenseModules ? store.licenseModules.includes('nexora') : !!store.modules.find(m => m.key === 'nexora')?.on)
-        ? [{ to: '/blog', label: 'Blog', icon: 'ti-news', key: 'blog' }]
+        ? [{ to: '/blog', label: tr('Blog'), icon: 'ti-news', key: 'blog' }]
         : []),
       ...(store.modules.find(m => m.key === 'finance' && m.on && !m.locked)
         ? [{ to: '/finance?tab=catalog', label: tr('Leistungen'), icon: 'ti-list-details', key: 'catalog' }]
@@ -125,14 +125,14 @@ const navSections = computed(() => [
     label: t.value.navSystem,
     items: [
       { to: '/help',     label: tr('Hilfe'),             icon: 'ti-help-circle',    key: 'help'     },
-      ...(isPlatformAdmin.value ? [{ to: '/psc', label: 'PSC Manager', icon: 'ti-shield-lock', key: 'psc' }] : []),
-      { to: '/team',     label: 'Team',              icon: 'ti-users',          key: 'team'     },
+      ...(isPlatformAdmin.value ? [{ to: '/psc', label: tr('PSC Manager'), icon: 'ti-shield-lock', key: 'psc' }] : []),
+      { to: '/team',     label: tr('Team'),              icon: 'ti-users',          key: 'team'     },
       { to: '/settings', label: t.value.settings,  icon: 'ti-settings',       key: 'settings' },
-      { to: '/seo',      label: 'SEO / GEO',        icon: 'ti-chart-line',     key: 'seo'      },
+      { to: '/seo',      label: tr('SEO / GEO'),        icon: 'ti-chart-line',     key: 'seo'      },
       { to: '/store',    label: tr('Modul-Store'),       icon: 'ti-building-store', key: 'store'    },
       { to: '/rechnungs-design', label: tr('Rechnungs-Design'), icon: 'ti-file-invoice', key: 'invoiceDesign' },
       ...((store.licenseModules ? store.licenseModules.includes('nexora') : !!store.modules.find(m => m.key === 'nexora')?.on)
-        ? [{ to: '/website', label: 'Website', icon: 'ti-world', key: 'nexora' }]
+        ? [{ to: '/website', label: tr('Website'), icon: 'ti-world', key: 'nexora' }]
         : []),
     ]
   }

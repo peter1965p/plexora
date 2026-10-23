@@ -30,9 +30,9 @@ export function fullName(c: Contact): string {
 
 export function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    lead:     'Lead',
-    customer: 'Kunde',
-    churned:  'Verloren',
+    lead:     tr('Lead'),
+    customer: tr('Kunde'),
+    churned:  tr('Verloren'),
   }
   return labels[status] || status
 }
@@ -48,21 +48,21 @@ export function statusBadge(status: string): string {
 
 export function leadSourceLabel(source?: string): string {
   const labels: Record<string, string> = {
-    manual:       'Manuell',
+    manual:       tr('Manuell'),
     'csv-import': 'CSV/Excel-Import',
-    landingpage:  'Landingpage',
-    referral:     'Empfehlung',
-    other:        'Sonstiges',
+    landingpage:  tr('Landingpage'),
+    referral:     tr('Empfehlung'),
+    other:        tr('Sonstiges'),
   }
   return labels[source || ''] || source || '—'
 }
 
 export function leadStatusLabel(status?: string): string {
   const labels: Record<string, string> = {
-    new:         'Neu',
-    contacted:   'Kontaktiert',
-    qualified:   'Qualifiziert',
-    unqualified: 'Unqualifiziert',
+    new:         tr('Neu'),
+    contacted:   tr('Kontaktiert'),
+    qualified:   tr('Qualifiziert'),
+    unqualified: tr('Unqualifiziert'),
   }
   return labels[status || ''] || '—'
 }

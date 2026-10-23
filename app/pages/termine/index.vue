@@ -56,7 +56,7 @@
             <i class="ti ti-world" style="color:#f59e0b;font-size:20px"></i>
           </div>
           <div>
-            <div style="font-size:22px;font-weight:800">{{ settingsForm.termineEnabled ? 'An' : 'Aus' }}</div>
+            <div style="font-size:22px;font-weight:800">{{ settingsForm.termineEnabled ? tr('An') : tr('Aus') }}</div>
             <div style="font-size:12px;color:var(--text-muted)">{{ tr('Öffentliche Seite') }}</div>
           </div>
         </div>
@@ -95,7 +95,7 @@
           </div>
           <div style="font-size:13px;color:var(--text-muted);flex-shrink:0"><i class="ti ti-clock" style="margin-right:4px"></i>{{ t.durationMinutes }} {{ tr('Min.') }}</div>
           <div style="display:flex;gap:4px;flex-shrink:0">
-            <button @click="toggleTypeActive(t)" class="icon-btn" :title="t.active ? 'Deaktivieren' : 'Aktivieren'">
+            <button @click="toggleTypeActive(t)" class="icon-btn" :title="t.active ? tr('Deaktivieren') : tr('Aktivieren')">
               <i class="ti" :class="t.active ? 'ti-eye' : 'ti-eye-off'"></i>
             </button>
             <button @click="openEditType(t)" class="icon-btn" :title="tr('Bearbeiten')"><i class="ti ti-edit"></i></button>
@@ -132,13 +132,13 @@
           <div style="flex:1;min-width:160px">
             <div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px">
               {{ b.customerName }}
-              <i class="ti" :class="b.channel === 'phone' ? 'ti-phone' : 'ti-video'" :title="b.channel === 'phone' ? 'Telefontermin' : 'Video-Termin'" style="color:var(--text-muted);font-size:13px"></i>
+              <i class="ti" :class="b.channel === 'phone' ? 'ti-phone' : 'ti-video'" :title="b.channel === 'phone' ? tr('Telefontermin') : tr('Video-Termin')" style="color:var(--text-muted);font-size:13px"></i>
             </div>
             <div style="font-size:12px;color:var(--text-muted)">{{ b.typeName }} · {{ b.customerEmail || b.customerPhone }}</div>
           </div>
           <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0"
             :style="b.status === 'cancelled' ? 'background:#ef444422;color:#ef4444' : 'background:#22c55e22;color:#22c55e'">
-            {{ b.status === 'cancelled' ? 'Storniert' : 'Bestätigt' }}
+            {{ b.status === 'cancelled' ? tr('Storniert') : tr('Bestätigt') }}
           </span>
           <a v-if="b.videoLink || b.googleMeetLink" :href="b.videoLink || b.googleMeetLink" target="_blank" rel="noopener" class="icon-btn" :title="tr('Video-Link öffnen')" style="flex-shrink:0">
             <i class="ti ti-video"></i>
@@ -237,7 +237,7 @@
     <div v-if="showTypeModal" class="modal-overlay" @click.self="showTypeModal=false">
       <div class="modal-card" style="max-width:420px">
         <div class="modal-header">
-          <span class="card-title">{{ editingTypeId ? 'Terminart bearbeiten' : 'Terminart anlegen' }}</span>
+          <span class="card-title">{{ editingTypeId ? tr('Terminart bearbeiten') : tr('Terminart anlegen') }}</span>
           <button class="icon-btn" @click="showTypeModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -251,7 +251,7 @@
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveType" :disabled="!typeForm.name || !typeForm.durationMinutes">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingTypeId ? 'Speichern' : 'Terminart anlegen' }}
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingTypeId ? tr('Speichern') : tr('Terminart anlegen') }}
           </button>
         </div>
       </div>
@@ -266,7 +266,7 @@
           <div style="color:var(--text-muted)">{{ tr('Mit diesem Link siehst du deine Termine in Google Kalender, Apple Kalender (iPhone/Mac), Outlook oder Thunderbird. Neue Buchungen erscheinen dort automatisch (je nach App mit etwas Verzögerung). Es geht nur in eine Richtung: Plexora → dein Kalender.') }}</div>
           <div v-if="subscribeLoading"><i class="ti ti-loader-2 spin"></i></div>
           <template v-else-if="subscribeUrl">
-            <div style="display:flex;gap:6px"><input :value="subscribeUrl" readonly style="flex:1;font-size:12px" @focus="($event.target as HTMLInputElement).select()" /><button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" @click="copySubscribe"><i class="ti ti-copy"></i> {{ subscribeCopied ? 'Kopiert' : 'Kopieren' }}</button></div>
+            <div style="display:flex;gap:6px"><input :value="subscribeUrl" readonly style="flex:1;font-size:12px" @focus="($event.target as HTMLInputElement).select()" /><button class="icon-btn" style="width:auto;padding:0 10px;font-size:12px" @click="copySubscribe"><i class="ti ti-copy"></i> {{ subscribeCopied ? tr('Kopiert') : tr('Kopieren') }}</button></div>
             <div style="font-size:12px;color:var(--text-muted)"><strong>{{ tr('So geht\'s:') }}</strong> {{ tr('Google Kalender → „Weitere Kalender“ → „Per URL“. iPhone → Einstellungen → Kalender → Accounts → „Abonnierter Kalender“. Outlook → „Kalender hinzufügen“ → „Aus dem Internet“.') }}</div>
             <div style="font-size:12px;color:#8a5d00;background:#F0B42822;border-radius:8px;padding:8px 10px"><i class="ti ti-lock"></i> {{ tr('Der Link ist geheim: Wer ihn kennt, sieht Terminart, Zeit, Gastname, Telefon und Video-Link (keine E-Mail-Adressen, keine Notizen). Nicht weitergeben. Bei Verdacht: neuen Link erzeugen, der alte funktioniert dann nicht mehr.') }}</div>
             <div><button class="icon-btn" style="width:auto;padding:0 12px;font-size:12px" @click="createSubscribe(true)"><i class="ti ti-refresh"></i> {{ tr('Neuen Link erzeugen') }}</button></div>
@@ -352,10 +352,10 @@ const authToken = ref('')
 const activeTab = ref('kalender')
 
 const tabs = [
-  { key: 'kalender',     label: 'Kalender',      icon: 'ti-calendar-month' },
-  { key: 'terminarten',  label: 'Terminarten',  icon: 'ti-calendar-event' },
-  { key: 'termine',      label: 'Termine',       icon: 'ti-list-details' },
-  { key: 'einstellungen', label: 'Einstellungen', icon: 'ti-settings' },
+  { key: 'kalender',     label: tr('Kalender'),      icon: 'ti-calendar-month' },
+  { key: 'terminarten',  label: tr('Terminarten'),  icon: 'ti-calendar-event' },
+  { key: 'termine',      label: tr('Termine'),       icon: 'ti-list-details' },
+  { key: 'einstellungen', label: tr('Einstellungen'), icon: 'ti-settings' },
 ]
 
 interface AppointmentType { typeId: string; name: string; durationMinutes: number; active: boolean }
@@ -368,8 +368,8 @@ interface Booking {
 }
 
 const weekdays = [
-  { key: 'mon', label: 'Montag' }, { key: 'tue', label: 'Dienstag' }, { key: 'wed', label: 'Mittwoch' },
-  { key: 'thu', label: 'Donnerstag' }, { key: 'fri', label: 'Freitag' }, { key: 'sat', label: 'Samstag' }, { key: 'sun', label: 'Sonntag' },
+  { key: 'mon', label: tr('Montag') }, { key: 'tue', label: tr('Dienstag') }, { key: 'wed', label: tr('Mittwoch') },
+  { key: 'thu', label: tr('Donnerstag') }, { key: 'fri', label: tr('Freitag') }, { key: 'sat', label: tr('Samstag') }, { key: 'sun', label: tr('Sonntag') },
 ]
 
 function formatDate(d?: string) {
@@ -430,10 +430,10 @@ const bookings        = ref<Booking[]>([])
 const loadingBookings = ref(true)
 const bookingFilter   = ref('anstehend')
 const bookingFilters = [
-  { key: 'alle',       label: 'Alle' },
-  { key: 'anstehend',  label: 'Anstehend' },
-  { key: 'vergangen',  label: 'Vergangen' },
-  { key: 'storniert',  label: 'Storniert' },
+  { key: 'alle',       label: tr('Alle') },
+  { key: 'anstehend',  label: tr('Anstehend') },
+  { key: 'vergangen',  label: tr('Vergangen') },
+  { key: 'storniert',  label: tr('Storniert') },
 ]
 
 const todayStr = new Date().toISOString().slice(0, 10)

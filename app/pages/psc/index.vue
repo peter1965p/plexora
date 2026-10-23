@@ -76,7 +76,7 @@
           <div class="psc-tile" :style="{ borderTopColor: LEVEL_COLOR[protLevel] }">
             <div class="psc-label">{{ tr('Schutz') }}</div>
             <template v-if="pr">
-              <div class="psc-big" :style="{ color: pr.roles && pr.plan ? LEVEL_COLOR.ok : LEVEL_COLOR.warn }">{{ pr.roles && pr.plan ? 'Scharf' : 'Beobachtung' }}</div>
+              <div class="psc-big" :style="{ color: pr.roles && pr.plan ? LEVEL_COLOR.ok : LEVEL_COLOR.warn }">{{ pr.roles && pr.plan ? tr('Scharf') : tr('Beobachtung') }}</div>
               <div class="psc-dots"><span v-for="d in dots" :key="d.k"><i :style="{ background: d.on ? LEVEL_COLOR.ok : LEVEL_COLOR.warn }"></i>{{ d.k }}</span></div>
             </template>
             <div v-else class="psc-na">{{ na(ov?.protection) }}</div>
@@ -139,7 +139,7 @@ import { LEVEL_COLOR, loadLevel, errorLevel, recoveryLevel, backupLevel, pct, ag
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const route = useRoute(), router = useRouter()
-const TABS = [{ key: 'overview', label: 'Übersicht', icon: 'ti-layout-dashboard' }, { key: 'infra', label: 'Infrastruktur', icon: 'ti-cloud' }, { key: 'integrity', label: 'Datenintegrität', icon: 'ti-database-cog' }, { key: 'notfall', label: 'Sicherung & Notfall', icon: 'ti-lifebuoy' }]
+const TABS = [{ key: 'overview', label: tr('Übersicht'), icon: 'ti-layout-dashboard' }, { key: 'infra', label: tr('Infrastruktur'), icon: 'ti-cloud' }, { key: 'integrity', label: tr('Datenintegrität'), icon: 'ti-database-cog' }, { key: 'notfall', label: tr('Sicherung & Notfall'), icon: 'ti-lifebuoy' }]
 const tab = ref(TABS.some(t => t.key === route.query.tab) ? String(route.query.tab) : 'overview')
 const setTab = (k: string) => { tab.value = k; router.replace({ query: k === 'overview' ? {} : { tab: k } }) }
 

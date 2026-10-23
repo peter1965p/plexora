@@ -303,11 +303,11 @@
           </div>
           <div style="flex:1">
             <div style="font-weight:700;font-size:14px">{{ v.make }} {{ v.model }} {{ v.year }}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ v.licensePlate || 'Kein Kennzeichen' }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ v.licensePlate || tr('Kein Kennzeichen') }}</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:13px;font-weight:700" :style="isTuevDue(v) ? 'color:#ef4444' : issTuevSoon(v) ? 'color:#f59e0b' : 'color:#22c55e'">
-              {{ v.tuevDate ? formatDate(v.tuevDate) : 'Nicht eingetragen' }}
+              {{ v.tuevDate ? formatDate(v.tuevDate) : tr('Nicht eingetragen') }}
             </div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px">
               {{ v.tuevDate ? tuevDaysLeft(v.tuevDate) : '' }}
@@ -322,7 +322,7 @@
     <div v-if="showVehicleModal" class="modal-overlay" @click.self="showVehicleModal=false">
       <div class="modal-card" style="max-width:680px">
         <div class="modal-header">
-          <span class="card-title">{{ editingVehicleId ? 'Fahrzeug bearbeiten' : 'Fahrzeug anlegen' }}</span>
+          <span class="card-title">{{ editingVehicleId ? tr('Fahrzeug bearbeiten') : tr('Fahrzeug anlegen') }}</span>
           <button class="icon-btn" @click="showVehicleModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -413,7 +413,7 @@
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveVehicle" :disabled="savingVehicle || !vForm.make || !vForm.model || !vForm.year">
             <span v-if="savingVehicle"><i class="ti ti-loader-2 spin"></i></span>
-            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingVehicleId ? 'Speichern' : 'Fahrzeug anlegen' }}</span>
+            <span v-else><i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingVehicleId ? tr('Speichern') : tr('Fahrzeug anlegen') }}</span>
           </button>
         </div>
       </div>
@@ -457,7 +457,7 @@
     <div v-if="showOrderModal" class="modal-overlay" @click.self="showOrderModal=false">
       <div class="modal-card" style="max-width:540px">
         <div class="modal-header">
-          <span class="card-title">{{ editingOrderId ? 'Auftrag bearbeiten' : 'Werkstatt-Auftrag anlegen' }}</span>
+          <span class="card-title">{{ editingOrderId ? tr('Auftrag bearbeiten') : tr('Werkstatt-Auftrag anlegen') }}</span>
           <button class="icon-btn" @click="showOrderModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="modal-body">
@@ -483,7 +483,7 @@
         </div>
         <div style="padding:0 24px 24px">
           <button class="auth-btn" @click="saveOrder" :disabled="!oForm.title">
-            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingOrderId ? 'Speichern' : 'Auftrag anlegen' }}
+            <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingOrderId ? tr('Speichern') : tr('Auftrag anlegen') }}
           </button>
         </div>
       </div>
@@ -506,10 +506,10 @@ const testDrives   = ref<any[]>([])
 const loadingVehicles = ref(true)
 
 const tabs = [
-  { key: 'fahrzeuge',    label: 'Fahrzeuge',    icon: 'ti-car' },
-  { key: 'probefahrten', label: 'Probefahrten', icon: 'ti-steering-wheel' },
-  { key: 'werkstatt',    label: 'Werkstatt',    icon: 'ti-tool' },
-  { key: 'tuev',         label: 'TÜV-Tracker',  icon: 'ti-certificate' },
+  { key: 'fahrzeuge',    label: tr('Fahrzeuge'),    icon: 'ti-car' },
+  { key: 'probefahrten', label: tr('Probefahrten'), icon: 'ti-steering-wheel' },
+  { key: 'werkstatt',    label: tr('Werkstatt'),    icon: 'ti-tool' },
+  { key: 'tuev',         label: tr('TÜV-Tracker'),  icon: 'ti-certificate' },
 ]
 
 const showSettingsModal = ref(false)

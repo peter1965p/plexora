@@ -117,13 +117,13 @@
     <!-- VORGANG ANLEGEN / BEARBEITEN (Planer) -->
     <div v-if="planModal" class="modal-overlay" @click.self="planModal = null">
       <div class="modal-card" style="max-width:520px">
-        <div class="modal-header"><span class="card-title">{{ planModal.mode === 'edit' ? (pf.milestone ? 'Meilenstein bearbeiten' : 'Vorgang bearbeiten') : (pf.milestone ? 'Neuer Meilenstein' : 'Neuer Vorgang') }}</span><button class="icon-btn" @click="planModal = null"><i class="ti ti-x"></i></button></div>
+        <div class="modal-header"><span class="card-title">{{ planModal.mode === 'edit' ? (pf.milestone ? tr('Meilenstein bearbeiten') : tr('Vorgang bearbeiten')) : (pf.milestone ? tr('Neuer Meilenstein') : tr('Neuer Vorgang')) }}</span><button class="icon-btn" @click="planModal = null"><i class="ti ti-x"></i></button></div>
         <div class="modal-body">
           <div v-if="planErr" class="plan-msg err">{{ planErr }}</div>
           <div class="auth-field"><label>{{ tr('Bezeichnung *') }}</label><input v-model="pf.title" maxlength="120" /></div>
           <div class="auth-field"><label>{{ tr('Zuständig') }}</label><input v-model="pf.assignee" list="plan-people" maxlength="80" :placeholder="tr('Name oder E-Mail')" /><datalist id="plan-people"><option v-for="n in planPeople" :key="n" :value="n" /></datalist></div>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" v-model="pf.milestone" :disabled="planModal.mode === 'edit' && false" /> {{ tr('Meilenstein (ein Termin ohne Dauer)') }}</label>
-          <div class="auth-row"><div class="auth-field"><label>{{ pf.milestone ? 'Datum' : 'Beginn' }}</label><input v-model="pf.startDate" type="date" /></div><div v-if="!pf.milestone" class="auth-field"><label>{{ tr('Ende') }}</label><input v-model="pf.endDate" type="date" :min="pf.startDate" /></div></div>
+          <div class="auth-row"><div class="auth-field"><label>{{ pf.milestone ? tr('Datum') : tr('Beginn') }}</label><input v-model="pf.startDate" type="date" /></div><div v-if="!pf.milestone" class="auth-field"><label>{{ tr('Ende') }}</label><input v-model="pf.endDate" type="date" :min="pf.startDate" /></div></div>
           <template v-if="planModal.mode === 'edit'">
             <div class="auth-field"><label>{{ tr('Fortschritt:') }} {{ pf.progress }} %</label><input type="range" min="0" max="100" step="5" v-model.number="pf.progress" /></div>
             <div class="auth-field"><label>{{ tr('Vorgänger (muss fertig sein, bevor dieser Vorgang beginnt)') }}</label>

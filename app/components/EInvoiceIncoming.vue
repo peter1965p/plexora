@@ -6,7 +6,7 @@
         <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px">{{ tr('Lade eine E-Rechnung hoch: eine') }} <strong>{{ tr('XRechnung (XML)') }}</strong> {{ tr('oder eine') }} <strong>{{ tr('ZUGFeRD-/Factur-X-PDF') }}</strong>{{ tr('. Plexora liest sie, prüft die Summen und legt sie unter Eingangsrechnungen ab. Unterstützt werden die Formate CII und UBL.') }}</p>
         <label class="drop" :class="{ over }" @dragover.prevent="over = true" @dragleave="over = false" @drop.prevent="onDrop">
           <i class="ti ti-upload" style="font-size:22px;color:var(--accent)"></i>
-          <span>{{ busy ? 'Wird gelesen …' : 'Datei hierher ziehen oder klicken (XML oder PDF, höchstens 3 MB)' }}</span>
+          <span>{{ busy ? tr('Wird gelesen …') : tr('Datei hierher ziehen oder klicken (XML oder PDF, höchstens 3 MB)') }}</span>
           <input type="file" accept=".xml,.pdf,application/xml,text/xml,application/pdf" style="display:none" @change="onPick" />
         </label>
         <div v-if="error" class="err" style="margin-top:12px">{{ error }}</div>
@@ -14,7 +14,7 @@
         <div v-if="preview" class="prev">
           <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
             <div>
-              <div style="font-size:12px;color:var(--text-muted)">{{ preview.invoice.credit ? 'Gutschrift' : 'Rechnung' }} {{ tr('· Format') }} {{ preview.invoice.format === 'cii' ? 'CII' : 'UBL' }}{{ preview.source === 'pdf' ? ' (aus ZUGFeRD-PDF)' : '' }}</div>
+              <div style="font-size:12px;color:var(--text-muted)">{{ preview.invoice.credit ? tr('Gutschrift') : tr('Rechnung') }} {{ tr('· Format') }} {{ preview.invoice.format === 'cii' ? 'CII' : 'UBL' }}{{ preview.source === 'pdf' ? tr(' (aus ZUGFeRD-PDF)') : '' }}</div>
               <div style="font-size:17px;font-weight:800">{{ preview.invoice.number }}</div>
               <div style="font-size:13px">{{ preview.invoice.seller.name }}<span v-if="preview.invoice.seller.city" style="color:var(--text-muted)"> · {{ preview.invoice.seller.zip }} {{ preview.invoice.seller.city }}</span></div>
               <div v-if="preview.invoice.seller.vatId" style="font-size:12px;color:var(--text-muted)">{{ tr('USt-IdNr.') }} {{ preview.invoice.seller.vatId }}</div>

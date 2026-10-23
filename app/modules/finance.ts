@@ -29,9 +29,9 @@ export function calcOverdue(invoices: Invoice[]): number {
 
 export function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    paid:      'Bezahlt',
-    pending:   'Ausstehend',
-    overdue:   'Überfällig',
+    paid:      tr('Bezahlt'),
+    pending:   tr('Ausstehend'),
+    overdue:   tr('Überfällig'),
     dunning_1: '1. Mahnung',
     dunning_2: '2. Mahnung',
     dunning_3: '3. Mahnung',
@@ -52,12 +52,12 @@ export function statusBadge(status: string): string {
 }
 
 export const STATUS_OPTIONS = [
-  { value: 'pending',   label: 'Ausstehend' },
-  { value: 'overdue',   label: 'Überfällig' },
-  { value: 'paid',      label: 'Bezahlt' },
-  { value: 'dunning_1', label: '1. Mahnung' },
-  { value: 'dunning_2', label: '2. Mahnung' },
-  { value: 'dunning_3', label: '3. Mahnung' },
+  { value: 'pending',   label: tr('Ausstehend') },
+  { value: 'overdue',   label: tr('Überfällig') },
+  { value: 'paid',      label: tr('Bezahlt') },
+  { value: 'dunning_1', label: tr('1. Mahnung') },
+  { value: 'dunning_2', label: tr('2. Mahnung') },
+  { value: 'dunning_3', label: tr('3. Mahnung') },
 ]
 
 export function formatEur(val: number): string {

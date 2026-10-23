@@ -17,7 +17,7 @@
         <div class="confirm-card" :class="confirmation.action">
           <i :class="confirmation.action === 'in' ? 'ti ti-login' : 'ti ti-logout'"></i>
           <div class="confirm-name">{{ confirmation.name }}</div>
-          <div class="confirm-action">{{ confirmation.action === 'in' ? 'Eingestempelt' : 'Ausgestempelt' }}</div>
+          <div class="confirm-action">{{ confirmation.action === 'in' ? tr('Eingestempelt') : tr('Ausgestempelt') }}</div>
           <div class="confirm-time">{{ confirmation.time }} {{ tr('Uhr') }}</div>
           <div v-if="confirmation.minutes" class="confirm-duration">
             {{ tr('Arbeitszeit:') }} {{ formatMinutes(confirmation.minutes) }}
@@ -53,7 +53,7 @@
             <div class="emp-status">
               <span v-if="isClockedIn(emp.id)" class="status-dot in"></span>
               <span v-else class="status-dot out"></span>
-              <span>{{ isClockedIn(emp.id) ? 'seit ' + clockedInSince(emp.id) : 'nicht eingest.' }}</span>
+              <span>{{ isClockedIn(emp.id) ? tr('seit ') + clockedInSince(emp.id) : tr('nicht eingest.') }}</span>
             </div>
           </button>
         </div>

@@ -8,7 +8,7 @@
         <button :class="{ on: lang === 'de' }" :title="tr('Deutsch')" :aria-label="tr('Deutsch')" @click="switchLang('de')">🇩🇪</button>
         <button :class="{ on: lang === 'en' }" :title="tr('English')" :aria-label="tr('English')" @click="switchLang('en')">🇬🇧</button>
       </div>
-      <button class="icon-btn" :title="lang === 'en' ? 'Help for this page' : 'Hilfe zu dieser Seite'" :aria-label="tr('Hilfe')" @click="openHelp"><i class="ti ti-help-circle"></i></button>
+      <button class="icon-btn" :title="lang === 'en' ? tr('Help for this page') : tr('Hilfe zu dieser Seite')" :aria-label="tr('Hilfe')" @click="openHelp"><i class="ti ti-help-circle"></i></button>
       <div style="position:relative">
         <button class="icon-btn" style="position:relative" :title="tr('Benachrichtigungen')" @click="showNotifications=!showNotifications">
           <i class="ti ti-bell"></i>
@@ -69,7 +69,7 @@
           <i class="ti ti-plus"></i> {{ tr('Neu') }}
         </button>
         <div v-if="showQuick" style="position:absolute;top:44px;right:0;width:220px;background:var(--bg-elevated);border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden;padding:6px">
-          <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em">{{ lang === 'en' ? 'QUICK CREATE' : 'SCHNELL ERSTELLEN' }}</div>
+          <div style="padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em">{{ lang === 'en' ? tr('QUICK CREATE') : tr('SCHNELL ERSTELLEN') }}</div>
           <div v-for="item in quickItems" :key="item.label"
             @click="quickNav(item)"
             style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .1s;font-size:13px"

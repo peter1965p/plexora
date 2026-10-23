@@ -89,7 +89,7 @@
           <div class="stat-value">{{ botRate }}%</div>
           <div class="stat-delta" :class="botRate > 50 ? 'danger' : 'up'">
             <i class="ti" :class="botRate > 50 ? 'ti-alert-triangle' : 'ti-check'"></i>
-            {{ botRate > 50 ? 'viele Bots' : 'normal' }}
+            {{ botRate > 50 ? tr('viele Bots') : 'normal' }}
           </div>
         </div>
       </div>

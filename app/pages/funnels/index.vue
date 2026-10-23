@@ -33,7 +33,7 @@
             <span v-if="runCounts[s.sequenceId]"> · {{ runCounts[s.sequenceId].waiting }} {{ tr('wartend,') }} {{ runCounts[s.sequenceId].done }} {{ tr('fertig') }}</span>
           </div>
         </div>
-        <button class="fn-toggle" :class="{ on: s.enabled }" @click="toggleSequence(s)" :title="s.enabled ? 'Aktiv' : 'Pausiert'">
+        <button class="fn-toggle" :class="{ on: s.enabled }" @click="toggleSequence(s)" :title="s.enabled ? tr('Aktiv') : tr('Pausiert')">
           <span></span>
         </button>
         <button class="icon-btn" style="color:var(--accent)" :title="tr('Bearbeiten')" @click="openEdit(s)"><i class="ti ti-edit"></i></button>
@@ -58,7 +58,7 @@
           <ClientOnly>
             <VueFlow id="funnel" v-model:nodes="nodes" v-model:edges="edges"
               :default-edge-options="{ type: 'smoothstep', markerEnd: 'arrowclosed' }"
-              :delete-key-code="['Backspace', 'Delete']"
+              :delete-key-code="['Backspace', tr('Delete')]"
               fit-view-on-init
               @node-click="(e: any) => (selectedId = e.node.id)"
               @pane-click="selectedId = null">
@@ -165,21 +165,21 @@ const { idToken } = await useAuthUser()
 const authHeaders = { Authorization: `Bearer ${idToken}` }
 
 const KINDS: Record<string, { label: string; icon: string; color: string }> = {
-  trigger:              { label: 'Start',          icon: 'ti-bolt',           color: '#f97316' },
-  send_email_template:  { label: 'E-Mail senden',  icon: 'ti-mail',           color: '#6C3FE8' },
-  send_booking_link:    { label: 'Termin-Link',    icon: 'ti-calendar-event', color: '#0ea5e9' },
-  set_lead_status:      { label: 'Lead-Status',    icon: 'ti-user-check',     color: '#10b981' },
-  wait:                 { label: 'Warten',         icon: 'ti-clock',          color: '#f59e0b' },
-  condition:            { label: 'Bedingung',      icon: 'ti-git-branch',     color: '#ec4899' },
-  end:                  { label: 'Ende',           icon: 'ti-flag',           color: '#64748b' },
+  trigger:              { label: tr('Start'),          icon: 'ti-bolt',           color: '#f97316' },
+  send_email_template:  { label: tr('E-Mail senden'),  icon: 'ti-mail',           color: '#6C3FE8' },
+  send_booking_link:    { label: tr('Termin-Link'),    icon: 'ti-calendar-event', color: '#0ea5e9' },
+  set_lead_status:      { label: tr('Lead-Status'),    icon: 'ti-user-check',     color: '#10b981' },
+  wait:                 { label: tr('Warten'),         icon: 'ti-clock',          color: '#f59e0b' },
+  condition:            { label: tr('Bedingung'),      icon: 'ti-git-branch',     color: '#ec4899' },
+  end:                  { label: tr('Ende'),           icon: 'ti-flag',           color: '#64748b' },
 }
 const palette = [
-  { kind: 'send_email_template', label: 'E-Mail' },
-  { kind: 'send_booking_link',   label: 'Termin-Link' },
-  { kind: 'set_lead_status',     label: 'Status' },
-  { kind: 'wait',                label: 'Warten' },
-  { kind: 'condition',           label: 'Bedingung' },
-  { kind: 'end',                 label: 'Ende' },
+  { kind: 'send_email_template', label: tr('E-Mail') },
+  { kind: 'send_booking_link',   label: tr('Termin-Link') },
+  { kind: 'set_lead_status',     label: tr('Status') },
+  { kind: 'wait',                label: tr('Warten') },
+  { kind: 'condition',           label: tr('Bedingung') },
+  { kind: 'end',                 label: tr('Ende') },
 ]
 const LEAD_STATUSES: Record<string, string> = { new: 'Neu', contacted: 'Kontaktiert', qualified: 'Qualifiziert', unqualified: 'Unqualifiziert' }
 

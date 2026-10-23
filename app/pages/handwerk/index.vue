@@ -18,7 +18,7 @@
         <div v-for="b in baustellen" :key="b.baustelleId" @click="selectBaustelle(b)"
           style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:14px;padding:18px;cursor:pointer">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-            <div style="font-weight:700;font-size:14px">{{ b.customerName || 'Unbenannt' }}</div>
+            <div style="font-weight:700;font-size:14px">{{ b.customerName || tr('Unbenannt') }}</div>
             <span style="font-size:11px;padding:3px 8px;border-radius:6px" :style="statusStyle(b.status)">{{ b.status }}</span>
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px"><i class="ti ti-map-pin"></i> {{ b.address }}</div>
@@ -80,7 +80,7 @@
     <div v-if="showBaustelleModal" class="modal-overlay" @click.self="showBaustelleModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">{{ editingBaustelleId ? 'Baustelle bearbeiten' : 'Baustelle anlegen' }}</div>
+          <div style="font-size:16px;font-weight:700">{{ editingBaustelleId ? tr('Baustelle bearbeiten') : tr('Baustelle anlegen') }}</div>
           <button class="icon-btn" @click="showBaustelleModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="auth-field" style="margin-bottom:12px"><label>{{ tr('Kunde') }}</label><input v-model="bForm.customerName" :placeholder="tr('Kundenname')" /></div>
@@ -101,7 +101,7 @@
           <textarea v-model="bForm.notes" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('Interne Notizen...')"></textarea>
         </div>
         <button class="auth-btn" :disabled="!bForm.customerName" @click="saveBaustelle">
-          <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingBaustelleId ? 'Speichern' : 'Anlegen' }}
+          <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingBaustelleId ? tr('Speichern') : tr('Anlegen') }}
         </button>
       </div>
     </div>
@@ -110,7 +110,7 @@
     <div v-if="showAufmassModal" class="modal-overlay" @click.self="showAufmassModal=false">
       <div style="background:var(--bg-surface);border:0.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:560px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700">{{ editingAufmassId ? 'Aufmaß bearbeiten' : 'Aufmaß erfassen' }}</div>
+          <div style="font-size:16px;font-weight:700">{{ editingAufmassId ? tr('Aufmaß bearbeiten') : tr('Aufmaß erfassen') }}</div>
           <button class="icon-btn" @click="showAufmassModal=false"><i class="ti ti-x"></i></button>
         </div>
         <div class="auth-field" style="margin-bottom:14px"><label>{{ tr('Bereich') }}</label><input v-model="aForm.bereich" :placeholder="tr('z.B. Wohnzimmer, Fassade Nord...')" /></div>
@@ -133,7 +133,7 @@
           <textarea v-model="aForm.notes" style="height:60px;resize:none;width:100%" class="form-select" :placeholder="tr('Zusätzliche Notizen...')"></textarea>
         </div>
         <button class="auth-btn" :disabled="!aForm.bereich" @click="saveAufmass">
-          <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingAufmassId ? 'Speichern' : 'Erfassen' }}
+          <i class="ti ti-device-floppy" style="margin-right:6px"></i>{{ editingAufmassId ? tr('Speichern') : tr('Erfassen') }}
         </button>
       </div>
     </div>

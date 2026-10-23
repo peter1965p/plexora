@@ -3,7 +3,7 @@
       <div class="card-header">
         <span class="card-title"><i class="ti ti-database-cog" style="margin-right:8px;color:var(--accent)"></i>{{ tr('Datenintegrität') }}</span>
         <button class="accent-btn" style="height:32px;font-size:12px" @click="loadIntegrityScan" :disabled="integrityScanning">
-          <i class="ti" :class="integrityScanning ? 'ti-loader-2 spin' : 'ti-search'"></i> {{ integrityScanning ? 'Scannt...' : 'Scan starten' }}
+          <i class="ti" :class="integrityScanning ? 'ti-loader-2 spin' : 'ti-search'"></i> {{ integrityScanning ? tr('Scannt...') : tr('Scan starten') }}
         </button>
       </div>
       <div class="card-body">
@@ -27,7 +27,7 @@
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <div style="font-size:13px;font-weight:700">{{ tr('Zuordenbare Funde (') }}{{ integrityScanResult.resolvable.length }})</div>
               <button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px" @click="toggleAllIntegrity">
-                {{ allIntegritySelected ? 'Alle abwählen' : 'Alle auswählen' }}
+                {{ allIntegritySelected ? tr('Alle abwählen') : tr('Alle auswählen') }}
               </button>
             </div>
             <div style="border:0.5px solid var(--border);border-radius:10px;overflow:hidden">
@@ -38,7 +38,7 @@
                   <div style="font-size:13px;font-weight:600">{{ g.table.replace('plexora-','') }} <span style="color:var(--text-muted);font-weight:400">{{ tr('· Feld') }} {{ g.field }}</span></div>
                   <div style="font-size:11px;color:var(--text-muted);font-family:monospace;overflow:hidden;text-overflow:ellipsis">{{ g.legacyId }}</div>
                 </div>
-                <div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ g.count }} {{ g.count === 1 ? 'Datensatz' : 'Datensätze' }}</div>
+                <div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ g.count }} {{ g.count === 1 ? tr('Datensatz') : tr('Datensätze') }}</div>
                 <div style="display:flex;align-items:center;gap:6px;white-space:nowrap">
                   <i class="ti ti-arrow-right" style="color:var(--text-muted);font-size:12px"></i>
                   <span style="font-size:12px;font-weight:600;color:#00D4B4">{{ g.suggestedTarget }}</span>
@@ -58,7 +58,7 @@
                   <div style="font-size:13px;font-weight:600">{{ g.table.replace('plexora-','') }} <span style="color:var(--text-muted);font-weight:400">{{ tr('· Feld') }} {{ g.field }}</span></div>
                   <div style="font-size:11px;color:var(--text-muted);font-family:monospace">{{ g.legacyId }}</div>
                 </div>
-                <div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ g.count }} {{ g.count === 1 ? 'Datensatz' : 'Datensätze' }}</div>
+                <div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ g.count }} {{ g.count === 1 ? tr('Datensatz') : tr('Datensätze') }}</div>
                 <div style="font-size:11px;color:var(--text-muted)">{{ tr('Cognito-Nutzer nicht mehr auffindbar — manuelle Prüfung nötig') }}</div>
               </div>
             </div>
@@ -66,7 +66,7 @@
 
           <button v-if="integrityScanResult.resolvable.length" class="accent-btn" style="background:#E05C5C" :disabled="!integritySelected.size || integrityMigrating" @click="runIntegrityMigration">
             <i class="ti" :class="integrityMigrating ? 'ti-loader-2 spin' : 'ti-arrow-move-right'"></i>
-            {{ integrityMigrating ? 'Migriert...' : `Migration bestätigen & ausführen (${integritySelected.size})` }}
+            {{ integrityMigrating ? tr('Migriert...') : `Migration bestätigen & ausführen (${integritySelected.size})` }}
           </button>
 
           <div v-if="integrityResult" style="margin-top:16px;padding:14px;border-radius:10px;background:var(--bg-elevated);border:0.5px solid var(--border)">

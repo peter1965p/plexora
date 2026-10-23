@@ -26,7 +26,7 @@
         <div class="stat-value">{{ openTickets }}</div>
         <div class="stat-delta" :class="openTickets > 5 ? 'down' : 'up'">
           <i class="ti" :class="openTickets > 5 ? 'ti-alert-triangle' : 'ti-check'"></i>
-          {{ openTickets > 5 ? 'Handlungsbedarf' : 'Im Rahmen' }}
+          {{ openTickets > 5 ? tr('Handlungsbedarf') : tr('Im Rahmen') }}
         </div>
       </div>
     </div>
