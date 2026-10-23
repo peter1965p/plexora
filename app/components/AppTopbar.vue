@@ -99,8 +99,8 @@ const route  = useRoute()
 const router = useRouter()
 const { t, lang } = useLang()
 
-import { topicForPath } from '~~/shared/helpContent'
-const openHelp = () => { const tp = topicForPath(route.path); router.push(tp ? { path: '/help', query: { topic: tp.id } } : '/help') }
+import { topicForPath, localizeHelp } from '~~/shared/helpContent'
+const openHelp = () => { const tp = topicForPath(route.path, localizeHelp(lang.value).topics); router.push(tp ? { path: '/help', query: { topic: tp.id } } : '/help') }
 
 const title = computed(() => t.value.pageTitles[route.path] || 'Plexora')
 

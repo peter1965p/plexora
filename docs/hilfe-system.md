@@ -6,3 +6,7 @@
 - **Einführung:** `OnboardingTour.vue` startet beim ersten Besuch (Merker im Browser `plexora-tour-done`) und erneut über „Einführung starten“ auf der Hilfe-Seite.
 - **Pflege:** Neues Modul = neues Thema in `HELP_TOPICS`. `tests/help/content.test.ts` prüft, dass jeder Bereich aus `AREA_ROLES` ein Thema hat und alle Verweise auf vorhandene Seiten zeigen.
 - Nur Deutsch; Englisch ist noch offen.
+
+## Englisch (seit 23.10.2026)
+
+Deutsch ist die Quelle (`shared/helpContent.ts`), Englisch überlagert sie in `shared/helpContent.en.ts` (gleiche Themen-IDs, Gruppen, Tooltips, Einführung, Branchen-Pakete, Beschriftungen der Hilfe-Seite). `localizeHelp(lang)` liefert die gewählte Sprache; Hilfe-Seite, Tooltips, Einführung und „Hilfe zu dieser Seite" folgen dem Sprachumschalter. Neues Thema: deutsch ergänzen, dann in `EN_TOPICS` die englische Fassung (gleiche Anzahl Schritte, Tipps, Fragen), sonst schlägt `tests/help/content.test.ts` fehl.

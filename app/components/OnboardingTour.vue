@@ -5,12 +5,12 @@
         <div class="tour-icon"><i class="ti" :class="step.icon"></i></div>
         <h2 class="tour-title">{{ step.title }}</h2>
         <p class="tour-text">{{ step.text }}</p>
-        <div class="tour-dots"><span v-for="(_, i) in TOUR_STEPS" :key="i" :class="{ on: i === idx }"></span></div>
+        <div class="tour-dots"><span v-for="(_, i) in steps" :key="i" :class="{ on: i === idx }"></span></div>
         <div class="tour-actions">
-          <button class="icon-btn" style="width:auto;padding:0 12px" @click="finish">Überspringen</button>
+          <button class="icon-btn" style="width:auto;padding:0 12px" @click="finish">{{ ui.skip }}</button>
           <span style="flex:1"></span>
-          <button v-if="idx > 0" class="icon-btn" style="width:auto;padding:0 12px" @click="idx--">Zurück</button>
-          <button class="accent-btn" @click="next">{{ last ? 'Los geht’s' : 'Weiter' }}</button>
+          <button v-if="idx > 0" class="icon-btn" style="width:auto;padding:0 12px" @click="idx--">{{ ui.back }}</button>
+          <button class="accent-btn" @click="next">{{ last ? ui.go : ui.next }}</button>
         </div>
       </div>
     </div>
@@ -18,11 +18,15 @@
 </template>
 
 <script setup lang="ts">
-import { TOUR_STEPS } from '~~/shared/helpContent'
+import { localizeHelp } from '~~/shared/helpContent'
+import { HELP_UI } from '~~/shared/helpContent.en'
+const { lang } = useLang()
+const steps = computed(() => localizeHelp(lang.value).tour)
+const ui = computed(() => ({ ...HELP_UI[lang.value], go: lang.value === 'en' ? 'Let’s go' : 'Los geht’s' }))
 const KEY = 'plexora-tour-done'
 const open = ref(false), idx = ref(0)
-const step = computed(() => TOUR_STEPS[idx.value])
-const last = computed(() => idx.value === TOUR_STEPS.length - 1)
+const step = computed(() => steps.value[idx.value])
+const last = computed(() => idx.value === steps.value.length - 1)
 const store = () => { try { return localStorage } catch { return null } }
 const next = () => { if (last.value) finish(); else idx.value++ }
 function finish() { open.value = false; try { store()?.setItem(KEY, '1') } catch {} }

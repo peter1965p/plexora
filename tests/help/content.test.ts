@@ -60,3 +60,40 @@ describe('Hilfe-Inhalte', () => {
     expect(readFileSync('app/layouts/dashboard.vue', 'utf8')).toContain('<OnboardingTour')
   })
 })
+
+import { localizeHelp } from '../../shared/helpContent'
+import { EN_TOPICS, EN_TIPS, EN_TOUR, EN_KIT, EN_GROUPS, EN_ROLES } from '../../shared/helpContent.en'
+
+describe('Hilfe-Inhalte auf Englisch', () => {
+  it('jedes Thema, jede Gruppe, jeder Tooltip und jeder Einführungsschritt hat eine englische Fassung', () => {
+    for (const t of HELP_TOPICS) {
+      if (t.id.startsWith('kit-')) { expect(EN_KIT[t.id.slice(4)], t.id).toBeTruthy(); continue }
+      const en = EN_TOPICS[t.id]
+      expect(en, t.id).toBeTruthy()
+      expect(en.steps.length, t.id).toBe(t.steps.length)
+      expect((en.tips || []).length, t.id).toBe((t.tips || []).length)
+      expect((en.faq || []).length, t.id).toBe((t.faq || []).length)
+    }
+    for (const g of HELP_GROUPS) expect(EN_GROUPS[g.id], g.id).toBeTruthy()
+    for (const k of Object.keys(HELP_TIPS)) expect(EN_TIPS[k], k).toBeTruthy()
+    expect(EN_TOUR.length).toBe(TOUR_STEPS.length)
+    for (const r of ['Mitglied', 'Admin', 'Inhaber']) expect(EN_ROLES[r]).toBeTruthy()
+  })
+  it('es gibt keine Themen ohne Entsprechung im Deutschen', () => { for (const id of Object.keys(EN_TOPICS)) expect(HELP_TOPICS.some(t => t.id === id), id).toBe(true) })
+  it('localizeHelp liefert Englisch bzw. unverändert Deutsch', () => {
+    const en = localizeHelp('en'), de = localizeHelp('de')
+    expect(en.topics.length).toBe(de.topics.length)
+    expect(en.topics.find(t => t.id === 'crm')!.title).toBe('CRM: customers and contacts')
+    expect(de.topics.find(t => t.id === 'crm')!.title).toBe('CRM: Kunden und Kontakte')
+    expect(en.topics.find(t => t.id === 'finanzen')!.roleLabel).toBe('Admin')
+    expect(en.topics.find(t => t.id === 'rollen')!.route).toBe('/team')
+  })
+  it('die englische Suche findet englische Wörter', () => {
+    const en = localizeHelp('en').topics
+    expect(searchHelp('invoice', en).length).toBeGreaterThan(0)
+    expect(searchHelp('gantt', en)[0].id).toBe('planer')
+  })
+  it('Englisch enthält keine deutschen Restwörter in den Titeln', () => {
+    for (const t of localizeHelp('en').topics) expect(/\b(und|Rechnung|Kunden|Einstellungen)\b/.test(t.title), t.id).toBe(false)
+  })
+})

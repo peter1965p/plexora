@@ -6,9 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import { HELP_TIPS } from '~~/shared/helpContent'
+import { localizeHelp } from '~~/shared/helpContent'
+const { lang } = useLang()
 const props = defineProps<{ k: string }>()
-const text = computed(() => HELP_TIPS[props.k] || '')
+const text = computed(() => localizeHelp(lang.value).tips[props.k] || '')
 </script>
 
 <style scoped>

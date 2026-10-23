@@ -1,5 +1,6 @@
 // Hilfe-Inhalte für Plexora und Nexora: reine Daten, ohne Netz und Oberfläche. Die Hilfe-Seite, die Tooltips und die Einführung lesen alle hieraus.
 import { KIT_PACKAGES, KIT_ROUTE } from './branchKit'
+import { EN_GROUPS, EN_ROLES, EN_TOPICS, EN_KIT, EN_KIT_FIRST_STEP, EN_KIT_TIPS, EN_TIPS, EN_TOUR } from './helpContent.en'
 // Regel: nur beschreiben, was es wirklich gibt. Bei neuen Modulen hier ein Thema ergänzen (der Test tests/help/content.test.ts prüft die Abdeckung).
 export interface HelpFaq { q: string; a: string }
 export interface HelpTopic {
@@ -375,4 +376,22 @@ export function topicForPath(path: string, topics: HelpTopic[] = HELP_TOPICS): H
     if ((p === r || p.startsWith(r + '/')) && r.length > bestLen) { best = t; bestLen = r.length }
   }
   return best
+}
+
+export type HelpLang = 'de' | 'en'
+export interface LocalizedHelp { groups: Array<{ id: string; title: string; icon: string }>; topics: Array<HelpTopic & { roleLabel?: string }>; tips: Record<string, string>; tour: TourStep[] }
+
+/** Hilfe-Inhalte in der gewählten Sprache. Deutsch ist die Quelle, Englisch überlagert sie (gleiche IDs). */
+export function localizeHelp(lang: HelpLang): LocalizedHelp {
+  if (lang !== 'en') return { groups: [...HELP_GROUPS], topics: HELP_TOPICS.map(t => ({ ...t, roleLabel: t.role })), tips: HELP_TIPS, tour: TOUR_STEPS }
+  const topics = HELP_TOPICS.map(t => {
+    const kit = t.id.startsWith('kit-') ? EN_KIT[t.id.slice(4)] : undefined
+    const en = kit ? { title: kit.name, summary: kit.desc, steps: [EN_KIT_FIRST_STEP, ...kit.steps], tips: EN_KIT_TIPS } : EN_TOPICS[t.id]
+    return { ...t, ...(en || {}), roleLabel: t.role ? EN_ROLES[t.role] : undefined }
+  })
+  return {
+    groups: HELP_GROUPS.map(g => ({ ...g, title: EN_GROUPS[g.id] || g.title })),
+    topics, tips: { ...HELP_TIPS, ...EN_TIPS },
+    tour: TOUR_STEPS.map((s, i) => ({ ...s, ...(EN_TOUR[i] || {}) })),
+  }
 }
